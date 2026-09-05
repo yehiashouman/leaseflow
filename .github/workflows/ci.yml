@@ -29,6 +29,11 @@ jobs:
       - run: npm run build
       - run: npm audit --audit-level=high
       - run: npx prisma validate --schema api/prisma/schema.prisma
+      - name: Validate Docker Compose configuration
+        run: |
+          cp .env.example .env
+          cp api/.env.example api/.env
+          docker compose config -q
   containers:
     runs-on: ubuntu-latest
     permissions: {contents: read, packages: write}

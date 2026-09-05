@@ -1,4 +1,4 @@
-.PHONY: init up down logs test build migrate
+.PHONY: init up down logs test build migrate demo demo-reset
 init:
 	cp .env.example .env
 	cp api/.env.example api/.env
@@ -15,3 +15,7 @@ build:
 	npm ci && npm run build
 migrate:
 	docker compose run --rm migrate
+demo:
+	@bash scripts/demo.sh up
+demo-reset:
+	@bash scripts/demo.sh reset
