@@ -16,12 +16,14 @@
   "devDependencies": {
     "deepmerge-ts": "^8.0.2",
     "prettier": "^3.6.2",
-    "prisma": "^6.12.0"
+    "prisma": "^7.10.0"
   },
   "engines": {
     "node": ">=22"
   },
   "overrides": {
-    "deepmerge-ts": "$deepmerge-ts"
+    "deepmerge-ts": "$deepmerge-ts",
+    "mysql2": "^3.24.3",
+    "mariadb": "^3.5.4"
   }
 }
