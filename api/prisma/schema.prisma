@@ -1,0 +1,377 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LEASING_MANAGER
+  TENANT
+}
+
+enum UserStatus {
+  PENDING_EMAIL
+  PENDING_PHONE
+  PENDING_APPROVAL
+  ACTIVE
+  REJECTED
+  SUSPENDED
+}
+
+enum SpaceType {
+  ROOM
+  MASTER_ROOM
+  BED_SPACE
+  PARTITION
+}
+
+enum SpaceStatus {
+  AVAILABLE
+  OCCUPIED
+  PARTIAL
+  MAINTENANCE
+  INACTIVE
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  TRANSFER_PENDING
+  MOVE_OUT_PENDING
+  CLOSED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UPCOMING
+  DUE
+  PARTIALLY_PAID
+  PAID
+  LATE
+  ADJUSTED
+  DISPUTED
+}
+
+enum RequestType {
+  MAINTENANCE
+  NEIGHBOR_COMPLAINT
+  LATE_PAYMENT
+  ROOM_CHANGE
+  MOVE_OUT
+  KEY_LOCK_CHANGE
+  GENERAL
+}
+
+enum RequestStatus {
+  DRAFT
+  SUBMITTED
+  SEEN
+  AWAITING_MANAGER
+  AWAITING_TENANT
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  RESOLVED
+  ACCEPTED
+  REOPENED
+  DEADLOCK
+  CLOSED
+}
+
+enum DepositEntryType {
+  RECEIVED
+  DEDUCTION_PROPOSED
+  DEDUCTION_ACCEPTED
+  DEDUCTION_REJECTED
+  REFUND
+  ADJUSTMENT
+}
+
+enum ExpenseCategory {
+  OWNER_RENT
+  ELECTRICITY
+  WATER
+  COOLING
+  INTERNET
+  MAINTENANCE
+  CLEANING
+  FURNISHING
+  LICENSE_FEE
+  OTHER
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  passwordHash String
+  phone String? @unique
+  role Role
+  status UserStatus @default(PENDING_EMAIL)
+  preferredLanguage String @default("en")
+  notifyEmail Boolean @default(true)
+  notifyWhatsapp Boolean @default(true)
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  leasingManager LeasingManagerProfile?
+  tenant TenantProfile?
+  refreshTokens RefreshToken[]
+  auditEvents AuditEvent[] @relation("AuditActor")
+}
+
+model LeasingManagerProfile {
+  id String @id @default(cuid())
+  userId String @unique
+  fullName String
+  dateOfBirth DateTime?
+  nationality String?
+  emiratesIdNumber String?
+  emiratesIdExpiry DateTime?
+  licenseNumber String?
+  licenseType String?
+  licenseIssuer String?
+  licenseExpiry DateTime?
+  declarationAcceptedAt DateTime?
+  user User @relation(fields: [userId], references: [id])
+  landlords Landlord[]
+  units Unit[]
+  tenants TenantProfile[]
+  expenses Expense[]
+}
+
+model TenantProfile {
+  id String @id @default(cuid())
+  userId String @unique
+  managerId String
+  fullName String
+  dateOfBirth DateTime?
+  nationality String?
+  gender String?
+  emiratesIdNumber String?
+  emiratesIdExpiry DateTime?
+  matchingPreferences Json?
+  lateRequestWindowDays Int @default(10)
+  maxLateExtensionDays Int @default(5)
+  defaultNoticeDays Int @default(30)
+  user User @relation(fields: [userId], references: [id])
+  manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
+  contracts Contract[]
+}
+
+model Landlord {
+  id String @id @default(cuid())
+  managerId String
+  name String
+  companyName String?
+  email String?
+  phone String?
+  whatsapp String?
+  address String?
+  notes String? @db.Text
+  manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
+  units Unit[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([managerId])
+}
+
+model Unit {
+  id String @id @default(cuid())
+  managerId String
+  landlordId String?
+  name String
+  building String?
+  street String?
+  area String
+  emirate String @default("Dubai")
+  latitude Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
+  ownerMonthlyRent Decimal? @db.Decimal(12, 2)
+  currency String @default("AED")
+  defaultDeposit Decimal @default(0) @db.Decimal(12, 2)
+  amenities Json?
+  active Boolean @default(false)
+  declarationAcceptedAt DateTime?
+  manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
+  landlord Landlord? @relation(fields: [landlordId], references: [id])
+  spaces RentalSpace[]
+  expenses Expense[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([managerId, active])
+  @@index([landlordId])
+}
+
+model RentalSpace {
+  id String @id @default(cuid())
+  unitId String
+  name String
+  type SpaceType
+  status SpaceStatus @default(AVAILABLE)
+  capacity Int @default(1)
+  askingRent Decimal? @db.Decimal(12, 2)
+  amenities Json?
+  enabled Boolean @default(true)
+  unit Unit @relation(fields: [unitId], references: [id])
+  contracts Contract[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([unitId, status])
+}
+
+model Contract {
+  id String @id @default(cuid())
+  tenantId String
+  rentalSpaceId String
+  status ContractStatus @default(DRAFT)
+  startDate DateTime
+  endDate DateTime?
+  monthlyRent Decimal @db.Decimal(12, 2)
+  currency String @default("AED")
+  dueDay Int @default(1)
+  noticeDays Int @default(30)
+  depositAmount Decimal @default(0) @db.Decimal(12, 2)
+  secondaryOccupant Json?
+  tenant TenantProfile @relation(fields: [tenantId], references: [id])
+  rentalSpace RentalSpace @relation(fields: [rentalSpaceId], references: [id])
+  payments Payment[]
+  requests Request[]
+  depositEntries DepositEntry[]
+  amendments ContractAmendment[]
+  reviews ContractReview[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([tenantId, status])
+  @@index([rentalSpaceId, status])
+}
+
+model ContractAmendment {
+  id String @id @default(cuid())
+  contractId String
+  effectiveDate DateTime
+  changes Json
+  reason String?
+  contract Contract @relation(fields: [contractId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model ContractReview {
+  id String @id @default(cuid())
+  contractId String
+  dueAt DateTime
+  reviewedAt DateTime?
+  decision String?
+  notes String? @db.Text
+  contract Contract @relation(fields: [contractId], references: [id])
+  @@index([dueAt, reviewedAt])
+}
+
+model Payment {
+  id String @id @default(cuid())
+  contractId String
+  periodStart DateTime
+  dueDate DateTime
+  amountDue Decimal @db.Decimal(12, 2)
+  amountPaid Decimal @default(0) @db.Decimal(12, 2)
+  currency String @default("AED")
+  exchangeRateToAed Decimal? @db.Decimal(18, 8)
+  paidAt DateTime?
+  method String?
+  reference String?
+  evidenceKey String?
+  status PaymentStatus @default(UPCOMING)
+  contract Contract @relation(fields: [contractId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([contractId, periodStart])
+  @@index([dueDate, status])
+}
+
+model DepositEntry {
+  id String @id @default(cuid())
+  contractId String
+  type DepositEntryType
+  amount Decimal @db.Decimal(12, 2)
+  description String?
+  evidenceKey String?
+  tenantAcceptedAt DateTime?
+  tenantDisputedAt DateTime?
+  contract Contract @relation(fields: [contractId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Request {
+  id String @id @default(cuid())
+  contractId String
+  type RequestType
+  status RequestStatus @default(SUBMITTED)
+  title String
+  description String @db.Text
+  metadata Json?
+  decisionDueAt DateTime?
+  resolvedAt DateTime?
+  contract Contract @relation(fields: [contractId], references: [id])
+  events RequestEvent[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([contractId, status])
+  @@index([decisionDueAt, status])
+}
+
+model RequestEvent {
+  id String @id @default(cuid())
+  requestId String
+  actorUserId String?
+  kind String
+  message String? @db.Text
+  metadata Json?
+  request Request @relation(fields: [requestId], references: [id])
+  createdAt DateTime @default(now())
+  @@index([requestId, createdAt])
+}
+
+model Expense {
+  id String @id @default(cuid())
+  managerId String
+  unitId String?
+  category ExpenseCategory
+  amount Decimal @db.Decimal(12, 2)
+  currency String @default("AED")
+  exchangeRateToAed Decimal? @db.Decimal(18, 8)
+  incurredAt DateTime
+  description String?
+  evidenceKey String?
+  manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
+  unit Unit? @relation(fields: [unitId], references: [id])
+  @@index([managerId, incurredAt])
+}
+
+model RefreshToken {
+  id String @id @default(cuid())
+  userId String
+  tokenHash String @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  user User @relation(fields: [userId], references: [id])
+  @@index([userId, expiresAt])
+}
+
+model AuditEvent {
+  id String @id @default(cuid())
+  actorUserId String?
+  action String
+  entityType String
+  entityId String?
+  oldValue Json?
+  newValue Json?
+  ip String?
+  userAgent String?
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
+  createdAt DateTime @default(now())
+  @@index([entityType, entityId, createdAt])
+}

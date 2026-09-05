@@ -1,0 +1,26 @@
+{
+  "name": "leaseflow",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "build": "npm run build -w api && npm run build -w web",
+    "test": "npm run test -w api && npm run test -w web",
+    "lint": "npm run lint -w api && npm run lint -w web",
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "deepmerge-ts": "^8.0.2",
+    "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "deepmerge-ts": "$deepmerge-ts"
+  }
+}

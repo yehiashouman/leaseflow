@@ -1,0 +1,55 @@
+name: leaseflow
+services:
+  mysql:
+    image: mysql:8.4.6
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-leaseflow}
+      MYSQL_USER: ${MYSQL_USER:-leaseflow}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-leaseflow-local}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-local-only}
+    volumes: [mysql-data:/var/lib/mysql]
+    healthcheck: {test: [CMD-SHELL, "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD"], interval: 10s, timeout: 5s, retries: 10}
+    networks: [backend]
+  redis:
+    image: redis:8.2.1-alpine
+    restart: unless-stopped
+    command: [redis-server, --appendonly, "yes", --requirepass, "${REDIS_PASSWORD:-redis-local}"]
+    volumes: [redis-data:/data]
+    healthcheck: {test: [CMD, redis-cli, -a, "${REDIS_PASSWORD:-redis-local}", ping], interval: 10s, timeout: 3s, retries: 10}
+    networks: [backend]
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    restart: unless-stopped
+    command: server /data --console-address :9001
+    environment: {MINIO_ROOT_USER: "${MINIO_ROOT_USER:-minioadmin}", MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minio-local-secret}"}
+    volumes: [minio-data:/data]
+    networks: [backend]
+  migrate:
+    build: {context: ., dockerfile: api/Dockerfile, target: build}
+    command: [npx, prisma, migrate, deploy, --schema, api/prisma/schema.prisma]
+    environment:
+      DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
+    depends_on: {mysql: {condition: service_healthy}}
+    networks: [backend]
+    restart: "no"
+  api:
+    build: {context: ., dockerfile: api/Dockerfile}
+    restart: unless-stopped
+    env_file: [./api/.env]
+    environment:
+      DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis-local}@redis:6379
+    depends_on: {mysql: {condition: service_healthy}, redis: {condition: service_healthy}, migrate: {condition: service_completed_successfully}}
+    healthcheck: {test: [CMD, wget, -q, -O-, http://127.0.0.1:3000/health/live], interval: 20s, timeout: 3s, retries: 5, start_period: 20s}
+    networks: [backend, frontend]
+    security_opt: [no-new-privileges:true]
+  web:
+    build: {context: ., dockerfile: web/Dockerfile, args: {VITE_API_URL: /api/v1}}
+    restart: unless-stopped
+    ports: ["${WEB_PORT:-8080}:8080"]
+    depends_on: {api: {condition: service_healthy}}
+    networks: [frontend]
+    security_opt: [no-new-privileges:true]
+volumes: {mysql-data: {}, redis-data: {}, minio-data: {}}
+networks: {backend: {internal: true}, frontend: {}}
