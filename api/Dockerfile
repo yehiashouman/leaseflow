@@ -7,7 +7,8 @@ RUN npm ci
 
 FROM deps AS build
 COPY api ./api
-RUN npm run prisma:generate -w api && npm run build -w api
+RUN DATABASE_URL="mysql://leaseflow:leaseflow@127.0.0.1:3306/leaseflow_build" npm run prisma:generate -w api \
+    && npm run build -w api
 
 FROM node:22.19.0-alpine AS runtime
 ENV NODE_ENV=production
