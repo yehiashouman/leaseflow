@@ -71,7 +71,7 @@ ensure_env_files() {
     echo "Generated development JWT secrets and CORS origins in api/.env (DEMO_MODE=true)"
   else
     echo "api/.env already exists, leaving it untouched"
-    if [ -n "$(codespaces_origins)" ] && ! grep -q "app.github.dev\|github.dev" api/.env; then
+    if [ -n "$(codespaces_origins)" ] && ! grep -qE "app\.github\.dev|github\.dev" api/.env; then
       warn "api/.env exists but does not appear to include Codespaces CORS origins."
       warn "Codespaces origins are allowed automatically in development/test, so no edit is required."
     fi
