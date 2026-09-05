@@ -10,7 +10,7 @@
   "portsAttributes": {
     "8080": {
       "label": "LeaseFlow",
-      "protocol": "https",
+      "protocol": "http",
       "onAutoForward": "openBrowser"
     },
     "3000": {
