@@ -25,7 +25,8 @@ random_secret() {
 codespaces_origins() {
   if [ -n "${CODESPACE_NAME:-}" ]; then
     local domain="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
-    echo "https://${CODESPACE_NAME}-8080.${domain},https://${CODESPACE_NAME}.github.dev"
+    local editor_domain="${domain#app.}"
+    echo "https://${CODESPACE_NAME}-8080.${domain},https://${CODESPACE_NAME}.${editor_domain}"
   fi
 }
 

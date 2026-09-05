@@ -11,8 +11,11 @@ if (DEMO_MODE && NODE_ENV === 'production') {
   throw new Error('Refusing to seed: DEMO_MODE=true is not allowed when NODE_ENV=production.');
 }
 
-const DEMO_ADMIN_EMAIL = 'admin@leaseflow.local';
-const DEMO_ADMIN_PASSWORD = 'Admin123456!';
+// Documented development-only defaults; operators can override either value
+// via the environment (e.g. to use a different demo password per machine)
+// without changing code. These are never used when DEMO_MODE is not enabled.
+const DEMO_ADMIN_EMAIL = process.env.DEMO_ADMIN_EMAIL?.trim().toLowerCase() || 'admin@leaseflow.local';
+const DEMO_ADMIN_PASSWORD = process.env.DEMO_ADMIN_PASSWORD || 'Admin123456!';
 
 const adapter = new PrismaMariaDb(process.env.DATABASE_URL);
 const prisma = new PrismaClient({ adapter });
