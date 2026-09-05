@@ -1,4 +1,4 @@
-FROM node:22.19.0-alpine AS deps
+FROM node:26.8.1-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
 COPY api/package.json ./api/package.json
@@ -10,7 +10,7 @@ COPY api ./api
 RUN DATABASE_URL="mysql://leaseflow:leaseflow@127.0.0.1:3306/leaseflow_build" npm run prisma:generate -w api \
     && npm run build -w api
 
-FROM node:22.19.0-alpine AS runtime
+FROM node:26.8.1-alpine AS runtime
 ENV NODE_ENV=production
 RUN addgroup -S leaseflow && adduser -S leaseflow -G leaseflow
 WORKDIR /app
