@@ -27,10 +27,24 @@ services:
     networks: [backend]
   migrate:
     build: {context: ., dockerfile: api/Dockerfile, target: build}
-    command: [npx, prisma, migrate, deploy, --schema, api/prisma/schema.prisma]
+    working_dir: /app
+    command: [npx, prisma, migrate, deploy, --config, api/prisma.config.ts]
     environment:
       DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
     depends_on: {mysql: {condition: service_healthy}}
+    networks: [backend]
+    restart: "no"
+  demo-seed:
+    build: {context: ., dockerfile: api/Dockerfile, target: build}
+    working_dir: /app
+    command: [npx, tsx, api/prisma/seed.ts]
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO_MODE: "${DEMO_MODE:-false}"
+      DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    depends_on: {migrate: {condition: service_completed_successfully}}
     networks: [backend]
     restart: "no"
   api:
@@ -40,7 +54,7 @@ services:
     environment:
       DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis-local}@redis:6379
-    depends_on: {mysql: {condition: service_healthy}, redis: {condition: service_healthy}, migrate: {condition: service_completed_successfully}}
+    depends_on: {mysql: {condition: service_healthy}, redis: {condition: service_healthy}, migrate: {condition: service_completed_successfully}, demo-seed: {condition: service_completed_successfully}}
     healthcheck: {test: [CMD, wget, -q, -O-, http://127.0.0.1:3000/health/live], interval: 20s, timeout: 3s, retries: 5, start_period: 20s}
     networks: [backend, frontend]
     security_opt: [no-new-privileges:true]
