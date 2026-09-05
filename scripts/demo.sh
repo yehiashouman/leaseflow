@@ -15,9 +15,15 @@ log() { printf '\n\033[1;36m==> %s\033[0m\n' "$1"; }
 warn() { printf '\033[1;33mWARNING: %s\033[0m\n' "$1"; }
 
 random_secret() {
-  # 48 random bytes, base64-encoded and stripped of characters that could
-  # break shell/.env parsing, comfortably over the 32-character minimum.
-  openssl rand -base64 48 2>/dev/null | tr -dc 'A-Za-z0-9' | head -c 64
+  # Generate a secret that is guaranteed to be at least 64 alphanumeric
+  # characters (comfortably over the 32-character minimum), regenerating
+  # additional random bytes if filtering out non-alphanumeric characters
+  # from the base64 encoding leaves the string too short.
+  local secret=""
+  while [ "${#secret}" -lt 64 ]; do
+    secret="${secret}$(openssl rand -base64 96 2>/dev/null | tr -dc 'A-Za-z0-9')"
+  done
+  echo "${secret:0:64}"
 }
 
 # Detect the public Codespaces application/editor origins, if running in a
@@ -25,7 +31,10 @@ random_secret() {
 codespaces_origins() {
   if [ -n "${CODESPACE_NAME:-}" ]; then
     local domain="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
-    local editor_domain="${domain#app.}"
+    # The editor domain is not derivable from the port-forwarding domain by
+    # convention (GitHub Enterprise instances may use unrelated domains), so
+    # it is configured explicitly, defaulting to the public github.dev editor domain.
+    local editor_domain="${GITHUB_CODESPACES_EDITOR_DOMAIN:-github.dev}"
     echo "https://${CODESPACE_NAME}-8080.${domain},https://${CODESPACE_NAME}.${editor_domain}"
   fi
 }
