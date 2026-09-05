@@ -30,7 +30,7 @@ async function main() {
     console.log('ADMIN_EMAIL/ADMIN_PASSWORD (or DEMO_MODE) are not set; skipping administrator seed.');
     return;
   }
-  if (password.length < 12) throw new Error('Administrator password must contain at least 12 characters.');
+  if (password.length < 12) throw new Error(`${DEMO_MODE ? 'DEMO_ADMIN_PASSWORD' : 'ADMIN_PASSWORD'} must contain at least 12 characters.`);
 
   const passwordHash = await argon2.hash(password, { type: argon2.argon2id });
   const now = new Date();

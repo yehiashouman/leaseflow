@@ -72,4 +72,9 @@ describe('CORS', () => {
     const res = await app.inject({ method: 'GET', url: HEALTH_PATH, headers: { origin: spoofed } });
     expect(res.statusCode).toBe(403);
   });
+
+  it('rejects the bare github.dev root domain (no Codespace subdomain)', async () => {
+    const res = await app.inject({ method: 'GET', url: HEALTH_PATH, headers: { origin: 'https://github.dev' } });
+    expect(res.statusCode).toBe(403);
+  });
 });

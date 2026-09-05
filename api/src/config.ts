@@ -57,9 +57,10 @@ function isCodespacesOrigin(origin: string): boolean {
   }
   if (parsed.protocol !== 'https:') return false;
   const hostname = parsed.hostname.toLowerCase();
-  return codespacesWildcardHosts.some(
-    (suffix) => hostname === suffix.slice(1) || hostname.endsWith(suffix),
-  );
+  // Require a genuine subdomain (e.g. `<name>-8080.app.github.dev`); the bare
+  // `app.github.dev` / `github.dev` root domains are never valid Codespaces
+  // origins and must not match.
+  return codespacesWildcardHosts.some((suffix) => hostname.endsWith(suffix) && hostname !== suffix.slice(1));
 }
 
 const devLoopbackOrigins = new Set(['http://localhost:8080', 'http://127.0.0.1:8080']);
