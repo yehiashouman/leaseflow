@@ -1,7 +1,11 @@
 import argon2 from 'argon2';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL must be set to run the seed script.');
+
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
