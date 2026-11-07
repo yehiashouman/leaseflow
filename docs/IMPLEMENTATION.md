@@ -43,10 +43,10 @@ Do not mark a full checklist module complete from partial implementation evidenc
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
 - Previous GitHub run passes four normal-interface and two synthetic-preview desktop/mobile browser tests.
-- New room lifecycle browser assertions await the next GitHub run.
+- New room lifecycle browser assertions pass on GitHub desktop and mobile.
 - Local Chromium startup is restricted; local browser execution is not verified.
 - GitHub Pages is live; HTML and assets return HTTP 200.
-- Five new MySQL integration cases await CI execution after migrations.
+- All five new MySQL integration cases pass on GitHub after migrations.
 - CI follow-up fixes an ambiguous browser-test selector without removal of accessibility labels.
 - Dependency patches and Vitest 4.1.12 remove the reported high/critical audit findings.
 - Seven moderate development-tool advisories remain in the TypeScript ESLint/minimatch dependency chain.
@@ -59,5 +59,5 @@ Open contracts block room type changes and maintenance/inactive transitions.
 Capacity includes secondary occupants and cannot fall below committed occupancy.
 Contract admission and room edits share a database row lock.
 Contract, first obligation, occupancy status, and audit writes use one transaction.
-Real concurrency verification remains a CI gate until the MySQL suite passes.
+Real MySQL concurrency verification passes; CI retains this release gate.
 The public preview uses equivalent synthetic room controls with local persistence.

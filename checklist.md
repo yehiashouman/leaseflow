@@ -253,16 +253,16 @@ Requirements: 2.2, 4.3, 5.2, 14.1, 24.2.
 
 - [ ] **SPACE-001** Implement space list, detail, create, edit, status, and permitted archive actions.
 - [ ] **SPACE-002** Enable Room and Master Room.
-- [ ] **SPACE-003** Require private bathroom facilities for Master Room classification.
+- [x] **SPACE-003** Require private bathroom facilities for Master Room classification. [Evidence](docs/EVIDENCE.md#room-controls).
 - [ ] **SPACE-004** Retain Bed Space and Partition types as globally disabled future features.
 - [ ] **SPACE-005** Reject disabled-type activation, allocation, advertisement, and contracts in the API.
 - [ ] **SPACE-006** Show Future feature explanation through keyboard, touch, and hover-compatible help.
 - [ ] **SPACE-007** Capture internal name/number, type, capacity, and availability.
 - [ ] **SPACE-008** Capture photos, amenities, optional compatibility notes, and base asking rent.
 - [ ] **SPACE-009** Inherit unit deposit defaults for new contract proposals.
-- [ ] **SPACE-010** Support active, inactive, and maintenance status.
+- [x] **SPACE-010** Support active, inactive, and maintenance status. [Evidence](docs/EVIDENCE.md#room-controls).
 - [ ] **SPACE-011** Block new allocations to inactive or maintenance spaces.
-- [ ] **SPACE-012** Count primary and secondary occupants against physical capacity.
+- [x] **SPACE-012** Count primary and secondary occupants against physical capacity. [Evidence](docs/EVIDENCE.md#room-controls).
 - [ ] **SPACE-013** Verify capacity across every affected date.
 - [ ] **SPACE-014** Serialize concurrent reservations and transfers.
 - [ ] **SPACE-015** Preserve historical contracts when asking prices and defaults change.

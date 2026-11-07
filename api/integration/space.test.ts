@@ -139,9 +139,9 @@ describe('MySQL room persistence and concurrent contract admission', () => {
     );
   });
   it('counts secondary occupants and protects rent history', async () => {
-    expect(
-      (await contract({ secondaryOccupant: { fullName: 'Secondary Occupant' } })).statusCode,
-    ).toBe(201);
+    const response = await contract({ secondaryOccupant: { fullName: 'Secondary Occupant' } });
+    expect(response.statusCode).toBe(201);
+    expect(response.json().rentalSpace.status).toBe('OCCUPIED');
     expect((await contract()).statusCode).toBe(409);
     expect((await edit({ capacity: 1 })).statusCode).toBe(409);
     expect((await edit({ availability: 'MAINTENANCE' })).statusCode).toBe(409);

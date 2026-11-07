@@ -56,8 +56,25 @@ Environment: GitHub Actions, Node 22.
 Evidence: [successful CI validation](https://github.com/yehiashouman/leaseflow/actions/runs/42403917105).
 The test verifies startup rejection when NODE_ENV=production and DEMO_MODE=true.
 
+## Room Controls
+
+Commit: `f68ab7c2d60cc5570cff2f0832d44359b0b9a71c`.
+Environment: GitHub Actions, MySQL 8.4, Node 22; Chromium desktop and mobile.
+Evidence: [MySQL and API verification](https://github.com/yehiashouman/leaseflow/actions/runs/42409457688).
+Browser evidence: [room lifecycle verification](https://github.com/yehiashouman/leaseflow/actions/runs/42409457651).
+All five MySQL cases and both updated preview browser cases pass.
+
+| Item      | Code                                                                                    | Test or verification                                                                                                                          |
+| --------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPACE-003 | api/src/routes/inventory.ts; web/src/pages/UnitDetail.tsx                               | api/test/inventory-role.test.ts rejects missing Master Room bathrooms on create/edit; web/src/inventory.test.tsx preserves the bathroom field |
+| SPACE-010 | api/src/routes/inventory.ts; web/src/pages/UnitDetail.tsx                               | api/integration/space.test.ts persists maintenance/inactive/restore; web/e2e/preview.spec.ts verifies all states on desktop/mobile            |
+| SPACE-012 | api/src/space-availability.ts; api/src/routes/contracts.ts; api/src/routes/inventory.ts | api/integration/space.test.ts verifies secondary-occupant capacity and concurrent admission/edit; API tests verify conflicts                  |
+
+SPACE-012 does not certify date-specific reservations or transfers under SPACE-013 through SPACE-017.
+The complete rental-space module remains incomplete.
+
 ## Unverified Release Gates
 
-The new MySQL integration suite has no local execution evidence because this host lacks MySQL and Docker.
-CI must run migrations and execute api/integration/space.test.ts before database acceptance.
+This host lacks MySQL and Docker; GitHub executes the MySQL integration suite instead.
+CI passes migrations and all five cases in api/integration/space.test.ts.
 Real provider delivery, full release journeys, recovery, and production approval remain unverified.

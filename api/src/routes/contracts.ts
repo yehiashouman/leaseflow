@@ -85,7 +85,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
           status: 'DUE',
         },
       });
-      await tx.rentalSpace.update({
+      const updatedSpace = await tx.rentalSpace.update({
         where: { id: space.id },
         data: { status: occupiedStatus(occupants, space.capacity) },
       });
@@ -100,7 +100,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
           newValue: JSON.parse(JSON.stringify(created)),
         },
       });
-      return created;
+      return { ...created, rentalSpace: updatedSpace };
     });
     return reply.code(201).send(contract);
   });
