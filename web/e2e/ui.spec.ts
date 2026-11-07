@@ -88,7 +88,13 @@ test('login, responsive routes, theme, tables, and sign out', async ({ page }, t
       await page.getByRole('navigation').getByRole('link', { name: label, exact: true }).click();
     }
     await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible();
-    await expect(page.getByText(content, { exact: true })).toBeVisible();
+    const record =
+      label === 'Units'
+        ? page.getByRole('link', { name: content, exact: true })
+        : label === 'Contracts'
+          ? page.getByRole('cell', { name: content, exact: true })
+          : page.getByRole('heading', { name: content, exact: true });
+    await expect(record).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);

@@ -43,3 +43,7 @@ Do not mark a full checklist module complete from partial implementation evidenc
 - Desktop/mobile Playwright suites are configured for GitHub Actions.
 - Local Chromium startup is restricted; local browser execution is not verified.
 - GitHub Pages remains disabled until the repository owner enables it.
+- CI follow-up fixes an ambiguous browser-test selector without removal of accessibility labels.
+- Dependency patches and Vitest 4.1.12 remove the reported high/critical audit findings.
+- Seven moderate development-tool advisories remain in the TypeScript ESLint/minimatch dependency chain.
+- The high/critical audit gate stays enabled.
