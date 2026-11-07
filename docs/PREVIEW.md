@@ -7,7 +7,7 @@ It does not host the API, database, document storage, Twilio, or email services.
 It does not prove the entire application is complete.
 Do not enter personal data or real documents.
 
-Expected URL after GitHub enables Pages:
+Live URL; deployment verified on 7 November 2026:
 
 https://yehiashouman.github.io/leaseflow/
 
@@ -17,7 +17,9 @@ https://yehiashouman.github.io/leaseflow/
 - Inspect role-specific dashboards and navigation.
 - Create and edit synthetic landlords.
 - Create and edit draft units.
-- Inspect unit details and add Room or Master Room spaces.
+- Inspect unit details; add and edit Room or Master Room spaces.
+- Set vacant rooms to maintenance or inactive; restore them without deletion.
+- Verify occupied-room restrictions and preserved contract rent after base-price edits.
 - Inspect synthetic contracts and requests.
 - Reset synthetic data through the preview banner.
 

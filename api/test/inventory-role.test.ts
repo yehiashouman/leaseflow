@@ -7,10 +7,12 @@ const db = vi.hoisted(() => ({
   tenantProfile: { findFirst: vi.fn() },
   landlord: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
   unit: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
-  rentalSpace: { create: vi.fn(), findFirst: vi.fn() },
-  contract: { findMany: vi.fn() },
+  rentalSpace: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
+  contract: { findMany: vi.fn(), create: vi.fn() },
+  payment: { create: vi.fn() },
   auditEvent: { create: vi.fn() },
   $transaction: vi.fn(),
+  $queryRaw: vi.fn(),
   $disconnect: vi.fn(),
 }));
 vi.mock('../src/db.js', () => ({ prisma: db }));
@@ -36,6 +38,8 @@ describe('inventory writes and role dashboards', () => {
     db.leasingManagerProfile.findUniqueOrThrow.mockResolvedValue({ id: 'manager-1' });
     db.$transaction.mockImplementation((callback) => callback(db));
     db.auditEvent.create.mockResolvedValue({});
+    db.$queryRaw.mockResolvedValue([{ id: 'space-1' }]);
+    db.contract.findMany.mockResolvedValue([]);
   });
   function send(
     method: 'GET' | 'POST' | 'PATCH',
@@ -253,5 +257,151 @@ describe('inventory writes and role dashboards', () => {
         }),
       }),
     );
+  });
+  const roomEdit = {
+    name: 'Room A',
+    type: 'ROOM',
+    capacity: 2,
+    askingRent: 2500,
+    availability: 'ACTIVE',
+  };
+  it('edits room defaults with a row lock and old/new audit values', async () => {
+    const previous = { id: 'space-1', name: 'Old Room', type: 'ROOM', capacity: 2 };
+    db.rentalSpace.findFirst.mockResolvedValue(previous);
+    db.rentalSpace.update.mockResolvedValue({ ...previous, ...roomEdit });
+    expect((await send('PATCH', '/api/v1/inventory/spaces/space-1', roomEdit)).statusCode).toBe(
+      200,
+    );
+    expect(db.$queryRaw).toHaveBeenCalledOnce();
+    expect(db.rentalSpace.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'AVAILABLE', enabled: true }),
+      }),
+    );
+    expect(db.auditEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ oldValue: previous, entityType: 'RentalSpace' }),
+      }),
+    );
+    expect(db.contract.create).not.toHaveBeenCalled();
+  });
+  it('rejects foreign rooms before any update', async () => {
+    db.$queryRaw.mockResolvedValue([]);
+    expect((await send('PATCH', '/api/v1/inventory/spaces/foreign', roomEdit)).statusCode).toBe(
+      404,
+    );
+    expect(db.rentalSpace.update).not.toHaveBeenCalled();
+    expect(db.$queryRaw.mock.calls[0]?.slice(1)).toEqual(['foreign', 'manager-1']);
+  });
+  it('counts secondary occupants and preserves committed capacity', async () => {
+    db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', type: 'ROOM', capacity: 2 });
+    db.contract.findMany.mockResolvedValue([
+      { secondaryOccupant: { fullName: 'Second Occupant' } },
+    ]);
+    expect(
+      (await send('PATCH', '/api/v1/inventory/spaces/space-1', { ...roomEdit, capacity: 1 }))
+        .statusCode,
+    ).toBe(409);
+    expect(db.rentalSpace.update).not.toHaveBeenCalled();
+  });
+  it('blocks type and operational holds while contracts remain open', async () => {
+    db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', type: 'ROOM', capacity: 2 });
+    db.contract.findMany.mockResolvedValue([{ secondaryOccupant: null }]);
+    for (const availability of ['INACTIVE', 'MAINTENANCE'])
+      expect(
+        (await send('PATCH', '/api/v1/inventory/spaces/space-1', { ...roomEdit, availability }))
+          .statusCode,
+      ).toBe(409);
+    expect(
+      (
+        await send('PATCH', '/api/v1/inventory/spaces/space-1', {
+          ...roomEdit,
+          type: 'MASTER_ROOM',
+          amenities: { privateBathroom: true },
+        })
+      ).statusCode,
+    ).toBe(409);
+    expect(db.rentalSpace.update).not.toHaveBeenCalled();
+  });
+  it('supports vacant-room maintenance, inactivity, and restoration', async () => {
+    db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', type: 'ROOM', capacity: 2 });
+    db.rentalSpace.update.mockResolvedValue({ id: 'space-1' });
+    for (const [availability, enabled, status] of [
+      ['MAINTENANCE', true, 'MAINTENANCE'],
+      ['INACTIVE', false, 'INACTIVE'],
+      ['ACTIVE', true, 'AVAILABLE'],
+    ]) {
+      expect(
+        (await send('PATCH', '/api/v1/inventory/spaces/space-1', { ...roomEdit, availability }))
+          .statusCode,
+      ).toBe(200);
+      expect(db.rentalSpace.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ enabled, status }) }),
+      );
+    }
+  });
+  it('rejects room ownership/status injection, disabled types, and invalid master rooms', async () => {
+    for (const extra of [
+      { unitId: 'foreign' },
+      { status: 'AVAILABLE' },
+      { type: 'PARTITION' },
+      { type: 'MASTER_ROOM' },
+    ])
+      expect(
+        (await send('PATCH', '/api/v1/inventory/spaces/space-1', { ...roomEdit, ...extra }))
+          .statusCode,
+      ).toBe(422);
+    expect(db.rentalSpace.update).not.toHaveBeenCalled();
+  });
+  it('rejects room edits from tenants and administrators', async () => {
+    for (const role of ['TENANT', 'ADMIN'] as const) {
+      db.user.findUnique.mockResolvedValue({ status: 'ACTIVE', role });
+      expect(
+        (await send('PATCH', '/api/v1/inventory/spaces/space-1', roomEdit, role)).statusCode,
+      ).toBe(403);
+    }
+    expect(db.rentalSpace.update).not.toHaveBeenCalled();
+  });
+  it('counts both occupants before contract admission', async () => {
+    db.tenantProfile.findFirst.mockResolvedValue({ id: 'tenant-1' });
+    db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', capacity: 2 });
+    db.contract.findMany.mockResolvedValue([{ secondaryOccupant: null }]);
+    expect(
+      (
+        await send('POST', '/api/v1/contracts', {
+          tenantId: 'tenant-1',
+          rentalSpaceId: 'space-1',
+          startDate: '2026-11-01',
+          monthlyRent: 3000,
+          depositAmount: 3000,
+          secondaryOccupant: { fullName: 'Second Occupant' },
+        })
+      ).statusCode,
+    ).toBe(409);
+    expect(db.contract.create).not.toHaveBeenCalled();
+  });
+  it('writes the contract, first obligation, room status, and audit in one transaction', async () => {
+    db.tenantProfile.findFirst.mockResolvedValue({ id: 'tenant-1' });
+    db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', capacity: 2 });
+    db.contract.create.mockResolvedValue({ id: 'contract-1' });
+    expect(
+      (
+        await send('POST', '/api/v1/contracts', {
+          tenantId: 'tenant-1',
+          rentalSpaceId: 'space-1',
+          startDate: '2026-11-01',
+          monthlyRent: 3000,
+          depositAmount: 3000,
+        })
+      ).statusCode,
+    ).toBe(201);
+    expect(db.$transaction).toHaveBeenCalledOnce();
+    expect(db.$queryRaw).toHaveBeenCalledOnce();
+    expect(db.payment.create).toHaveBeenCalledOnce();
+    expect(db.rentalSpace.update).toHaveBeenCalledWith({
+      where: { id: 'space-1' },
+      data: { status: 'PARTIAL' },
+    });
+    expect(db.auditEvent.create).toHaveBeenCalledOnce();
   });
 });

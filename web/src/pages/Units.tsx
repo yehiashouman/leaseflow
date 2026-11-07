@@ -37,6 +37,8 @@ export type Unit = {
     capacity?: number;
     askingRent?: string | number;
     status?: string;
+    enabled?: boolean;
+    amenities?: Record<string, unknown>;
   }[];
   active: boolean;
 };

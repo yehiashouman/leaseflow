@@ -19,7 +19,7 @@ import type { Unit } from './Units';
 export function UnitDetail() {
   const { id } = useParams();
   const client = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [editor, setEditor] = useState<Unit['spaces'][number] | 'new' | null>(null);
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['unit', id],
     queryFn: () => api.get<Unit>('/inventory/units/' + id).then((response) => response.data),
@@ -60,7 +60,7 @@ export function UnitDetail() {
       </dl>
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Rental spaces</h2>
-        <Button onClick={() => setOpen(true)}>Add room</Button>
+        <Button onClick={() => setEditor('new')}>Add room</Button>
       </div>
       <Table>
         <TableHeader>
@@ -70,6 +70,7 @@ export function UnitDetail() {
             <TableHead>Capacity</TableHead>
             <TableHead>Asking rent</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,22 +85,30 @@ export function UnitDetail() {
               <TableCell>
                 <Badge variant="secondary">{space.status}</Badge>
               </TableCell>
+              <TableCell>
+                <Button variant="ghost" size="sm" onClick={() => setEditor(space)}>
+                  Edit<span className="sr-only"> {space.name}</span>
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
           {!data.spaces.length && (
             <TableRow>
-              <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+              <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                 No rooms yet
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
-      {open && (
+      {editor && (
         <RecordEditor
+          key={editor === 'new' ? 'new' : editor.id}
           open
-          onOpenChange={setOpen}
-          title="Add room"
+          onOpenChange={(open) => {
+            if (!open) setEditor(null);
+          }}
+          title={editor === 'new' ? 'Add room' : 'Edit room'}
           fields={[
             { name: 'name', label: 'Room name', required: true },
             {
@@ -122,15 +131,49 @@ export function UnitDetail() {
             },
             { name: 'askingRent', label: 'Asking rent', type: 'number', min: 0, step: '0.01' },
             { name: 'privateBathroom', label: 'Private bathroom', type: 'checkbox' },
-          ]}
+            ...(editor === 'new'
+              ? []
+              : [
+                  {
+                    name: 'availability',
+                    label: 'Availability',
+                    value:
+                      editor.status === 'MAINTENANCE' || editor.status === 'INACTIVE'
+                        ? editor.status
+                        : 'ACTIVE',
+                    options: [
+                      { value: 'ACTIVE', label: 'Active' },
+                      { value: 'MAINTENANCE', label: 'Maintenance' },
+                      { value: 'INACTIVE', label: 'Inactive' },
+                    ],
+                  },
+                ]),
+          ].map((field) => ({
+            ...field,
+            value:
+              editor === 'new' || field.name === 'availability'
+                ? field.value
+                : field.name === 'privateBathroom'
+                  ? String(editor.amenities?.privateBathroom === true)
+                  : String(editor[field.name as keyof typeof editor] ?? field.value ?? ''),
+          }))}
           onSave={async (form) => {
-            await api.post('/inventory/units/' + id + '/spaces', {
+            const body = {
               name: form.get('name'),
               type: form.get('type'),
               capacity: Number(form.get('capacity')),
               askingRent: form.get('askingRent') || null,
-              amenities: { privateBathroom: form.has('privateBathroom') },
-            });
+              amenities: {
+                ...(editor === 'new' ? {} : editor.amenities),
+                privateBathroom: form.has('privateBathroom'),
+              },
+            };
+            if (editor === 'new') await api.post('/inventory/units/' + id + '/spaces', body);
+            else
+              await api.patch('/inventory/spaces/' + editor.id, {
+                ...body,
+                availability: form.get('availability'),
+              });
             await client.invalidateQueries({ queryKey: ['unit', id] });
             await client.invalidateQueries({ queryKey: ['units'] });
             await client.invalidateQueries({ queryKey: ['dashboard'] });

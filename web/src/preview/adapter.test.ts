@@ -63,4 +63,47 @@ describe('isolated preview data', () => {
     expect(sessionStorage.getItem('accessToken')).toBe('real-session-example');
     expect(localStorage.getItem('unrelated')).toBe('retain');
   });
+  it('persists vacant room edits, maintenance, inactivity, and restoration', async () => {
+    const created = await client.post('/inventory/units/unit-1/spaces', {
+      name: 'Room B',
+      type: 'ROOM',
+      capacity: 1,
+    });
+    for (const availability of ['MAINTENANCE', 'INACTIVE', 'ACTIVE']) {
+      const result = await client.patch('/inventory/spaces/' + created.data.id, {
+        name: 'Room Beta',
+        type: 'ROOM',
+        capacity: 2,
+        askingRent: '2500',
+        availability,
+      });
+      expect(result.data.status).toBe(availability === 'ACTIVE' ? 'AVAILABLE' : availability);
+      expect(result.data.enabled).toBe(availability !== 'INACTIVE');
+    }
+    const detail = await client.get('/inventory/units/unit-1');
+    expect(
+      detail.data.spaces.find((space: { id: string }) => space.id === created.data.id).name,
+    ).toBe('Room Beta');
+  });
+  it('rejects occupied-room holds and preserves contract rent after a price edit', async () => {
+    const body = {
+      name: 'Master Room',
+      type: 'MASTER_ROOM',
+      capacity: 2,
+      askingRent: 4000,
+      amenities: { privateBathroom: true },
+    };
+    await expect(
+      client.patch('/inventory/spaces/space-1', { ...body, availability: 'MAINTENANCE' }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+    await client.patch('/inventory/spaces/space-1', { ...body, availability: 'ACTIVE' });
+    expect((await client.get('/contracts')).data[0].monthlyRent).toBe('3500');
+    const tenant = axios.create({
+      adapter: previewAdapter,
+      headers: { Authorization: 'Bearer preview:TENANT' },
+    });
+    await expect(
+      tenant.patch('/inventory/spaces/space-1', { ...body, availability: 'ACTIVE' }),
+    ).rejects.toMatchObject({ response: { status: 403 } });
+  });
 });

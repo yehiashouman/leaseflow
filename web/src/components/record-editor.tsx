@@ -110,6 +110,7 @@ export function RecordEditor({
                   id={'editor-' + field.name}
                   name={field.name}
                   type="checkbox"
+                  defaultChecked={field.value === 'true' || field.value === 1}
                   required={field.required}
                   className="size-4 accent-primary"
                 />

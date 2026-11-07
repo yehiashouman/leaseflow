@@ -3,6 +3,12 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import {
+  lockOwnedSpace,
+  occupantCount,
+  occupiedStatus,
+  openContractStatuses,
+} from '../space-availability.js';
 
 const text = (max: number) => z.string().trim().max(max).nullable().optional();
 const money = z.coerce
@@ -46,6 +52,11 @@ export const spaceSchema = z
     capacity: z.number().int().min(1).max(10),
     askingRent: money.nullable().optional(),
     amenities: z.record(z.string(), z.json()).optional(),
+  })
+  .strict();
+export const spaceUpdateSchema = spaceSchema
+  .extend({
+    availability: z.enum(['ACTIVE', 'INACTIVE', 'MAINTENANCE']),
   })
   .strict();
 
@@ -182,5 +193,45 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       return created;
     });
     return reply.code(201).send(item);
+  });
+  app.patch('/spaces/:id', { preHandler: managerOnly }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1) }).parse(request.params);
+    const { availability, ...body } = spaceUpdateSchema.parse(request.body);
+    if (!['ROOM', 'MASTER_ROOM'].includes(body.type))
+      throw app.httpErrors.unprocessableEntity(
+        'Future feature: this accommodation type is disabled',
+      );
+    if (body.type === 'MASTER_ROOM' && body.amenities?.privateBathroom !== true)
+      throw app.httpErrors.unprocessableEntity('Master Room requires a private bathroom');
+    const owner = await managerId(request.user.sub);
+    return prisma.$transaction(async (tx) => {
+      if (!(await lockOwnedSpace(tx, id, owner))) throw app.httpErrors.notFound('Room not found');
+      const existing = await tx.rentalSpace.findFirst({
+        where: { id, unit: { managerId: owner } },
+      });
+      if (!existing) throw app.httpErrors.notFound('Room not found');
+      const contracts = await tx.contract.findMany({
+        where: { rentalSpaceId: id, status: { in: [...openContractStatuses] } },
+        select: { secondaryOccupant: true },
+      });
+      const occupants = occupantCount(contracts);
+      if (body.capacity < occupants)
+        throw app.httpErrors.conflict('Capacity cannot be lower than committed occupants');
+      if (contracts.length && (availability !== 'ACTIVE' || body.type !== existing.type))
+        throw app.httpErrors.conflict(
+          'Resolve open contracts before a type or availability change',
+        );
+      const updated = await tx.rentalSpace.update({
+        where: { id },
+        data: {
+          ...body,
+          enabled: availability !== 'INACTIVE',
+          status:
+            availability === 'ACTIVE' ? occupiedStatus(occupants, body.capacity) : availability,
+        },
+      });
+      await recordAudit(tx, request, 'UPDATE', 'RentalSpace', updated, existing);
+      return updated;
+    });
   });
 };

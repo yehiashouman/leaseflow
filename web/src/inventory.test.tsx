@@ -114,4 +114,70 @@ describe('inventory forms', () => {
       expect.objectContaining({ name: 'Room A', type: 'ROOM', capacity: 1 }),
     );
   });
+  it('edits room details and preserves its private bathroom and other amenities', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        id: 'u1',
+        name: 'Demo Unit',
+        area: 'Dubai',
+        currency: 'AED',
+        defaultDeposit: 0,
+        active: true,
+        spaces: [
+          {
+            id: 's1',
+            name: 'Master A',
+            type: 'MASTER_ROOM',
+            capacity: 2,
+            askingRent: 3000,
+            status: 'AVAILABLE',
+            amenities: { privateBathroom: true, balcony: true },
+          },
+        ],
+      },
+    });
+    const patch = vi.spyOn(api, 'patch').mockResolvedValue({ data: {} });
+    page(<UnitDetail />, '/units/u1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Edit Master A' }));
+    const form = within(screen.getByRole('dialog'));
+    expect((form.getByLabelText('Private bathroom') as HTMLInputElement).checked).toBe(true);
+    await user.selectOptions(form.getByLabelText('Availability'), 'MAINTENANCE');
+    await user.clear(form.getByLabelText('Asking rent'));
+    await user.type(form.getByLabelText('Asking rent'), '3200');
+    await user.click(form.getByRole('button', { name: 'Save' }));
+    expect(patch).toHaveBeenCalledWith(
+      '/inventory/spaces/s1',
+      expect.objectContaining({
+        askingRent: '3200',
+        availability: 'MAINTENANCE',
+        amenities: { privateBathroom: true, balcony: true },
+      }),
+    );
+  });
+  it('preserves the room editor after an occupancy conflict', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        id: 'u1',
+        name: 'Demo Unit',
+        area: 'Dubai',
+        currency: 'AED',
+        defaultDeposit: 0,
+        active: true,
+        spaces: [{ id: 's1', name: 'Room A', type: 'ROOM', capacity: 2, status: 'OCCUPIED' }],
+      },
+    });
+    vi.spyOn(api, 'patch').mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { message: 'Capacity cannot be lower than committed occupants' } },
+    });
+    page(<UnitDetail />, '/units/u1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Edit Room A' }));
+    await user.clear(screen.getByLabelText(/Capacity/));
+    await user.type(screen.getByLabelText(/Capacity/), '1');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect((await screen.findByRole('alert')).textContent).toContain('committed occupants');
+    expect((screen.getByLabelText(/Capacity/) as HTMLInputElement).value).toBe('1');
+  });
 });

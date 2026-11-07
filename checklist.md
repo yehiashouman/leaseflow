@@ -11,9 +11,10 @@ Implementation progress: [docs/IMPLEMENTATION.md](docs/IMPLEMENTATION.md).
 Public preview scope and activation: [docs/PREVIEW.md](docs/PREVIEW.md).
 Partial implementations do not satisfy the full module completion rule below.
 
-All boxes start unchecked.
+All boxes started unchecked; the evidence audit now records verified foundation tasks.
 Unchecked means completion is not verified; it does not prove the feature is absent.
-This document does not audit current implementation.
+Completion evidence: [docs/EVIDENCE.md](docs/EVIDENCE.md).
+Full progress report: [docs/PROGRESS.md](docs/PROGRESS.md).
 Each identifier is stable after this baseline.
 
 Approved UI change, 7 November 2026: use shadcn/ui, Tailwind CSS, Radix, and Lucide.
@@ -41,15 +42,15 @@ A module is complete only after its implementation, interface, API, tests, and a
 
 ## Execution Order
 
-| Order | Work | Dependencies |
-|---|---|---|
-| 1 | Scope, decisions, stack, data, authorization, files, providers | Original requirements |
-| 2 | Accounts, verification, moderation, invitations | Identity, private files, email, Twilio |
-| 3 | Landlords, units, spaces, tenants, contracts | Account activation and ownership |
-| 4 | Rent, payments, deposits, cases, transfers, move-out | Contracts, dates, ledgers, decisions |
-| 5 | Expenses, dashboards, notifications, reports | Scoped operational data and provider jobs |
-| 6 | Complete interfaces, API coverage, security, deployment | Functional modules |
-| 7 | Full acceptance suite, browser journey, release evidence | All initial-release modules |
+| Order | Work                                                           | Dependencies                              |
+| ----- | -------------------------------------------------------------- | ----------------------------------------- |
+| 1     | Scope, decisions, stack, data, authorization, files, providers | Original requirements                     |
+| 2     | Accounts, verification, moderation, invitations                | Identity, private files, email, Twilio    |
+| 3     | Landlords, units, spaces, tenants, contracts                   | Account activation and ownership          |
+| 4     | Rent, payments, deposits, cases, transfers, move-out           | Contracts, dates, ledgers, decisions      |
+| 5     | Expenses, dashboards, notifications, reports                   | Scoped operational data and provider jobs |
+| 6     | Complete interfaces, API coverage, security, deployment        | Functional modules                        |
+| 7     | Full acceptance suite, browser journey, release evidence       | All initial-release modules               |
 
 Phases define order, not permission to omit initial-release modules.
 Independent tasks can proceed while unrelated decisions remain open.
@@ -66,12 +67,12 @@ Requirements: 1-3, 15, 18-21.
 - [ ] **BASE-006** Keep payments external; record money without collection or escrow.
 - [ ] **BASE-007** Preserve future inventory images, amenities, and availability without a public marketplace.
 - [ ] **BASE-008** Keep optional compatibility fields non-binding.
-- [ ] **BASE-009** Retain Fastify and TypeScript in the api workspace.
-- [ ] **BASE-010** Retain MySQL and Prisma migrations.
-- [ ] **BASE-011** Retain React, TypeScript, Vite, and React Router in the web workspace.
-- [ ] **BASE-012** Use shadcn/ui, Radix primitives, Lucide icons, React Query, and Axios.
-- [ ] **BASE-013** Use Tailwind CSS 4 through its Vite plugin; remove Bootstrap and SCSS dependencies.
-- [ ] **BASE-014** Keep REST API independent from web deployment.
+- [x] **BASE-009** Retain Fastify and TypeScript in the api workspace. [Evidence](docs/EVIDENCE.md#foundation).
+- [x] **BASE-010** Retain MySQL and Prisma migrations. [Evidence](docs/EVIDENCE.md#foundation).
+- [x] **BASE-011** Retain React, TypeScript, Vite, and React Router in the web workspace. [Evidence](docs/EVIDENCE.md#foundation).
+- [x] **BASE-012** Use shadcn/ui, Radix primitives, Lucide icons, React Query, and Axios. [Evidence](docs/EVIDENCE.md#foundation).
+- [x] **BASE-013** Use Tailwind CSS 4 through its Vite plugin; remove Bootstrap and SCSS dependencies. [Evidence](docs/EVIDENCE.md#foundation).
+- [x] **BASE-014** Keep REST API independent from web deployment. [Evidence](docs/EVIDENCE.md#foundation).
 - [ ] **BASE-015** Use Redis with durable workers and a scheduler.
 - [ ] **BASE-016** Use private S3-compatible storage and development MinIO.
 - [ ] **BASE-017** Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline.
@@ -586,16 +587,16 @@ Requirements: 21-22.
 
 ### shadcn/ui Foundation
 
-- [ ] **SHADCN-001** Configure Tailwind CSS through the Vite plugin and semantic theme variables.
-- [ ] **SHADCN-002** Configure components.json and matching TypeScript/Vite aliases.
-- [ ] **SHADCN-003** Keep editable shadcn/ui primitives and the upstream license in the repository.
-- [ ] **SHADCN-004** Replace Bootstrap controls and icon fonts with shadcn/ui and Lucide.
-- [ ] **SHADCN-005** Verify accessible input labels, disabled commands, keyboard focus, and mobile sheet navigation.
-- [ ] **SHADCN-006** Verify load, empty, error, retry, and success states on migrated screens.
-- [ ] **SHADCN-007** Verify component tests through Vitest, jsdom, and React Testing Library.
-- [ ] **SHADCN-008** Verify desktop and mobile browser tests through Playwright.
-- [ ] **SHADCN-009** Verify production build and lockfile consistency without Bootstrap or Sass dependencies.
-- [ ] **SHADCN-010** Keep unfinished business workflows separate from UI-framework completion.
+- [x] **SHADCN-001** Configure Tailwind CSS through the Vite plugin and semantic theme variables. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-002** Configure components.json and matching TypeScript/Vite aliases. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-003** Keep editable shadcn/ui primitives and the upstream license in the repository. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-004** Replace Bootstrap controls and icon fonts with shadcn/ui and Lucide. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-005** Verify accessible input labels, disabled commands, keyboard focus, and mobile sheet navigation. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-006** Verify load, empty, error, retry, and success states on migrated screens. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-007** Verify component tests through Vitest, jsdom, and React Testing Library. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-008** Verify desktop and mobile browser tests through Playwright. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-009** Verify production build and lockfile consistency without Bootstrap or Sass dependencies. [Evidence](docs/EVIDENCE.md#ui-framework).
+- [x] **SHADCN-010** Keep unfinished business workflows separate from UI-framework completion. [Evidence](docs/EVIDENCE.md#ui-framework).
 
 ## 24. API Standards and Ownership
 
@@ -666,7 +667,7 @@ Requirements: 21, 26.1-26.2.
 - [ ] **DEV-003** Validate configuration before production startup.
 - [ ] **DEV-004** Run migrations before readiness.
 - [ ] **DEV-005** Create demo accounts only in explicit non-production demo mode.
-- [ ] **DEV-006** Refuse production startup with demo mode enabled.
+- [x] **DEV-006** Refuse production startup with demo mode enabled. [Evidence](docs/EVIDENCE.md#production-demo-guard).
 - [ ] **DEV-007** Document secure initial administrator bootstrap outside demo mode.
 - [ ] **DEV-008** Preserve database and file volumes across restarts.
 - [ ] **DEV-009** Require explicit confirmation before destructive demo reset.
@@ -1037,37 +1038,37 @@ Requirements: 28.
 This map routes every requirements section to checklist work.
 Specific fields, restrictions, statuses, and calculations remain governed by the source document.
 
-| Requirements section | Checklist sections |
-|---|---|
-| 1. Product Definition | 1, 8-22 |
-| 2. Scope and Release Boundaries | Status Rules, 1, 9 |
-| 3. Roles and Permissions | 4-6, 10, 24, 26, 30-31, 36 |
-| 4. Inventory Model | 7-9, 29-31, 36 |
-| 5. Tenant and Occupancy Management | 9-11, 29-31, 36 |
-| 6. Contract and Rent Rules | 11-12, 19, 25, 35-38 |
-| 7. Payment Recording | 12-14, 31, 35-37 |
-| 8. Deposits, Move-Out and Deductions | 18, 20, 22, 35-38 |
-| 9. Requests and Case Management | 14-18, 25, 30-32, 36-38 |
-| 10. Financial Bookkeeping and Profitability | 16, 19-20, 22, 36 |
-| 11. Dashboards | 6, 20, 30-31, 36 |
-| 12. Notifications and Communications | 5-6, 10, 21, 25, 32-33, 36 |
-| 13. Interaction and Dispute Report | 7, 22, 30-32, 36-37 |
-| 14. Core Data Model | 3, 7-19, 24, 29, 36 |
-| 15. API and Application Architecture | 1, 24-25, 31-32 |
-| 16. Security, Privacy and Audit | 4-7, 24, 26, 34, 36, 38 |
-| 17. Key Business Rules Summary | 9, 11-14, 17-19, 25, 35-38 |
-| 18. Recommended Delivery Phases | Execution Order, 1-28 |
-| 19. Acceptance Criteria for Initial Release | Module Completion Evidence, 36-37, 39 |
-| 20. Explicit Assumptions | 1-2, 19, 23, 25-26, 38 |
-| 21. Delivery Contract | Status Rules, 1, 23, 27-28, 36-39 |
-| 22. Required Screens and Actions | 4-23, 30, 36-37 |
-| 23. API Contract | 4, 24, 31, 36 |
-| 24. Data Integrity and Financial Rules | 3, 9, 11-19, 35-38 |
-| 25. Jobs and External Services | 7, 21-22, 25, 32-33, 36 |
-| 26. Configuration, Deployment, and Operations | 27-28, 34, 36, 38-39 |
-| 27. Acceptance Tests and Traceability | Module Completion Evidence, 36-37 |
-| 28. Release Gates | 39 |
-| 29. Open Decisions and Proposed Clarifications | 2, 38 |
+| Requirements section                           | Checklist sections                    |
+| ---------------------------------------------- | ------------------------------------- |
+| 1. Product Definition                          | 1, 8-22                               |
+| 2. Scope and Release Boundaries                | Status Rules, 1, 9                    |
+| 3. Roles and Permissions                       | 4-6, 10, 24, 26, 30-31, 36            |
+| 4. Inventory Model                             | 7-9, 29-31, 36                        |
+| 5. Tenant and Occupancy Management             | 9-11, 29-31, 36                       |
+| 6. Contract and Rent Rules                     | 11-12, 19, 25, 35-38                  |
+| 7. Payment Recording                           | 12-14, 31, 35-37                      |
+| 8. Deposits, Move-Out and Deductions           | 18, 20, 22, 35-38                     |
+| 9. Requests and Case Management                | 14-18, 25, 30-32, 36-38               |
+| 10. Financial Bookkeeping and Profitability    | 16, 19-20, 22, 36                     |
+| 11. Dashboards                                 | 6, 20, 30-31, 36                      |
+| 12. Notifications and Communications           | 5-6, 10, 21, 25, 32-33, 36            |
+| 13. Interaction and Dispute Report             | 7, 22, 30-32, 36-37                   |
+| 14. Core Data Model                            | 3, 7-19, 24, 29, 36                   |
+| 15. API and Application Architecture           | 1, 24-25, 31-32                       |
+| 16. Security, Privacy and Audit                | 4-7, 24, 26, 34, 36, 38               |
+| 17. Key Business Rules Summary                 | 9, 11-14, 17-19, 25, 35-38            |
+| 18. Recommended Delivery Phases                | Execution Order, 1-28                 |
+| 19. Acceptance Criteria for Initial Release    | Module Completion Evidence, 36-37, 39 |
+| 20. Explicit Assumptions                       | 1-2, 19, 23, 25-26, 38                |
+| 21. Delivery Contract                          | Status Rules, 1, 23, 27-28, 36-39     |
+| 22. Required Screens and Actions               | 4-23, 30, 36-37                       |
+| 23. API Contract                               | 4, 24, 31, 36                         |
+| 24. Data Integrity and Financial Rules         | 3, 9, 11-19, 35-38                    |
+| 25. Jobs and External Services                 | 7, 21-22, 25, 32-33, 36               |
+| 26. Configuration, Deployment, and Operations  | 27-28, 34, 36, 38-39                  |
+| 27. Acceptance Tests and Traceability          | Module Completion Evidence, 36-37     |
+| 28. Release Gates                              | 39                                    |
+| 29. Open Decisions and Proposed Clarifications | 2, 38                                 |
 
 ## Completion Record
 

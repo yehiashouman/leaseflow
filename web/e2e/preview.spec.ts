@@ -45,11 +45,31 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await page.getByRole('dialog').getByLabel('Room name *', { exact: true }).fill('Room Alpha');
   await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('cell', { name: 'Room Alpha', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Edit Room Alpha', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('Room name *', { exact: true }).fill('Room Beta');
+  await page
+    .getByRole('dialog')
+    .getByLabel('Availability', { exact: true })
+    .selectOption('MAINTENANCE');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('cell', { name: 'MAINTENANCE', exact: true })).toBeVisible();
   await page.reload();
   await expect(
     page.getByRole('heading', { name: 'Preview Apartment Two', exact: true }),
   ).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Room Alpha', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Room Beta', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'MAINTENANCE', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Edit Room Beta', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByLabel('Availability', { exact: true })
+    .selectOption('INACTIVE');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('cell', { name: 'INACTIVE', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Edit Room Beta', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('Availability', { exact: true }).selectOption('ACTIVE');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('cell', { name: 'AVAILABLE', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   );

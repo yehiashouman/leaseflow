@@ -26,6 +26,8 @@ jobs:
       - run: npm run prisma:generate -w api
       - run: npm run lint
       - run: npm test
+      - run: npm run prisma:migrate -w api
+      - run: npm run test:integration -w api
       - run: npm run build
       - run: npm audit --audit-level=high
       - run: npx prisma validate --schema api/prisma/schema.prisma

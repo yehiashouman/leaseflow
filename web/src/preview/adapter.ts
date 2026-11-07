@@ -183,7 +183,62 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return role !== 'ADMIN' ? respond(store.requests) : fail('Insufficient permissions', 403);
   if (role === 'LEASING_MANAGER' && ['post', 'patch'].includes(method)) {
     let item: RecordData;
-    if (path.startsWith('/inventory/landlords')) {
+    if (/^\/inventory\/spaces\/[^/]+$/.test(path) && method === 'patch') {
+      const space = store.units
+        .flatMap((unit) => unit.spaces)
+        .find((space) => space.id === path.split('/').at(-1));
+      if (!space) return fail('Room not found', 404);
+      if (!['ROOM', 'MASTER_ROOM'].includes(data.type))
+        return fail('Future feature: disabled space type', 422);
+      if (
+        !data.name?.trim() ||
+        !Number.isInteger(data.capacity) ||
+        data.capacity < 1 ||
+        data.capacity > 10
+      )
+        return fail('Verify the room name and capacity.', 422);
+      if (data.type === 'MASTER_ROOM' && data.amenities?.privateBathroom !== true)
+        return fail('Master Room requires a private bathroom', 422);
+      if (!['ACTIVE', 'INACTIVE', 'MAINTENANCE'].includes(data.availability))
+        return fail('Verify the availability.', 422);
+      if (
+        data.askingRent != null &&
+        (!Number.isFinite(Number(data.askingRent)) ||
+          Number(data.askingRent) < 0 ||
+          !/^\d+(\.\d{1,2})?$/.test(String(data.askingRent)))
+      )
+        return fail('Verify the asking rent.', 422);
+      const contracts = store.contracts.filter(
+        (contract) =>
+          contract.rentalSpace?.id === space.id &&
+          ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status),
+      );
+      const occupants = contracts.reduce(
+        (total, contract) => total + (contract.secondaryOccupant ? 2 : 1),
+        0,
+      );
+      if (data.capacity < occupants)
+        return fail('Capacity cannot be lower than committed occupants', 409);
+      if (contracts.length && (data.availability !== 'ACTIVE' || data.type !== space.type))
+        return fail('Resolve open contracts before a type or availability change', 409);
+      Object.assign(space, {
+        name: data.name.trim(),
+        type: data.type,
+        capacity: data.capacity,
+        askingRent: data.askingRent ?? null,
+        amenities: data.amenities,
+        enabled: data.availability !== 'INACTIVE',
+        status:
+          data.availability !== 'ACTIVE'
+            ? data.availability
+            : occupants === 0
+              ? 'AVAILABLE'
+              : occupants >= data.capacity
+                ? 'OCCUPIED'
+                : 'PARTIAL',
+      });
+      item = space;
+    } else if (path.startsWith('/inventory/landlords')) {
       if (!data.name?.trim() || data.name.trim().length < 2)
         return fail('Name must contain at least two characters.', 422);
       if (method === 'patch') {
