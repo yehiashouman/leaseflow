@@ -12,6 +12,10 @@ Unchecked means completion is not verified; it does not prove the feature is abs
 This document does not audit current implementation.
 Each identifier is stable after this baseline.
 
+Approved UI change, 7 November 2026: use shadcn/ui, Tailwind CSS, Radix, and Lucide.
+This overrides the previous Bootstrap/SCSS requirement and Tailwind exclusion.
+The source blob at the document start identifies the prior baseline, not the current UI decision.
+
 - Mark an item complete only after code, API, interface, persistence, authorization, and applicable tests satisfy its requirement.
 - Attach commit, implementation path, test path, and verification evidence to each completed item.
 - Record failed tests, known defects, and blocked dependencies beside the affected item.
@@ -61,8 +65,8 @@ Requirements: 1-3, 15, 18-21.
 - [ ] **BASE-009** Retain Fastify and TypeScript in the api workspace.
 - [ ] **BASE-010** Retain MySQL and Prisma migrations.
 - [ ] **BASE-011** Retain React, TypeScript, Vite, and React Router in the web workspace.
-- [ ] **BASE-012** Retain Bootstrap 5, Bootstrap Icons, SCSS, React Query, and Axios.
-- [ ] **BASE-013** Exclude Tailwind.
+- [ ] **BASE-012** Use shadcn/ui, Radix primitives, Lucide icons, React Query, and Axios.
+- [ ] **BASE-013** Use Tailwind CSS 4 through its Vite plugin; remove Bootstrap and SCSS dependencies.
 - [ ] **BASE-014** Keep REST API independent from web deployment.
 - [ ] **BASE-015** Use Redis with durable workers and a scheduler.
 - [ ] **BASE-016** Use private S3-compatible storage and development MinIO.
@@ -575,6 +579,19 @@ Requirements: 21-22.
 - [ ] **UX-016** Provide profile, security, session, language, timezone, and notification controls.
 - [ ] **UX-017** Remove placeholder values, inactive actions, and dead-end pages.
 - [ ] **UX-018** Verify archived-record workflows only where domain rules permit archive and restore.
+
+### shadcn/ui Foundation
+
+- [ ] **SHADCN-001** Configure Tailwind CSS through the Vite plugin and semantic theme variables.
+- [ ] **SHADCN-002** Configure components.json and matching TypeScript/Vite aliases.
+- [ ] **SHADCN-003** Keep editable shadcn/ui primitives and the upstream license in the repository.
+- [ ] **SHADCN-004** Replace Bootstrap controls and icon fonts with shadcn/ui and Lucide.
+- [ ] **SHADCN-005** Verify accessible input labels, disabled commands, keyboard focus, and mobile sheet navigation.
+- [ ] **SHADCN-006** Verify load, empty, error, retry, and success states on migrated screens.
+- [ ] **SHADCN-007** Verify component tests through Vitest, jsdom, and React Testing Library.
+- [ ] **SHADCN-008** Verify desktop and mobile browser tests through Playwright.
+- [ ] **SHADCN-009** Verify production build and lockfile consistency without Bootstrap or Sass dependencies.
+- [ ] **SHADCN-010** Keep unfinished business workflows separate from UI-framework completion.
 
 ## 24. API Standards and Ownership
 

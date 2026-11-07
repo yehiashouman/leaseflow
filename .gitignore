@@ -7,6 +7,8 @@ web/vite.config.d.ts
 .env.*
 !.env.example
 coverage/
+web/test-results/
+web/playwright-report/
 *.log
 .DS_Store
 .idea/

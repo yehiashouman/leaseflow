@@ -1,3 +1,75 @@
-import { useQuery } from '@tanstack/react-query'; import { api } from '../api';
-const cards=[['units','Units','bi-buildings'],['occupied','Occupied','bi-people'],['vacant','Vacant spaces','bi-door-open'],['openRequests','Open requests','bi-inbox'],['overdue','Overdue (AED)','bi-exclamation-triangle'],['depositsHeld','Deposits held (AED)','bi-shield-check'],['income','Recorded income','bi-graph-up-arrow'],['expenses','Expenses','bi-receipt']];
-export function Dashboard(){const {data,isLoading,error}=useQuery({queryKey:['dashboard'],queryFn:()=>api.get('/dashboard/manager').then(r=>r.data)});if(isLoading)return <div className="spinner-border"/>;if(error)return <div className="alert alert-warning">Dashboard data is unavailable.</div>;return <><div className="section-title"><h2>Portfolio overview</h2><span>Current operational totals</span></div><div className="stats-grid">{cards.map(([key,label,icon])=><article className="stat-card" key={key}><i className={`bi ${icon}`}/><div><span>{label}</span><strong>{Number(data?.[key]??0).toLocaleString()}</strong></div></article>)}</div><div className="row g-4 mt-1"><div className="col-lg-7"><section className="panel"><h3>Priority actions</h3><div className="empty-state"><i className="bi bi-check2-circle"/><strong>Everything is organized</strong><span>New deadlines and payment issues will appear here.</span></div></section></div><div className="col-lg-5"><section className="panel"><h3>Quick actions</h3><div className="d-grid gap-2"><button className="btn btn-primary">Add unit</button><button className="btn btn-outline-primary">Invite tenant</button><button className="btn btn-outline-secondary">Record payment</button></div></section></div></div></>}
+import { useQuery } from '@tanstack/react-query';
+import {
+  Building2,
+  DoorOpen,
+  Inbox,
+  Receipt,
+  ShieldCheck,
+  TriangleAlert,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { api } from '../api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { QueryFeedback } from '@/components/query-feedback';
+
+const metrics = [
+  { key: 'units', label: 'Units', icon: Building2 },
+  { key: 'occupied', label: 'Occupied', icon: Users },
+  { key: 'vacant', label: 'Vacant spaces', icon: DoorOpen },
+  { key: 'openRequests', label: 'Open requests', icon: Inbox },
+  { key: 'overdue', label: 'Overdue (AED)', icon: TriangleAlert },
+  { key: 'depositsHeld', label: 'Deposits held (AED)', icon: ShieldCheck },
+  { key: 'income', label: 'Recorded income (AED)', icon: TrendingUp },
+  { key: 'expenses', label: 'Expenses (AED)', icon: Receipt },
+];
+
+export function Dashboard() {
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () =>
+      api
+        .get<Record<string, number | string>>('/dashboard/manager')
+        .then((response) => response.data),
+  });
+  if (isPending || error)
+    return <QueryFeedback pending={isPending} onRetry={() => void refetch()} />;
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-semibold">Portfolio overview</h1>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map(({ key, label, icon: Icon }) => (
+          <Card key={key}>
+            <CardContent className="flex items-start justify-between gap-3">
+              <div className="min-w-0 space-y-2">
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="break-words text-2xl font-semibold tabular-nums">
+                  {Number(data?.[key] ?? 0).toLocaleString()}
+                </p>
+              </div>
+              <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <section className="space-y-3 border-t pt-6" aria-labelledby="portfolio-records">
+        <h2 id="portfolio-records" className="text-base font-semibold">
+          Portfolio records
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/units">View units</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/contracts">View contracts</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/requests">View requests</Link>
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
+}

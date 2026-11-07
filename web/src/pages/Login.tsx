@@ -1,2 +1,89 @@
-import { useState,type FormEvent } from 'react'; import { useNavigate } from 'react-router-dom'; import { useAuth } from '../auth';
-export function Login(){const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);const auth=useAuth();const navigate=useNavigate();async function submit(e:FormEvent){e.preventDefault();setBusy(true);setError('');try{await auth.login(email,password);navigate('/');}catch{setError('Unable to sign in. Check your credentials and account status.')}finally{setBusy(false)}}return <div className="login-page"><div className="login-card"><div className="brand dark">Leaseflow</div><h2>Welcome back</h2><p className="text-secondary">Sign in to manage your accommodation portfolio.</p>{error&&<div className="alert alert-danger">{error}</div>}<form onSubmit={submit}><label className="form-label">Email</label><input className="form-control mb-3" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/><label className="form-label">Password</label><input className="form-control mb-4" type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={12}/><button className="btn btn-primary w-100" disabled={busy}>{busy?'Signing in…':'Sign in'}</button></form></div></div>}
+import { useState, type FormEvent } from 'react';
+import { AlertCircle, Building2, LoaderCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+export function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      await auth.login(email, password);
+      navigate('/');
+    } catch {
+      setError('Unable to sign in. Verify your credentials and account status.');
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <main className="grid min-h-svh place-items-center p-4">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="flex items-center justify-center gap-2 text-xl font-semibold">
+          <Building2 className="size-6 text-primary" aria-hidden="true" />
+          LeaseFlow
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <h1 className="text-xl">Sign in</h1>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={submit} className="space-y-5" aria-busy={busy}>
+              {error && (
+                <Alert variant="destructive" id="login-error">
+                  <AlertCircle aria-hidden="true" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="username"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  aria-describedby={error ? 'login-error' : undefined}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  minLength={12}
+                  aria-describedby={error ? 'login-error' : undefined}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={busy}>
+                {busy && <LoaderCircle className="animate-spin" aria-hidden="true" />}
+                {busy ? 'Please wait...' : 'Sign in'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
+  );
+}

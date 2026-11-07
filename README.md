@@ -5,10 +5,13 @@ Production-oriented shared-accommodation operations platform for Leasing Manager
 ## Repository
 
 - `api/` — Fastify, TypeScript, Prisma and MySQL REST API
-- `web/` — React, TypeScript, Bootstrap/SCSS web application
+- `web/` — React, TypeScript, shadcn/ui, Tailwind CSS and Lucide web application
 - `helm/` — portable Kubernetes deployment chart
 - `infrastructure/terraform/` — AWS VPC, EKS, RDS MySQL, ElastiCache Redis and S3 foundation
 - `SPECIFICATION.md` — complete functional and technical specification
+- `requirements.md` — delivery requirements and acceptance criteria
+- `checklist.md` — detailed implementation and verification tasks
+- `docs/UI.md` — shadcn/ui component, theme and accessibility conventions
 
 ## GitHub Codespaces
 

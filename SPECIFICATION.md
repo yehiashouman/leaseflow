@@ -1,5 +1,9 @@
 **PRODUCT SPECIFICATION**
 
+Approved UI update, 7 November 2026: use shadcn/ui with Tailwind CSS, Radix primitives, and Lucide icons.
+This decision supersedes the original Bootstrap/SCSS baseline and Tailwind exclusion.
+All other product rules remain unchanged.
+
 Dubai Shared Accommodation  
 Management System
 
@@ -482,7 +486,7 @@ Either the primary tenant or Leasing Manager can generate a PDF report for their
 
 # 15. API and Application Architecture
 
-| **Recommended stack:** REST/JSON API with OpenAPI documentation; Laravel or Node.js back end; PostgreSQL or MySQL; React responsive web front end; Bootstrap 5 plus SCSS or CSS Modules. Tailwind must not be used. |
+| **Approved stack:** REST/JSON API with OpenAPI documentation; Fastify/TypeScript API; MySQL with Prisma; React responsive web front end; shadcn/ui with Tailwind CSS, Radix primitives, and Lucide icons. |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 - Separate API service and front-end deployment with versioned endpoints such as /api/v1.

@@ -1,2 +1,90 @@
-import { useQuery } from '@tanstack/react-query'; import { api } from '../api';
-export function Contracts(){const {data=[]}=useQuery({queryKey:['contracts'],queryFn:()=>api.get('/contracts').then(r=>r.data)});return <><div className="section-title"><h2>Contracts</h2><button className="btn btn-primary">Create contract</button></div><section className="panel table-responsive"><table className="table"><thead><tr><th>Tenant</th><th>Space</th><th>Monthly rent</th><th>Due day</th><th>Status</th></tr></thead><tbody>{data.map((c:any)=><tr key={c.id}><td>{c.tenant?.fullName??'Tenant'}</td><td>{c.rentalSpace.name}<small>{c.rentalSpace.unit.name}</small></td><td>{c.currency} {Number(c.monthlyRent).toLocaleString()}</td><td>{c.dueDay}</td><td><span className="badge text-bg-success">{c.status}</span></td></tr>)}</tbody></table>{!data.length&&<div className="empty-state"><i className="bi bi-file-earmark-text"/><strong>No active contracts</strong><span>Invite a tenant and allocate an available room.</span></div>}</section></>}
+import { useQuery } from '@tanstack/react-query';
+import { FileText, Plus } from 'lucide-react';
+import { api } from '../api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { QueryFeedback } from '@/components/query-feedback';
+
+type Contract = {
+  id: string;
+  tenant?: { fullName: string };
+  rentalSpace: { name: string; unit: { name: string } };
+  currency: string;
+  monthlyRent: string | number;
+  dueDay: number;
+  status: string;
+};
+
+export function Contracts() {
+  const {
+    data = [],
+    isPending,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['contracts'],
+    queryFn: () => api.get<Contract[]>('/contracts').then((response) => response.data),
+  });
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold">Contracts</h1>
+        <Button disabled title="Contract creation is not implemented.">
+          <Plus aria-hidden="true" />
+          Create contract
+        </Button>
+      </div>
+      {isPending || error ? (
+        <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tenant</TableHead>
+                <TableHead>Space</TableHead>
+                <TableHead>Monthly rent</TableHead>
+                <TableHead>Due day</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((contract) => (
+                <TableRow key={contract.id}>
+                  <TableCell>{contract.tenant?.fullName ?? 'Tenant'}</TableCell>
+                  <TableCell>
+                    {contract.rentalSpace.name}
+                    <span className="block text-xs text-muted-foreground">
+                      {contract.rentalSpace.unit.name}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {contract.currency} {Number(contract.monthlyRent).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{contract.dueDay}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{contract.status.replaceAll('_', ' ')}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!data.length && (
+            <div className="flex min-h-48 flex-col items-center justify-center gap-3 text-muted-foreground">
+              <FileText className="size-7" aria-hidden="true" />
+              <p>No active contracts</p>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}

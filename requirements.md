@@ -6,7 +6,9 @@
 - Status: requirements baseline; this document does not certify implementation or production readiness.
 - Source: `SPECIFICATION.md`, blob `5bdbb40dc46eef253cd3c11231513a9bf5fa7192`.
 - Original source: `Dubai_Shared_Accommodation_Management_System_Specification.docx`, Draft 1.0, 5 September 2026.
-- Sections 1-20 below preserve the source product specification.
+- Sections 1-20 retain the source product rules, with the approved UI-stack change noted below.
+- UI change, 7 November 2026: use shadcn/ui, Tailwind CSS, Radix primitives, and Lucide instead of Bootstrap/SCSS.
+- This explicit UI decision supersedes the original Tailwind exclusion; all other product rules remain unchanged.
 - Sections 21-28 expand delivery requirements, interface coverage, tests, and operational acceptance.
 - Section 29 identifies unresolved decisions; developers must not silently invent their answers.
 - Preserve existing product rules when technical details differ.
@@ -513,7 +515,7 @@ Either the primary tenant or Leasing Manager can generate a PDF report for their
 
 # 15. API and Application Architecture
 
-| **Recommended stack:** REST/JSON API with OpenAPI documentation; Laravel or Node.js back end; PostgreSQL or MySQL; React responsive web front end; Bootstrap 5 plus SCSS or CSS Modules. Tailwind must not be used. |
+| **Approved stack:** REST/JSON API with OpenAPI documentation; Fastify/TypeScript API; MySQL with Prisma; React responsive web front end; shadcn/ui with Tailwind CSS, Radix primitives, and Lucide icons. |
 |---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 - Separate API service and front-end deployment with versioned endpoints such as /api/v1.
@@ -669,7 +671,7 @@ Either the primary tenant or Leasing Manager can generate a PDF report for their
 | API | Fastify, TypeScript, versioned REST/JSON |
 | Database | MySQL with Prisma migrations |
 | Web | React, TypeScript, Vite, React Router |
-| Interface | Bootstrap 5, Bootstrap Icons, SCSS; no Tailwind |
+| Interface | shadcn/ui, Tailwind CSS 4, Radix primitives, Lucide icons; no Bootstrap |
 | Data access | Existing React Query and Axios patterns |
 | Session security | Short-lived access tokens and secure rotating refresh tokens |
 | Cache and jobs | Redis; durable retry-safe worker and scheduler |
@@ -678,11 +680,20 @@ Either the primary tenant or Leasing Manager can generate a PDF report for their
 | PDF | Server-generated interaction reports with authorization and immutable source history |
 | Development | Docker Compose and GitHub Codespaces |
 | Production | Existing Helm and Terraform AWS deployment baseline |
-| Tests | Unit, database integration, authorization, browser, and deployment smoke tests |
+| Tests | Vitest component/unit tests; jsdom and React Testing Library; Playwright browser tests; database, authorization, and deployment tests |
 
 Package presence does not prove a feature exists.
 Infrastructure files do not prove a production deployment exists.
-Select maintained job, PDF, upload-scan, and browser-test libraries within this architecture.
+Keep editable shadcn/ui components in `web/src/components/ui`.
+Keep shared class composition in `web/src/lib/utils.ts`.
+Use `web/components.json` for component generation and aliases.
+Use Tailwind through `@tailwindcss/vite` and semantic CSS-variable tokens in `web/src/styles.css`.
+Use accessible Radix primitives for dialogs and other complex controls.
+Preserve keyboard access, focus behavior, form labels, responsive layouts, and existing API contracts.
+Do not mix Bootstrap classes, icon fonts, or SCSS imports into the new UI.
+See `docs/UI.md` for component conventions and generation commands.
+Select maintained job, PDF, and upload-scan libraries within this architecture.
+Use Playwright for browser regression tests and Vitest with React Testing Library for component tests.
 Do not claim those selections as original user preferences.
 
 # 22. Required Screens and Actions
