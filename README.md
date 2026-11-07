@@ -12,6 +12,14 @@ Production-oriented shared-accommodation operations platform for Leasing Manager
 - `requirements.md` — delivery requirements and acceptance criteria
 - `checklist.md` — detailed implementation and verification tasks
 - `docs/UI.md` — shadcn/ui component, theme and accessibility conventions
+- `docs/PREVIEW.md` — public GitHub Pages preview setup and boundaries
+- `docs/IMPLEMENTATION.md` — implemented workflows and outstanding release work
+
+## Public Preview
+
+The GitHub Pages preview uses synthetic browser-local data, not the production API.
+See [preview setup](docs/PREVIEW.md) for owner activation and deployment status.
+See [implementation progress](docs/IMPLEMENTATION.md) before any completion claim.
 
 ## GitHub Codespaces
 

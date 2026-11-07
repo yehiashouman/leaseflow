@@ -12,6 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { QueryFeedback } from '@/components/query-feedback';
+import { useAuth } from '../auth';
 
 type Contract = {
   id: string;
@@ -24,6 +25,7 @@ type Contract = {
 };
 
 export function Contracts() {
+  const { user } = useAuth();
   const {
     data = [],
     isPending,
@@ -37,10 +39,12 @@ export function Contracts() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Contracts</h1>
-        <Button disabled title="Contract creation is not implemented.">
-          <Plus aria-hidden="true" />
-          Create contract
-        </Button>
+        {user?.role === 'LEASING_MANAGER' && (
+          <Button disabled title="Contract creation is not implemented.">
+            <Plus aria-hidden="true" />
+            Create contract
+          </Button>
+        )}
       </div>
       {isPending || error ? (
         <QueryFeedback pending={isPending} onRetry={() => void refetch()} />

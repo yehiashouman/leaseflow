@@ -14,6 +14,8 @@ import { api } from '../api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { QueryFeedback } from '@/components/query-feedback';
+import { useAuth } from '../auth';
+import { AdminDashboard, TenantDashboard } from './RoleDashboards';
 
 const metrics = [
   { key: 'units', label: 'Units', icon: Building2 },
@@ -26,7 +28,7 @@ const metrics = [
   { key: 'expenses', label: 'Expenses (AED)', icon: Receipt },
 ];
 
-export function Dashboard() {
+function ManagerDashboard() {
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () =>
@@ -72,4 +74,11 @@ export function Dashboard() {
       </section>
     </div>
   );
+}
+
+export function Dashboard() {
+  const { user } = useAuth();
+  if (user?.role === 'ADMIN') return <AdminDashboard />;
+  if (user?.role === 'TENANT') return <TenantDashboard />;
+  return <ManagerDashboard />;
 }

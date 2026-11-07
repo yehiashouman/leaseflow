@@ -17,23 +17,43 @@ import { Dashboard } from './pages/Dashboard';
 import { Units } from './pages/Units';
 import { Contracts } from './pages/Contracts';
 import { Requests } from './pages/Requests';
+import { Landlords } from './pages/Landlords';
+import { UnitDetail } from './pages/UnitDetail';
+import { PreviewBanner } from './components/preview-banner';
+import { previewMode, type Role } from './session';
+import { QueryFeedback } from './components/query-feedback';
 
 const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/units', label: 'Units', icon: Building2 },
+  { to: '/landlords', label: 'Landlords', icon: Building2 },
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
 ];
 
-function Guard() {
-  const { token } = useAuth();
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+function Guard({ roles }: { roles?: Role[] }) {
+  const { token, user, pending } = useAuth();
+  if (pending)
+    return (
+      <div className="p-8">
+        <QueryFeedback pending onRetry={() => {}} />
+      </div>
+    );
+  if (!token || !user) return <Navigate to="/login" replace />;
+  return roles && !roles.includes(user.role) ? <Navigate to="/" replace /> : <Outlet />;
 }
 
 function Navigation({ mobile = false }: { mobile?: boolean }) {
+  const { user } = useAuth();
+  const links = navigation.filter(
+    (item) =>
+      item.to === '/' ||
+      user?.role === 'LEASING_MANAGER' ||
+      (user?.role === 'TENANT' && ['/contracts', '/requests'].includes(item.to)),
+  );
   return (
     <nav aria-label="Main navigation" className="grid gap-1">
-      {navigation.map(({ to, label, icon: Icon }) => {
+      {links.map(({ to, label, icon: Icon }) => {
         const link = (
           <NavLink
             key={to}
@@ -63,7 +83,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
 }
 
 function Layout() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[220px_minmax(0,1fr)]">
       <aside className="hidden flex-col gap-8 border-r bg-card px-4 py-6 lg:flex">
@@ -110,7 +130,13 @@ function Layout() {
                 </Button>
               </SheetContent>
             </Sheet>
-            <span className="truncate text-sm font-medium">Accommodation operations</span>
+            <span className="truncate text-sm font-medium">
+              {user?.role === 'ADMIN'
+                ? 'Platform administration'
+                : user?.role === 'TENANT'
+                  ? 'Tenant portal'
+                  : 'Accommodation operations'}
+            </span>
           </div>
         </header>
         <main id="main-content" className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
@@ -123,16 +149,25 @@ function Layout() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route element={<Guard />}>
-        <Route element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="units" element={<Units />} />
-          <Route path="contracts" element={<Contracts />} />
-          <Route path="requests" element={<Requests />} />
+    <>
+      {previewMode && <PreviewBanner />}
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route element={<Guard />}>
+          <Route element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route element={<Guard roles={['LEASING_MANAGER']} />}>
+              <Route path="units" element={<Units />} />
+              <Route path="units/:id" element={<UnitDetail />} />
+              <Route path="landlords" element={<Landlords />} />
+            </Route>
+            <Route element={<Guard roles={['LEASING_MANAGER', 'TENANT']} />}>
+              <Route path="contracts" element={<Contracts />} />
+              <Route path="requests" element={<Requests />} />
+            </Route>
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </>
   );
 }

@@ -3,53 +3,60 @@ import { expect, test } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname;
-    const payload = path.endsWith('/auth/login')
-      ? { accessToken: 'ui-test-token' }
-      : path.endsWith('/dashboard/manager')
-        ? {
-            units: 1,
-            occupied: 1,
-            vacant: 0,
-            openRequests: 1,
-            overdue: 0,
-            depositsHeld: 3000,
-            income: 6000,
-            expenses: 2000,
-          }
-        : path.endsWith('/inventory/units')
-          ? [
-              {
-                id: 'u1',
-                name: 'Marina Apartment',
-                area: 'Dubai Marina',
-                landlord: { name: 'Landlord One' },
-                spaces: [{ id: 's1' }],
-                active: true,
-              },
-            ]
-          : path.endsWith('/contracts')
+    const payload = path.endsWith('/auth/me')
+      ? {
+          id: 'manager-1',
+          role: 'LEASING_MANAGER',
+          email: 'manager@example.test',
+          status: 'ACTIVE',
+        }
+      : path.endsWith('/auth/login')
+        ? { accessToken: 'ui-test-token' }
+        : path.endsWith('/dashboard/manager')
+          ? {
+              units: 1,
+              occupied: 1,
+              vacant: 0,
+              openRequests: 1,
+              overdue: 0,
+              depositsHeld: 3000,
+              income: 6000,
+              expenses: 2000,
+            }
+          : path.endsWith('/inventory/units')
             ? [
                 {
-                  id: 'c1',
-                  tenant: { fullName: 'Tenant One' },
-                  rentalSpace: { name: 'Room 1', unit: { name: 'Marina Apartment' } },
-                  currency: 'AED',
-                  monthlyRent: 3000,
-                  dueDay: 1,
-                  status: 'ACTIVE',
+                  id: 'u1',
+                  name: 'Marina Apartment',
+                  area: 'Dubai Marina',
+                  landlord: { name: 'Landlord One' },
+                  spaces: [{ id: 's1' }],
+                  active: true,
                 },
               ]
-            : path.endsWith('/requests')
+            : path.endsWith('/contracts')
               ? [
                   {
-                    id: 'r1',
-                    type: 'MAINTENANCE',
-                    title: 'Kitchen tap',
-                    description: 'Tap needs repair.',
-                    status: 'SUBMITTED',
+                    id: 'c1',
+                    tenant: { fullName: 'Tenant One' },
+                    rentalSpace: { name: 'Room 1', unit: { name: 'Marina Apartment' } },
+                    currency: 'AED',
+                    monthlyRent: 3000,
+                    dueDay: 1,
+                    status: 'ACTIVE',
                   },
                 ]
-              : [];
+              : path.endsWith('/requests')
+                ? [
+                    {
+                      id: 'r1',
+                      type: 'MAINTENANCE',
+                      title: 'Kitchen tap',
+                      description: 'Tap needs repair.',
+                      status: 'SUBMITTED',
+                    },
+                  ]
+                : [];
     await route.fulfill({ json: payload });
   });
 });

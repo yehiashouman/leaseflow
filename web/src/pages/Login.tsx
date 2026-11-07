@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { previewMode } from '../session';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -42,6 +43,32 @@ export function Login() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {previewMode && (
+              <div className="mb-5 flex flex-wrap gap-2">
+                {['manager', 'admin', 'tenant'].map((role) => (
+                  <Button
+                    key={role}
+                    variant="outline"
+                    size="sm"
+                    disabled={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      setError('');
+                      try {
+                        await auth.login(role + '@preview.invalid', 'PreviewOnly123!');
+                        navigate('/');
+                      } catch {
+                        setError('Preview account is unavailable.');
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    Preview {role}
+                  </Button>
+                ))}
+              </div>
+            )}
             <form onSubmit={submit} className="space-y-5" aria-busy={busy}>
               {error && (
                 <Alert variant="destructive" id="login-error">

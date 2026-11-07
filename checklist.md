@@ -7,6 +7,10 @@ Scope: complete initial release, not a scaffold or prototype.
 
 ## Status Rules
 
+Implementation progress: [docs/IMPLEMENTATION.md](docs/IMPLEMENTATION.md).
+Public preview scope and activation: [docs/PREVIEW.md](docs/PREVIEW.md).
+Partial implementations do not satisfy the full module completion rule below.
+
 All boxes start unchecked.
 Unchecked means completion is not verified; it does not prove the feature is absent.
 This document does not audit current implementation.

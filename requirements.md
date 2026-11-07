@@ -18,6 +18,10 @@
 
 ## Document Map
 
+Implementation status is recorded in `docs/IMPLEMENTATION.md`.
+The GitHub Pages preview is synthetic and does not replace API or production acceptance.
+See `docs/PREVIEW.md` for deployment and isolation requirements.
+
 | Sections | Coverage |
 |---|---|
 | 1-5 | Product, scope, roles, inventory, tenants, and occupancy |

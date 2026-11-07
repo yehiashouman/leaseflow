@@ -11,7 +11,13 @@ import { Button } from './components/ui/button';
 import { api } from './api';
 import { cn } from './lib/utils';
 
-const auth = vi.hoisted(() => ({ token: 'test-token', login: vi.fn(), logout: vi.fn() }));
+const auth = vi.hoisted(() => ({
+  token: 'test-token',
+  user: { role: 'LEASING_MANAGER' },
+  pending: false,
+  login: vi.fn(),
+  logout: vi.fn(),
+}));
 vi.mock('./auth', () => ({ useAuth: () => auth }));
 
 function renderPage(page: React.ReactNode, route = '/') {
@@ -26,6 +32,30 @@ function renderPage(page: React.ReactNode, route = '/') {
 beforeEach(() => {
   auth.login.mockReset();
   auth.logout.mockReset();
+  auth.user.role = 'LEASING_MANAGER';
+});
+
+describe('role-specific dashboards', () => {
+  it('loads the admin dashboard without a manager request', async () => {
+    auth.user.role = 'ADMIN';
+    const get = vi
+      .spyOn(api, 'get')
+      .mockResolvedValue({ data: { managers: 1, pendingApproval: 0, suspended: 0, tenants: 1 } });
+    renderPage(<App />);
+    await screen.findByRole('heading', { name: 'Platform overview' });
+    expect(get).toHaveBeenCalledWith('/dashboard/admin');
+    expect(get).not.toHaveBeenCalledWith('/dashboard/manager');
+    expect(screen.queryByRole('link', { name: 'Units' })).toBeNull();
+  });
+
+  it('loads the tenant dashboard and hides inventory links', async () => {
+    auth.user.role = 'TENANT';
+    const get = vi.spyOn(api, 'get').mockResolvedValue({ data: { contracts: [] } });
+    renderPage(<App />);
+    await screen.findByRole('heading', { name: 'My accommodation' });
+    expect(get).toHaveBeenCalledWith('/dashboard/tenant');
+    expect(screen.queryByRole('link', { name: 'Units' })).toBeNull();
+  });
 });
 afterEach(cleanup);
 

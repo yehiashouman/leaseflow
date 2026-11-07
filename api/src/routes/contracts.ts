@@ -20,7 +20,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     const body = z.object({ tenantId: z.string(), rentalSpaceId: z.string(), startDate: z.coerce.date(), monthlyRent: z.coerce.number().positive(), currency: z.enum(['AED', 'USD']).default('AED'), dueDay: z.number().int().min(1).max(28).default(1), noticeDays: z.number().int().min(0).max(90).default(30), depositAmount: z.coerce.number().min(0), secondaryOccupant: z.record(z.string(), z.unknown()).optional() }).parse(request.body);
     const manager = await managerProfile(request.user.sub);
     const tenant = await prisma.tenantProfile.findFirst({ where: { id: body.tenantId, managerId: manager.id } });
-    const space = await prisma.rentalSpace.findFirst({ where: { id: body.rentalSpaceId, enabled: true, unit: { managerId: manager.id }, type: { in: ['ROOM', 'MASTER_ROOM'] } } });
+    const space = await prisma.rentalSpace.findFirst({ where: { id: body.rentalSpaceId, enabled: true, status: { notIn: ['INACTIVE', 'MAINTENANCE'] }, unit: { managerId: manager.id, active: true }, type: { in: ['ROOM', 'MASTER_ROOM'] } } });
     if (!tenant || !space) return reply.notFound('Tenant or enabled rental space not found');
     const occupancy = await prisma.contract.count({ where: { rentalSpaceId: space.id, status: { in: ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'] } } });
     if (occupancy >= space.capacity) return reply.conflict('Rental space capacity reached');

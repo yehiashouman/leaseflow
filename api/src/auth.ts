@@ -7,15 +7,37 @@ export const hashPassword = (password: string) => argon2.hash(password, { type: 
 export const verifyPassword = (hash: string, password: string) => argon2.verify(hash, password);
 export const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 
-export async function issueTokens(app: FastifyInstance, user: { id: string; role: 'ADMIN' | 'LEASING_MANAGER' | 'TENANT' }) {
-  const accessToken = app.jwt.sign({ sub: user.id, role: user.role }, { expiresIn: process.env.ACCESS_TOKEN_TTL ?? '15m' });
+export async function issueTokens(
+  app: FastifyInstance,
+  user: { id: string; role: 'ADMIN' | 'LEASING_MANAGER' | 'TENANT' },
+) {
+  const accessToken = app.jwt.sign(
+    { sub: user.id, role: user.role },
+    { expiresIn: process.env.ACCESS_TOKEN_TTL ?? '15m' },
+  );
   const refreshToken = randomBytes(48).toString('base64url');
-  await prisma.refreshToken.create({ data: { userId: user.id, tokenHash: hashToken(refreshToken), expiresAt: new Date(Date.now() + 30 * 86400000) } });
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(refreshToken),
+      expiresAt: new Date(Date.now() + 30 * 86400000),
+    },
+  });
   return { accessToken, refreshToken };
 }
 
 export async function authenticate(request: FastifyRequest, reply: FastifyReply) {
-  try { await request.jwtVerify(); } catch { return reply.unauthorized('Authentication required'); }
+  try {
+    await request.jwtVerify();
+  } catch {
+    return reply.unauthorized('Authentication required');
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: request.user.sub },
+    select: { status: true, role: true },
+  });
+  if (!user || user.status !== 'ACTIVE' || user.role !== request.user.role)
+    return reply.unauthorized('Session is no longer active');
 }
 
 export function allowRoles(...roles: Array<'ADMIN' | 'LEASING_MANAGER' | 'TENANT'>) {
