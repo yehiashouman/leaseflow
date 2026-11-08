@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 export const fileConfigSchema = z.object({
   FILES_ENABLED: z.enum(['true', 'false']).default('false'),
   S3_ENDPOINT: z.url().optional(),
+  S3_PROVIDER: z.enum(['s3', 'minio']).default('s3'),
   S3_REGION: z.string().min(1).default('us-east-1'),
   S3_BUCKET: z
     .string()

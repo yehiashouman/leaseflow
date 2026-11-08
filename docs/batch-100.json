@@ -63,7 +63,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Redis-backed durable scheduler selection remains incomplete."
     },
     {
       "id": "DATA-007",
@@ -143,7 +143,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Changed-email and changed-phone reverification remains incomplete."
     },
     {
       "id": "AUTH-016",
@@ -159,7 +159,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Approved endpoint limits require DEC-18; development limits exist."
     },
     {
       "id": "AUTH-017",
@@ -319,7 +319,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Twilio Verify code exists; real WhatsApp staging evidence remains absent."
     },
     {
       "id": "MGR-009",
@@ -335,7 +335,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Approved OTP expiry, attempt, and resend limits require DEC-18."
     },
     {
       "id": "MGR-010",
@@ -415,7 +415,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Rejected and suspended account access requires DEC-16 and further interface work."
     },
     {
       "id": "MGR-015",
@@ -447,7 +447,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Rejection, resubmission, and suspension policy requires DEC-16."
     },
     {
       "id": "MGR-017",
@@ -463,7 +463,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Moderation outcomes require the remaining moderation and MFA implementation."
     },
     {
       "id": "FILE-001",
@@ -479,7 +479,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Generated reports retain their existing private report path; complete upload coverage remains open."
     },
     {
       "id": "FILE-002",
@@ -495,7 +495,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Actual content, size, and ownership controls exist; approved limits require DEC-18."
     },
     {
       "id": "FILE-003",
@@ -719,7 +719,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Approved retention and document-expiry policy requires DEC-15 and DEC-17."
     },
     {
       "id": "FILE-017",
@@ -735,7 +735,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Authorized whole-account export and deletion remain incomplete under DEC-17."
     },
     {
       "id": "FILE-018",
@@ -751,7 +751,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Explicit dispute holds and protected-record purge rules require DEC-17."
     },
     {
       "id": "FILE-019",
@@ -827,7 +827,7 @@
         "web/src/pages/Account.tsx"
       ],
       "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Twilio verification code exists; real tenant WhatsApp staging evidence remains absent."
     },
     {
       "id": "TEN-008",
@@ -875,7 +875,7 @@
         "web/src/pages/Account.tsx"
       ],
       "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Complete tenant finance, identity, and historical relationship detail remains incomplete."
     },
     {
       "id": "UNIT-003",
@@ -939,7 +939,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Approved required evidence categories require DEC-14; generic property and consent uploads exist."
     },
     {
       "id": "UNIT-013",
@@ -955,7 +955,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Unit activation remains disabled until the approved evidence policy exists."
     },
     {
       "id": "UNIT-014",
@@ -971,7 +971,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "The owner has not approved DEC-14 evidence policy."
     },
     {
       "id": "SPACE-008",
@@ -987,7 +987,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Authorized photos exist; complete compatibility-note forms remain incomplete."
     },
     {
       "id": "CASE-002",
@@ -1003,7 +1003,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Operational case attachments exist; specialized financial case forms remain incomplete."
     },
     {
       "id": "CASE-008",
@@ -1019,7 +1019,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Immutable evidence events exist; complete assignments and deadlines remain incomplete."
     },
     {
       "id": "CASE-010",
@@ -1035,7 +1035,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Transactional in-app notices exist; preference-based external case delivery remains incomplete."
     },
     {
       "id": "CASE-014",
@@ -1051,7 +1051,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Complaint participant isolation exists; governed support access remains incomplete."
     },
     {
       "id": "CASE-016",
@@ -1115,7 +1115,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Maintenance evidence exists; expense vendor, currency, invoice, and recovery records remain incomplete."
     },
     {
       "id": "MSG-003",
@@ -1123,7 +1123,7 @@
       "requirement": "Preserve a mandatory channel for critical security notices.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Mandatory recovery email exists; complete security-event delivery coverage remains incomplete."
     },
     {
       "id": "MSG-004",
@@ -1131,7 +1131,7 @@
       "requirement": "Support user language and English template fallback.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Account templates use English; complete user-language template selection remains incomplete."
     },
     {
       "id": "MSG-005",
@@ -1139,7 +1139,7 @@
       "requirement": "Store template, recipient, channel, language, related entity, attempt time, and provider/delivery status.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Encrypted account email jobs exist; complete channel delivery and attempt history remains incomplete."
     },
     {
       "id": "MSG-008",
@@ -1147,7 +1147,7 @@
       "requirement": "Persist transactional notification intent before provider delivery.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Account email intent persists transactionally; complete business-event provider intent remains incomplete."
     },
     {
       "id": "MSG-009",
@@ -1155,7 +1155,7 @@
       "requirement": "Retry transient failures with bounded attempts.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Email retries exist; complete WhatsApp notification retries remain incomplete."
     },
     {
       "id": "MSG-010",
@@ -1163,7 +1163,7 @@
       "requirement": "Expose terminal failures for operational recovery.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "File scan recovery exists; governed email delivery recovery remains incomplete."
     },
     {
       "id": "MSG-011",
@@ -1187,7 +1187,7 @@
       "requirement": "Use approved WhatsApp templates where required.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Approved WhatsApp template and sender acceptance requires DEC-19 and staging evidence."
     },
     {
       "id": "MSG-016",
@@ -1211,7 +1211,7 @@
       "requirement": "Verify real email and WhatsApp delivery separately in staging.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Real SMTP and Twilio staging delivery remains unverified."
     },
     {
       "id": "MODEL-014",
@@ -1227,7 +1227,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Private document versions exist; complete report and retention model acceptance remains incomplete."
     },
     {
       "id": "MODEL-015",
@@ -1243,7 +1243,7 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "In-app notices and account email jobs exist; complete WhatsApp delivery history remains incomplete."
     },
     {
       "id": "RESOURCE-001",
@@ -1275,7 +1275,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Initial verification exists; changed-contact reverification remains incomplete."
     },
     {
       "id": "RESOURCE-003",
@@ -1319,7 +1319,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Internal notices exist; complete provider callback endpoints remain incomplete."
     },
     {
       "id": "WORKER-007",
@@ -1343,7 +1343,7 @@
       "requirement": "Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "This batch implements part of the requirement; the complete workflow remains open."
+      "note": "Durable email jobs exist; complete WhatsApp notification delivery remains incomplete."
     },
     {
       "id": "WORKER-010",
@@ -1375,7 +1375,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Twilio Verify integration exists; approved sender and template validation remains pending."
     },
     {
       "id": "CONFIG-007",
@@ -1383,7 +1383,7 @@
       "requirement": "Document and validate Email: Provider or SMTP credentials, sender, callback configuration.",
       "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "SMTP configuration exists; approved production sender and real staging delivery remain pending."
     },
     {
       "id": "CONFIG-008",
@@ -1415,7 +1415,7 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+      "note": "Development content limits and ClamAV exist; approved upload policy requires DEC-18."
     },
     {
       "id": "TEST-AUTH-03",

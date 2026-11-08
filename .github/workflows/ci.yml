@@ -104,6 +104,7 @@ jobs:
       JWT_REFRESH_SECRET: ci-files-refresh-secret-at-least-32-characters
       FILE_SERVICE_TESTS: 'true'
       FILES_ENABLED: 'true'
+      S3_PROVIDER: minio
       S3_ENDPOINT: http://127.0.0.1:19000
       S3_REGION: us-east-1
       S3_BUCKET: leaseflow-private

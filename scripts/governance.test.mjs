@@ -38,3 +38,23 @@ test('development forwarding and service exposure preserve the intended boundary
   assert(read('.dockerignore').split('\n').includes('**/.env*'));
   assert(read('docs/TECHNICAL-SELECTIONS.md').includes('not owner approval'));
 });
+
+test('the larger batch preserves one hundred stable requirements and honest completion counts', () => {
+  const batch = JSON.parse(read('docs/batch-100.json'));
+  const checklist = read('checklist.md');
+  assert.equal(batch.target, 100);
+  assert.equal(batch.items.length, 100);
+  assert.equal(new Set(batch.items.map((item) => item.id)).size, 100);
+  for (const item of batch.items) {
+    assert(['PENDING_VERIFICATION', 'VERIFIED', 'PARTIAL', 'BLOCKED'].includes(item.status));
+    const line = checklist.split('\n').find((line) => line.includes('**' + item.id + '**'));
+    assert(line, 'Unknown checklist identifier: ' + item.id);
+    assert.equal(line.startsWith('- [x]'), item.status === 'VERIFIED');
+    assert(item.code.length && item.tests.length);
+  }
+  const checked = [...checklist.matchAll(/^- \[x\] /gm)].length;
+  assert.equal(
+    checked,
+    batch.baselineCompleted + batch.items.filter((item) => item.status === 'VERIFIED').length,
+  );
+});

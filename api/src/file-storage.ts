@@ -54,10 +54,17 @@ export const privateStorage: PrivateStorage = {
     } catch (cause) {
       if ((cause as { name: string }).name !== 'NoSuchBucketPolicy') throw cause;
     }
+    // MinIO exposes a dummy ACL response; its bucket policy controls anonymous access.
+    if (fileConfig.S3_PROVIDER === 'minio') return;
     const acl = await client.send(new GetBucketAclCommand({ Bucket }));
     if (
-      acl.Grants?.some(
-        (grant) => grant.Grantee?.Type !== 'CanonicalUser' || grant.Grantee.ID !== acl.Owner?.ID,
+      !acl.Owner?.ID ||
+      !acl.Grants?.length ||
+      acl.Grants.some(
+        (grant) =>
+          grant.Grantee?.Type !== 'CanonicalUser' ||
+          grant.Grantee.ID !== acl.Owner?.ID ||
+          grant.Permission !== 'FULL_CONTROL',
       )
     )
       throw new Error('Private bucket ACL is required');

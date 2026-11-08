@@ -130,3 +130,48 @@ The baseline remains 102 of 764 until acceptance evidence confirms additional cl
 | CONFIG-009   | BLOCKED              | `api/src/routes/accounts.ts`, `web/src/pages/Account.tsx`, `api/src/account-policy.ts`        | `api/integration/accounts.test.ts`, `api/test/account-policy.test.ts`, `web/e2e/accounts.live.spec.ts` |
 | TEST-AUTH-03 | PENDING_VERIFICATION | `api/src/routes/invitations.ts`, `web/src/pages/Invitations.tsx`, `web/src/pages/Account.tsx` | `api/integration/accounts.test.ts`, `web/e2e/accounts.live.spec.ts`                                    |
 | TEST-DOC-01  | PENDING_VERIFICATION | `api/src/routes/documents.ts`, `api/src/file-worker.ts`, `web/src/components/documents.tsx`   | `api/integration/documents.test.ts`, `api/acceptance/files.test.ts`, `web/e2e/documents.files.spec.ts` |
+
+## Remaining Acceptance and Policy Work
+
+| Item         | Remaining requirement                                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| BASE-018     | Redis-backed durable scheduler selection remains incomplete.                                               |
+| AUTH-013     | Changed-email and changed-phone reverification remains incomplete.                                         |
+| AUTH-016     | Approved endpoint limits require DEC-18; development limits exist.                                         |
+| MGR-008      | Twilio Verify code exists; real WhatsApp staging evidence remains absent.                                  |
+| MGR-009      | Approved OTP expiry, attempt, and resend limits require DEC-18.                                            |
+| MGR-014      | Rejected and suspended account access requires DEC-16 and further interface work.                          |
+| MGR-016      | Rejection, resubmission, and suspension policy requires DEC-16.                                            |
+| MGR-017      | Moderation outcomes require the remaining moderation and MFA implementation.                               |
+| FILE-001     | Generated reports retain their existing private report path; complete upload coverage remains open.        |
+| FILE-002     | Actual content, size, and ownership controls exist; approved limits require DEC-18.                        |
+| FILE-016     | Approved retention and document-expiry policy requires DEC-15 and DEC-17.                                  |
+| FILE-017     | Authorized whole-account export and deletion remain incomplete under DEC-17.                               |
+| FILE-018     | Explicit dispute holds and protected-record purge rules require DEC-17.                                    |
+| TEN-007      | Twilio verification code exists; real tenant WhatsApp staging evidence remains absent.                     |
+| TEN-019      | Complete tenant finance, identity, and historical relationship detail remains incomplete.                  |
+| UNIT-012     | Approved required evidence categories require DEC-14; generic property and consent uploads exist.          |
+| UNIT-013     | Unit activation remains disabled until the approved evidence policy exists.                                |
+| UNIT-014     | The owner has not approved DEC-14 evidence policy.                                                         |
+| SPACE-008    | Authorized photos exist; complete compatibility-note forms remain incomplete.                              |
+| CASE-002     | Operational case attachments exist; specialized financial case forms remain incomplete.                    |
+| CASE-008     | Immutable evidence events exist; complete assignments and deadlines remain incomplete.                     |
+| CASE-010     | Transactional in-app notices exist; preference-based external case delivery remains incomplete.            |
+| CASE-014     | Complaint participant isolation exists; governed support access remains incomplete.                        |
+| MAINT-011    | Maintenance evidence exists; expense vendor, currency, invoice, and recovery records remain incomplete.    |
+| MSG-003      | Mandatory recovery email exists; complete security-event delivery coverage remains incomplete.             |
+| MSG-004      | Account templates use English; complete user-language template selection remains incomplete.               |
+| MSG-005      | Encrypted account email jobs exist; complete channel delivery and attempt history remains incomplete.      |
+| MSG-008      | Account email intent persists transactionally; complete business-event provider intent remains incomplete. |
+| MSG-009      | Email retries exist; complete WhatsApp notification retries remain incomplete.                             |
+| MSG-010      | File scan recovery exists; governed email delivery recovery remains incomplete.                            |
+| MSG-015      | Approved WhatsApp template and sender acceptance requires DEC-19 and staging evidence.                     |
+| MSG-018      | Real SMTP and Twilio staging delivery remains unverified.                                                  |
+| MODEL-014    | Private document versions exist; complete report and retention model acceptance remains incomplete.        |
+| MODEL-015    | In-app notices and account email jobs exist; complete WhatsApp delivery history remains incomplete.        |
+| RESOURCE-002 | Initial verification exists; changed-contact reverification remains incomplete.                            |
+| RESOURCE-018 | Internal notices exist; complete provider callback endpoints remain incomplete.                            |
+| WORKER-008   | Durable email jobs exist; complete WhatsApp notification delivery remains incomplete.                      |
+| CONFIG-006   | Twilio Verify integration exists; approved sender and template validation remains pending.                 |
+| CONFIG-007   | SMTP configuration exists; approved production sender and real staging delivery remain pending.            |
+| CONFIG-009   | Development content limits and ClamAV exist; approved upload policy requires DEC-18.                       |
