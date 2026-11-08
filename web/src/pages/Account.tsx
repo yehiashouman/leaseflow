@@ -51,7 +51,11 @@ export function Account({ mode }: { mode: Mode }) {
       setError('');
       setSuccess('');
     }
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      window.location.pathname + window.location.search,
+    );
   }, [client, linkToken, retainedToken]);
   const policy = useQuery({
     queryKey: ['account-policy'],
@@ -117,6 +121,7 @@ export function Account({ mode }: { mode: Mode }) {
   function clearSetupCache() {
     client.removeQueries({ queryKey: ['account-setup'] });
     client.removeQueries({ queryKey: ['account-documents'] });
+    client.removeQueries({ queryKey: ['invitation-inspect'] });
     client.removeQueries({ queryKey: ['document-policy', 'account-documents'] });
   }
   function startSession(data: { accessToken?: string }) {
@@ -205,6 +210,7 @@ export function Account({ mode }: { mode: Mode }) {
               {mode === 'reset' &&
                 (token ? (
                   <form
+                    key={token}
                     className="space-y-4"
                     onSubmit={submit('/auth/password/reset', (form) => ({
                       token,
@@ -521,7 +527,6 @@ export function Account({ mode }: { mode: Mode }) {
                             await accountApi.post('/auth/setup/logout', {});
                             sessionStorage.removeItem(setupSessionKey);
                             clearSetupCache();
-
                             setSession(false);
                           })
                         }

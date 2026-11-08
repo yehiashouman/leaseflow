@@ -118,8 +118,10 @@ export async function buildApp() {
   const emails = emailWorker(() => app.log.error('Email worker failed'));
   const files = fileWorker(() => app.log.error('File worker failed'));
   const worker = reportWorker(() => app.log.error('Report worker failed'));
-  app.addHook('onListen', async () => {
+  app.addHook('onReady', async () => {
     if (fileConfig.FILES_ENABLED === 'true') await privateStorage.verify();
+  });
+  app.addHook('onListen', async () => {
     emails.start();
     files.start();
     worker.start();

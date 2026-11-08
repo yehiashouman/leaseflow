@@ -44,6 +44,9 @@ describe('account identity and email-link boundaries', () => {
     client.setQueryData(['account-documents', 'IDENTITY', 'self', 1], {
       title: 'Private previous identity',
     });
+    client.setQueryData(['invitation-inspect', 'previous-private-token'], {
+      email: 'previous@example.com',
+    });
     get.mockImplementation(async (path) => {
       if (path === '/auth/policy') return { data: policy };
       throw new Error('Session expired');
@@ -51,6 +54,7 @@ describe('account identity and email-link boundaries', () => {
     renderAccount('setup', client, '/account-setup');
     await userEvent.click(await screen.findByRole('button', { name: 'Use another account' }));
     expect(client.getQueryData(['account-documents', 'IDENTITY', 'self', 1])).toBeUndefined();
+    expect(client.getQueryData(['invitation-inspect', 'previous-private-token'])).toBeUndefined();
     client.setQueryData(['account-documents', 'IDENTITY', 'self', 1], { title: 'Old cached data' });
     post.mockResolvedValue({ data: { accessToken: 'new-account-token' } });
     get.mockImplementation(async (path) => ({
@@ -80,6 +84,7 @@ describe('account identity and email-link boundaries', () => {
     const first = 'a'.repeat(43),
       second = 'b'.repeat(43),
       client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    window.history.replaceState({ idx: 5, key: 'existing-entry' }, '', window.location.pathname);
     get.mockResolvedValue({ data: policy });
     post.mockResolvedValue({ data: { message: 'Reset accepted.' } });
     renderAccount(
@@ -92,6 +97,7 @@ describe('account identity and email-link boundaries', () => {
       await screen.findByLabelText('New password', { exact: true }),
       'NewPassword123!',
     );
+    expect(window.history.state).toEqual({ idx: 5, key: 'existing-entry' });
     await userEvent.click(screen.getByRole('button', { name: 'Reset password' }));
     await waitFor(() =>
       expect(post).toHaveBeenCalledWith('/auth/password/reset', {
