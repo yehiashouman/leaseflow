@@ -42,7 +42,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
         prisma.request.count({
           where: {
             ...caseScope(request.user),
-            status: { notIn: ['ACCEPTED', 'CLOSED', 'REJECTED'] },
+            status: { notIn: ['DRAFT', 'ACCEPTED', 'CLOSED', 'REJECTED'] },
           },
         }),
         prisma.payment.aggregate({

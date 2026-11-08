@@ -42,6 +42,8 @@ Case scope requires a consistent contract, tenant, and property manager relation
 Roommates and foreign managers cannot read or modify another tenant's case.
 Ordinary administrators cannot access these endpoints; authorized support access remains incomplete.
 Responses exclude owner rent, identity documents, arbitrary legacy metadata, and internal replay keys.
+Related tenant contract/dashboard responses expose only case summaries and safe room/property fields.
+Manager contract responses exclude tenant account secrets and unrelated identity-profile fields.
 Case responses use Cache-Control: no-store.
 New audit records contain identifiers, status, and version, never complaint or message text.
 Existing legacy audits remain unchanged; historical audit privacy requires separate review.
@@ -68,7 +70,10 @@ Local API and web suites, lint, production builds, and preview builds pass.
 New tests cover role rules, form failures, history, retries, stale decisions, and synthetic persistence.
 MySQL cases cover privacy, concurrent messages/decisions, legacy relationships, and transactional history.
 Real-browser cases exercise tenant/manager messages, dispute, resolution, acceptance, closure, and narrow layouts.
-Hosted MySQL and browser results remain pending until recorded in EVIDENCE.md.
+Hosted verification passes 62 API tests, 55 web tests, 39 MySQL cases, and fourteen browser cases.
+Evidence: [API, MySQL, and real browsers](https://github.com/yehiashouman/leaseflow/actions/runs/42439739883).
+Preview: [synthetic browsers and Pages deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42439739898).
+We verified both desktop and mobile case-history screenshots without clipping.
 Live tests model separate clients through test-only proxy headers; production rate limits remain enabled.
 This does not approve a production trusted-proxy policy.
 

@@ -386,10 +386,10 @@ Requirements: 9, 22-25.
 - [ ] **CASE-006** Define valid transitions per request type and role.
 - [ ] **CASE-007** Reject invalid or concurrent transitions.
 - [ ] **CASE-008** Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements.
-- [ ] **CASE-009** Identify each event author and timestamp.
+- [x] **CASE-009** Identify each event author and timestamp. Evidence: [case history verification](docs/EVIDENCE.md#operational-cases).
 - [ ] **CASE-010** Notify both parties of case updates.
 - [ ] **CASE-011** Ask tenants to accept or dispute completion.
-- [ ] **CASE-012** Keep unanswered completion completed-unacknowledged.
+- [x] **CASE-012** Keep unanswered completion completed-unacknowledged. Evidence: [case acknowledgement verification](docs/EVIDENCE.md#operational-cases).
 - [ ] **CASE-013** Allow authorized reopening without deletion of previous resolution.
 - [ ] **CASE-014** Restrict sensitive complaint details to the relevant tenant, manager, and authorized support.
 - [ ] **CASE-015** Allow the complainant to select an involved occupant when known.

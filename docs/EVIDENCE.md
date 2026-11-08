@@ -141,3 +141,32 @@ We verified landlord preview screenshots on desktop and mobile.
 Public HTML, JavaScript, and CSS return HTTP 200.
 Boundary cases verify company/address/street storage and long user-agent audit metadata.
 Documents, unit activation, unit archive/restore, and the complete inventory module remain incomplete.
+
+## Operational Cases
+
+Verified: 8 November 2026, Asia/Dubai.
+Commit: `ca4ce8c6b66e610f7355428fcd696e3b46c1bcdc`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, database, and real-browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42439739883).
+Preview: [synthetic browser verification and deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42439739898).
+
+The run passes 62 API tests, 55 web tests, 39 MySQL cases, and six real-browser cases.
+The preview run passes four API-fixture interface cases and four synthetic-preview cases.
+Total: 156 automated tests plus fourteen browser cases.
+Lint, builds, migrations, schema validation, and the high/critical audit gate pass.
+Seven moderate development-tool dependency advisories remain.
+
+| Item     | Code                                                                                                        | Test and evidence scope                                                                                                                                                    |
+| -------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CASE-009 | api/src/case-data.ts; api/src/routes/requests.ts; api/prisma/schema.prisma; web/src/pages/RequestDetail.tsx | api/integration/cases.test.ts and web/e2e/cases.live.spec.ts verify actor IDs, immutable name/role snapshots, event sequence, timestamps, and legacy identity preservation |
+| CASE-012 | api/src/case-rules.ts; api/src/routes/requests.ts; web/src/pages/RequestDetail.tsx                          | MySQL tests verify that messages and unanswered completion cannot imply acceptance; browser tests require explicit tenant acceptance before manager closure                |
+
+Database cases also verify private ownership, roommate denial, consistent manager relationships, retries, stale versions, concurrent writes, and forbidden role decisions.
+Contract/dashboard regression cases verify safe case summaries and exclusion of tenant account secrets.
+Real-browser tests submit cases, exchange messages, dispute resolution, accept completion, close cases, and preserve all nine event sequences.
+The synthetic preview verifies role exchange and reload persistence without backend requests.
+We verified case-history screenshots on desktop and mobile.
+The long preview test now uses separate inventory and case journeys without longer timeouts or weaker assertions.
+Migration and exact scope: [CASES.md](CASES.md).
+All other CASE tasks remain unchecked because their complete workflows lack evidence.
+Attachments, specialized financial requests, cost responsibility, deadlines, notifications, and authorized support remain incomplete.

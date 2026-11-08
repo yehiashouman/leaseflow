@@ -7,16 +7,17 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 
 ## Delivered in This Pass
 
-| Area       | Implemented behavior                                                                             | Verification                                              |
-| ---------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- |
-| Sessions   | Current-user endpoint, role-aware navigation, cache reset on logout, suspended-account rejection | API and component tests                                   |
-| Dashboards | Separate administrator, manager, and tenant endpoints/views                                      | Role and ownership tests                                  |
-| Landlords  | List, create, and edit contact records                                                           | Real API routes; mocked-database tests; form tests        |
-| Units      | List, detail, create, and edit draft property records                                            | Real API routes; ownership and form tests                 |
-| Rooms      | Create Room/Master Room; enforce disabled types, capacity bounds, and private bathroom           | Route and form tests                                      |
-| Audit      | Transactional inventory audit events with old/new edit values                                    | Mocked transaction tests                                  |
-| Preview    | Three synthetic accounts, local persistence, reset, role views, inventory forms                  | Adapter tests and preview build                           |
-| Pages      | Dedicated build/deploy workflow and owner setup instructions                                     | Deployment succeeds; live HTML and assets return HTTP 200 |
+| Area       | Implemented behavior                                                                                       | Verification                                              |
+| ---------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Sessions   | Current-user endpoint, role-aware navigation, cache reset on logout, suspended-account rejection           | API and component tests                                   |
+| Dashboards | Separate administrator, manager, and tenant endpoints/views                                                | Role and ownership tests                                  |
+| Landlords  | List, create, and edit contact records                                                                     | Real API routes; mocked-database tests; form tests        |
+| Units      | List, detail, create, and edit draft property records                                                      | Real API routes; ownership and form tests                 |
+| Rooms      | Create Room/Master Room; enforce disabled types, capacity bounds, and private bathroom                     | Route and form tests                                      |
+| Audit      | Transactional inventory audit events with old/new edit values                                              | Mocked transaction tests                                  |
+| Preview    | Three synthetic accounts, local persistence, reset, role views, inventory forms                            | Adapter tests and preview build                           |
+| Pages      | Dedicated build/deploy workflow and owner setup instructions                                               | Deployment succeeds; live HTML and assets return HTTP 200 |
+| Cases      | Four operational request forms, private history, messages, versioned decisions, and tenant acknowledgement | MySQL and real-browser cases; details in CASES.md         |
 
 ## Incomplete Release Work
 
@@ -24,7 +25,7 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 - Document upload, scans, expiry, and unit activation remain incomplete.
 - Contract creation and amendments remain incomplete.
 - Financial ledgers, receipts, deposits, refunds, and disputes remain incomplete.
-- Transfer, move-out, and request workflows remain incomplete.
+- Transfer, move-out, late-payment requests, and complete case workflows remain incomplete.
 - Expenses, full reports, PDF exports, and durable notification jobs remain incomplete.
 - Administrator moderation screens and audit explorer remain incomplete.
 - Full database acceptance, the full release browser journey, backup, and production acceptance remain unverified.
@@ -37,8 +38,8 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 57 tests pass; database-dependent behavior uses mocks.
-- Web suite: 44 tests pass, including forms, roles, session cleanup, and preview data.
+- API suite: 62 tests pass; database-dependent unit tests use mocks.
+- Web suite: 55 tests pass, including forms, roles, session cleanup, cases, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -80,3 +81,13 @@ New assignments and archive share a row lock to prevent unsafe concurrent links.
 All eleven new MySQL cases and both new real-browser journeys pass on GitHub.
 Current totals: 101 API/web tests, 26 MySQL cases, and ten browser cases pass.
 Real browser tests now share the application suite in web/playwright.live.config.ts.
+
+## Operational Case Continuation
+
+See [CASES.md](CASES.md) for private operational cases and their required migration.
+Both roles use real message and status APIs; tenant acceptance never follows automatically from silence.
+History preserves author snapshots, sequence, timestamps, and previous resolution events.
+Replay-safe keys and locked, version-checked decisions prevent duplicate or concurrent effects.
+Related contract and dashboard responses exclude internal case keys and tenant account secrets.
+Current totals: 117 API/web tests, 39 MySQL cases, and fourteen browser cases pass.
+Late-payment, transfer, move-out, attachments, cost responsibility, notifications, and full support access remain incomplete.

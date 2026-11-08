@@ -212,6 +212,17 @@ describe('MySQL private operational case workflow', () => {
       id: tenant.profileId,
       fullName: 'Case Tenant',
     });
+    const count = (await send('GET', '/api/v1/dashboard/manager', undefined, manager)).json()
+      .openRequests;
+    await prisma.request.update({ where: { id: requestId }, data: { status: 'DRAFT' } });
+    try {
+      expect(
+        (await send('GET', '/api/v1/dashboard/manager', undefined, manager)).json().openRequests,
+      ).toBe(count - 1);
+      expect((await send('GET', '/' + requestId, undefined, manager)).statusCode).toBe(404);
+    } finally {
+      await prisma.request.update({ where: { id: requestId }, data: { status: 'SUBMITTED' } });
+    }
   });
   it('denies roommates, foreign managers, administrators, and foreign contract submissions', async () => {
     for (const actor of [roommate, outsider]) {
