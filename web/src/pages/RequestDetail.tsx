@@ -24,6 +24,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { QueryFeedback } from '@/components/query-feedback';
+import { CaseReports } from '@/components/case-reports';
 
 const textareaClass =
   'min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-ring';
@@ -217,6 +218,7 @@ export function RequestDetail() {
           </Button>
         </form>
       )}
+      <CaseReports key={data.id} requestId={data.id} version={data.version} />
       <Sheet
         open={Boolean(command)}
         onOpenChange={(open) => {

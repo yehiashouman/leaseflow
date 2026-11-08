@@ -329,6 +329,7 @@ model Request {
   clientId String?
   contract Contract @relation(fields: [contractId], references: [id])
   events RequestEvent[]
+  reportJobs CaseReportJob[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([contractId, status])
@@ -365,6 +366,38 @@ model Notification {
   event RequestEvent @relation(fields: [eventId], references: [id])
   @@unique([recipientUserId, eventId])
   @@index([recipientUserId, readAt, createdAt])
+}
+
+enum ReportStatus {
+  QUEUED
+  RUNNING
+  COMPLETE
+  FAILED
+}
+
+model CaseReportJob {
+  id String @id @default(cuid())
+  ownerUserId String
+  ownerRole Role
+  requestId String
+  clientId String
+  expectedVersion Int
+  status ReportStatus @default(QUEUED)
+  snapshot Json
+  snapshotHash String @db.VarChar(64)
+  pdfBytes Bytes? @db.MediumBlob
+  pdfHash String? @db.VarChar(64)
+  attempts Int @default(0)
+  retryCount Int @default(0)
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  failureCode String?
+  createdAt DateTime @default(now())
+  completedAt DateTime?
+  request Request @relation(fields: [requestId], references: [id])
+  @@unique([ownerUserId, clientId])
+  @@index([status, createdAt])
+  @@index([ownerUserId, requestId, createdAt])
 }
 
 model Expense {

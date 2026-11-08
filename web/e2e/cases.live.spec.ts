@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { expect, test, type Page } from '@playwright/test';
 import { prisma } from '../../api/src/db.js';
 import { hashPassword } from '../../api/src/auth.js';
@@ -152,6 +153,34 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     expect(saved.events[2].actorName).toBe('Browser Case Manager');
     expect(await prisma.payment.count({ where: { contractId: contract.id } })).toBe(0);
     expect(await prisma.depositEntry.count({ where: { contractId: contract.id } })).toBe(0);
+    await page.getByRole('button', { name: 'Export PDF', exact: true }).click();
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Download PDF', exact: true }).click();
+    const pdf = await download;
+    const pdfPath = testInfo.outputPath('case-history.pdf');
+    await pdf.saveAs(pdfPath);
+    const text = execFileSync('pdftotext', ['-layout', pdfPath, '-']).toString();
+    for (const expected of [
+      'Browser Case Tenant',
+      'Browser Case Manager',
+      'The leak remains',
+      'The tap was replaced',
+      'Not legal findings or certification',
+    ])
+      expect(text).toContain(expected);
+    execFileSync('pdftoppm', [
+      '-f',
+      '1',
+      '-singlefile',
+      '-scale-to',
+      '1200',
+      '-png',
+      pdfPath,
+      testInfo.outputPath('case-history-pdf'),
+    ]);
+    expect(
+      await prisma.caseReportJob.count({ where: { requestId: caseId, status: 'COMPLETE' } }),
+    ).toBe(1);
     await page.goto('/notifications');
     await expect(
       page.getByRole('link', { name: 'Browser tap repair ' + suffix, exact: true }).first(),
@@ -210,6 +239,7 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     ).toBe('Browser Case Tenant');
   } finally {
     await context.close();
+    await prisma.caseReportJob.deleteMany({ where: { request: { contractId: contract.id } } });
     await prisma.notification.deleteMany({
       where: { event: { request: { contractId: contract.id } } },
     });

@@ -21,6 +21,10 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 
 ## Incomplete Release Work
 
+Private case-history report jobs, download controls, and source exports now exist.
+Hosted acceptance remains pending for this batch.
+Exact scope and required migration: [PDF-REPORTS.md](PDF-REPORTS.md).
+
 Read-only contract detail and paged payment, deposit, and case records now exist.
 Exact scope and limits: [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md).
 Hosted API, MySQL, desktop/mobile browser, and preview acceptance pass for this read-only scope.

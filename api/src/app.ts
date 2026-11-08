@@ -20,6 +20,8 @@ import { adminRoutes } from './routes/admin.js';
 import { profileRoutes } from './routes/profile.js';
 import { tenantRoutes } from './routes/tenants.js';
 import { notificationRoutes } from './routes/notifications.js';
+import { reportRoutes } from './routes/reports.js';
+import { reportWorker } from './report-worker.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -76,13 +78,11 @@ export async function buildApp() {
         .send({ error: 'Forbidden', message: 'Origin not allowed', requestId: request.id });
     }
     request.log.error(error);
-    return reply
-      .code(error.statusCode ?? 500)
-      .send({
-        error: error.name,
-        message: error.statusCode ? error.message : 'Internal server error',
-        requestId: request.id,
-      });
+    return reply.code(error.statusCode ?? 500).send({
+      error: error.name,
+      message: error.statusCode ? error.message : 'Internal server error',
+      requestId: request.id,
+    });
   });
   app.get('/health/live', () => ({ status: 'ok' }));
   app.get('/health/ready', async (_, reply) => {
@@ -103,6 +103,14 @@ export async function buildApp() {
   await app.register(profileRoutes, { prefix: '/api/v1/profile' });
   await app.register(tenantRoutes, { prefix: '/api/v1/tenants' });
   await app.register(notificationRoutes, { prefix: '/api/v1/notifications' });
-  app.addHook('onClose', () => prisma.$disconnect());
+  await app.register(reportRoutes, { prefix: '/api/v1/reports' });
+  const worker = reportWorker((cause) => app.log.error(cause, 'Report worker failed'));
+  app.addHook('onListen', async () => {
+    worker.start();
+  });
+  app.addHook('onClose', async () => {
+    await worker.stop();
+    await prisma.$disconnect();
+  });
   return app;
 }
