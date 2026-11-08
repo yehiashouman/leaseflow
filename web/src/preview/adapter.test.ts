@@ -8,6 +8,87 @@ const client = axios.create({
 });
 beforeEach(resetPreview);
 describe('isolated preview data', () => {
+  it('records and revises maintenance proposals without loss of tenant disputes or financial writes', async () => {
+    const body = {
+      clientId: crypto.randomUUID(),
+      expectedVersion: 1,
+      classification: 'TENANT_COST',
+      proposedAmount: '150.25',
+      explanation: 'Broken handle',
+      evidenceNotes: 'Dated inspection recorded a snapped handle',
+    };
+    const first = (await client.post('/requests/request-1/maintenance', body)).data;
+    expect(first.maintenanceAssessments[0]).toMatchObject({
+      proposedAmount: '150.25',
+      currency: 'AED',
+      decision: null,
+    });
+    expect((await client.post('/requests/request-1/maintenance', body)).data.version).toBe(2);
+    const tenant = axios.create({
+      adapter: previewAdapter,
+      headers: { Authorization: 'Bearer preview:TENANT' },
+    });
+    const id = first.maintenanceAssessments[0].id;
+    const response = {
+      clientId: crypto.randomUUID(),
+      expectedVersion: 2,
+      decision: 'DISPUTED',
+      explanation: 'Already damaged',
+    };
+    expect(
+      (await tenant.post('/requests/request-1/maintenance/' + id + '/respond', response)).data
+        .maintenanceAssessments[0].decision,
+    ).toBe('DISPUTED');
+    await client.post('/requests/request-1/maintenance', {
+      ...body,
+      clientId: crypto.randomUUID(),
+      expectedVersion: 3,
+      proposedAmount: '75.25',
+    });
+    const current = (await tenant.get('/requests/request-1')).data;
+    const accepted = (
+      await tenant.post(
+        '/requests/request-1/maintenance/' + current.maintenanceAssessments.at(-1).id + '/respond',
+        { ...response, clientId: crypto.randomUUID(), expectedVersion: 4, decision: 'ACCEPTED' },
+      )
+    ).data;
+    expect(
+      accepted.maintenanceAssessments.map((row: { decision: string }) => row.decision),
+    ).toEqual(['DISPUTED', 'ACCEPTED']);
+    expect((await client.get('/contracts')).data[0].payments).toHaveLength(1);
+    await expect(
+      client.post('/requests/request-1/maintenance', {
+        ...body,
+        clientId: crypto.randomUUID(),
+        expectedVersion: 5,
+      }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+  });
+  it('rejects maintenance amount, evidence, replay, and role violations in the preview', async () => {
+    const body = {
+      clientId: crypto.randomUUID(),
+      expectedVersion: 1,
+      classification: 'TENANT_COST',
+      proposedAmount: '150.25',
+      explanation: 'Broken handle',
+      evidenceNotes: 'Dated inspection recorded a snapped handle',
+    };
+    await expect(
+      client.post('/requests/request-1/maintenance', { ...body, evidenceNotes: '' }),
+    ).rejects.toMatchObject({ response: { status: 422 } });
+    await expect(
+      client.post('/requests/request-1/maintenance', { ...body, proposedAmount: '1.234' }),
+    ).rejects.toMatchObject({ response: { status: 422 } });
+    await expect(
+      client.post('/requests/request-1/maintenance', body, {
+        headers: { Authorization: 'Bearer preview:TENANT' },
+      }),
+    ).rejects.toMatchObject({ response: { status: 403 } });
+    await client.post('/requests/request-1/maintenance', body);
+    await expect(
+      client.post('/requests/request-1/maintenance', { ...body, proposedAmount: '100.25' }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+  });
   it('serves contract detail and paged records while denying ordinary administrator access', async () => {
     const detail = (await client.get('/contracts/contract-1')).data;
     expect(detail).toMatchObject({ id: 'contract-1', endDate: null, noticeDays: 30 });

@@ -3,6 +3,7 @@ export type CaseContract = {
   id: string;
   status: string;
   startDate?: string;
+  currency?: string;
   tenant?: { id: string; fullName: string };
   rentalSpace?: { id?: string; name: string; unit: { id?: string; name: string; area?: string } };
 };
@@ -33,6 +34,28 @@ export type CaseRecord = {
   events?: CaseEvent[];
   allowedActions?: CaseAction[];
   canMessage?: boolean;
+  canAssessMaintenance?: boolean;
+  canRespondMaintenance?: boolean;
+  maintenanceAssessments?: MaintenanceAssessment[];
+};
+export type MaintenanceAssessment = {
+  id: string;
+  caseVersion: number;
+  classification: string;
+  proposedAmount: string | null;
+  currency: string | null;
+  explanation: string;
+  evidenceNotes: string | null;
+  decision: 'ACCEPTED' | 'DISPUTED' | null;
+  responseExplanation: string | null;
+  createdAt: string;
+  respondedAt: string | null;
+};
+export const maintenanceLabels: Record<string, string> = {
+  MANAGER_COST: 'Normal Wear / Leasing Manager Cost',
+  TENANT_COST: 'Tenant-Caused Damage / Proposed Tenant Cost',
+  UNDER_REVIEW: 'Under Review',
+  NO_COST: 'No Cost',
 };
 export const caseTypes: Record<string, string> = {
   MAINTENANCE: 'Maintenance',
@@ -72,6 +95,9 @@ export const caseCommands: Record<string, string> = {
   CLOSED: 'Close case',
 };
 export function caseEventLabel(kind: string) {
+  if (kind === 'MAINTENANCE_ASSESSED') return 'Maintenance responsibility recorded';
+  if (kind === 'MAINTENANCE_ACCEPTED') return 'Proposed cost accepted';
+  if (kind === 'MAINTENANCE_DISPUTED') return 'Proposed cost disputed';
   if (kind === 'DRAFT_CREATED') return 'Draft saved';
   return kind === 'MESSAGE'
     ? 'Message'

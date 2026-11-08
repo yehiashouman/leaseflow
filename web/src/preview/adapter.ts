@@ -1,6 +1,12 @@
 import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios';
 import type { Role, SessionUser } from '../session';
-import { mutatePreviewCase, previewCase, previewCaseContract, previewCaseTypes } from './cases';
+import {
+  mutatePreviewCase,
+  mutatePreviewMaintenance,
+  previewCase,
+  previewCaseContract,
+  previewCaseTypes,
+} from './cases';
 import { preferenceFields } from '../profile-fields';
 
 type RecordData = { id: string; [key: string]: any };
@@ -704,6 +710,29 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         localStorage.setItem(storageKey, JSON.stringify(store));
       }
       return respond(previewCase(record, store.contracts, role), 201);
+    }
+    const maintenance = path.match(/^\/requests\/([^/]+)\/maintenance(?:\/([^/]+)\/respond)?$/);
+    if (maintenance && method === 'post') {
+      const record = store.requests.find(
+        (item) =>
+          item.id === maintenance[1] && (role !== 'LEASING_MANAGER' || item.status !== 'DRAFT'),
+      );
+      if (!record) return fail('Request not found', 404);
+      const contract = store.contracts.find(
+        (item) => item.id === (record.contractId ?? 'contract-1'),
+      );
+      if (!contract) return fail('Contract not found', 404);
+      mutatePreviewMaintenance(
+        record,
+        data,
+        role,
+        fail,
+        contract.currency,
+        role === 'TENANT' ? profile.tenant.fullName : 'Demo Manager',
+        maintenance[2],
+      );
+      localStorage.setItem(storageKey, JSON.stringify(store));
+      return respond(previewCase(record, store.contracts, role), maintenance[2] ? 200 : 201);
     }
     const match = path.match(/^\/requests\/([^/]+)(?:\/(messages|respond))?$/);
     if (match) {

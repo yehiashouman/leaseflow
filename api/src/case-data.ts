@@ -3,6 +3,7 @@ import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { lockUser } from './sessions.js';
 import { allowedCaseActions, caseActionNeedsMessage, caseAllowsMessages } from './case-rules.js';
+import { canAssessMaintenance } from './maintenance-rules.js';
 
 type Identity = FastifyRequest['user'];
 export function caseContractScope(actor: Identity): Prisma.ContractWhereInput {
@@ -28,6 +29,7 @@ export const caseContractSelect = {
   id: true,
   status: true,
   startDate: true,
+  currency: true,
   tenant: { select: { id: true, fullName: true } },
   rentalSpace: {
     select: { id: true, name: true, unit: { select: { id: true, name: true, area: true } } },
@@ -46,6 +48,22 @@ export const caseSelect = {
   updatedAt: true,
   resolvedAt: true,
   contract: { select: caseContractSelect },
+  maintenanceAssessments: {
+    select: {
+      id: true,
+      caseVersion: true,
+      classification: true,
+      proposedAmount: true,
+      currency: true,
+      explanation: true,
+      evidenceNotes: true,
+      decision: true,
+      responseExplanation: true,
+      respondedAt: true,
+      createdAt: true,
+    },
+    orderBy: { caseVersion: 'asc' },
+  },
   events: {
     select: {
       id: true,
@@ -68,6 +86,7 @@ const safeMetadata = z.object({
 export type CaseRecord = Prisma.RequestGetPayload<{ select: typeof caseSelect }>;
 export function caseDto(row: CaseRecord, actor: Identity) {
   const metadata = safeMetadata.safeParse(row.metadata ?? {});
+  const latest = row.maintenanceAssessments?.at(-1);
   return {
     ...row,
     metadata: metadata.success ? metadata.data : {},
@@ -76,6 +95,15 @@ export function caseDto(row: CaseRecord, actor: Identity) {
       requiresMessage: caseActionNeedsMessage(status),
     })),
     canMessage: caseAllowsMessages(row.status),
+    canAssessMaintenance:
+      row.type === 'MAINTENANCE' &&
+      actor.role === 'LEASING_MANAGER' &&
+      canAssessMaintenance(row.status, latest?.decision),
+    canRespondMaintenance:
+      row.type === 'MAINTENANCE' &&
+      actor.role === 'TENANT' &&
+      latest?.classification === 'TENANT_COST' &&
+      !latest.decision,
   };
 }
 function actorSql(actor: Identity) {

@@ -22,6 +22,7 @@ import { tenantRoutes } from './routes/tenants.js';
 import { notificationRoutes } from './routes/notifications.js';
 import { reportRoutes } from './routes/reports.js';
 import { reportWorker } from './report-worker.js';
+import { maintenanceRoutes } from './routes/maintenance.js';
 
 export async function buildApp() {
   const app = Fastify({
@@ -98,6 +99,7 @@ export async function buildApp() {
   await app.register(contractRoutes, { prefix: '/api/v1/contracts' });
   await app.register(paymentRoutes, { prefix: '/api/v1/payments' });
   await app.register(requestRoutes, { prefix: '/api/v1/requests' });
+  await app.register(maintenanceRoutes, { prefix: '/api/v1/requests' });
   await app.register(dashboardRoutes, { prefix: '/api/v1/dashboard' });
   await app.register(adminRoutes, { prefix: '/api/v1/admin' });
   await app.register(profileRoutes, { prefix: '/api/v1/profile' });

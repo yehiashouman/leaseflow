@@ -1,5 +1,68 @@
 import { expect, test, type Page } from '@playwright/test';
 
+test('preview maintenance proposals preserve disputes and accepted responsibility across roles', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/v1')) requests.push(request.url());
+  });
+  const mobile = testInfo.project.name === 'mobile';
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
+  ).toBeVisible();
+  await page.goto('./#/requests/request-1');
+  async function proposal(amount: string) {
+    await page.getByRole('button', { name: 'Record responsibility', exact: true }).click();
+    const editor = page.getByRole('dialog');
+    await editor.getByLabel('Responsibility', { exact: true }).selectOption('TENANT_COST');
+    await editor.getByLabel('Proposed tenant cost', { exact: true }).fill(amount);
+    await editor.getByLabel('Explanation *', { exact: true }).fill('Broken handle');
+    await editor
+      .getByLabel('Evidence notes', { exact: true })
+      .fill('Inspection recorded a snapped handle');
+    await editor.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(editor).not.toBeVisible();
+  }
+  async function response(label: string, explanation: string) {
+    await page.getByRole('button', { name: label, exact: true }).click();
+    const editor = page.getByRole('dialog');
+    await editor.getByLabel('Response explanation *', { exact: true }).fill(explanation);
+    await editor.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(editor).not.toBeVisible();
+  }
+  async function switchRole(label: string, heading: string) {
+    await logout(page, mobile);
+    await page.getByRole('button', { name: label, exact: true }).click();
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
+    await page.goto('./#/requests/request-1');
+  }
+  await proposal('150.25');
+  await switchRole('Preview tenant', 'My accommodation');
+  await response('Dispute proposed cost', 'Damaged before arrival');
+  await switchRole('Preview manager', 'Portfolio overview');
+  await proposal('75.25');
+  await switchRole('Preview tenant', 'My accommodation');
+  await response('Accept proposed cost', 'I accept the revised amount');
+  await page.reload();
+  await expect(page.getByText('Cost disputed', { exact: true })).toBeVisible();
+  await expect(page.getByText('Cost accepted', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Accept proposed cost', exact: true }),
+  ).not.toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('maintenance-preview.png'),
+    fullPage: true,
+    animations: 'disabled',
+  });
+  expect(requests).toEqual([]);
+});
+
 test('preview contract terms and records remain read-only on desktop and mobile', async ({
   page,
 }, testInfo) => {

@@ -21,6 +21,10 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 
 ## Incomplete Release Work
 
+Maintenance responsibility, proposed tenant costs, and explicit acceptance/dispute now exist.
+Hosted acceptance remains pending for this batch.
+Exact scope, limits, and required migration: [MAINTENANCE.md](MAINTENANCE.md).
+
 Private case-history report jobs, download controls, and source exports now exist.
 Hosted API, MySQL, browser downloads, extracted content, and PDF page renders pass for this case-history scope.
 Exact scope and both required migrations: [PDF-REPORTS.md](PDF-REPORTS.md).

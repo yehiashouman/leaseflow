@@ -330,6 +330,7 @@ model Request {
   contract Contract @relation(fields: [contractId], references: [id])
   events RequestEvent[]
   reportJobs CaseReportJob[]
+  maintenanceAssessments MaintenanceAssessment[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([contractId, status])
@@ -373,6 +374,35 @@ enum ReportStatus {
   RUNNING
   COMPLETE
   FAILED
+}
+
+enum MaintenanceClassification {
+  MANAGER_COST
+  TENANT_COST
+  UNDER_REVIEW
+  NO_COST
+}
+
+enum MaintenanceDecision {
+  ACCEPTED
+  DISPUTED
+}
+
+model MaintenanceAssessment {
+  id String @id @default(cuid())
+  requestId String
+  caseVersion Int
+  classification MaintenanceClassification
+  proposedAmount Decimal? @db.Decimal(12, 2)
+  currency String?
+  explanation String @db.Text
+  evidenceNotes String? @db.Text
+  decision MaintenanceDecision?
+  responseExplanation String? @db.Text
+  respondedAt DateTime?
+  createdAt DateTime @default(now())
+  request Request @relation(fields: [requestId], references: [id])
+  @@unique([requestId, caseVersion])
 }
 
 model CaseReportJob {
