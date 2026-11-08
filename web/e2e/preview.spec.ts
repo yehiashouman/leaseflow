@@ -118,6 +118,20 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await logout(page, mobile);
   await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+  expect(backendRequests).toEqual([]);
+});
+
+test('preview cases preserve role decisions and history without backend requests', async ({
+  page,
+}, testInfo) => {
+  const backendRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/v1')) backendRequests.push(request.url());
+  });
+  const mobile = testInfo.project.name === 'mobile';
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
   await navigation(page, 'Requests', mobile);
   await page.getByRole('button', { name: 'New request', exact: true }).click();
   await page

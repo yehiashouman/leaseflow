@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import { caseContractScope, caseContractSelect } from '../case-data.js';
 import {
   lockOwnedSpace,
   occupantCount,
@@ -22,13 +23,19 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
   app.get('/', { preHandler: allowRoles('LEASING_MANAGER', 'TENANT') }, async (request) => {
     if (request.user.role === 'TENANT')
       return prisma.contract.findMany({
-        where: { tenant: { userId: request.user.sub } },
-        include: { rentalSpace: { include: { unit: true } }, payments: true, requests: true },
+        where: caseContractScope(request.user),
+        include: {
+          rentalSpace: caseContractSelect.rentalSpace,
+          payments: true,
+          requests: { select: { id: true, type: true, title: true, status: true } },
+        },
       });
-    const manager = await managerProfile(request.user.sub);
     return prisma.contract.findMany({
-      where: { tenant: { managerId: manager.id } },
-      include: { tenant: { include: { user: true } }, rentalSpace: { include: { unit: true } } },
+      where: caseContractScope(request.user),
+      include: {
+        tenant: { select: { id: true, fullName: true } },
+        rentalSpace: { include: { unit: true } },
+      },
     });
   });
   app.post('/', { preHandler: allowRoles('LEASING_MANAGER') }, async (request, reply) => {

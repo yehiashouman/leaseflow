@@ -123,7 +123,7 @@ describe('MySQL private operational case workflow', () => {
   ) {
     return app.inject({
       method,
-      url: '/api/v1/requests' + path,
+      url: path.startsWith('/api/') ? path : '/api/v1/requests' + path,
       payload,
       headers: {
         authorization:
@@ -191,6 +191,28 @@ describe('MySQL private operational case workflow', () => {
     expect((await send('POST', '', { ...body, title: 'Different content' })).statusCode).toBe(409);
     expect(await prisma.auditEvent.count({ where: { entityId: first.json().id } })).toBe(1);
   });
+  it('excludes tenant account secrets and case replay keys from adjacent contract and dashboard responses', async () => {
+    for (const path of ['/api/v1/contracts', '/api/v1/dashboard/tenant']) {
+      const response = await send('GET', path);
+      expect(response.statusCode).toBe(200);
+      for (const field of [
+        'ownerMonthlyRent',
+        'passwordHash',
+        'clientId',
+        'Private complaint text',
+      ])
+        expect(response.body).not.toContain(field);
+    }
+    const managerContracts = await send('GET', '/api/v1/contracts', undefined, manager);
+    expect(managerContracts.statusCode).toBe(200);
+    expect(managerContracts.body).not.toContain('passwordHash');
+    expect(
+      managerContracts.json().find((item: { id: string }) => item.id === contractId).tenant,
+    ).toEqual({
+      id: tenant.profileId,
+      fullName: 'Case Tenant',
+    });
+  });
   it('denies roommates, foreign managers, administrators, and foreign contract submissions', async () => {
     for (const actor of [roommate, outsider]) {
       expect((await send('GET', '/' + requestId, undefined, actor)).statusCode).toBe(404);
@@ -219,6 +241,11 @@ describe('MySQL private operational case workflow', () => {
     try {
       for (const actor of [tenant, manager, outsider])
         expect((await send('GET', '/' + requestId, undefined, actor)).statusCode).toBe(404);
+      for (const actor of [tenant, manager, outsider]) {
+        const contracts = (await send('GET', '/api/v1/contracts', undefined, actor)).json();
+        expect(contracts.some((item: { id: string }) => item.id === contractId)).toBe(false);
+      }
+      expect((await send('GET', '/api/v1/dashboard/tenant')).json().contracts).toEqual([]);
       expect((await send('POST', '', submission())).statusCode).toBe(404);
       expect(
         (

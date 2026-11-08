@@ -309,7 +309,7 @@ describe('inventory writes and role dashboards', () => {
       200,
     );
     expect(db.contract.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { tenant: { userId: 'user-1' } } }),
+      expect.objectContaining({ where: expect.objectContaining({ tenant: { userId: 'user-1' } }) }),
     );
     expect((await send('GET', '/api/v1/inventory/units', undefined, 'TENANT')).statusCode).toBe(
       403,

@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import { caseContractScope, caseContractSelect, caseScope } from '../case-data.js';
 
 export const dashboardRoutes: FastifyPluginAsync = async (app) => {
   app.get('/admin', { preHandler: allowRoles('ADMIN') }, async () => {
@@ -14,11 +15,14 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
   });
   app.get('/tenant', { preHandler: allowRoles('TENANT') }, async (request) => {
     const contracts = await prisma.contract.findMany({
-      where: { tenant: { userId: request.user.sub } },
+      where: caseContractScope(request.user),
       include: {
-        rentalSpace: { include: { unit: true } },
+        rentalSpace: caseContractSelect.rentalSpace,
         payments: { orderBy: { dueDate: 'asc' } },
-        requests: { where: { status: { notIn: ['ACCEPTED', 'CLOSED', 'REJECTED'] } } },
+        requests: {
+          where: { status: { notIn: ['ACCEPTED', 'CLOSED', 'REJECTED'] } },
+          select: { id: true, type: true, title: true, status: true },
+        },
       },
       orderBy: { startDate: 'desc' },
     });
@@ -37,7 +41,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
         }),
         prisma.request.count({
           where: {
-            contract: { tenant: { managerId: manager.id } },
+            ...caseScope(request.user),
             status: { notIn: ['ACCEPTED', 'CLOSED', 'REJECTED'] },
           },
         }),
