@@ -105,6 +105,16 @@ test('connection construction escapes credentials without shell evaluation', () 
     const url = new URL(values.MYSQL_CONNECTION_URL);
     assert.equal(decodeURIComponent(url.password), 'secret@with#symbols');
     assert.equal(url.hostname, 'mysql');
+    const override = new URL(
+      localEnvironment(root, {
+        MYSQL_USER: 'override-user',
+        MYSQL_PASSWORD: 'override@password',
+        MYSQL_DATABASE: 'override_database',
+      }).MYSQL_CONNECTION_URL,
+    );
+    assert.equal(override.username, 'override-user');
+    assert.equal(decodeURIComponent(override.password), 'override@password');
+    assert.equal(override.pathname, '/override_database');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

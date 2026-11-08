@@ -42,12 +42,13 @@ export function localEnvironment(directory = root, input = process.env, demo = f
     );
   const values = read('.env'),
     api = read('api/.env');
+  const database = { ...values, ...input };
   if ([input.NODE_ENV, values.NODE_ENV, api.NODE_ENV].includes('production'))
     throw new Error('Local setup and reset refuse production environments.');
   const connection = new URL('mysql://mysql:3306/');
-  connection.username = values.MYSQL_USER ?? 'leaseflow';
-  connection.password = values.MYSQL_PASSWORD ?? '';
-  connection.pathname = '/' + (values.MYSQL_DATABASE ?? 'leaseflow');
+  connection.username = database.MYSQL_USER ?? 'leaseflow';
+  connection.password = database.MYSQL_PASSWORD ?? '';
+  connection.pathname = '/' + (database.MYSQL_DATABASE ?? 'leaseflow');
   return {
     ...input,
     COMPOSE_PROJECT_NAME: input.COMPOSE_PROJECT_NAME ?? values.COMPOSE_PROJECT_NAME ?? 'leaseflow',
