@@ -8,6 +8,8 @@ Scope: complete initial release, not a scaffold or prototype.
 ## Status Rules
 
 Implementation progress: [docs/IMPLEMENTATION.md](docs/IMPLEMENTATION.md).
+Current 100-item batch: [account and document evidence](docs/ACCOUNT-DOCUMENT-BATCH.md).
+The batch matrix separates completed, partial, and blocked requirements.
 Public preview scope and activation: [docs/PREVIEW.md](docs/PREVIEW.md).
 Partial implementations do not satisfy the full module completion rule below.
 

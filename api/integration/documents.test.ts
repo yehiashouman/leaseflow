@@ -12,7 +12,7 @@ import { runFileWorkerOnce } from '../src/file-worker.js';
 import type { PrivateStorage } from '../src/file-storage.js';
 import { sendApiError } from '../src/errors.js';
 import { env } from '../src/config.js';
-type Actor = { id: string; role: Role; sid: string; profileId: string };
+type Actor = { id: string; role: Role; sid: string; profileId: string; onboarding?: true };
 describe('MySQL private documents, quarantine, immutable versions, and access grants', () => {
   let app: FastifyInstance, manager: Actor, tenant: Actor, foreign: Actor, admin: Actor;
   let unitId: string,
@@ -161,7 +161,14 @@ describe('MySQL private documents, quarantine, immutable versions, and access gr
   const documentIds = new Set<string>();
   function headers(actor = tenant) {
     return {
-      authorization: 'Bearer ' + app.jwt.sign({ sub: actor.id, role: actor.role, sid: actor.sid }),
+      authorization:
+        'Bearer ' +
+        app.jwt.sign({
+          sub: actor.id,
+          role: actor.role,
+          sid: actor.sid,
+          onboarding: actor.onboarding,
+        }),
     };
   }
   function send(
@@ -296,6 +303,22 @@ describe('MySQL private documents, quarantine, immutable versions, and access gr
           await send('GET', '?purpose=' + purpose + '&targetId=' + targetId, undefined, manager)
         ).json().items[0].id,
       ).toBe(row.id);
+    }
+  });
+  it('permits private identity uploads from restricted setup sessions without business access', async () => {
+    await prisma.user.update({ where: { id: tenant.id }, data: { status: 'PENDING_APPROVAL' } });
+    try {
+      const setup = { ...tenant, onboarding: true as const };
+      const response = await upload(meta(), setup);
+      expect(response.statusCode, response.body).toBe(202);
+      documentIds.add(response.json().id);
+      expect((await send('GET', '/' + response.json().id, undefined, setup)).statusCode).toBe(200);
+      expect(
+        (await upload(meta({ purpose: 'CASE_EVIDENCE', targetId: requestId }), setup)).statusCode,
+      ).toBe(403);
+      expect((await send('GET', '/' + response.json().id, undefined, tenant)).statusCode).toBe(401);
+    } finally {
+      await prisma.user.update({ where: { id: tenant.id }, data: { status: 'ACTIVE' } });
     }
   });
   it('keeps tenant identity files private even from their manager', async () => {

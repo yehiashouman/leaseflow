@@ -13,5 +13,11 @@
     "sourceMap": true,
     "declaration": true
   },
-  "include": ["src/**/*.ts", "prisma/**/*.ts", "test/**/*.ts", "integration/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "prisma/**/*.ts",
+    "test/**/*.ts",
+    "integration/**/*.ts",
+    "acceptance/**/*.ts"
+  ]
 }

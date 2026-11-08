@@ -329,6 +329,25 @@ export function Account({ mode }: { mode: Mode }) {
                           </Button>
                         )}
                       </section>
+                      {query.data.role === 'LEASING_MANAGER' && (
+                        <Button
+                          disabled={
+                            busy ||
+                            !query.data.emailVerified ||
+                            !query.data.phoneVerified ||
+                            !query.data.identityComplete
+                          }
+                          onClick={() =>
+                            void run(async () => {
+                              const { data } = await accountApi.post('/auth/setup/submit', {});
+                              await query.refetch();
+                              setSuccess(data.message);
+                            })
+                          }
+                        >
+                          Submit account for platform review
+                        </Button>
+                      )}
                       {query.data.emailVerified && !query.data.phoneVerified && (
                         <section className="space-y-4 rounded-md border p-4">
                           <h2 className="text-lg font-semibold">WhatsApp verification</h2>

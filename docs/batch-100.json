@@ -1,0 +1,1449 @@
+{
+  "target": 100,
+  "baselineCompleted": 102,
+  "baselineTotal": 764,
+  "date": "2026-11-09",
+  "timezone": "Asia/Dubai",
+  "items": [
+    {
+      "id": "BASE-003",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Keep Leasing Managers responsible for legal sufficiency and authorization.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "BASE-005",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Keep public manager registration and invitation-only tenant accounts.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "BASE-016",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Use private S3-compatible storage and development MinIO.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "BASE-018",
+      "status": "PARTIAL",
+      "requirement": "Select maintained PDF, job, upload-scan, and browser-test libraries.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "DATA-007",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "DATA-016",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Persist file versions, private object keys, scan status, and expiry.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "AUTH-010",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement password reset with expiring single-use tokens.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "AUTH-011",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Revoke affected sessions after password reset.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "AUTH-013",
+      "status": "PARTIAL",
+      "requirement": "Reverify changed email addresses and phone numbers.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "AUTH-016",
+      "status": "BLOCKED",
+      "requirement": "Enforce rate limits for login, OTP, invitations, uploads, and reports.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "AUTH-017",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Return safe actionable errors and request identifiers.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "AUTH-018",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Exclude passwords, tokens, OTP values, and sensitive identifiers from logs.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-001",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement public manager registration without tenant self-registration.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-002",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture full legal name, date of birth, nationality, email, and mobile number.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-003",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture Emirates ID number, expiry date, and private document.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-004",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture optional UAE licence type, number, authority, issue date, expiry, and document.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-005",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Verify email through an expiring single-use link.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-006",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Provide controlled email resend.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-007",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Require email verification before Twilio WhatsApp OTP.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-008",
+      "status": "PARTIAL",
+      "requirement": "Verify the manager's phone through Twilio.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MGR-009",
+      "status": "BLOCKED",
+      "requirement": "Enforce approved OTP expiry, attempts, and resend limits.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "MGR-010",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture declarations for genuine, current identity, property, and authorization information.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-011",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Store declaration version, accepted text hash, timestamp, and IP/session.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-012",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Show profile and document completeness.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-013",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Submit completed accounts to administrator moderation.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-014",
+      "status": "BLOCKED",
+      "requirement": "Show pending, rejected, suspended, and active status with permitted actions.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "MGR-015",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Prevent duplicate registration submissions.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MGR-016",
+      "status": "BLOCKED",
+      "requirement": "Apply approved rejection-resubmission and suspension policies.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "MGR-017",
+      "status": "BLOCKED",
+      "requirement": "Notify the manager of moderation outcomes.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "FILE-001",
+      "status": "PARTIAL",
+      "requirement": "Implement authorized upload for identity, licence, property, consent, payment, maintenance, complaint, and report files.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "FILE-002",
+      "status": "BLOCKED",
+      "requirement": "Validate approved MIME types, actual content, file size, and ownership.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "FILE-003",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Prevent executable uploads.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-004",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Strip dangerous metadata where appropriate.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-005",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Quarantine uploads until a virus scan accepts them.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-006",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Expose scan status and rejected-file errors.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-007",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Store documents in private S3-compatible buckets.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-008",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Block public object access.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-009",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Issue short-lived signed downloads after authorization.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-010",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Audit document access and exports.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-011",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Version documents instead of overwrite.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-012",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Support unit, common-area, and space photos with authorized access.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-013",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Preserve attachment authorship and case references.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-014",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Mask sensitive identity numbers in routine screens and reports.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-015",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Avoid document contents in email or WhatsApp.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "FILE-016",
+      "status": "BLOCKED",
+      "requirement": "Implement approved expiry and retention policies.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "FILE-017",
+      "status": "BLOCKED",
+      "requirement": "Implement authorized data export and appropriate deletion/anonymization.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "FILE-018",
+      "status": "BLOCKED",
+      "requirement": "Preserve dispute holds and required financial/audit history.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "FILE-019",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Verify unauthorized, expired-link, unscanned, oversized, and unsafe file paths.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-001",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Allow managers to invite tenants by email.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-002",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Scope each invitation to its manager and intended tenant.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-003",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement invitation inspect, resend, revoke, expiry, and acceptance.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-005",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Verify invitation email before tenant phone confirmation.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-007",
+      "status": "PARTIAL",
+      "requirement": "Verify tenant WhatsApp OTP through Twilio.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "TEN-008",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture full name, date of birth, nationality, Emirates ID number, expiry, and document.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-009",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Link the tenant only to the inviting manager under the initial policy.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-011",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Prevent complete removal of critical security notices.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEN-019",
+      "status": "PARTIAL",
+      "requirement": "Show tenant completion, contacts, identity, occupancy, contract, finance, and request history.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "UNIT-003",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture email, phone, WhatsApp, preferred contact method, address, notes, and documents.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "UNIT-010",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Support unit and common-area images.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "UNIT-011",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Support property documents and manager declarations.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "UNIT-012",
+      "status": "BLOCKED",
+      "requirement": "Capture tenancy contract, consent/delegation, title-deed copy, or approved evidence categories.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "UNIT-013",
+      "status": "BLOCKED",
+      "requirement": "Prevent unit activation without required data, declarations, and documents.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "UNIT-014",
+      "status": "BLOCKED",
+      "requirement": "Apply the confirmed evidence policy rather than infer legal sufficiency.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "SPACE-008",
+      "status": "PARTIAL",
+      "requirement": "Capture photos, amenities, optional compatibility notes, and base asking rent.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "CASE-002",
+      "status": "PARTIAL",
+      "requirement": "Capture type, description, attachments, relevant contract, and authorized relationship.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "CASE-008",
+      "status": "PARTIAL",
+      "requirement": "Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "CASE-010",
+      "status": "PARTIAL",
+      "requirement": "Notify both parties of case updates.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "CASE-014",
+      "status": "PARTIAL",
+      "requirement": "Restrict sensitive complaint details to the relevant tenant, manager, and authorized support.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "CASE-016",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Record complaint evidence and manager communication/actions.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MAINT-001",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture category, urgency, description, photos/files, response, and completion evidence.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MAINT-007",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Capture proposed tenant cost, explanation, and evidence.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MAINT-011",
+      "status": "PARTIAL",
+      "requirement": "Record vendor, category, unit, space, amount, currency, date, and invoice/evidence.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-003",
+      "status": "PARTIAL",
+      "requirement": "Preserve a mandatory channel for critical security notices.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-004",
+      "status": "PARTIAL",
+      "requirement": "Support user language and English template fallback.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-005",
+      "status": "PARTIAL",
+      "requirement": "Store template, recipient, channel, language, related entity, attempt time, and provider/delivery status.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-008",
+      "status": "PARTIAL",
+      "requirement": "Persist transactional notification intent before provider delivery.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-009",
+      "status": "PARTIAL",
+      "requirement": "Retry transient failures with bounded attempts.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-010",
+      "status": "PARTIAL",
+      "requirement": "Expose terminal failures for operational recovery.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MSG-011",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Keep valid business transactions independent from provider success.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MSG-014",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Use real Twilio credentials outside automated test adapters.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MSG-015",
+      "status": "BLOCKED",
+      "requirement": "Use approved WhatsApp templates where required.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "MSG-016",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Keep OTP plaintext and sensitive documents out of logs and messages.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MSG-017",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Provide deterministic email and Twilio test adapters.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "MSG-018",
+      "status": "BLOCKED",
+      "requirement": "Verify real email and WhatsApp delivery separately in staging.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "MODEL-014",
+      "status": "PARTIAL",
+      "requirement": "Implement `documents / media`: Versioned identity, property, consent, evidence, images and reports.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "MODEL-015",
+      "status": "PARTIAL",
+      "requirement": "Implement `notifications`: Email, WhatsApp and in-app delivery history.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "RESOURCE-001",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement Authentication: Register manager; login; logout; refresh; password reset; current session; session revocation.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "RESOURCE-002",
+      "status": "PARTIAL",
+      "requirement": "Implement Verification: Email token verification/resend; WhatsApp OTP request/confirmation; contact reverification.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "RESOURCE-003",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement Invitations: Create, inspect, accept, resend, expire, and revoke tenant invitation.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "RESOURCE-017",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement Documents: Authorized upload, scan status, version, metadata, expiring private download, and access audit.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "RESOURCE-018",
+      "status": "PARTIAL",
+      "requirement": "Implement Notifications: List, read/unread state, preferences, internal delivery records, provider callbacks.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "WORKER-007",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement Invitations and security tokens: Enforce expiry, resend limits, revocation, and single-use verification.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "WORKER-008",
+      "status": "PARTIAL",
+      "requirement": "Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "This batch implements part of the requirement; the complete workflow remains open."
+    },
+    {
+      "id": "WORKER-010",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Implement File scan: Quarantine uploads until accepted; reject unsafe content.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "CONFIG-006",
+      "status": "BLOCKED",
+      "requirement": "Document and validate Twilio: Account SID, auth token, Verify service SID, sender/template configuration.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "CONFIG-007",
+      "status": "BLOCKED",
+      "requirement": "Document and validate Email: Provider or SMTP credentials, sender, callback configuration.",
+      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "CONFIG-008",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Document and validate Storage: S3 endpoint/region, bucket, private credentials, signed-link lifetime.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "CONFIG-009",
+      "status": "BLOCKED",
+      "requirement": "Document and validate Upload safety: Allowed content types, file size limits, scan service.",
+      "code": [
+        "api/src/routes/accounts.ts",
+        "web/src/pages/Account.tsx",
+        "api/src/account-policy.ts"
+      ],
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/test/account-policy.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Full requirement remains incomplete; policy or staging acceptance remains open."
+    },
+    {
+      "id": "TEST-AUTH-03",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Verify Tenant public self-registration fails; scoped invitation acceptance succeeds.",
+      "code": [
+        "api/src/routes/invitations.ts",
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
+      ],
+      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    },
+    {
+      "id": "TEST-DOC-01",
+      "status": "PENDING_VERIFICATION",
+      "requirement": "Verify Unsafe upload, oversized file, unauthorized download, expired URL, and unscanned file fail safely.",
+      "code": [
+        "api/src/routes/documents.ts",
+        "api/src/file-worker.ts",
+        "web/src/components/documents.tsx"
+      ],
+      "tests": [
+        "api/integration/documents.test.ts",
+        "api/acceptance/files.test.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+    }
+  ]
+}

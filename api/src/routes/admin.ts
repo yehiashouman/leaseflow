@@ -13,7 +13,7 @@ const summary = {
   createdAt: true,
   emailVerifiedAt: true,
   phoneVerifiedAt: true,
-  leasingManager: { select: { fullName: true, declarationAcceptedAt: true } },
+  leasingManager: { select: { fullName: true, declarationAcceptedAt: true, submittedAt: true } },
 } as const;
 const auditSummary = {
   id: true,
@@ -77,6 +77,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
             licenseNumber: true,
             licenseExpiry: true,
             declarationAcceptedAt: true,
+            submittedAt: true,
           },
         },
       },

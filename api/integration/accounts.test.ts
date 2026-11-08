@@ -84,6 +84,8 @@ describe('MySQL account tokens, private setup sessions, invitations, and durable
   });
   afterAll(async () => {
     accountConfig.ACCOUNT_EMAIL_ENABLED = enabled;
+    await prisma.document.deleteMany({ where: { uploaderUserId: { in: users } } });
+    await prisma.documentSeries.deleteMany({ where: { ownerUserId: { in: users } } });
     await prisma.phoneChallenge.deleteMany({ where: { userId: { in: users } } });
     await prisma.accountToken.deleteMany({ where: { userId: { in: users } } });
     await prisma.accountConsent.deleteMany({ where: { userId: { in: users } } });
@@ -298,7 +300,69 @@ describe('MySQL account tokens, private setup sessions, invitations, and durable
     const me = await send('GET', '/api/v1/auth/setup/me', undefined, row.accessToken);
     expect(me.json().identityComplete).toBe(false);
     expect(me.body).not.toContain('784-1990-1234567-1');
-    expect(me.json().profile.emiratesIdNumber).toBe('****5671');
+    expect(me.json().profile.emiratesIdNumber).toBe('****67-1');
+  });
+  it('submits only complete verified manager accounts and preserves an idempotent review submission', async () => {
+    const row = await register();
+    await verifyEmail();
+    await send('POST', '/api/v1/auth/phone/start', { phone: '+971504444444' }, row.accessToken);
+    provider.verify.mockResolvedValue(true);
+    expect(
+      (await send('POST', '/api/v1/auth/phone/confirm', { code: '123456' }, row.accessToken))
+        .statusCode,
+    ).toBe(200);
+    expect((await send('POST', '/api/v1/auth/setup/submit', {}, row.accessToken)).statusCode).toBe(
+      409,
+    );
+    const profile = {
+      fullName: 'Complete Manager',
+      dateOfBirth: '1990-01-01',
+      nationality: 'Egyptian',
+      emiratesIdNumber: '784-1990-1234567-1',
+      emiratesIdExpiry: '2030-01-01',
+    };
+    expect(
+      (await send('PATCH', '/api/v1/auth/setup/profile', profile, row.accessToken)).statusCode,
+    ).toBe(200);
+    const series = await prisma.documentSeries.create({
+      data: { ownerUserId: row.id, purpose: 'IDENTITY' },
+    });
+    await prisma.document.create({
+      data: {
+        seriesId: series.id,
+        version: 1,
+        uploaderUserId: row.id,
+        clientId: randomUUID(),
+        payloadHash: 'a'.repeat(64),
+        title: 'Identity',
+        originalName: 'id.png',
+        mimeType: 'image/png',
+        originalSize: 1,
+        sourceHash: 'b'.repeat(64),
+        quarantineKey: randomUUID(),
+        status: 'CLEAN',
+      },
+    });
+    expect(
+      (await send('GET', '/api/v1/auth/setup/me', undefined, row.accessToken)).json()
+        .identityComplete,
+    ).toBe(true);
+    for (let i = 0; i < 2; i++)
+      expect(
+        (await send('POST', '/api/v1/auth/setup/submit', {}, row.accessToken)).statusCode,
+      ).toBe(200);
+    expect(
+      await prisma.auditEvent.count({
+        where: { actorUserId: row.id, action: 'MANAGER_SUBMITTED' },
+      }),
+    ).toBe(1);
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: row.id } })).status).toBe(
+      'PENDING_APPROVAL',
+    );
+    expect(
+      (await prisma.leasingManagerProfile.findUniqueOrThrow({ where: { userId: row.id } }))
+        .submittedAt,
+    ).not.toBeNull();
   });
   it('issues generic password-recovery responses and revokes all sessions after one-time reset', async () => {
     const row = await register();

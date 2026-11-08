@@ -36,13 +36,9 @@ export const scanFile: FileScanner = (bytes) =>
           const chunk = bytes.subarray(offset, offset + 65536),
             size = Buffer.alloc(4);
           size.writeUInt32BE(chunk.length);
-          socket.write(size);
-          if (!socket.write(chunk))
-            await new Promise<void>((done, fail) => {
-              socket.once('drain', done);
-              socket.once('error', fail);
-              socket.once('close', () => fail(new Error('Scanner disconnected')));
-            });
+          await new Promise<void>((done, fail) => {
+            socket.write(Buffer.concat([size, chunk]), (error) => (error ? fail(error) : done()));
+          });
         }
         socket.write(Buffer.alloc(4));
       } catch {

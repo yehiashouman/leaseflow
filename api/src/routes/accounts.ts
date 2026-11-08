@@ -15,7 +15,7 @@ import {
   sealIdentity,
   maskIdentity,
 } from '../account-policy.js';
-import { issueAccountToken } from '../account-email.js';
+import { issueAccountToken, queueAccountEmail } from '../account-email.js';
 import { env } from '../config.js';
 import twilio from 'twilio';
 
@@ -310,6 +310,71 @@ export const accountRoutes: FastifyPluginAsync<{ phoneProvider?: PhoneProvider }
       documents,
     };
   });
+  app.post('/setup/submit', { preHandler: authenticateOnboarding }, async (request) => {
+    z.object({})
+      .strict()
+      .parse(request.body ?? {});
+    await prisma.$transaction(async (tx) => {
+      if (!(await onboardingAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Account session expired');
+      const user = await tx.user.findUniqueOrThrow({
+        where: { id: request.user.sub },
+        include: { leasingManager: true },
+      });
+      const profile = user.leasingManager;
+      if (
+        user.role !== 'LEASING_MANAGER' ||
+        user.status !== 'PENDING_APPROVAL' ||
+        !user.emailVerifiedAt ||
+        !user.phoneVerifiedAt ||
+        !profile
+      )
+        throw app.httpErrors.conflict('Complete manager email and WhatsApp verification first');
+      const consent = await tx.accountConsent.findUnique({
+        where: { userId_version: { userId: user.id, version: declarationVersion } },
+      });
+      const documents = await tx.document.findMany({
+        where: {
+          series: { ownerUserId: user.id, purpose: { in: ['IDENTITY', 'LICENSE'] } },
+          status: 'CLEAN',
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        select: { series: { select: { purpose: true } } },
+      });
+      if (
+        !consent ||
+        consent.textHash !== declarationHash ||
+        !profile.dateOfBirth ||
+        !profile.nationality ||
+        !profile.emiratesIdNumber ||
+        !profile.emiratesIdExpiry ||
+        profile.emiratesIdExpiry <= new Date() ||
+        !documents.some((row) => row.series.purpose === 'IDENTITY') ||
+        (profile.licenseNumber &&
+          (!profile.licenseExpiry ||
+            profile.licenseExpiry <= new Date() ||
+            !documents.some((row) => row.series.purpose === 'LICENSE')))
+      )
+        throw app.httpErrors.conflict(
+          'Complete identity, current private documents, and declarations before submission',
+        );
+      if (!profile.submittedAt) {
+        await tx.leasingManagerProfile.update({
+          where: { userId: user.id },
+          data: { submittedAt: new Date() },
+        });
+        await tx.auditEvent.create({
+          data: {
+            actorUserId: user.id,
+            action: 'MANAGER_SUBMITTED',
+            entityType: 'User',
+            entityId: user.id,
+          },
+        });
+      }
+    });
+    return { message: 'Account submitted for platform review. Activation remains pending.' };
+  });
   app.post('/email/verify', async (request) => {
     const { token } = tokenSchema.parse(request.body);
     const candidate = await prisma.accountToken.findUnique({
@@ -438,6 +503,13 @@ export const accountRoutes: FastifyPluginAsync<{ phoneProvider?: PhoneProvider }
           data: { revokedAt: new Date() },
         });
         await revokeSessions(tx, row.userId);
+        await queueAccountEmail(tx, {
+          userId: row.userId,
+          recipient: row.user.email,
+          template: 'PASSWORD_RESET_COMPLETE',
+          subject: 'Your LeaseFlow password changed',
+          text: 'Your LeaseFlow password changed. All previous sessions were revoked. If you did not request this, contact support immediately.',
+        });
         await tx.auditEvent.create({
           data: {
             actorUserId: row.userId,
@@ -470,6 +542,7 @@ export const accountRoutes: FastifyPluginAsync<{ phoneProvider?: PhoneProvider }
           where: { userId: user.id },
           data: {
             ...base,
+            submittedAt: null,
             licenseType: body.licenseType,
             licenseNumber: body.licenseNumber,
             licenseIssuer: body.licenseIssuer,

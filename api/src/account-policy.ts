@@ -75,5 +75,5 @@ export function sealIdentity(value: string) {
 export function maskIdentity(value: string | null) {
   if (!value) return null;
   const plain = value.startsWith('sealed:') ? String(decryptMail(value.slice(7)).value) : value;
-  return '****' + plain.replace(/\D/g, '').slice(-4);
+  return '****' + plain.slice(-4);
 }

@@ -117,7 +117,7 @@ export async function buildApp() {
   await app.register(documentRoutes, { prefix: '/api/v1/documents' });
   const emails = emailWorker(() => app.log.error('Email worker failed'));
   const files = fileWorker(() => app.log.error('File worker failed'));
-  const worker = reportWorker((cause) => app.log.error(cause, 'Report worker failed'));
+  const worker = reportWorker(() => app.log.error('Report worker failed'));
   app.addHook('onListen', async () => {
     if (fileConfig.FILES_ENABLED === 'true') await privateStorage.verify();
     emails.start();

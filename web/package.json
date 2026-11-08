@@ -13,7 +13,8 @@
     "test:e2e:preview": "playwright test -c playwright.preview.config.ts",
     "test:e2e:auth": "playwright test -c playwright.auth.config.ts",
     "test:e2e:live": "playwright test -c playwright.live.config.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e:files": "playwright test -c playwright.files.config.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.5",

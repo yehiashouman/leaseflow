@@ -1,5 +1,9 @@
 services:
   minio:
+    networks: [backend, file-test]
     ports: ["127.0.0.1:19000:9000"]
   clamav:
     ports: ["127.0.0.1:13310:3310"]
+
+networks:
+  file-test: {}

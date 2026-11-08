@@ -122,6 +122,14 @@ jobs:
       - run: npm run prisma:migrate -w api
       - run: cp api/.env.example api/.env
       - run: docker compose -f docker-compose.yml -f infrastructure/files-test.compose.yml --profile private-files up -d --build --wait --wait-timeout 600 minio clamav
+      - run: curl --fail http://127.0.0.1:19000/minio/health/live
       - run: npm run test:files -w api
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:files -w web
+      - name: Retain private document browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: {name: private-document-browser, path: web/test-results/files, retention-days: 7}
       - if: always()
         run: docker compose -f docker-compose.yml -f infrastructure/files-test.compose.yml --profile private-files down -v
