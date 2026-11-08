@@ -1,7 +1,7 @@
 # LeaseFlow Project Checklist
 
 Source: [requirements.md](requirements.md), blob `76eba54271889ebb4ec52dc61efeaf0b99386974`.
-Date: 7 November 2026.
+Date: 8 November 2026.
 Target repository: `yehiashouman/leaseflow`.
 Scope: complete initial release, not a scaffold or prototype.
 
@@ -60,13 +60,13 @@ Independent tasks can proceed while unrelated decisions remain open.
 Requirements: 1-3, 15, 18-21.
 
 - [ ] **BASE-001** Preserve Unit -> Rental Space -> Contract -> Primary Tenant / Secondary Occupant.
-- [ ] **BASE-002** Keep landlords reusable records without initial-release login.
+- [x] **BASE-002** Keep landlords reusable records without initial-release login. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **BASE-003** Keep Leasing Managers responsible for legal sufficiency and authorization.
-- [ ] **BASE-004** Describe administrator approval as platform activation, never legal certification.
+- [x] **BASE-004** Describe administrator approval as platform activation, never legal certification. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **BASE-005** Keep public manager registration and invitation-only tenant accounts.
-- [ ] **BASE-006** Keep payments external; record money without collection or escrow.
+- [x] **BASE-006** Keep payments external; record money without collection or escrow. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **BASE-007** Preserve future inventory images, amenities, and availability without a public marketplace.
-- [ ] **BASE-008** Keep optional compatibility fields non-binding.
+- [x] **BASE-008** Keep optional compatibility fields non-binding. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **BASE-009** Retain Fastify and TypeScript in the api workspace. [Evidence](docs/EVIDENCE.md#foundation).
 - [x] **BASE-010** Retain MySQL and Prisma migrations. [Evidence](docs/EVIDENCE.md#foundation).
 - [x] **BASE-011** Retain React, TypeScript, Vite, and React Router in the web workspace. [Evidence](docs/EVIDENCE.md#foundation).
@@ -77,23 +77,23 @@ Requirements: 1-3, 15, 18-21.
 - [ ] **BASE-016** Use private S3-compatible storage and development MinIO.
 - [ ] **BASE-017** Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline.
 - [ ] **BASE-018** Select maintained PDF, job, upload-scan, and browser-test libraries.
-- [ ] **BASE-019** Record technical selections without claims of original user approval.
+- [x] **BASE-019** Record technical selections without claims of original user approval. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **BASE-020** Make all initial-release workflows accessible through real screens and APIs.
 
 ## 2. Decisions and Change Control
 
 Requirements: 20, 24, 29.
 
-- [ ] **PLAN-001** Assign an owner and status to every DEC item in section 29 of requirements.md.
+- [x] **PLAN-001** Assign an owner and status to every DEC item in section 29 of requirements.md. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **PLAN-002** Record each approved answer, date, rationale, and affected task identifiers.
 - [ ] **PLAN-003** Resolve money, due-day, notice, final-month, transfer, and eligibility rules before dependent acceptance.
 - [ ] **PLAN-004** Resolve privacy, retention, security, provider, performance, and recovery policies before production approval.
-- [ ] **PLAN-005** Keep unapproved proposals separate from accepted business rules.
+- [x] **PLAN-005** Keep unapproved proposals separate from accepted business rules. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **PLAN-006** Do not silently adopt last-day due dates or half-open allocation intervals.
 - [ ] **PLAN-007** Preserve unaffected work while decisions remain open.
 - [ ] **PLAN-008** Update requirements, API schemas, interface copy, and tests for each approved change.
 - [ ] **PLAN-009** Preserve past contract terms when defaults change.
-- [ ] **PLAN-010** Preserve SPECIFICATION.md as the original source.
+- [x] **PLAN-010** Preserve SPECIFICATION.md as the original source. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **PLAN-011** Maintain a requirement-to-code-to-test evidence matrix.
 
 ## 3. Data and Persistence
@@ -611,24 +611,24 @@ Requirements: 21-22.
 
 Requirements: 15, 23-24.
 
-- [ ] **API-001** Use /api/v1 for business resources.
+- [x] **API-001** Use /api/v1 for business resources. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **API-002** Publish OpenAPI for actual methods, schemas, authorization, transitions, and errors.
 - [ ] **API-003** Validate bodies, routes, query fields, and file metadata.
 - [ ] **API-004** Derive manager ownership from authenticated context.
 - [ ] **API-005** Verify all referenced parent and child ownership.
 - [ ] **API-006** Enforce role and ownership on lists, detail, exports, uploads, downloads, and mutations.
-- [ ] **API-007** Return stable error codes, safe messages, and request IDs.
-- [ ] **API-008** Use 401 for absent or invalid authentication.
-- [ ] **API-009** Use 403 for authenticated forbidden actions.
-- [ ] **API-010** Use 409 for conflicting state or capacity.
-- [ ] **API-011** Use documented consistent validation status, such as 422.
+- [x] **API-007** Return stable error codes, safe messages, and request IDs. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-008** Use 401 for absent or invalid authentication. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-009** Use 403 for authenticated forbidden actions. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-010** Use 409 for conflicting state or capacity. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-011** Use documented consistent validation status, such as 422. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **API-012** Document pagination, allowed filters, sort fields, limits, and stable order.
 - [ ] **API-013** Use idempotency for payments, request submission, transfer completion, and other retry-sensitive writes.
 - [ ] **API-014** Reject key reuse with a different payload.
-- [ ] **API-015** Protect cookie mutations against CSRF.
-- [ ] **API-016** Enforce explicit production CORS origins and trusted proxies.
-- [ ] **API-017** Keep development fixes separate from production origin policy.
-- [ ] **API-018** Prevent redirect loops for forbidden role access.
+- [x] **API-015** Protect cookie mutations against CSRF. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-016** Enforce explicit production CORS origins and trusted proxies. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-017** Keep development fixes separate from production origin policy. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **API-018** Prevent redirect loops for forbidden role access. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **API-019** Verify all resource groups in the API inventory below.
 
 ## 25. Jobs, Deadlines, and Recovery
@@ -671,23 +671,23 @@ Requirements: 16, 24-26, 29.
 
 Requirements: 21, 26.1-26.2.
 
-- [ ] **DEV-001** Document a verified idempotent startup command.
-- [ ] **DEV-002** Create missing environment files without overwrite.
-- [ ] **DEV-003** Validate configuration before production startup.
-- [ ] **DEV-004** Run migrations before readiness.
-- [ ] **DEV-005** Create demo accounts only in explicit non-production demo mode.
+- [x] **DEV-001** Document a verified idempotent startup command. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-002** Create missing environment files without overwrite. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-003** Validate configuration before production startup. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-004** Run migrations before readiness. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-005** Create demo accounts only in explicit non-production demo mode. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **DEV-006** Refuse production startup with demo mode enabled. [Evidence](docs/EVIDENCE.md#production-demo-guard).
 - [ ] **DEV-007** Document secure initial administrator bootstrap outside demo mode.
-- [ ] **DEV-008** Preserve database and file volumes across restarts.
-- [ ] **DEV-009** Require explicit confirmation before destructive demo reset.
-- [ ] **DEV-010** Keep MySQL, Redis, and storage administration ports private.
-- [ ] **DEV-011** Expose the application through the web service.
-- [ ] **DEV-012** Use the correct HTTP backend protocol for forwarded development ports.
+- [x] **DEV-008** Preserve database and file volumes across restarts. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-009** Require explicit confirmation before destructive demo reset. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-010** Keep MySQL, Redis, and storage administration ports private. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-011** Expose the application through the web service. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
+- [x] **DEV-012** Use the correct HTTP backend protocol for forwarded development ports. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **DEV-013** Verify login through the exact public Codespaces URL.
 - [ ] **DEV-014** Verify refresh, role routes, API proxy, upload, and PDF download through that URL.
-- [ ] **DEV-015** Verify production CORS remains restrictive.
+- [x] **DEV-015** Verify production CORS remains restrictive. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **DEV-016** Do not require Git-hook bypass as normal workflow.
-- [ ] **DEV-017** Document all configuration groups in the inventory below.
+- [x] **DEV-017** Document all configuration groups in the inventory below. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **DEV-018** Keep real secrets and identity documents outside version control.
 - [ ] **DEV-019** Use separate credentials and data per environment.
 

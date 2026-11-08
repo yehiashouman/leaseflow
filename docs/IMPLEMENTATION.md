@@ -50,8 +50,9 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 72 tests pass; database-dependent unit tests use mocks.
+- API suite: 84 tests pass; database-dependent unit tests use mocks.
 - Web suite: 84 tests pass, including maintenance, PDF controls, contracts, forms, roles, sessions, cases, profiles, notices, and preview data.
+- Operations suite: ten setup and governance tests pass.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -127,3 +128,16 @@ Profile changes preserve verified account contacts, manager ownership, and histo
 We verified six additional checklist tasks.
 Current acceptance totals: 131 API/web tests, 59 MySQL cases, and twenty-two browser cases.
 Email/WhatsApp delivery, phone verification, invitations, complete onboarding, and full release acceptance remain incomplete.
+
+## Platform and Startup Controls
+
+See [PLATFORM-BATCH.md](PLATFORM-BATCH.md) for the selected thirty tasks and evidence paths.
+We added stable API error codes, safe request IDs, migration-aware readiness, and explicit production proxy configuration.
+The local helper creates missing private environment files without overwrite, applies migrations, preserves passwords, and verifies the web proxy.
+Normal startup creates no demo accounts; explicit demo mode and destructive confirmation remain separate commands.
+Production contract activation and payment writes remain disabled until approved policy receives verified implementation.
+The source-built MinIO development image preserves the required service without an untrusted mirror.
+All twenty-six owner decisions remain unresolved; this batch does not approve production deployment.
+Fresh Compose acceptance passes, including default zero-user startup, explicit demo, proxy login, password-preserving restart, and database/file volume persistence.
+This batch closes thirty scoped tasks; strict completion is 102 of 764 tasks, or 13.35%.
+The remaining 662 tasks and all production release gates stay incomplete.

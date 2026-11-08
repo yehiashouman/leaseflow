@@ -1,5 +1,9 @@
 {
-  "status": "IN_PROGRESS",
+  "status": "VERIFIED",
+  "verifiedAt": "2026-11-08",
+  "sourceCommit": "8636bc783ed587cde6297210abaa82fe118bb792",
+  "workflowRun": 42489354506,
+  "evidence": "docs/PLATFORM-BATCH.md",
   "items": [
     "BASE-002",
     "BASE-004",

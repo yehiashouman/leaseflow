@@ -356,3 +356,35 @@ Evidence notes do not complete private file evidence, invoices, expense records,
 All twenty-six owner decisions remain unresolved.
 Exact scope: [MAINTENANCE.md](MAINTENANCE.md).
 Both API and web container builds pass.
+
+## Platform and Startup Controls
+
+Verified: 8 November 2026.
+Code commit: `8636bc783ed587cde6297210abaa82fe118bb792`.
+Environment: GitHub Actions, Node 22, Docker Compose, MySQL 8.4, Redis, source-built MinIO, Chromium desktop/mobile, and Poppler.
+Acceptance: [API, MySQL, real browsers, container builds, and fresh-stack Docker](https://github.com/yehiashouman/leaseflow/actions/runs/42489354506).
+Preview: [interface fixtures, synthetic browsers, and Pages deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42488032013).
+
+The [thirty-item matrix](PLATFORM-BATCH.md#task-evidence) records each task's implementation, test paths, and exact acceptance scope.
+The machine-readable [batch record](batch-30.json) contains exactly thirty unique existing task identifiers and the tested commit.
+This batch combines new controls and verification of existing behavior; it does not represent thirty new business modules.
+
+The source passes 84 API tests, 84 web tests, 89 MySQL cases, and ten operations tests: 267 automated tests.
+Browser suites pass four interface fixtures, fourteen synthetic previews, and twelve real API/MySQL journeys: thirty cases.
+One separate isolated Compose journey also passes.
+It verifies zero users after normal startup, explicit demo creation, web proxy login, administrator dashboard access, and password change.
+It verifies unchanged environment files, unchanged administrator identity, and successful login with the changed password after teardown and restart.
+It verifies retained MySQL, Redis, and file-volume identities plus persisted file content.
+It verifies private data-service ports, cookie refresh, CSRF rejection, and forged-header rate-limit resistance through Nginx.
+Both application container builds, migrations, schema validation, lint, production/preview builds, and the high/critical audit gate pass.
+Seven moderate development-tool advisories remain.
+We verified real administrator screenshots on desktop and mobile without clipping or horizontal overflow.
+The preview HTML and both referenced assets return HTTP 200.
+
+The original MinIO image pull failed in run 42488031986; the pinned official source build fixes the fresh-stack failure.
+The development storage image requires separate security and AGPL review before any production use.
+Production contract activation and payment writes now return 409 until approved policy receives verified implementation.
+All twenty-six owner decisions remain PENDING.
+DEV-013 and DEV-014 remain unchecked because the exact public Codespaces upload/PDF journey is not verified.
+Private uploads, providers, MFA, production bootstrap, complete financial ledgers, recovery, and production acceptance remain incomplete.
+Strict completion now equals 102 of 764 tasks: 13.35%; 662 tasks remain without full completion evidence.

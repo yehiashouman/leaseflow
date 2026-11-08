@@ -53,4 +53,5 @@ This development image does not approve a production storage provider or satisfy
 The demo is not a production administrator bootstrap.
 Full application workflows, MFA, identity verification, providers, uploads, finance, and release acceptance remain incomplete.
 Configuration inventory: [CONFIGURATION.md](CONFIGURATION.md).
-Task evidence remains pending until the fresh-stack CI workflow succeeds.
+Fresh-stack startup, proxy login, password-preserving restart, and persistent volumes pass in [CI](https://github.com/yehiashouman/leaseflow/actions/runs/42489354506).
+Task evidence: [PLATFORM-BATCH.md](PLATFORM-BATCH.md).
