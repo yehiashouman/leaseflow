@@ -7,27 +7,27 @@ Target: the complete initial release in requirements.md.
 
 ## Summary
 
-| Measure                                   | Verified status                                                                                    |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Total checklist tasks                     | 764                                                                                                |
-| Completed tasks with evidence             | 26                                                                                                 |
-| Tasks without full completion evidence    | 738                                                                                                |
-| Strict checklist completion               | 3.40%                                                                                              |
-| UI foundation tasks                       | 10 of 10 verified                                                                                  |
-| Open owner decisions                      | 26                                                                                                 |
-| Local API unit/route tests                | 57 pass; database mocks where required                                                             |
-| Local web/component/preview-adapter tests | 44 pass                                                                                            |
-| GitHub browser suites                     | Eight cases pass: four interface fixtures, two synthetic previews, and two real API/MySQL journeys |
-| New browser coverage                      | Room edit, maintenance, inactivity, restore, and reload persistence pass on desktop/mobile         |
-| MySQL suites                              | All 15 integration cases pass on MySQL 8.4 in GitHub Actions                                       |
-| Local builds                              | API, web production, and preview pass                                                              |
-| Local lint                                | API, integration sources, and web pass                                                             |
-| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                  |
-| Production application                    | Incomplete; not approved for real operational use                                                  |
+| Measure                                   | Verified status                                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Total checklist tasks                     | 764                                                                                               |
+| Completed tasks with evidence             | 32                                                                                                |
+| Tasks without full completion evidence    | 732                                                                                               |
+| Strict checklist completion               | 4.19%                                                                                             |
+| UI foundation tasks                       | 10 of 10 verified                                                                                 |
+| Open owner decisions                      | 26                                                                                                |
+| Local API unit/route tests                | 57 pass; database mocks where required                                                            |
+| Local web/component/preview-adapter tests | 44 pass                                                                                           |
+| GitHub browser suites                     | Ten cases pass: four interface fixtures, two synthetic previews, and four real API/MySQL journeys |
+| New browser coverage                      | Room edit, maintenance, inactivity, restore, and reload persistence pass on desktop/mobile        |
+| MySQL suites                              | All 26 integration cases pass on MySQL 8.4 in GitHub Actions                                      |
+| Local builds                              | API, web production, and preview pass                                                             |
+| Local lint                                | API, integration sources, and web pass                                                            |
+| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                 |
+| Production application                    | Incomplete; not approved for real operational use                                                 |
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial inventory and role work exists beyond the 26 completed tasks.
+Additional partial inventory and role work exists beyond the 32 completed tasks.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Session Security Continuation
@@ -45,8 +45,8 @@ We added landlord detail, search, archive, restore, linked-unit guards, and cont
 Unit forms and detail now include address notes alongside building, street, area, emirate, GPS, and default deposit.
 Database locks serialize archive against unit creation and reassignment.
 See [INVENTORY.md](INVENTORY.md) for exact scope, constraints, API contracts, migration, and verification.
-Eleven new MySQL cases and two new real-browser cases await GitHub acceptance.
-The verified checklist total stays at 26 until these gates pass.
+All eleven new MySQL cases and both new real-browser cases pass on GitHub.
+Six landlord/property tasks now have complete scoped evidence.
 
 ## Complete Scope Coverage
 
@@ -63,7 +63,7 @@ It does not mean that no code exists.
 | 5. Manager registration and activation  |    17 |                 0 | Complete identity, declaration, verification, and moderation journey remains                        |
 | 6. Administration and support           |    21 |                 0 | Counts exist; review screens, safe moderation, impersonation remain                                 |
 | 7. Private documents and media          |    19 |                 0 | Upload, quarantine, scan, authorization, version, and expiry workflow remains                       |
-| 8. Landlords and units                  |    19 |                 0 | Contact/unit forms exist; archive, documents, activation, and complete detail remain                |
+| 8. Landlords and units                  |    19 |                 6 | Landlord lifecycle and address/GPS/deposit verified; documents, unit archive, and activation remain |
 | 9. Rental spaces and availability       |    17 |                 3 | Room facilities, states, and capacity verified; complete dated availability and reservations remain |
 | 10. Tenant invitations and occupants    |    19 |                 0 | Complete invitation and verified onboarding journey remains                                         |
 | 11. Contracts and annual reviews        |    15 |                 0 | Basic API exists; real create interface, terms, amendments, reviews remain                          |
@@ -97,7 +97,7 @@ It does not mean that no code exists.
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                               |
 | 40. Source coverage map                 |     0 |                 0 | Reference table; no tasks                                                                           |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                           |
-| Total                                   |   764 |                26 | 738 tasks without full completion evidence                                                          |
+| Total                                   |   764 |                32 | 732 tasks without full completion evidence                                                          |
 
 ## Implemented in This Continuation
 

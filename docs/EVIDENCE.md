@@ -108,3 +108,36 @@ The desktop test now waits for the 204 revocation response and verifies database
 This corrects test timing without retries, sleeps, or weaker acceptance criteria.
 Session limitations and migration requirements remain explicit in [SESSIONS.md](SESSIONS.md).
 This evidence does not certify MFA, password reset, or the entire authentication module.
+
+## Landlord and Property
+
+Verified: 8 November 2026, Asia/Dubai.
+Commit: `a208bdebdbbf251fe85aa33e4b40334c13b30515`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, database, and real-browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42436239708).
+Preview evidence: [synthetic browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42435772611).
+
+The run passes 57 API tests, 44 web tests, 26 MySQL cases, and four real-browser cases.
+The preview run passes four API-fixture interface cases and two synthetic-preview cases.
+Total: 127 automated tests plus ten browser cases.
+Lint, builds, migrations, schema validation, and the high/critical audit gate pass.
+
+| Item     | Code                                                                                                                               | Test and evidence scope                                                                                                                     |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| UNIT-001 | api/src/routes/inventory.ts; web/src/pages/Landlords.tsx; web/src/pages/LandlordDetail.tsx; web/src/components/landlord-editor.tsx | api/integration/landlords.test.ts; web/e2e/inventory.live.spec.ts verify scoped CRUD, archive/restore, linked units, history, and conflicts |
+| UNIT-002 | api/prisma/schema.prisma; api/src/routes/inventory.ts; web/src/components/landlord-editor.tsx                                      | Database and real-browser cases verify separate name/company capture and the 200-character company limit                                    |
+| UNIT-004 | api/src/routes/inventory.ts; web/src/pages/LandlordDetail.tsx                                                                      | MySQL and real-browser cases link two owned units to one landlord; foreign references fail                                                  |
+| UNIT-005 | api/src/routes/inventory.ts; web/src/pages/Units.tsx; web/src/pages/UnitDetail.tsx                                                 | Real-browser cases persist and display building, street, area, non-default emirate, and multiline address notes                             |
+| UNIT-006 | api/src/routes/inventory.ts; web/src/pages/Units.tsx; web/src/pages/UnitDetail.tsx                                                 | MySQL and browser cases verify latitude zero, longitude, range validation, and unchanged coordinates after edits                            |
+| UNIT-009 | api/src/routes/inventory.ts; web/src/pages/Units.tsx; web/src/pages/UnitDetail.tsx                                                 | MySQL and browser cases verify AED 2,500 default-deposit capture, display, and persistence                                                  |
+
+Archive requires all unit links to end before the contact record changes status.
+Database cases serialize archive against both unit creation and unit reassignment.
+Legacy foreign links remain hidden from details/counts and still block archive.
+Unit responses also hide foreign landlord contacts under inconsistent legacy links.
+The MySQL regression verifies both sides of this ownership boundary.
+Both API and web container builds pass in the same run.
+We verified landlord preview screenshots on desktop and mobile.
+Public HTML, JavaScript, and CSS return HTTP 200.
+Boundary cases verify company/address/street storage and long user-agent audit metadata.
+Documents, unit activation, unit archive/restore, and the complete inventory module remain incomplete.

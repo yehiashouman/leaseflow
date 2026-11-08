@@ -24,6 +24,7 @@ This record covers landlord lifecycle and property metadata, not the complete in
 
 Archive checks all unit references to preserve database integrity.
 Detail pages and list counts expose only manager-owned linked units.
+Unit lists and detail also hide landlord contacts from a different manager under legacy cross-links.
 A foreign legacy reference therefore stays hidden and still blocks archive until authorized repair.
 The application does not silently unlink or delete inconsistent legacy records.
 
@@ -59,6 +60,7 @@ Administrator and tenant roles cannot access manager inventory routes.
 List queries support `status=ACTIVE`, `status=ARCHIVED`, or `status=ALL` and optional `q` up to 150 characters.
 Search covers name, company name, and email.
 List pagination remains incomplete under the shared-interface checklist.
+Email uses the existing 191-character storage limit.
 Unknown or foreign records return 404; archive conflicts return 409; invalid fields return 422.
 Archive and restore accept no writable status or ownership fields.
 
@@ -82,5 +84,5 @@ Existing records remain active; existing unit links stay unchanged.
 - Real desktop/mobile journeys create, link, unlink, archive, restore, and edit records through the interface.
 - Preview desktop/mobile cases verify equivalent synthetic controls without backend requests.
 
-Local API/web tests pass; new MySQL and browser acceptance await GitHub verification.
+Verification passes in [CI](https://github.com/yehiashouman/leaseflow/actions/runs/42436239708) at commit `a208bdebdbbf251fe85aa33e4b40334c13b30515`.
 Documents, images, activation evidence, unit archive/restore, full finance, and complete inventory acceptance remain incomplete.

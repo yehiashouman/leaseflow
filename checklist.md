@@ -227,15 +227,15 @@ Requirements: 4-5, 13-16, 23-26.
 
 Requirements: 4.1-4.2, 22.4.
 
-- [ ] **UNIT-001** Implement scoped landlord list, detail, create, edit, archive, and linked units.
-- [ ] **UNIT-002** Capture landlord name and optional company/legal name.
+- [x] **UNIT-001** Implement scoped landlord list, detail, create, edit, archive, and linked units. [Evidence](docs/EVIDENCE.md#landlord-and-property).
+- [x] **UNIT-002** Capture landlord name and optional company/legal name. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [ ] **UNIT-003** Capture email, phone, WhatsApp, preferred contact method, address, notes, and documents.
-- [ ] **UNIT-004** Allow one landlord record to serve multiple manager-owned units.
-- [ ] **UNIT-005** Capture unit name/reference, building, street, area/community, emirate, and address notes.
-- [ ] **UNIT-006** Capture GPS latitude and longitude.
+- [x] **UNIT-004** Allow one landlord record to serve multiple manager-owned units. [Evidence](docs/EVIDENCE.md#landlord-and-property).
+- [x] **UNIT-005** Capture unit name/reference, building, street, area/community, emirate, and address notes. [Evidence](docs/EVIDENCE.md#landlord-and-property).
+- [x] **UNIT-006** Capture GPS latitude and longitude. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [ ] **UNIT-007** Link each unit to its manager and landlord.
 - [ ] **UNIT-008** Capture owner rent, payment schedule, and currency.
-- [ ] **UNIT-009** Capture the default unit security deposit.
+- [x] **UNIT-009** Capture the default unit security deposit. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [ ] **UNIT-010** Support unit and common-area images.
 - [ ] **UNIT-011** Support property documents and manager declarations.
 - [ ] **UNIT-012** Capture tenancy contract, consent/delegation, title-deed copy, or approved evidence categories.

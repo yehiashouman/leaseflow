@@ -69,7 +69,7 @@ The Security interface now connects session review, revocation, and password cha
 Refresh cookies replace JSON refresh-token transport.
 Every protected request requires an active database session.
 All ten new MySQL cases and both real-browser cases pass on GitHub.
-Current totals: 87 API/web unit and component tests, 15 MySQL integration cases, and eight browser cases pass.
+Session acceptance baseline: 87 API/web tests, 15 MySQL cases, and eight browser cases pass at the session evidence commit.
 Password reset, MFA, registration verification, provider delivery, and full security acceptance remain incomplete.
 
 ## Landlord and Property Continuation
@@ -77,5 +77,6 @@ Password reset, MFA, registration verification, provider delivery, and full secu
 See [INVENTORY.md](INVENTORY.md) for landlord detail, archive/restore, contact preferences, and complete address/GPS/deposit capture.
 Archive requires no linked units; current and legacy references remain intact.
 New assignments and archive share a row lock to prevent unsafe concurrent links.
-Eleven new MySQL cases and two new real-browser journeys await GitHub acceptance.
+All eleven new MySQL cases and both new real-browser journeys pass on GitHub.
+Current totals: 101 API/web tests, 26 MySQL cases, and ten browser cases pass.
 Real browser tests now share the application suite in web/playwright.live.config.ts.
