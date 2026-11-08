@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { AlertCircle, Building2, LoaderCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -108,6 +108,17 @@ export function Login() {
                 {busy ? 'Please wait...' : 'Sign in'}
               </Button>
             </form>
+            <div className="mt-5 grid gap-2 text-sm">
+              <Link to="/forgot-password" className="text-primary underline">
+                Forgot password
+              </Link>
+              <Link to="/register" className="text-primary underline">
+                Register as Leasing Manager
+              </Link>
+              <Link to="/account-setup" className="text-primary underline">
+                Resume account setup
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>

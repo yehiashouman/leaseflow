@@ -24,6 +24,13 @@ import { tenantRoutes } from './routes/tenants.js';
 import { notificationRoutes } from './routes/notifications.js';
 import { reportRoutes } from './routes/reports.js';
 import { reportWorker } from './report-worker.js';
+import { invitationRoutes } from './routes/invitations.js';
+import { accountRoutes } from './routes/accounts.js';
+import { emailWorker } from './email-worker.js';
+import { documentRoutes } from './routes/documents.js';
+import { fileWorker } from './file-worker.js';
+import { fileConfig } from './file-policy.js';
+import { privateStorage } from './file-storage.js';
 import { maintenanceRoutes } from './routes/maintenance.js';
 
 export async function buildApp() {
@@ -84,6 +91,8 @@ export async function buildApp() {
       return reply.serviceUnavailable('Database unavailable');
     }
   });
+  await app.register(invitationRoutes, { prefix: '/api/v1/invitations' });
+  await app.register(accountRoutes, { prefix: '/api/v1/auth' });
   await app.register(authRoutes, { prefix: '/api/v1/auth' });
   await app.register(inventoryRoutes, { prefix: '/api/v1/inventory' });
   await app.register(contractRoutes, { prefix: '/api/v1/contracts' });
@@ -96,11 +105,19 @@ export async function buildApp() {
   await app.register(tenantRoutes, { prefix: '/api/v1/tenants' });
   await app.register(notificationRoutes, { prefix: '/api/v1/notifications' });
   await app.register(reportRoutes, { prefix: '/api/v1/reports' });
+  await app.register(documentRoutes, { prefix: '/api/v1/documents' });
+  const emails = emailWorker(() => app.log.error('Email worker failed'));
+  const files = fileWorker(() => app.log.error('File worker failed'));
   const worker = reportWorker((cause) => app.log.error(cause, 'Report worker failed'));
   app.addHook('onListen', async () => {
+    if (fileConfig.FILES_ENABLED === 'true') await privateStorage.verify();
+    emails.start();
+    files.start();
     worker.start();
   });
   app.addHook('onClose', async () => {
+    await emails.stop();
+    await files.stop();
     await worker.stop();
     await prisma.$disconnect();
   });

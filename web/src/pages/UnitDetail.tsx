@@ -1,3 +1,4 @@
+import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -178,6 +179,21 @@ export function UnitDetail() {
           )}
         </TableBody>
       </Table>
+      {data.spaces.map((space) => (
+        <details key={space.id} className="rounded-md border p-4">
+          <summary className="cursor-pointer">Photos: {space.name}</summary>
+          <Documents
+            purpose="SPACE_PHOTO"
+            targetId={space.id}
+            heading={space.name + ' photos'}
+            readOnly={Boolean(data.archivedAt)}
+          />
+        </details>
+      ))}
+      <Documents purpose="UNIT_PHOTO" targetId={data.id} heading="Unit photos" />
+      <Documents purpose="COMMON_PHOTO" targetId={data.id} heading="Common-area photos" />
+      <Documents purpose="CONSENT" targetId={data.id} heading="Consent and delegation" />
+      <Documents purpose="PROPERTY_DOCUMENT" targetId={data.id} heading="Property documents" />
       {editor && (
         <RecordEditor
           key={editor === 'new' ? 'new' : editor.id}

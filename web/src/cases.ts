@@ -98,6 +98,7 @@ export function caseEventLabel(kind: string) {
   if (kind === 'MAINTENANCE_ASSESSED') return 'Maintenance responsibility recorded';
   if (kind === 'MAINTENANCE_ACCEPTED') return 'Proposed cost accepted';
   if (kind === 'MAINTENANCE_DISPUTED') return 'Proposed cost disputed';
+  if (kind === 'EVIDENCE_ADDED') return 'Private evidence added';
   if (kind === 'DRAFT_CREATED') return 'Draft saved';
   return kind === 'MESSAGE'
     ? 'Message'

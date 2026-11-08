@@ -13,6 +13,7 @@ export async function authenticate(request: FastifyRequest, reply: FastifyReply)
   } catch {
     return reply.unauthorized('Authentication required');
   }
+  if (request.user.onboarding) return reply.unauthorized('Use the account setup session');
   if (!request.user.sid) return reply.unauthorized('Session is no longer active');
   const user = await prisma.user.findUnique({
     where: { id: request.user.sub },

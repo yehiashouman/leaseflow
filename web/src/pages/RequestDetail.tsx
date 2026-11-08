@@ -1,3 +1,4 @@
+import { Documents } from '@/components/documents';
 import { useRef, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -220,6 +221,7 @@ export function RequestDetail() {
         </form>
       )}
       <MaintenanceAssessment key={'maintenance-' + data.id} data={data} />
+      <Documents purpose="CASE_EVIDENCE" targetId={data.id} heading="Case evidence" />
       <CaseReports key={data.id} requestId={data.id} version={data.version} />
       <Sheet
         open={Boolean(command)}

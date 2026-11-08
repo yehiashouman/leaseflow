@@ -1,3 +1,4 @@
+import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -158,6 +159,7 @@ export function LandlordDetail() {
         </Table>
       </section>
       {editor && <LandlordEditor landlord={data} onClose={() => setEditor(false)} />}
+      <Documents purpose="LANDLORD_DOCUMENT" targetId={data.id} heading="Landlord documents" />
       <Sheet
         open={Boolean(command)}
         onOpenChange={(open) => {

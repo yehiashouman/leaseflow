@@ -14,13 +14,6 @@ import {
   verifySessionRequest,
 } from '../sessions.js';
 
-const registerSchema = z
-  .object({
-    email: z.email().max(191),
-    password: z.string().min(12).max(128),
-    fullName: z.string().min(2).max(150),
-  })
-  .strict();
 const loginSchema = z.object({ email: z.email().max(191), password: z.string().min(1) }).strict();
 
 export const authRoutes: FastifyPluginAsync = async (app) => {
@@ -40,29 +33,6 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
       },
     });
   });
-  app.post(
-    '/register/manager',
-    { config: { rateLimit: { max: 5, timeWindow: '1 hour' } } },
-    async (request, reply) => {
-      const body = registerSchema.parse(request.body);
-      const exists = await prisma.user.findUnique({ where: { email: body.email.toLowerCase() } });
-      if (exists) return reply.conflict('Email already registered');
-      const user = await prisma.user.create({
-        data: {
-          email: body.email.toLowerCase(),
-          passwordHash: await hashPassword(body.password),
-          role: 'LEASING_MANAGER',
-          leasingManager: { create: { fullName: body.fullName } },
-        },
-      });
-      return reply.code(201).send({
-        id: user.id,
-        status: user.status,
-        message: 'Verify email, phone, then await platform activation.',
-      });
-    },
-  );
-
   app.post(
     '/login',
     {

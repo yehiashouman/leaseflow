@@ -30,6 +30,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Managers, ManagerDetail, AdminAudit } from './pages/Managers';
 import { Profile } from './pages/Profile';
 import { Tenants, TenantDetail } from './pages/Tenants';
+import { Account } from './pages/Account';
+import { AccountInvitations } from './pages/Invitations';
+import { MyDocuments } from './pages/Documents';
 import { Notifications } from './pages/Notifications';
 
 const navigation = [
@@ -38,6 +41,8 @@ const navigation = [
   { to: '/landlords', label: 'Landlords', icon: Building2 },
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
+  { to: '/invitations', label: 'Invitations', icon: Inbox },
+  { to: '/documents', label: 'My documents', icon: FileText },
   { to: '/security', label: 'Security', icon: Shield },
   { to: '/profile', label: 'My profile', icon: Shield },
   { to: '/tenants', label: 'Tenants', icon: Building2 },
@@ -69,7 +74,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
         !item.to.startsWith('/admin/') &&
         item.to !== '/profile') ||
       (user?.role === 'TENANT' &&
-        ['/contracts', '/requests', '/profile', '/notifications'].includes(item.to)),
+        ['/contracts', '/requests', '/profile', '/notifications', '/documents'].includes(item.to)),
   );
   return (
     <nav aria-label="Main navigation" className="grid gap-1">
@@ -183,6 +188,12 @@ export default function App() {
     <>
       {previewMode && <PreviewBanner />}
       <Routes>
+        <Route path="/register" element={<Account mode="register" />} />
+        <Route path="/account-setup" element={<Account mode="setup" />} />
+        <Route path="/forgot-password" element={<Account mode="forgot" />} />
+        <Route path="/reset-password" element={<Account mode="reset" />} />
+        <Route path="/verify-email" element={<Account mode="verify" />} />
+        <Route path="/invitation" element={<Account mode="invitation" />} />
         <Route path="/login" element={<Login />} />
         <Route element={<Guard />}>
           <Route element={<Layout />}>
@@ -194,6 +205,7 @@ export default function App() {
               <Route path="admin/audit" element={<AdminAudit />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>
+              <Route path="invitations" element={<AccountInvitations />} />
               <Route path="tenants" element={<Tenants />} />
               <Route path="tenants/:id" element={<TenantDetail />} />
               <Route path="units" element={<Units />} />
@@ -202,6 +214,7 @@ export default function App() {
               <Route path="landlords/:id" element={<LandlordDetail />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER', 'TENANT']} />}>
+              <Route path="documents" element={<MyDocuments />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="contracts" element={<Contracts />} />
               <Route path="contracts/:id" element={<ContractDetail />} />

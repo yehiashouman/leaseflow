@@ -124,6 +124,11 @@ model User {
   refreshTokens RefreshToken[]
   authSessions AuthSession[]
   auditEvents AuditEvent[] @relation("AuditActor")
+  documentSeries DocumentSeries[]
+  phoneChallenge PhoneChallenge?
+  accountTokens AccountToken[]
+  consents AccountConsent[]
+  outboundEmails OutboundEmail[]
 }
 
 model LeasingManagerProfile {
@@ -144,6 +149,10 @@ model LeasingManagerProfile {
   units Unit[]
   tenants TenantProfile[]
   expenses Expense[]
+  pendingPhone String? @db.VarChar(40)
+  submittedAt DateTime?
+  licenseIssuedAt DateTime?
+  invitations TenantInvitation[]
 }
 
 model TenantProfile {
@@ -180,6 +189,7 @@ model Landlord {
   archivedAt DateTime?
   manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
   units Unit[]
+  documentSeries DocumentSeries[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([managerId])
@@ -209,6 +219,7 @@ model Unit {
   manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
   landlord Landlord? @relation(fields: [landlordId], references: [id])
   spaces RentalSpace[]
+  documentSeries DocumentSeries[]
   expenses Expense[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -229,6 +240,7 @@ model RentalSpace {
   enabled Boolean @default(true)
   unit Unit @relation(fields: [unitId], references: [id])
   contracts Contract[]
+  documentSeries DocumentSeries[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([unitId, status])
@@ -297,6 +309,7 @@ model Payment {
   status PaymentStatus @default(UPCOMING)
   contract Contract @relation(fields: [contractId], references: [id])
   createdAt DateTime @default(now())
+  documentSeries DocumentSeries[]
   updatedAt DateTime @updatedAt
   @@unique([contractId, periodStart])
   @@index([dueDate, status])
@@ -329,6 +342,7 @@ model Request {
   clientId String?
   contract Contract @relation(fields: [contractId], references: [id])
   events RequestEvent[]
+  documentSeries DocumentSeries[]
   reportJobs CaseReportJob[]
   maintenanceAssessments MaintenanceAssessment[]
   createdAt DateTime @default(now())
@@ -487,4 +501,168 @@ model AuditEvent {
   actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
   createdAt DateTime @default(now())
   @@index([entityType, entityId, createdAt])
+}
+
+
+enum DocumentPurpose {
+  IDENTITY
+  LICENSE
+  LANDLORD_DOCUMENT
+  PROPERTY_DOCUMENT
+  CONSENT
+  UNIT_PHOTO
+  COMMON_PHOTO
+  SPACE_PHOTO
+  CASE_EVIDENCE
+  PAYMENT_EVIDENCE
+}
+
+enum ScanStatus {
+  QUARANTINED
+  SCANNING
+  CLEAN
+  REJECTED
+  FAILED
+}
+
+model DocumentSeries {
+  id String @id @default(cuid())
+  ownerUserId String
+  purpose DocumentPurpose
+  landlordId String?
+  unitId String?
+  rentalSpaceId String?
+  requestId String?
+  paymentId String?
+  createdAt DateTime @default(now())
+  owner User @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
+  landlord Landlord? @relation(fields: [landlordId], references: [id], onDelete: Restrict)
+  unit Unit? @relation(fields: [unitId], references: [id], onDelete: Restrict)
+  rentalSpace RentalSpace? @relation(fields: [rentalSpaceId], references: [id], onDelete: Restrict)
+  request Request? @relation(fields: [requestId], references: [id], onDelete: Restrict)
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  versions Document[]
+  @@index([ownerUserId, createdAt])
+  @@index([landlordId])
+  @@index([unitId])
+  @@index([rentalSpaceId])
+  @@index([requestId])
+  @@index([paymentId])
+}
+
+model Document {
+  id String @id @default(cuid())
+  seriesId String
+  version Int
+  uploaderUserId String
+  clientId String
+  payloadHash String @db.VarChar(64)
+  title String @db.VarChar(150)
+  originalName String @db.VarChar(150)
+  mimeType String @db.VarChar(80)
+  originalSize Int
+  fileSize Int?
+  sourceHash String @db.VarChar(64)
+  fileHash String? @db.VarChar(64)
+  quarantineKey String @unique
+  cleanKey String? @unique
+  expiresAt DateTime?
+  status ScanStatus @default(QUARANTINED)
+  attempts Int @default(0)
+  retryCount Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  failureCode String? @db.VarChar(80)
+  scannedAt DateTime?
+  createdAt DateTime @default(now())
+  series DocumentSeries @relation(fields: [seriesId], references: [id], onDelete: Restrict)
+  @@unique([seriesId, version])
+  @@unique([uploaderUserId, clientId])
+  @@index([status, nextAttemptAt, createdAt])
+}
+
+
+enum AccountTokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+model AccountToken {
+  id String @id @default(cuid())
+  userId String
+  type AccountTokenType
+  tokenHash String @unique @db.VarChar(64)
+  expiresAt DateTime
+  usedAt DateTime?
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@index([userId, type, createdAt])
+}
+
+model AccountConsent {
+  id String @id @default(cuid())
+  userId String
+  version String @db.VarChar(80)
+  textHash String @db.VarChar(64)
+  acceptedAt DateTime @default(now())
+  sessionId String
+  ip String @db.VarChar(100)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@unique([userId, version])
+}
+
+model TenantInvitation {
+  id String @id @default(cuid())
+  managerId String
+  email String @db.VarChar(191)
+  fullName String @db.VarChar(150)
+  clientId String
+  tokenHash String @unique @db.VarChar(64)
+  expiresAt DateTime
+  acceptedAt DateTime?
+  revokedAt DateTime?
+  resendCount Int @default(0)
+  lastSentAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  manager LeasingManagerProfile @relation(fields: [managerId], references: [id], onDelete: Restrict)
+  @@unique([managerId, clientId])
+  @@index([managerId, email, createdAt])
+}
+
+model OutboundEmail {
+  id String @id @default(cuid())
+  userId String?
+  recipient String @db.VarChar(191)
+  template String @db.VarChar(80)
+  language String @default("en")
+  encryptedPayload String @db.Text
+  status ReportStatus @default(QUEUED)
+  attempts Int @default(0)
+  retryCount Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  failureCode String? @db.VarChar(80)
+  providerId String? @db.VarChar(191)
+  deliveredAt DateTime?
+  createdAt DateTime @default(now())
+  user User? @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@index([status, nextAttemptAt, createdAt])
+  @@index([userId, createdAt])
+}
+
+model PhoneChallenge {
+  id String @id @default(cuid())
+  userId String @unique
+  phone String @db.VarChar(40)
+  providerId String? @db.VarChar(191)
+  attempts Int @default(0)
+  sends Int @default(0)
+  expiresAt DateTime
+  lastSentAt DateTime
+  consumedAt DateTime?
+  leaseToken String?
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
 }
