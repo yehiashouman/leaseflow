@@ -220,3 +220,33 @@ Audit summaries exclude arbitrary legacy bodies instead of exposing old sensitiv
 We verified administrator review and unit amenity screenshots without clipping.
 The failed browser fixture used an exact URL without new filter parameters; pathname matching restores the same failure/retry assertions.
 Migration, exact scope, and remaining gates: [OPERATIONS-BATCH.md](OPERATIONS-BATCH.md).
+
+## Tenant Profiles and Case Notices
+
+Verified: 8 November 2026, Asia/Dubai.
+Code commit: `1041f1d32d102c04f5d51bba4c0d75f4bf623a46`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, database, real-browser, and container verification](https://github.com/yehiashouman/leaseflow/actions/runs/42468327149).
+Preview: [synthetic profile, directory, and notice verification](https://github.com/yehiashouman/leaseflow/actions/runs/42468327257).
+The run passes 63 API tests, 68 web tests, and 59 MySQL cases: 190 automated tests.
+Browser coverage totals twenty-two cases: four interface fixtures, ten synthetic previews, and eight real API/MySQL journeys.
+Lint, migrations, schema validation, production/preview builds, both container builds, and the high/critical audit gate pass.
+Seven moderate development-tool advisories remain.
+
+| Item     | Code                                                                                                                           | Test and evidence scope                                                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DATA-006 | api/prisma/schema.prisma; api/prisma/migrations/20261108040000_profiles_notifications/migration.sql; api/src/routes/profile.ts | MySQL migration and profile tests persist timezone/language alongside existing role, account status, and email/phone verification timestamps                        |
+| TEN-006  | api/src/routes/profile.ts; web/src/pages/Profile.tsx                                                                           | MySQL and real browsers save a tenant-supplied phone candidate without changing the verified phone or confirmation timestamps                                       |
+| TEN-010  | api/src/routes/profile.ts; web/src/pages/Profile.tsx                                                                           | Tests verify Email, WhatsApp, and Both preference storage; the account security email remains unchanged; external delivery is not certified                         |
+| TEN-017  | api/src/routes/profile.ts; web/src/profile-fields.ts; web/src/pages/Profile.tsx                                                | MySQL and component tests accept empty optional gender, nationality, language, culture, and lifestyle preferences without mandatory fields                          |
+| TEN-018  | api/src/routes/profile.ts; api/src/routes/contracts.ts; web/src/pages/Profile.tsx                                              | Compatibility values remain descriptive metadata; edits preserve existing contracts, and allocation code does not use these preferences as restrictions             |
+| MSG-007  | api/src/routes/notifications.ts; api/src/case-data.ts; web/src/pages/Notifications.tsx                                         | MySQL and real browsers verify private recipient scope, notice history, unread state, read-all isolation, repeated-read timestamps, and replay-safe notice creation |
+
+New MySQL assertions also reject profile owner/verification injection, invalid dates, stale versions, and concurrent edits.
+Manager directory tests reject foreign managers, tenants, and administrators and exclude password hashes and pending phone candidates.
+Case author snapshots remain unchanged after tenant name edits.
+Private drafts create no notices, and inconsistent relationship changes hide previously visible notices.
+Read operations cannot change another recipient's unread state.
+We verified desktop/mobile profile screenshots and the synthetic workflow without backend requests.
+Full tenant onboarding, private documents, phone verification, provider delivery, critical security delivery, and retention policy remain incomplete.
+Exact migration and design constraints: [PROFILES-NOTIFICATIONS.md](PROFILES-NOTIFICATIONS.md).

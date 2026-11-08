@@ -105,7 +105,7 @@ Requirements: 14, 24.
 - [ ] **DATA-003** Add foreign keys for every domain relationship.
 - [ ] **DATA-004** Add uniqueness constraints for identity and retry-sensitive operations.
 - [ ] **DATA-005** Index ownership, relationship, status, deadline, period, and report query paths.
-- [ ] **DATA-006** Persist verification states, role, account status, language, and timezone.
+- [x] **DATA-006** Persist verification states, role, account status, language, and timezone. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **DATA-007** Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes.
 - [ ] **DATA-008** Persist primary and secondary occupants with effective allocation dates.
 - [ ] **DATA-009** Persist original contract terms and effective-dated amendments.
@@ -278,19 +278,19 @@ Requirements: 5, 22.2, 22.4-22.5.
 - [ ] **TEN-003** Implement invitation inspect, resend, revoke, expiry, and acceptance.
 - [x] **TEN-004** Reject public tenant self-registration. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **TEN-005** Verify invitation email before tenant phone confirmation.
-- [ ] **TEN-006** Let tenants supply their own phone numbers.
+- [x] **TEN-006** Let tenants supply their own phone numbers. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **TEN-007** Verify tenant WhatsApp OTP through Twilio.
 - [ ] **TEN-008** Capture full name, date of birth, nationality, Emirates ID number, expiry, and document.
 - [ ] **TEN-009** Link the tenant only to the inviting manager under the initial policy.
-- [ ] **TEN-010** Implement email, WhatsApp, or Both preferences for non-security notices.
+- [x] **TEN-010** Implement email, WhatsApp, or Both preferences for non-security notices. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **TEN-011** Prevent complete removal of critical security notices.
 - [ ] **TEN-012** Support one primary tenant and one contract for a single occupant.
 - [ ] **TEN-013** Support one primary tenant and optional secondary occupant for a couple.
 - [ ] **TEN-014** Capture secondary occupant identity and Emirates ID status without a separate account.
 - [ ] **TEN-015** Keep primary tenant responsibility explicit.
 - [ ] **TEN-016** Use separate accounts and contracts for unrelated occupants in the same room.
-- [ ] **TEN-017** Keep sex, nationality, language, culture, and lifestyle preferences optional.
-- [ ] **TEN-018** Keep sleep schedule, smoking, noise, and shared-language compatibility non-binding.
+- [x] **TEN-017** Keep sex, nationality, language, culture, and lifestyle preferences optional. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
+- [x] **TEN-018** Keep sleep schedule, smoking, noise, and shared-language compatibility non-binding. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **TEN-019** Show tenant completion, contacts, identity, occupancy, contract, finance, and request history.
 
 ## 11. Contracts and Annual Reviews
@@ -528,7 +528,7 @@ Requirements: 12, 25.
 - [ ] **MSG-004** Support user language and English template fallback.
 - [ ] **MSG-005** Store template, recipient, channel, language, related entity, attempt time, and provider/delivery status.
 - [ ] **MSG-006** Link notices to the correct authorized application record.
-- [ ] **MSG-007** Provide unread state and notification history.
+- [x] **MSG-007** Provide unread state and notification history. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **MSG-008** Persist transactional notification intent before provider delivery.
 - [ ] **MSG-009** Retry transient failures with bounded attempts.
 - [ ] **MSG-010** Expose terminal failures for operational recovery.

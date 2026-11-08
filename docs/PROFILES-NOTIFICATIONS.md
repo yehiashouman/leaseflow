@@ -57,5 +57,8 @@ Existing case events remain unchanged; no fabricated historical notices are back
 Local verification passes 63 API tests, 68 web tests, lint, and builds.
 New MySQL assertions cover privacy, replay, stale edits, concurrent edits, unread state, and preserved authorship.
 Real-browser journeys edit profiles, inspect manager tenant details, and clear notice unread state.
-Hosted evidence remains pending until recorded in EVIDENCE.md.
+Hosted verification passes 59 MySQL cases and twenty-two browser cases across all suites.
+Evidence: [API, database, real browsers, and container builds](https://github.com/yehiashouman/leaseflow/actions/runs/42468327149).
+Preview: [synthetic browsers and deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42468327257).
+We verified tenant profile screenshots on desktop and mobile without overlap or page overflow.
 The public preview uses separate synthetic browser-local profile and notice state.

@@ -39,7 +39,7 @@ Do not mark a full checklist module complete from partial implementation evidenc
 ## Local Verification
 
 - API suite: 63 tests pass; database-dependent unit tests use mocks.
-- Web suite: 64 tests pass, including forms, roles, session cleanup, cases, administrator review, and preview data.
+- Web suite: 68 tests pass, including forms, roles, session cleanup, cases, administrator review, profiles, notices, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -104,3 +104,14 @@ Private drafts stay hidden from managers until a tenant explicitly submits them.
 We verified twenty additional checklist tasks, including existing role and space restrictions.
 Current acceptance totals: 127 API/web tests, 53 MySQL cases, and twenty browser cases.
 Full production approval, documents, invitations, MFA, financial workflows, providers, and recovery remain incomplete.
+
+## Tenant Profiles and Case Notices
+
+We added tenant self-service profiles, unverified phone candidates, language/timezone storage, and optional compatibility fields.
+Managers have a scoped tenant directory with safe contacts and contract references.
+Shared case events create in-app notices in the same transaction; private drafts remain private.
+The notification center supports history, unread/read filters, and isolated read controls.
+Profile changes preserve verified account contacts, manager ownership, and historical case authors.
+We verified six additional checklist tasks.
+Current acceptance totals: 131 API/web tests, 59 MySQL cases, and twenty-two browser cases.
+Email/WhatsApp delivery, phone verification, invitations, complete onboarding, and full release acceptance remain incomplete.
