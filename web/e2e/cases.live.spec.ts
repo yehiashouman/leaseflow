@@ -93,6 +93,7 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     await editor.getByLabel('Title *', { exact: true }).fill('Browser tap repair ' + suffix);
     await editor.getByLabel('Description *', { exact: true }).fill('Private browser report');
     await editor.getByLabel('Category', { exact: true }).fill('Plumbing');
+    await editor.getByLabel('Save as private draft', { exact: true }).check();
     const submission = page.waitForResponse(
       (reply) => reply.url().endsWith('/requests') && reply.request().method() === 'POST',
     );
@@ -104,6 +105,8 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     await expect(
       page.getByRole('heading', { name: 'Browser tap repair ' + suffix, exact: true }),
     ).toBeVisible();
+    await expect(page.getByLabel('Message', { exact: true })).not.toBeVisible();
+    await decision(page, 'Submit request');
     await login(managerPage, manager.email, password, 'Portfolio overview');
     await managerPage.goto('/requests/' + caseId);
     await expect(
@@ -143,10 +146,10 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
       include: { events: { orderBy: { sequence: 'asc' } } },
     });
     expect(saved.status).toBe('CLOSED');
-    expect(saved.version).toBe(9);
-    expect(saved.events.map((event) => event.sequence)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(saved.version).toBe(10);
+    expect(saved.events.map((event) => event.sequence)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     expect(saved.events[0].actorName).toBe('Browser Case Tenant');
-    expect(saved.events[1].actorName).toBe('Browser Case Manager');
+    expect(saved.events[2].actorName).toBe('Browser Case Manager');
     expect(await prisma.payment.count({ where: { contractId: contract.id } })).toBe(0);
     expect(await prisma.depositEntry.count({ where: { contractId: contract.id } })).toBe(0);
   } finally {

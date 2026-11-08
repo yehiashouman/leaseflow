@@ -67,7 +67,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             id: body.rentalSpaceId,
             enabled: true,
             status: { notIn: ['INACTIVE', 'MAINTENANCE'] },
-            unit: { managerId: manager.id, active: true },
+            unit: { managerId: manager.id, active: true, archivedAt: null },
             type: { in: ['ROOM', 'MASTER_ROOM'] },
           },
         });

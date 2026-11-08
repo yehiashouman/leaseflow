@@ -495,4 +495,163 @@ describe('MySQL private operational case workflow', () => {
       await prisma.authSession.update({ where: { id: tenant.sid }, data: { revokedAt: null } });
     }
   });
+  it('keeps drafts private and submits them once with complete immutable history', async () => {
+    const body = { ...submission(), draft: true };
+    const draft = await send('POST', '', body);
+    expect(draft.statusCode).toBe(201);
+    const id = draft.json().id;
+    expect(draft.json()).toMatchObject({
+      status: 'DRAFT',
+      canMessage: false,
+      allowedActions: [{ status: 'SUBMITTED' }],
+    });
+    expect((await send('GET', '/' + id, undefined, manager)).statusCode).toBe(404);
+    expect(
+      (await send('GET', '', undefined, manager))
+        .json()
+        .some((item: { id: string }) => item.id === id),
+    ).toBe(false);
+    expect(
+      (
+        await send('POST', '/' + id + '/messages', {
+          clientId: randomUUID(),
+          message: 'Not submitted',
+        })
+      ).statusCode,
+    ).toBe(409);
+    const command = { clientId: randomUUID(), status: 'SUBMITTED', expectedVersion: 1 };
+    expect((await send('POST', '/' + id + '/respond', command)).statusCode).toBe(200);
+    expect((await send('POST', '/' + id + '/respond', command)).json().events).toHaveLength(2);
+    expect((await send('POST', '', body)).json().id).toBe(id);
+    expect((await send('POST', '', { ...body, draft: false })).statusCode).toBe(409);
+    const shared = (await send('GET', '/' + id, undefined, manager)).json();
+    expect(shared.events.map((event: { kind: string }) => event.kind)).toEqual([
+      'DRAFT_CREATED',
+      'SUBMITTED',
+    ]);
+    expect(shared.version).toBe(2);
+  });
+  it('rejects draft submission after contract closure without a shared event', async () => {
+    const draft = (await send('POST', '', { ...submission(), draft: true })).json();
+    await prisma.contract.update({ where: { id: contractId }, data: { status: 'CLOSED' } });
+    try {
+      expect(
+        (
+          await send('POST', '/' + draft.id + '/respond', {
+            clientId: randomUUID(),
+            status: 'SUBMITTED',
+            expectedVersion: 1,
+          })
+        ).statusCode,
+      ).toBe(409);
+      expect((await send('GET', '/' + draft.id)).json().events).toHaveLength(1);
+      expect((await send('GET', '/' + draft.id, undefined, manager)).statusCode).toBe(404);
+    } finally {
+      await prisma.contract.update({ where: { id: contractId }, data: { status: 'ACTIVE' } });
+    }
+  });
+  it('serves a filtered administrator queue without secret or full identity fields', async () => {
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: manager.id } });
+    await prisma.leasingManagerProfile.update({
+      where: { id: manager.profileId },
+      data: { emiratesIdNumber: '784-2000-1234567-8', licenseNumber: 'LIC-12345678' },
+    });
+    const queue = await send(
+      'GET',
+      '/api/v1/admin/managers?status=ACTIVE&q=' + encodeURIComponent(user.email),
+      undefined,
+      admin,
+    );
+    expect(queue.statusCode).toBe(200);
+    expect(queue.json()).toMatchObject({ total: 1, page: 1, pageSize: 20 });
+    expect(queue.json().items[0].id).toBe(manager.id);
+    for (const field of ['passwordHash', 'emiratesIdNumber', 'licenseNumber'])
+      expect(queue.body).not.toContain(field);
+    const detail = await send('GET', '/api/v1/admin/managers/' + manager.id, undefined, admin);
+    expect(detail.json()).toMatchObject({
+      moderationAvailable: false,
+      documentsAvailable: false,
+      leasingManager: { emiratesIdNumber: '****67-8', licenseNumber: '****5678' },
+    });
+    expect(detail.body).not.toContain('784-2000-1234567-8');
+    expect(detail.body).not.toContain('passwordHash');
+    expect(detail.headers['cache-control']).toBe('no-store');
+    expect(
+      (await send('GET', '/api/v1/admin/managers/' + tenant.id, undefined, admin)).statusCode,
+    ).toBe(404);
+    expect((await send('GET', '/api/v1/admin/managers?page=0', undefined, admin)).statusCode).toBe(
+      422,
+    );
+  });
+  it('denies administrator account and audit screens to tenant and manager roles', async () => {
+    for (const actor of [tenant, manager])
+      for (const path of [
+        '/api/v1/admin/managers',
+        '/api/v1/admin/managers/' + manager.id,
+        '/api/v1/admin/audit',
+      ])
+        expect((await send('GET', path, undefined, actor)).statusCode).toBe(403);
+    expect(
+      (
+        await send(
+          'PATCH',
+          '/api/v1/admin/managers/' + manager.id + '/status',
+          { status: 'ACTIVE', reason: 'Unapproved policy' },
+          admin,
+        )
+      ).statusCode,
+    ).toBe(409);
+  });
+  it('returns audit identifiers without arbitrary old/new complaint payloads', async () => {
+    await prisma.auditEvent.create({
+      data: {
+        actorUserId: manager.id,
+        action: 'SENSITIVE_LEGACY',
+        entityType: 'CaseBatch',
+        entityId: requestId,
+        newValue: { password: 'secret', complaint: 'Private legacy complaint' },
+      },
+    });
+    const audit = await send(
+      'GET',
+      '/api/v1/admin/audit?entityType=CaseBatch&action=SENSITIVE_LEGACY',
+      undefined,
+      admin,
+    );
+    expect(audit.statusCode).toBe(200);
+    expect(audit.json().total).toBeGreaterThan(0);
+    expect(audit.body).not.toContain('Private legacy complaint');
+    expect(audit.body).not.toContain('newValue');
+    expect(audit.json().items[0].actorUserId).toBe(manager.id);
+  });
+  it('rejects role injection and public tenant registration without new users', async () => {
+    const email = randomUUID() + '@role-injection.invalid';
+    for (const role of ['ADMIN', 'TENANT']) {
+      const response = await app.inject({
+        method: 'POST',
+        url: '/api/v1/auth/register/manager',
+        headers: { 'x-forwarded-for': '198.51.100.' + clientIp },
+        payload: { email, password: 'NeverPersistThis123!', fullName: 'Injected Role', role },
+      });
+      expect(response.statusCode).toBe(422);
+    }
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/api/v1/auth/register/tenant',
+          payload: { email },
+        })
+      ).statusCode,
+    ).toBe(404);
+    expect(await prisma.user.count({ where: { email } })).toBe(0);
+    const forged = await app.inject({
+      method: 'GET',
+      url: '/api/v1/admin/managers',
+      headers: {
+        authorization: 'Bearer ' + app.jwt.sign({ sub: tenant.id, role: 'ADMIN', sid: tenant.sid }),
+      },
+    });
+    expect(forged.statusCode).toBe(401);
+  });
 });

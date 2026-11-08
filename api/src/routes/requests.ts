@@ -33,6 +33,7 @@ const createSchema = z
     description: z.string().trim().min(3).max(5000),
     category: z.string().trim().max(100).nullable().optional(),
     urgency: z.enum(['NORMAL', 'URGENT']).default('NORMAL'),
+    draft: z.boolean().default(false),
   })
   .strict();
 const messageSchema = z
@@ -133,7 +134,8 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             existing.title !== body.title ||
             existing.description !== body.description ||
             (previous.category ?? null) !== metadata.category ||
-            previous.urgency !== metadata.urgency
+            previous.urgency !== metadata.urgency ||
+            (existing.events[0]?.kind === 'DRAFT_CREATED') !== body.draft
           )
             throw app.httpErrors.conflict('Submission key reused with different content');
           return existing;
@@ -152,16 +154,27 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             type: body.type,
             title: body.title,
             description: body.description,
-            status: 'SUBMITTED',
+            status: body.draft ? 'DRAFT' : 'SUBMITTED',
             version: 1,
             metadata,
             events: {
-              create: { ...actor, kind: 'SUBMITTED', message: body.description, sequence: 1 },
+              create: {
+                ...actor,
+                kind: body.draft ? 'DRAFT_CREATED' : 'SUBMITTED',
+                message: body.description,
+                sequence: 1,
+              },
             },
           },
           select: caseSelect,
         });
-        await caseAudit(tx, request, created, created.events[0]!.id, 'REQUEST_SUBMIT');
+        await caseAudit(
+          tx,
+          request,
+          created,
+          created.events[0]!.id,
+          body.draft ? 'REQUEST_DRAFT' : 'REQUEST_SUBMIT',
+        );
         return created;
       },
       { isolationLevel: 'ReadCommitted' },
@@ -256,6 +269,19 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
           throw app.httpErrors.unprocessableEntity(
             'Add an explanation of at least three characters',
           );
+        if (body.status === 'SUBMITTED') {
+          if (!(await lockCaseContract(tx, current.contractId, request.user)))
+            throw app.httpErrors.notFound('Contract not found');
+          const contract = await tx.contract.findUnique({
+            where: { id: current.contractId },
+            select: { status: true },
+          });
+          if (
+            !contract ||
+            !['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status)
+          )
+            throw app.httpErrors.conflict('Submission requires an open contract');
+        }
         const sequence = current.version + 1;
         const event = await tx.requestEvent.create({
           data: {

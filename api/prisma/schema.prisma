@@ -196,10 +196,12 @@ model Unit {
   latitude Decimal? @db.Decimal(10, 7)
   longitude Decimal? @db.Decimal(10, 7)
   ownerMonthlyRent Decimal? @db.Decimal(12, 2)
+  ownerPaymentSchedule String? @db.Text
   currency String @default("AED")
   defaultDeposit Decimal @default(0) @db.Decimal(12, 2)
   amenities Json?
   active Boolean @default(false)
+  archivedAt DateTime?
   declarationAcceptedAt DateTime?
   manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
   landlord Landlord? @relation(fields: [landlordId], references: [id])
@@ -208,6 +210,7 @@ model Unit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([managerId, active])
+  @@index([managerId, archivedAt])
   @@index([landlordId])
 }
 

@@ -89,6 +89,7 @@ export function CaseEditor({
           maxLength: 5000,
         },
         { name: 'category', label: 'Category', maxLength: 100 },
+        { name: 'draft', label: 'Save as private draft', type: 'checkbox' },
         {
           name: 'urgency',
           label: 'Urgency',
@@ -108,6 +109,7 @@ export function CaseEditor({
           description: form.get('description'),
           category: form.get('category') || null,
           urgency: form.get('urgency'),
+          draft: form.has('draft'),
         });
         client.setQueryData(['request', response.data.id], response.data);
         await client.invalidateQueries({ queryKey: ['requests'] });

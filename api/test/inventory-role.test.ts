@@ -338,7 +338,7 @@ describe('inventory writes and role dashboards', () => {
     expect(db.rentalSpace.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          unit: { managerId: 'manager-1', active: true },
+          unit: { managerId: 'manager-1', active: true, archivedAt: null },
           status: { notIn: ['INACTIVE', 'MAINTENANCE'] },
           enabled: true,
         }),

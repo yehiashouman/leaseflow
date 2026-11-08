@@ -14,12 +14,14 @@ import {
   verifySessionRequest,
 } from '../sessions.js';
 
-const registerSchema = z.object({
-  email: z.email(),
-  password: z.string().min(12).max(128),
-  fullName: z.string().min(2).max(150),
-});
-const loginSchema = z.object({ email: z.email(), password: z.string().min(1) });
+const registerSchema = z
+  .object({
+    email: z.email().max(191),
+    password: z.string().min(12).max(128),
+    fullName: z.string().min(2).max(150),
+  })
+  .strict();
+const loginSchema = z.object({ email: z.email().max(191), password: z.string().min(1) }).strict();
 
 export const authRoutes: FastifyPluginAsync = async (app) => {
   app.addHook('onSend', async (_request, reply) => {

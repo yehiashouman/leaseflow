@@ -8,6 +8,56 @@ const client = axios.create({
 });
 beforeEach(resetPreview);
 describe('isolated preview data', () => {
+  it('archives and restores vacant units without activation or room deletion', async () => {
+    const created = (
+      await client.post('/inventory/units', {
+        name: 'Lifecycle Unit',
+        area: 'Dubai',
+        declarationAccepted: true,
+        ownerPaymentSchedule: 'Quarterly',
+        amenities: { wifi: true, additional: ['Lift'] },
+      })
+    ).data;
+    await client.post('/inventory/units/' + created.id + '/archive');
+    expect(
+      (await client.get('/inventory/units', { params: { status: 'ARCHIVED' } })).data,
+    ).toHaveLength(1);
+    await expect(
+      client.post('/inventory/units/' + created.id + '/spaces', {
+        name: 'Blocked',
+        type: 'ROOM',
+        capacity: 1,
+      }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+    const restored = (await client.post('/inventory/units/' + created.id + '/restore')).data;
+    expect(restored).toMatchObject({
+      active: false,
+      archivedAt: null,
+      ownerPaymentSchedule: 'Quarterly',
+      amenities: { wifi: true, additional: ['Lift'] },
+    });
+    await expect(client.post('/inventory/units/unit-1/archive')).rejects.toMatchObject({
+      response: { status: 409 },
+    });
+  });
+  it('isolates administrator review and masks synthetic identity data', async () => {
+    await expect(client.get('/admin/managers')).rejects.toMatchObject({
+      response: { status: 403 },
+    });
+    const admin = axios.create({
+      adapter: previewAdapter,
+      headers: { Authorization: 'Bearer preview:ADMIN' },
+    });
+    const queue = (await admin.get('/admin/managers')).data;
+    expect(queue.total).toBe(1);
+    expect(
+      (await admin.get('/admin/managers/' + queue.items[0].id)).data.leasingManager
+        .emiratesIdNumber,
+    ).toBe('****1234');
+    await expect(
+      admin.patch('/admin/managers/' + queue.items[0].id + '/status', { status: 'ACTIVE' }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+  });
   it('archives, filters, restores, and links synthetic landlord details', async () => {
     const response = await client.post('/inventory/landlords', {
       name: 'Archive Owner',

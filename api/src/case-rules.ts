@@ -20,6 +20,7 @@ const managerActions: Partial<Record<RequestStatus, RequestStatus[]>> = {
   CLOSED: ['REOPENED'],
 };
 const tenantActions: Partial<Record<RequestStatus, RequestStatus[]>> = {
+  DRAFT: ['SUBMITTED'],
   AWAITING_TENANT: ['AWAITING_MANAGER'],
   RESOLVED: ['ACCEPTED', 'REOPENED'],
   REJECTED: ['REOPENED'],
@@ -37,7 +38,7 @@ const roleTargets: Partial<Record<Role, RequestStatus[]>> = {
     'REOPENED',
     'CLOSED',
   ],
-  TENANT: ['AWAITING_MANAGER', 'ACCEPTED', 'REOPENED'],
+  TENANT: ['SUBMITTED', 'AWAITING_MANAGER', 'ACCEPTED', 'REOPENED'],
 };
 export function supportsCaseType(type: RequestType) {
   return (basicCaseTypes as readonly string[]).includes(type);

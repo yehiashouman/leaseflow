@@ -25,6 +25,97 @@ function page(element: React.ReactNode, path = '/') {
   );
 }
 describe('inventory forms', () => {
+  it('captures unit amenities, custom labels, and owner payment schedules', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ data: {} });
+    page(<Units />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Add unit' }));
+    await user.type(screen.getByLabelText(/Unit name/), 'Amenity Unit');
+    await user.type(screen.getByLabelText(/^Area/), 'Dubai');
+    await user.type(screen.getByLabelText('Owner payment schedule'), 'Four cheques');
+    for (const label of ['Air conditioning', 'Furnished', 'Kitchen', 'Wi-Fi'])
+      await user.click(screen.getByLabelText(label, { exact: true }));
+    await user.type(screen.getByLabelText('Additional amenities'), 'Lift\nGym\nLift');
+    await user.click(screen.getByRole('checkbox', { name: /I confirm the property/ }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(post).toHaveBeenCalledWith(
+      '/inventory/units',
+      expect.objectContaining({
+        ownerPaymentSchedule: 'Four cheques',
+        amenities: expect.objectContaining({
+          airConditioning: true,
+          furnished: true,
+          kitchen: true,
+          wifi: true,
+          additional: ['Lift', 'Gym'],
+        }),
+      }),
+    );
+  });
+  it('confirms unit archive and restore and keeps archived room actions disabled', async () => {
+    let archivedAt: string | null = null;
+    vi.spyOn(api, 'get').mockImplementation(async () => ({
+      data: {
+        id: 'u1',
+        name: 'Lifecycle Unit',
+        area: 'Dubai',
+        currency: 'AED',
+        defaultDeposit: 0,
+        active: false,
+        archivedAt,
+        spaces: [],
+      },
+    }));
+    const post = vi.spyOn(api, 'post').mockImplementation(async (path) => {
+      archivedAt = path.endsWith('/archive') ? '2026-11-08T00:00:00Z' : null;
+      return { data: {} };
+    });
+    page(<UnitDetail />, '/units/u1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Archive unit' }));
+    expect(post).not.toHaveBeenCalled();
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
+    );
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect((screen.getByRole('button', { name: 'Add room' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    await user.click(screen.getByRole('button', { name: 'Restore unit' }));
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
+    );
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect((screen.getByRole('button', { name: 'Add room' }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+  });
+  it('shows archive conflicts without a false success', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        id: 'u1',
+        name: 'Occupied Unit',
+        area: 'Dubai',
+        currency: 'AED',
+        defaultDeposit: 0,
+        active: true,
+        spaces: [],
+      },
+    });
+    vi.spyOn(api, 'post').mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { message: 'Resolve open contracts before unit archive' } },
+    });
+    page(<UnitDetail />, '/units/u1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Archive unit' }));
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
+    );
+    expect((await screen.findByRole('alert')).textContent).toContain('Resolve open contracts');
+    expect(screen.getByRole('alertdialog')).toBeDefined();
+  });
   it('disables record fields until the save completes', async () => {
     vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
     let finish!: () => void;
@@ -189,7 +280,7 @@ describe('inventory forms', () => {
     await user.type(form.getByLabelText(/Area/), 'Dubai');
     await user.click(form.getByRole('button', { name: 'Save' }));
     expect(post).not.toHaveBeenCalled();
-    await user.click(form.getByRole('checkbox'));
+    await user.click(form.getByRole('checkbox', { name: /I confirm the property/ }));
     await user.click(form.getByRole('button', { name: 'Save' }));
     expect(post).toHaveBeenCalledWith(
       '/inventory/units',

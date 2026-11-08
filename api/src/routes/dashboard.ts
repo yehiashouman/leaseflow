@@ -34,7 +34,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
     });
     const [units, spaces, occupied, openRequests, overdue, deposits, income, expenses] =
       await Promise.all([
-        prisma.unit.count({ where: { managerId: manager.id } }),
+        prisma.unit.count({ where: { managerId: manager.id, archivedAt: null } }),
         prisma.rentalSpace.count({ where: { unit: { managerId: manager.id }, enabled: true } }),
         prisma.rentalSpace.count({
           where: { unit: { managerId: manager.id }, status: { in: ['OCCUPIED', 'PARTIAL'] } },

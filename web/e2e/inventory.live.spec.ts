@@ -91,8 +91,28 @@ test('real landlord lifecycle and property fields persist through the browser', 
         await editor.getByLabel('Latitude', { exact: true }).fill('0');
         await editor.getByLabel('Longitude', { exact: true }).fill('55.2708');
         await editor.getByLabel('Default deposit *', { exact: true }).fill('2500');
+        await editor.getByLabel('Owner monthly rent', { exact: true }).fill('8000.25');
+        await editor
+          .getByLabel('Owner payment schedule', { exact: true })
+          .fill('Four cheques\nDates agreed externally');
+        for (const label of [
+          'Air conditioning',
+          'Furnished',
+          'Bed',
+          'Television',
+          'Refrigerator',
+          'Bathroom',
+          'Kitchen',
+          'Laundry',
+          'Balcony',
+          'Parking',
+          'Wi-Fi',
+          'Cleaning',
+        ])
+          await editor.getByLabel(label, { exact: true }).check();
+        await editor.getByLabel('Additional amenities', { exact: true }).fill('Lift\nGym');
       }
-      await editor.getByRole('checkbox').check();
+      await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
       unitIds.push((await save(page, 'POST', '/inventory/units', 201)).id);
     }
     await page.getByRole('link', { name: unitNames[0], exact: true }).click();
@@ -116,7 +136,7 @@ test('real landlord lifecycle and property fields persist through the browser', 
       await page.getByRole('button', { name: 'Edit ' + unitName, exact: true }).click();
       editor = page.getByRole('dialog');
       await editor.getByLabel('Landlord', { exact: true }).selectOption('');
-      await editor.getByRole('checkbox').check();
+      await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
       await save(page, 'PATCH', '/inventory/units/' + unitIds[index], 200);
     }
     await navigation(page, 'Landlords', mobile);
@@ -161,6 +181,27 @@ test('real landlord lifecycle and property fields persist through the browser', 
     expect(unit.latitude?.toString()).toBe('0');
     expect(unit.longitude?.toString()).toBe('55.2708');
     expect(unit.defaultDeposit.toFixed(2)).toBe('2500.00');
+    expect(unit.ownerPaymentSchedule).toBe('Four cheques\nDates agreed externally');
+    expect(unit.amenities).toMatchObject({
+      wifi: true,
+      bathroom: true,
+      kitchen: true,
+      additional: ['Lift', 'Gym'],
+    });
+    await navigation(page, 'Units', mobile);
+    await page.getByRole('link', { name: unitNames[0], exact: true }).click();
+    await expect(page.getByText('Lift', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('Four cheques\nDates agreed externally', { exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Archive unit', exact: true }).click();
+    await confirm(page, '/inventory/units/' + unitIds[0] + '/archive');
+    await expect(page.getByRole('button', { name: 'Add room', exact: true })).toBeDisabled();
+    await page.reload();
+    await page.getByRole('button', { name: 'Restore unit', exact: true }).click();
+    await confirm(page, '/inventory/units/' + unitIds[0] + '/restore');
+    await expect(page.getByText('Draft', { exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('unit-amenities.png'), fullPage: true });
     expect(
       await prisma.auditEvent.count({ where: { entityId: landlord.id, action: 'ARCHIVE' } }),
     ).toBe(1);

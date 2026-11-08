@@ -37,6 +37,15 @@ export function freshPreview(): PreviewStore {
     ownerMonthlyRent: '8000',
     landlordId: 'landlord-1',
     active: true,
+    archivedAt: null,
+    ownerPaymentSchedule: 'Monthly, first calendar day',
+    amenities: {
+      airConditioning: true,
+      furnished: true,
+      kitchen: true,
+      wifi: true,
+      additional: ['Lift'],
+    },
     spaces: [
       {
         id: 'space-1',
@@ -157,6 +166,52 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return fail('Preview session required', 401);
   if (path === '/auth/me') return respond(userFor(role));
   const store = readStore();
+  if (path.startsWith('/admin/')) {
+    if (role !== 'ADMIN') return fail('Insufficient permissions', 403);
+    if (method !== 'get')
+      return fail('Account moderation requires approved MFA and identity/document policies', 409);
+    const manager = {
+      id: 'preview-review-manager',
+      email: 'applicant@preview.invalid',
+      phone: '+971500000000',
+      status: 'PENDING_APPROVAL',
+      createdAt: '2026-11-08T00:00:00Z',
+      emailVerifiedAt: '2026-11-08T00:00:00Z',
+      phoneVerifiedAt: '2026-11-08T00:00:00Z',
+      leasingManager: {
+        fullName: 'Demo Applicant',
+        nationality: 'Egyptian',
+        emiratesIdNumber: '****1234',
+        licenseNumber: '****5678',
+        declarationAcceptedAt: '2026-11-08T00:00:00Z',
+      },
+    };
+    if (path === '/admin/managers') {
+      const q = String(config.params?.q ?? '').toLowerCase();
+      const page = Number(config.params?.page ?? 1);
+      const rows = [manager].filter(
+        (item) =>
+          (!config.params?.status || item.status === config.params.status) &&
+          (!q || (item.email + item.leasingManager.fullName).toLowerCase().includes(q)),
+      );
+      return respond({
+        items: rows.slice((page - 1) * 20, page * 20),
+        total: rows.length,
+        page,
+        pageSize: 20,
+      });
+    }
+    if (path === '/admin/managers/' + manager.id)
+      return respond({
+        ...manager,
+        history: [],
+        moderationAvailable: false,
+        documentsAvailable: false,
+      });
+    if (path === '/admin/audit')
+      return respond({ items: [], total: 0, page: Number(config.params?.page ?? 1), pageSize: 20 });
+    return fail('Record not found', 404);
+  }
   if (path === '/auth/logout' && method === 'post') return respond(null, 204);
   if (path === '/auth/sessions' && method === 'get') {
     const now = new Date().toISOString();
@@ -191,7 +246,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     localStorage.setItem(storageKey, JSON.stringify(store));
     return respond(null, 204);
   }
-  const units = () =>
+  const units = (): RecordData[] =>
     store.units.map((unit) => ({
       ...unit,
       landlord: store.landlords.find((landlord) => landlord.id === unit.landlordId) ?? null,
@@ -234,7 +289,23 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         .map(({ id, name, area, active }) => ({ id, name, area, active })),
     });
   }
-  if (method === 'get' && path === '/inventory/units') return respond(units());
+  if (method === 'get' && path === '/inventory/units') {
+    const status = config.params?.status ?? 'CURRENT';
+    const q = String(config.params?.q ?? '').toLowerCase();
+    return respond(
+      units().filter(
+        (unit) =>
+          (status === 'ALL' ||
+            (status === 'ARCHIVED' ? Boolean(unit.archivedAt) : !unit.archivedAt)) &&
+          (!q ||
+            [unit.name, unit.area, unit.building].some((value) =>
+              String(value ?? '')
+                .toLowerCase()
+                .includes(q),
+            )),
+      ),
+    );
+  }
   if (method === 'get' && /^\/inventory\/units\/[^/]+$/.test(path))
     return respond(
       units().find((unit) => unit.id === path.split('/').at(-1)) ?? fail('Unit not found', 404),
@@ -260,11 +331,11 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     if (role !== 'LEASING_MANAGER') return fail('Insufficient permissions', 403);
     const spaces = store.units.flatMap((unit) => unit.spaces);
     return respond({
-      units: store.units.length,
+      units: store.units.filter((unit) => !unit.archivedAt).length,
       occupied: spaces.filter((space) => space.status === 'OCCUPIED').length,
       vacant: spaces.filter((space) => space.status === 'AVAILABLE').length,
       openRequests: store.requests.filter(
-        (item) => !['ACCEPTED', 'CLOSED', 'REJECTED'].includes(item.status),
+        (item) => !['DRAFT', 'ACCEPTED', 'CLOSED', 'REJECTED'].includes(item.status),
       ).length,
       overdue: 0,
       depositsHeld: 3000,
@@ -318,6 +389,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
               'description',
               'category',
               'urgency',
+              'draft',
             ].includes(key),
         ) ||
         typeof data.title !== 'string' ||
@@ -329,7 +401,8 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         !/^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/i.test(data.clientId ?? '') ||
         (data.category != null &&
           (typeof data.category !== 'string' || data.category.length > 100)) ||
-        !['NORMAL', 'URGENT'].includes(data.urgency ?? 'NORMAL')
+        !['NORMAL', 'URGENT'].includes(data.urgency ?? 'NORMAL') ||
+        (data.draft !== undefined && typeof data.draft !== 'boolean')
       )
         return fail('Verify the request fields.', 422);
       const contract = store.contracts.find((item) => item.id === data.contractId);
@@ -344,6 +417,8 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         (item) => item.contractId === data.contractId && item.clientId === data.clientId,
       );
       if (record) {
+        if ((record.events?.[0]?.kind === 'DRAFT_CREATED') !== Boolean(data.draft))
+          return fail('Submission key reused with different content', 409);
         if (
           Object.entries(content).some(
             ([key, value]) => JSON.stringify(record![key]) !== JSON.stringify(value),
@@ -359,14 +434,14 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           ...content,
           contractId: contract.id,
           clientId: data.clientId,
-          status: 'SUBMITTED',
+          status: data.draft ? 'DRAFT' : 'SUBMITTED',
           version: 1,
           createdAt: now,
           updatedAt: now,
           events: [
             {
               id: crypto.randomUUID(),
-              kind: 'SUBMITTED',
+              kind: data.draft ? 'DRAFT_CREATED' : 'SUBMITTED',
               message: content.description,
               actorUserId: 'preview-TENANT',
               actorName: 'Demo Tenant',
@@ -389,6 +464,16 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       if (!record) return fail('Request not found', 404);
       if (!match[2] && method === 'get') return respond(previewCase(record, store.contracts, role));
       if (match[2] && method === 'post') {
+        if (
+          data.status === 'SUBMITTED' &&
+          record.status === 'DRAFT' &&
+          !store.contracts.some(
+            (contract) =>
+              contract.id === (record.contractId ?? 'contract-1') &&
+              ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status),
+          )
+        )
+          return fail('Submission requires an open contract', 409);
         mutatePreviewCase(record, match[2], data, role, fail);
         localStorage.setItem(storageKey, JSON.stringify(store));
         return respond(
@@ -409,11 +494,34 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         ? (landlord.archivedAt ?? new Date().toISOString())
         : null;
       item = landlord;
+    } else if (/^\/inventory\/units\/[^/]+\/(archive|restore)$/.test(path) && method === 'post') {
+      const unit = store.units.find((record) => record.id === path.split('/')[3]);
+      if (!unit) return fail('Unit not found', 404);
+      if (
+        path.endsWith('/archive') &&
+        store.contracts.some(
+          (contract) =>
+            unit.spaces.some((space: RecordData) => space.id === contract.rentalSpace?.id) &&
+            !['CLOSED', 'CANCELLED'].includes(contract.status),
+        )
+      )
+        return fail('Resolve open contracts before unit archive', 409);
+      unit.archivedAt = path.endsWith('/archive')
+        ? (unit.archivedAt ?? new Date().toISOString())
+        : null;
+      unit.active = false;
+      item = unit;
     } else if (/^\/inventory\/spaces\/[^/]+$/.test(path) && method === 'patch') {
       const space = store.units
         .flatMap((unit) => unit.spaces)
         .find((space) => space.id === path.split('/').at(-1));
       if (!space) return fail('Room not found', 404);
+      if (
+        store.units.some(
+          (unit) => unit.archivedAt && unit.spaces.some((item: RecordData) => item.id === space.id),
+        )
+      )
+        return fail('Room not found', 404);
       if (!['ROOM', 'MASTER_ROOM'].includes(data.type))
         return fail('Future feature: disabled space type', 422);
       if (
@@ -491,6 +599,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         return fail('Master Room requires a private bathroom', 422);
       const unit = store.units.find((record) => record.id === path.split('/')[3]);
       if (!unit) return fail('Unit not found', 404);
+      if (unit.archivedAt) return fail('Restore the unit before a new room', 409);
       item = { ...data, id: crypto.randomUUID(), status: 'AVAILABLE', enabled: true };
       unit.spaces.push(item);
     } else if (path.startsWith('/inventory/units')) {
@@ -504,6 +613,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       if (method === 'patch') {
         const existing = store.units.find((record) => record.id === path.split('/').at(-1));
         if (!existing) return fail('Unit not found', 404);
+        if (existing.archivedAt) return fail('Restore the unit before an edit', 409);
         Object.assign(existing, data);
         item = existing;
       } else {

@@ -19,12 +19,17 @@ https://yehiashouman.github.io/leaseflow/
 - Inspect landlord details and linked units; search and filter active or archived records.
 - Archive unlinked landlords, restore them, and preserve contact preferences and notes.
 - Create and edit draft units.
+- Capture twelve standard amenities, additional amenity labels, and owner payment schedules.
+- Archive units without open contracts; restore them as drafts without automatic activation.
+- Filter current, archived, or all unit records.
+- Inspect administrator account queues, masked identity details, and safe audit summaries.
 - Capture address notes, GPS, and default deposits in unit forms.
 - Inspect unit details; add and edit Room or Master Room spaces.
 - Set vacant rooms to maintenance or inactive; restore them without deletion.
 - Verify occupied-room restrictions and preserved contract rent after base-price edits.
 - Inspect synthetic contracts and requests.
 - Submit synthetic operational cases and inspect private role-specific histories.
+- Save private tenant drafts and explicitly submit them before manager access.
 - Exchange case messages, report resolution, accept completion, and reopen cases.
 - Preserve case history and decisions after reload without backend requests.
 - Open Security, inspect synthetic sessions, and revoke the synthetic second device.

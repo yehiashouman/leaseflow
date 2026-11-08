@@ -15,6 +15,8 @@ import {
 import { RecordEditor } from '@/components/record-editor';
 import { QueryFeedback } from '@/components/query-feedback';
 import type { Unit } from './Units';
+import { unitAmenities } from '../unit-amenities';
+import { UnitLifecycle } from '@/components/unit-lifecycle';
 
 export function UnitDetail() {
   const { id } = useParams();
@@ -45,7 +47,12 @@ export function UnitDetail() {
             )}
           </p>
         </div>
-        <Badge variant="secondary">{data.active ? 'Active' : 'Draft'}</Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary">
+            {data.archivedAt ? 'Archived' : data.active ? 'Active' : 'Draft'}
+          </Badge>
+          <UnitLifecycle id={data.id} archived={Boolean(data.archivedAt)} />
+        </div>
       </div>
       <dl className="grid gap-4 border-y py-4 sm:grid-cols-3">
         <div>
@@ -79,15 +86,55 @@ export function UnitDetail() {
           </dd>
         </div>
         <div className="sm:col-span-3">
+          <dt className="text-sm text-muted-foreground">Owner payment schedule</dt>
+          <dd className="whitespace-pre-wrap break-words">{data.ownerPaymentSchedule || '-'}</dd>
+        </div>
+        <div className="sm:col-span-3">
           <dt className="text-sm text-muted-foreground">Address notes</dt>
           <dd className="whitespace-pre-wrap break-words">{data.addressNotes || '-'}</dd>
         </div>
       </dl>
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">Amenities</h2>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(unitAmenities)
+            .filter(([key]) => data.amenities?.[key] === true)
+            .map(([key, label]) => (
+              <Badge key={key} variant="outline">
+                {label}
+              </Badge>
+            ))}
+          {(Array.isArray(data.amenities?.additional)
+            ? data.amenities.additional.filter(
+                (value): value is string => typeof value === 'string',
+              )
+            : []
+          ).map((label, index) => (
+            <Badge
+              key={'additional-' + index}
+              variant="outline"
+              className="max-w-full whitespace-normal break-words"
+            >
+              {label}
+            </Badge>
+          ))}
+        </div>
+      </section>
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Rental spaces</h2>
-        <Button onClick={() => setEditor('new')}>Add room</Button>
+        <Button disabled={Boolean(data.archivedAt)} onClick={() => setEditor('new')}>
+          Add room
+        </Button>
       </div>
       <Table>
+        <caption className="caption-bottom py-3 text-left text-sm text-muted-foreground">
+          <details>
+            <summary title="Future feature" className="cursor-pointer">
+              Future accommodation types
+            </summary>
+            <p>Bed Space and Partition: Future feature.</p>
+          </details>
+        </caption>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
@@ -111,7 +158,12 @@ export function UnitDetail() {
                 <Badge variant="secondary">{space.status}</Badge>
               </TableCell>
               <TableCell>
-                <Button variant="ghost" size="sm" onClick={() => setEditor(space)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={Boolean(data.archivedAt)}
+                  onClick={() => setEditor(space)}
+                >
                   Edit<span className="sr-only"> {space.name}</span>
                 </Button>
               </TableCell>

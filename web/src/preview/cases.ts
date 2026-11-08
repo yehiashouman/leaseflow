@@ -16,6 +16,7 @@ const managerActions: Record<string, string[]> = {
   CLOSED: ['REOPENED'],
 };
 const tenantActions: Record<string, string[]> = {
+  DRAFT: ['SUBMITTED'],
   AWAITING_TENANT: ['AWAITING_MANAGER'],
   RESOLVED: ['ACCEPTED', 'REOPENED'],
   REJECTED: ['REOPENED'],
@@ -104,7 +105,7 @@ export function mutatePreviewCase(
       fail('Verify the version.', 422);
     const targets =
       role === 'TENANT'
-        ? ['AWAITING_MANAGER', 'ACCEPTED', 'REOPENED']
+        ? ['SUBMITTED', 'AWAITING_MANAGER', 'ACCEPTED', 'REOPENED']
         : [
             'SEEN',
             'APPROVED',

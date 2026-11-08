@@ -16,6 +16,85 @@ async function logout(page: Page, mobile: boolean) {
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
 
+test('preview unit amenities and archive persist without activation', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/v1')) requests.push(request.url());
+  });
+  const mobile = testInfo.project.name === 'mobile';
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Portfolio overview' })).toBeVisible();
+  await navigation(page, 'Units', mobile);
+  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
+  const editor = page.getByRole('dialog');
+  await editor.getByLabel('Unit name *', { exact: true }).fill('Preview Amenity Unit');
+  await editor.getByLabel('Area *', { exact: true }).fill('Dubai');
+  await editor.getByLabel('Owner payment schedule', { exact: true }).fill('Four cheques');
+  await editor.getByLabel('Wi-Fi', { exact: true }).check();
+  await editor.getByLabel('Additional amenities', { exact: true }).fill('Lift');
+  await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
+  await editor.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await page.getByRole('link', { name: 'Preview Amenity Unit', exact: true }).click();
+  await expect(page.getByText('Lift', { exact: true })).toBeVisible();
+  await expect(page.getByText('Four cheques', { exact: true })).toBeVisible();
+  const help = page.getByText('Future accommodation types', { exact: true });
+  if (mobile) await help.click();
+  else {
+    await help.focus();
+    await page.keyboard.press('Enter');
+  }
+  await expect(
+    page.getByText('Bed Space and Partition: Future feature.', { exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Archive unit', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).not.toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add room', exact: true })).toBeDisabled();
+  await page.reload();
+  await page.getByRole('button', { name: 'Restore unit', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).not.toBeVisible();
+  await expect(page.getByText('Draft', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('unit-lifecycle-preview.png'),
+    fullPage: true,
+  });
+  expect(requests).toEqual([]);
+});
+
+test('preview administrator queue uses masked identities and safe audit summaries', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/v1')) requests.push(request.url());
+  });
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview admin', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Platform overview' })).toBeVisible();
+  await navigation(page, 'Account review', testInfo.project.name === 'mobile');
+  await page.getByRole('link', { name: 'Demo Applicant', exact: true }).click();
+  await expect(page.getByText('****1234', { exact: true })).toBeVisible();
+  await expect(page.getByText('MFA and policy approval required', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('account-review-preview.png'),
+    fullPage: true,
+  });
+  await navigation(page, 'Audit history', testInfo.project.name === 'mobile');
+  await expect(page.getByText('No audit events', { exact: true })).toBeVisible();
+  expect(requests).toEqual([]);
+});
+
 test('preview CRUD persists without backend requests and preserves role boundaries', async ({
   page,
 }, testInfo) => {
@@ -55,7 +134,7 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await editor.getByLabel('Area *', { exact: true }).fill('Demo Area');
   await editor.getByLabel('Landlord', { exact: true }).selectOption({ label: 'Preview Owner Two' });
   await editor.getByLabel('Address notes', { exact: true }).fill('Preview entrance\nThird floor');
-  await editor.getByRole('checkbox').check();
+  await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
   await editor.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('link', { name: 'Preview Apartment Two', exact: true }).click();
   await page.getByRole('button', { name: 'Add room', exact: true }).click();

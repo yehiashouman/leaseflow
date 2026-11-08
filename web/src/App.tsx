@@ -26,6 +26,7 @@ import { previewMode, type Role } from './session';
 import { QueryFeedback } from './components/query-feedback';
 import { Security } from './pages/Security';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Managers, ManagerDetail, AdminAudit } from './pages/Managers';
 
 const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -34,6 +35,8 @@ const navigation = [
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
   { to: '/security', label: 'Security', icon: Shield },
+  { to: '/admin/managers', label: 'Account review', icon: Shield },
+  { to: '/admin/audit', label: 'Audit history', icon: FileText },
 ];
 
 function Guard({ roles }: { roles?: Role[] }) {
@@ -54,7 +57,8 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
     (item) =>
       item.to === '/' ||
       item.to === '/security' ||
-      user?.role === 'LEASING_MANAGER' ||
+      (user?.role === 'ADMIN' && item.to.startsWith('/admin/')) ||
+      (user?.role === 'LEASING_MANAGER' && !item.to.startsWith('/admin/')) ||
       (user?.role === 'TENANT' && ['/contracts', '/requests'].includes(item.to)),
   );
   return (
@@ -174,6 +178,11 @@ export default function App() {
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="security" element={<Security />} />
+            <Route element={<Guard roles={['ADMIN']} />}>
+              <Route path="admin/managers" element={<Managers />} />
+              <Route path="admin/managers/:id" element={<ManagerDetail />} />
+              <Route path="admin/audit" element={<AdminAudit />} />
+            </Route>
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>
               <Route path="units" element={<Units />} />
               <Route path="units/:id" element={<UnitDetail />} />

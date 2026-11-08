@@ -104,7 +104,8 @@ export function RequestDetail() {
   const data = query.data;
   const events = data.events ?? [];
   const initialMessage = events.some(
-    (event) => event.kind === 'SUBMITTED' && event.message === data.description,
+    (event) =>
+      ['SUBMITTED', 'DRAFT_CREATED'].includes(event.kind) && event.message === data.description,
   );
   return (
     <div className="space-y-6">

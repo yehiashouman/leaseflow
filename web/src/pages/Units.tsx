@@ -15,6 +15,8 @@ import {
 import { QueryFeedback } from '@/components/query-feedback';
 import { RecordEditor, formValues, type EditorField } from '@/components/record-editor';
 import type { Landlord } from './Landlords';
+import { unitAmenities } from '../unit-amenities';
+import { Input } from '@/components/ui/input';
 
 export type Unit = {
   id: string;
@@ -31,6 +33,9 @@ export type Unit = {
   currency: string;
   defaultDeposit: string | number;
   ownerMonthlyRent?: string | number;
+  ownerPaymentSchedule?: string;
+  archivedAt?: string | null;
+  amenities?: Record<string, unknown>;
   spaces: {
     id: string;
     name?: string;
@@ -47,14 +52,19 @@ export type Unit = {
 export function Units() {
   const client = useQueryClient();
   const [editor, setEditor] = useState<Unit | 'new' | null>(null);
+  const [status, setStatus] = useState('CURRENT');
+  const [search, setSearch] = useState('');
   const {
     data = [],
     isPending,
     error,
     refetch,
   } = useQuery({
-    queryKey: ['units'],
-    queryFn: () => api.get<Unit[]>('/inventory/units').then((response) => response.data),
+    queryKey: ['units', status, search],
+    queryFn: ({ signal }) =>
+      api
+        .get<Unit[]>('/inventory/units', { params: { status, q: search }, signal })
+        .then((response) => response.data),
   });
   const landlords = useQuery({
     queryKey: ['landlords'],
@@ -95,6 +105,12 @@ export function Units() {
     },
     { name: 'ownerMonthlyRent', label: 'Owner monthly rent', type: 'number', min: 0, step: '0.01' },
     {
+      name: 'ownerPaymentSchedule',
+      label: 'Owner payment schedule',
+      type: 'textarea',
+      maxLength: 1000,
+    },
+    {
       name: 'defaultDeposit',
       label: 'Default deposit',
       type: 'number',
@@ -102,6 +118,17 @@ export function Units() {
       step: '0.01',
       value: 0,
       required: true,
+    },
+    ...Object.entries(unitAmenities).map(([key, label]) => ({
+      name: 'amenity_' + key,
+      label,
+      type: 'checkbox',
+    })),
+    {
+      name: 'additionalAmenities',
+      label: 'Additional amenities',
+      type: 'textarea',
+      maxLength: 1600,
     },
     {
       name: 'declarationAccepted',
@@ -116,6 +143,27 @@ export function Units() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Units</h1>
         <Button onClick={() => setEditor('new')}>Add unit</Button>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <Input
+          type="search"
+          aria-label="Search units"
+          placeholder="Search units"
+          maxLength={150}
+          className="max-w-sm"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <select
+          aria-label="Unit status"
+          value={status}
+          onChange={(event) => setStatus(event.target.value)}
+          className="h-9 rounded-md border bg-background px-3 text-sm"
+        >
+          <option value="CURRENT">Current</option>
+          <option value="ARCHIVED">Archived</option>
+          <option value="ALL">All</option>
+        </select>
       </div>
       {isPending || error ? (
         <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
@@ -145,11 +193,16 @@ export function Units() {
                 <TableCell>{unit.spaces.length}</TableCell>
                 <TableCell>
                   <Badge variant={unit.active ? 'default' : 'secondary'}>
-                    {unit.active ? 'Active' : 'Draft'}
+                    {unit.archivedAt ? 'Archived' : unit.active ? 'Active' : 'Draft'}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm" onClick={() => setEditor(unit)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={Boolean(unit.archivedAt)}
+                    onClick={() => setEditor(unit)}
+                  >
                     Edit<span className="sr-only"> {unit.name}</span>
                   </Button>
                 </TableCell>
@@ -175,17 +228,40 @@ export function Units() {
           title={editor === 'new' ? 'Add unit' : 'Edit unit'}
           fields={fields.map((field) => ({
             ...field,
-            value:
-              editor === 'new'
-                ? field.value
-                : String(editor[field.name as keyof Unit] ?? field.value ?? ''),
+            value: field.name.startsWith('amenity_')
+              ? String(editor !== 'new' && editor.amenities?.[field.name.slice(8)] === true)
+              : field.name === 'additionalAmenities'
+                ? editor !== 'new' && Array.isArray(editor.amenities?.additional)
+                  ? editor.amenities.additional.join('\n')
+                  : ''
+                : editor === 'new'
+                  ? field.value
+                  : String(editor[field.name as keyof Unit] ?? field.value ?? ''),
           }))}
           onSave={async (form) => {
             const body = {
               ...formValues(
                 form,
-                fields.filter((field) => field.type !== 'checkbox').map((field) => field.name),
+                fields
+                  .filter(
+                    (field) => field.type !== 'checkbox' && field.name !== 'additionalAmenities',
+                  )
+                  .map((field) => field.name),
               ),
+              amenities: {
+                ...(editor === 'new' ? {} : editor.amenities),
+                ...Object.fromEntries(
+                  Object.keys(unitAmenities).map((key) => [key, form.has('amenity_' + key)]),
+                ),
+                additional: [
+                  ...new Set(
+                    String(form.get('additionalAmenities') ?? '')
+                      .split('\n')
+                      .map((value) => value.trim())
+                      .filter(Boolean),
+                  ),
+                ],
+              },
               declarationAccepted: form.has('declarationAccepted'),
             };
             if (editor === 'new') await api.post('/inventory/units', body);

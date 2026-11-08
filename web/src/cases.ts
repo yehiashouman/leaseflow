@@ -59,6 +59,7 @@ export const caseStatuses: Record<string, string> = {
   CLOSED: 'Closed',
 };
 export const caseCommands: Record<string, string> = {
+  SUBMITTED: 'Submit request',
   SEEN: 'Mark seen',
   AWAITING_MANAGER: 'Send to manager',
   AWAITING_TENANT: 'Request tenant response',
@@ -71,6 +72,7 @@ export const caseCommands: Record<string, string> = {
   CLOSED: 'Close case',
 };
 export function caseEventLabel(kind: string) {
+  if (kind === 'DRAFT_CREATED') return 'Draft saved';
   return kind === 'MESSAGE'
     ? 'Message'
     : kind === 'RESOLVED'

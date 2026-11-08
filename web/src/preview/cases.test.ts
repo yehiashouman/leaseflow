@@ -8,6 +8,31 @@ const manager = client('LEASING_MANAGER');
 const admin = client('ADMIN');
 beforeEach(resetPreview);
 describe('synthetic case workflow', () => {
+  it('keeps draft requests private until an explicit tenant submission', async () => {
+    const draft = (
+      await tenant.post('/requests', {
+        contractId: 'contract-1',
+        clientId: crypto.randomUUID(),
+        type: 'GENERAL',
+        title: 'Private draft',
+        description: 'Draft contents',
+        draft: true,
+      })
+    ).data;
+    await expect(manager.get('/requests/' + draft.id)).rejects.toMatchObject({
+      response: { status: 404 },
+    });
+    expect(draft.canMessage).toBe(false);
+    const submitted = (
+      await tenant.post('/requests/' + draft.id + '/respond', {
+        clientId: crypto.randomUUID(),
+        status: 'SUBMITTED',
+        expectedVersion: 1,
+      })
+    ).data;
+    expect(submitted.events).toHaveLength(2);
+    expect((await manager.get('/requests/' + draft.id)).data.status).toBe('SUBMITTED');
+  });
   it('persists a submission once and excludes unsupported types', async () => {
     expect((await tenant.get('/requests/options')).data.types).toEqual([
       'MAINTENANCE',

@@ -42,8 +42,26 @@ export const unitSchema = z
     longitude: z.coerce.number().min(-180).max(180).nullable().optional(),
     defaultDeposit: money.default(0),
     ownerMonthlyRent: money.nullable().optional(),
+    ownerPaymentSchedule: text(1000),
     currency: z.enum(['AED', 'USD']).default('AED'),
-    amenities: z.record(z.string(), z.json()).optional(),
+    amenities: z
+      .object({
+        airConditioning: z.boolean().optional(),
+        furnished: z.boolean().optional(),
+        bed: z.boolean().optional(),
+        television: z.boolean().optional(),
+        refrigerator: z.boolean().optional(),
+        bathroom: z.boolean().optional(),
+        kitchen: z.boolean().optional(),
+        laundry: z.boolean().optional(),
+        balcony: z.boolean().optional(),
+        parking: z.boolean().optional(),
+        wifi: z.boolean().optional(),
+        cleaning: z.boolean().optional(),
+        additional: z.array(z.string().trim().min(1).max(80)).max(20).optional(),
+      })
+      .catchall(z.json())
+      .optional(),
     declarationAccepted: z.literal(true),
   })
   .strict();
@@ -99,6 +117,13 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       SELECT id, archivedAt FROM Landlord WHERE id = ${id} AND managerId = ${owner} FOR UPDATE
     `;
     if (!rows[0]) throw app.httpErrors.notFound('Landlord not found');
+    return rows[0];
+  }
+  async function lockUnit(tx: Prisma.TransactionClient, id: string, owner: string) {
+    const rows = await tx.$queryRaw<{ id: string; archivedAt: Date | null }[]>`
+      SELECT id, archivedAt FROM Unit WHERE id = ${id} AND managerId = ${owner} FOR UPDATE
+    `;
+    if (!rows[0]) throw app.httpErrors.notFound('Unit not found');
     return rows[0];
   }
   async function verifyLandlord(
@@ -213,9 +238,32 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
   }
 
   app.get('/units', { preHandler: managerOnly }, async (request) => {
+    const { status, q } = z
+      .object({
+        status: z.enum(['CURRENT', 'ARCHIVED', 'ALL']).default('CURRENT'),
+        q: z.string().trim().max(150).default(''),
+      })
+      .strict()
+      .parse(request.query);
     const owner = await managerId(request.user.sub);
     return prisma.unit.findMany({
-      where: { managerId: owner },
+      where: {
+        managerId: owner,
+        ...(status === 'CURRENT'
+          ? { archivedAt: null }
+          : status === 'ARCHIVED'
+            ? { archivedAt: { not: null } }
+            : {}),
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q } },
+                { area: { contains: q } },
+                { building: { contains: q } },
+              ],
+            }
+          : {}),
+      },
       include: unitInclude(owner),
       orderBy: { createdAt: 'desc' },
     });
@@ -252,6 +300,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     const owner = await managerId(request.user.sub);
     return prisma.$transaction(async (tx) => {
       await verifyLandlord(tx, body.landlordId, owner);
+      if ((await lockUnit(tx, id, owner)).archivedAt)
+        throw app.httpErrors.conflict('Restore the unit before an edit');
       const existing = await tx.unit.findFirst({ where: { id, managerId: owner } });
       if (!existing) throw app.httpErrors.notFound('Unit not found');
       const updated = await tx.unit.update({
@@ -263,6 +313,45 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       return updated;
     });
   });
+  for (const action of ['archive', 'restore'] as const) {
+    app.post('/units/:id/' + action, { preHandler: managerOnly }, async (request) => {
+      const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+      z.object({})
+        .strict()
+        .parse(request.body ?? {});
+      const owner = await managerId(request.user.sub);
+      return prisma.$transaction(
+        async (tx) => {
+          const row = await lockUnit(tx, id, owner);
+          const existing = await tx.unit.findFirst({ where: { id, managerId: owner } });
+          if (!existing) throw app.httpErrors.notFound('Unit not found');
+          if ((action === 'archive') === Boolean(row.archivedAt)) return existing;
+          if (
+            action === 'archive' &&
+            (await tx.contract.count({
+              where: { rentalSpace: { unitId: id }, status: { notIn: ['CLOSED', 'CANCELLED'] } },
+            }))
+          )
+            throw app.httpErrors.conflict('Resolve open contracts before unit archive');
+          const updated = await tx.unit.update({
+            where: { id, managerId: owner },
+            data: { archivedAt: action === 'archive' ? new Date() : null, active: false },
+            include: unitInclude(owner),
+          });
+          await recordAudit(
+            tx,
+            request,
+            action === 'archive' ? 'ARCHIVE' : 'RESTORE',
+            'Unit',
+            updated,
+            existing,
+          );
+          return updated;
+        },
+        { isolationLevel: 'ReadCommitted' },
+      );
+    });
+  }
   app.post('/units/:unitId/spaces', { preHandler: managerOnly }, async (request, reply) => {
     const { unitId } = z.object({ unitId: z.string() }).parse(request.params);
     const body = spaceSchema.parse(request.body);
@@ -272,6 +361,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     if (!['ROOM', 'MASTER_ROOM'].includes(body.type))
       return reply.unprocessableEntity('Future feature: this accommodation type is disabled');
     const item = await prisma.$transaction(async (tx) => {
+      if ((await lockUnit(tx, unitId, owner)).archivedAt)
+        throw app.httpErrors.conflict('Restore the unit before a new room');
       if (!(await tx.unit.findFirst({ where: { id: unitId, managerId: owner } })))
         throw app.httpErrors.notFound('Unit not found');
       const created = await tx.rentalSpace.create({
