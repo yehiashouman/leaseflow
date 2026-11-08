@@ -22,6 +22,10 @@ The full application is not production-ready.
 - `docs/CONTRACT-RECORDS.md`: scoped contract detail, paged records, and incomplete financial scope
 - `docs/PDF-REPORTS.md`: private case PDF jobs, authorized downloads, font limits, and both required migrations
 - `docs/MAINTENANCE.md`: maintenance responsibility, proposed costs, tenant responses, and the required migration
+- `docs/STARTUP.md`: repeatable local startup, guarded reset, and exact verification limits
+- `docs/CONFIGURATION.md`: all configuration groups, proxy policy, and pending provider settings
+- `docs/TECHNICAL-SELECTIONS.md`: implementation selections without implied owner approval
+- `docs/decisions.json`: owner and pending status for all twenty-six business decisions
 
 ## Public Preview
 
@@ -37,8 +41,8 @@ Open this repository in a Codespace. The devcontainer runs `scripts/codespaces-s
 
 1. Detects `CODESPACE_NAME`.
 2. Creates `.env` and `api/.env` from their `.env.example` files if they do not already exist (existing files are never overwritten).
-3. Generates development-only JWT secrets and `CORS_ORIGINS` that include `http://localhost:8080`, `http://127.0.0.1:8080` and the Codespaces application/editor origins.
-4. Sets `DEMO_MODE=true` so a demo administrator is seeded automatically.
+3. Generates independent database, Redis, MinIO, and JWT secrets in private files without shell evaluation.
+4. Uses the explicit --demo flag; production configuration always refuses this helper.
 5. Builds and starts Docker Compose, runs migrations, seeds the demo administrator, and waits for health checks.
 6. Prints the exact `https://${CODESPACE_NAME}-8080.app.github.dev` application URL.
 
@@ -46,16 +50,29 @@ Port 8080 is forwarded automatically, labeled "LeaseFlow", and opened in the bro
 
 ## `make demo` / `make demo-reset`
 
-`make demo` is the single idempotent command that repairs or starts the whole stack: it creates missing env files, starts Docker Compose, runs migrations, seeds/updates the demo administrator, waits for MySQL/API/web health checks, and prints the application URL and demo credentials. Safe to re-run after stopping and restarting the Codespace or your machine.
+`make demo` starts the non-production stack through one repeatable helper.
+It creates missing environment files, applies migrations, creates an absent demo administrator, waits for readiness, and verifies the web/API proxy.
+Existing credentials, account roles, changed passwords, and data volumes remain intact.
+The helper prints the application URL, not credentials.
 
-`make demo-reset` warns that it deletes local demo data, removes only the LeaseFlow Docker development volumes (MySQL, Redis, MinIO), recreates the database, runs migrations, reseeds the demo administrator, and starts the application again.
+`make demo-reset` refuses to delete data without the exact confirmation argument in [STARTUP.md](docs/STARTUP.md).
+Production environments always refuse this destructive helper.
 
 ### Demo administrator
 
-When `DEMO_MODE=true` (Codespaces and local demo by default), a fixed demo administrator is seeded idempotently:
+Explicit non-production demo mode creates an absent demo administrator:
 
-- Email: `admin@leaseflow.local`
-- Password: `Admin123456!`
+Email:
+
+```text
+admin@leaseflow.local
+```
+
+Password:
+
+```text
+Admin123456!
+```
 
 The password is stored as an Argon2id hash; the hash itself is never printed. Startup refuses to continue if `DEMO_MODE=true` while `NODE_ENV=production`, and demo credentials are never created in production.
 
@@ -64,19 +81,20 @@ The password is stored as an Argon2id hash; the hash itself is never printed. St
 Requirements: Docker Engine 25+ with Docker Compose v2.
 
 ```bash
-cp .env.example .env
-cp api/.env.example api/.env
-# Replace every placeholder secret in both files.
-docker compose up --build
+make up
 ```
 
-Open `http://localhost:8080`. API documentation is at `http://localhost:8080/documentation` when routed directly to the API, or `http://localhost:3000/documentation` during API development.
+Open `http://localhost:8080`.
+The API documentation uses its internal /documentation route and is not published by the default web proxy.
 
 Prefer `make demo` over these manual steps in Codespaces or for local demos — it automates all of the above and seeds the demo administrator for you.
 
 ## CORS
 
-`CORS_ORIGINS` is a comma-separated allow-list of exact origins (trailing slashes are ignored). Requests without an `Origin` header (curl, health checks, server-to-server) are always allowed. In `development`/`test`, `http://localhost:8080`, `http://127.0.0.1:8080` and any `https://*.app.github.dev` / `https://*.github.dev` origin are allowed in addition to `CORS_ORIGINS`, using a hostname-suffix check (never substring matching) so origins cannot be spoofed. In `production`, only exact `CORS_ORIGINS` entries are allowed, `origin: true` is never used, and rejected origins receive `HTTP 403` (never `500`) with the rejected origin and request ID logged — never credentials or secrets.
+Production requires explicit HTTPS CORS_ORIGINS and an explicit TRUST_PROXY allowlist or false.
+Development Codespaces allowances never extend to production.
+The web proxy replaces client-supplied forwarding headers; global proxy trust is forbidden.
+See [CONFIGURATION.md](docs/CONFIGURATION.md) for exact boundaries and deployment prerequisites.
 
 ## Development
 

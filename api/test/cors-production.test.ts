@@ -10,6 +10,7 @@ describe('isOriginAllowed in production', () => {
     process.env.NODE_ENV = 'production';
     process.env.CORS_ORIGINS = 'https://app.leaseflow.example';
     process.env.DEMO_MODE = 'false';
+    process.env.TRUST_PROXY = 'false';
     try {
       const { isOriginAllowed } = await import('../src/config.js');
       expect(isOriginAllowed(undefined)).toBe(true);

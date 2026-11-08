@@ -30,7 +30,7 @@ services:
     working_dir: /app
     command: [npx, prisma, migrate, deploy, --config, api/prisma.config.ts]
     environment:
-      DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
+      DATABASE_URL: ${MYSQL_CONNECTION_URL:-mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}}
     depends_on: {mysql: {condition: service_healthy}}
     networks: [backend]
     restart: "no"
@@ -41,9 +41,9 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       DEMO_MODE: "${DEMO_MODE:-false}"
-      DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      DATABASE_URL: ${MYSQL_CONNECTION_URL:-mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}}
+      DEMO_ADMIN_EMAIL: ${DEMO_ADMIN_EMAIL:-admin@leaseflow.local}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-Admin123456!}
     depends_on: {migrate: {condition: service_completed_successfully}}
     networks: [backend]
     restart: "no"
@@ -52,10 +52,16 @@ services:
     restart: unless-stopped
     env_file: [./api/.env]
     environment:
-      DATABASE_URL: mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}
+      NODE_ENV: ${NODE_ENV:-development}
+      DEMO_MODE: "${DEMO_MODE:-false}"
+      TRUST_PROXY: ${TRUST_PROXY:-172.29.80.0/24}
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minio-local-secret}
+      DATABASE_URL: ${MYSQL_CONNECTION_URL:-mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}}
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis-local}@redis:6379
     depends_on: {mysql: {condition: service_healthy}, redis: {condition: service_healthy}, migrate: {condition: service_completed_successfully}, demo-seed: {condition: service_completed_successfully}}
-    healthcheck: {test: [CMD, wget, -q, -O-, http://127.0.0.1:3000/health/live], interval: 20s, timeout: 3s, retries: 5, start_period: 20s}
+    healthcheck: {test: [CMD, wget, -q, -O-, http://127.0.0.1:3000/health/ready], interval: 10s, timeout: 3s, retries: 10, start_period: 20s}
     networks: [backend, frontend]
     security_opt: [no-new-privileges:true]
   web:
@@ -66,4 +72,4 @@ services:
     networks: [frontend]
     security_opt: [no-new-privileges:true]
 volumes: {mysql-data: {}, redis-data: {}, minio-data: {}}
-networks: {backend: {internal: true}, frontend: {}}
+networks: {backend: {internal: true}, frontend: {ipam: {config: [{subnet: "${FRONTEND_SUBNET:-172.29.80.0/24}"}]}}}

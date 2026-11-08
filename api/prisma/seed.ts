@@ -1,60 +1,54 @@
 import argon2 from 'argon2';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
 
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL must be set to run the seed script.');
-
-const NODE_ENV = process.env.NODE_ENV ?? 'development';
-const DEMO_MODE = (process.env.DEMO_MODE ?? '').trim().toLowerCase() === 'true';
-
-if (DEMO_MODE && NODE_ENV === 'production') {
-  throw new Error('Refusing to seed: DEMO_MODE=true is not allowed when NODE_ENV=production.');
-}
-
-// Documented development-only defaults; operators can override either value
-// via the environment (e.g. to use a different demo password per machine)
-// without changing code. These are never used when DEMO_MODE is not enabled.
-const DEMO_ADMIN_EMAIL = process.env.DEMO_ADMIN_EMAIL?.trim().toLowerCase() || 'admin@leaseflow.local';
-const DEMO_ADMIN_PASSWORD = process.env.DEMO_ADMIN_PASSWORD || 'Admin123456!';
-
-const adapter = new PrismaMariaDb(process.env.DATABASE_URL);
-const prisma = new PrismaClient({ adapter });
-
+const demo = process.env.DEMO_MODE?.trim().toLowerCase() === 'true';
+if (demo && process.env.NODE_ENV === 'production')
+  throw new Error('DEMO_MODE=true is forbidden in production.');
+if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required.');
+const prisma = new PrismaClient({ adapter: new PrismaMariaDb(process.env.DATABASE_URL) });
 async function main() {
-  // DEMO_MODE seeds a fixed, well-known administrator so the environment is
-  // usable immediately in Codespaces/local demos, without any manual steps.
-  const email = (DEMO_MODE ? DEMO_ADMIN_EMAIL : process.env.ADMIN_EMAIL?.trim().toLowerCase()) || undefined;
-  const password = DEMO_MODE ? DEMO_ADMIN_PASSWORD : process.env.ADMIN_PASSWORD;
-
-  if (!email || !password) {
-    console.log('ADMIN_EMAIL/ADMIN_PASSWORD (or DEMO_MODE) are not set; skipping administrator seed.');
+  if (!demo) {
+    console.log('Demo mode disabled; no account seed.');
     return;
   }
-  if (password.length < 12) throw new Error(`${DEMO_MODE ? 'DEMO_ADMIN_PASSWORD' : 'ADMIN_PASSWORD'} must contain at least 12 characters.`);
-
-  const passwordHash = await argon2.hash(password, { type: argon2.argon2id });
-  const now = new Date();
-  await prisma.user.upsert({
+  const email = z
+    .email()
+    .max(191)
+    .parse(process.env.DEMO_ADMIN_EMAIL ?? 'admin@leaseflow.local')
+    .toLowerCase();
+  const password = z
+    .string()
+    .min(12)
+    .max(128)
+    .parse(process.env.DEMO_ADMIN_PASSWORD ?? 'Admin123456!');
+  const existing = await prisma.user.findUnique({
     where: { email },
-    update: { passwordHash, role: 'ADMIN', status: 'ACTIVE', emailVerifiedAt: now, phoneVerifiedAt: now },
-    create: {
+    select: { role: true, status: true },
+  });
+  if (existing) {
+    if (existing.role !== 'ADMIN' || existing.status !== 'ACTIVE')
+      throw new Error(
+        'Demo identity already exists with another role or status; no changes applied.',
+      );
+    console.log('Existing demo administrator preserved.');
+    return;
+  }
+  await prisma.user.create({
+    data: {
       email,
-      passwordHash,
+      passwordHash: await argon2.hash(password, { type: argon2.argon2id }),
       role: 'ADMIN',
       status: 'ACTIVE',
-      emailVerifiedAt: now,
-      phoneVerifiedAt: now,
+      emailVerifiedAt: new Date(),
     },
   });
-  // Never print the password or its hash; only confirm the account is ready.
-  console.log(`Administrator ready: ${email}`);
-  if (DEMO_MODE) console.log('DEMO_MODE is enabled: demo credentials are documented in README.md.');
+  console.log('Non-production demo administrator created.');
 }
-
 main()
-  .catch((error) => {
-    console.error('Administrator seed failed:', error instanceof Error ? error.message : error);
+  .catch(() => {
+    console.error('Demo seed failed; no credential values are logged.');
     process.exitCode = 1;
   })
   .finally(() => prisma.$disconnect());
-

@@ -66,6 +66,12 @@ test('real administrator review and audit screens preserve role and identity bou
       page.getByRole('heading', { name: 'Platform overview', exact: true }),
     ).toBeVisible();
     await page.goto('/admin/managers');
+    await expect(
+      page.getByText(
+        'Approval activates platform access. It does not certify legal sufficiency or property authorization.',
+        { exact: true },
+      ),
+    ).toBeVisible();
     await page.getByLabel('Search managers', { exact: true }).fill(suffix);
     await page.getByRole('link', { name: 'Review Applicant ' + suffix, exact: true }).click();
     await expect(page.getByText('****67-8', { exact: true })).toBeVisible();

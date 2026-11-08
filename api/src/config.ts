@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isIP } from 'node:net';
 
 export function durationSeconds(value: string) {
   const match = /^([1-9]\d*)([smhd])$/.exec(value);
@@ -7,12 +8,17 @@ export function durationSeconds(value: string) {
   return Number(match[1]) * units[match[2]!]!;
 }
 
-const schema = z.object({
+export const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   LOG_LEVEL: z.string().default('info'),
-  DATABASE_URL: z.string().min(1),
-  REDIS_URL: z.string().min(1),
+  DATABASE_URL: z.url().refine((value) => {
+    const url = new URL(value);
+    return url.protocol === 'mysql:' && Boolean(url.hostname) && url.pathname.length > 1;
+  }, 'Use a MySQL URL with a database name.'),
+  REDIS_URL: z
+    .url()
+    .refine((value) => ['redis:', 'rediss:'].includes(new URL(value).protocol), 'Use a Redis URL.'),
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
   ACCESS_TOKEN_TTL: z
@@ -30,6 +36,7 @@ const schema = z.object({
       'Use a positive duration up to 90d.',
     ),
   CORS_ORIGINS: z.string().default('http://localhost:8080'),
+  TRUST_PROXY: z.string().default('127.0.0.1/32,::1/128'),
   DEMO_MODE: z
     .string()
     .optional()
@@ -40,11 +47,70 @@ const schema = z.object({
   TWILIO_VERIFY_SERVICE_SID: z.string().optional(),
 });
 
-export const env = schema.parse(process.env);
-
-if (env.DEMO_MODE && env.NODE_ENV === 'production') {
-  throw new Error('Refusing to start: DEMO_MODE=true is not allowed when NODE_ENV=production.');
+export function parseConfiguration(input: NodeJS.ProcessEnv) {
+  const value = configSchema.parse(input);
+  if (value.DEMO_MODE && value.NODE_ENV === 'production')
+    throw new Error('DEMO_MODE=true is not allowed when NODE_ENV=production.');
+  if (value.JWT_ACCESS_SECRET === value.JWT_REFRESH_SECRET)
+    throw new Error('Access and refresh secrets must differ.');
+  const origins = value.CORS_ORIGINS.split(',').map(normalizeOrigin).filter(Boolean);
+  for (const origin of origins) {
+    let parsed: URL;
+    try {
+      parsed = new URL(origin);
+    } catch {
+      throw new Error('CORS_ORIGINS must contain exact HTTP origins.');
+    }
+    if (
+      !['http:', 'https:'].includes(parsed.protocol) ||
+      parsed.origin !== origin ||
+      parsed.username ||
+      parsed.password
+    )
+      throw new Error('CORS_ORIGINS must contain exact HTTP origins without paths or credentials.');
+    if (value.NODE_ENV === 'production' && parsed.protocol !== 'https:')
+      throw new Error('Production CORS origins must use HTTPS.');
+  }
+  proxyConfiguration(value.TRUST_PROXY);
+  if (value.NODE_ENV === 'production') {
+    if (!input.CORS_ORIGINS || !origins.length)
+      throw new Error('Production requires explicit CORS_ORIGINS.');
+    if (!input.TRUST_PROXY) throw new Error('Production requires explicit TRUST_PROXY or false.');
+    if (
+      [value.JWT_ACCESS_SECRET, value.JWT_REFRESH_SECRET].some((secret) =>
+        /^(replace-|change-me)/i.test(secret),
+      )
+    )
+      throw new Error('Production requires non-placeholder JWT secrets.');
+  }
+  return value;
 }
+export function proxyConfiguration(input: string): false | string[] {
+  if (input.trim() === 'false') return false;
+  const values = input
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (!values.length) throw new Error('TRUST_PROXY must be false or explicit IP/CIDR entries.');
+  for (const value of values) {
+    const [address, prefix, extra] = value.split('/');
+    const version = isIP(address ?? '');
+    if (
+      !version ||
+      extra ||
+      (prefix !== undefined &&
+        (!/^\d+$/.test(prefix) ||
+          Number(prefix) < 1 ||
+          Number(prefix) > (version === 4 ? 32 : 128)))
+    )
+      throw new Error(
+        'TRUST_PROXY must contain explicit IP/CIDR entries; global trust is forbidden.',
+      );
+  }
+  return values;
+}
+export const env = parseConfiguration(process.env);
+export const trustedProxies = proxyConfiguration(env.TRUST_PROXY);
 
 /**
  * Normalize a configured origin: trim whitespace and strip a single trailing
@@ -75,6 +141,7 @@ function isCodespacesOrigin(origin: string): boolean {
     return false;
   }
   if (parsed.protocol !== 'https:') return false;
+  if (parsed.origin !== normalizeOrigin(origin)) return false;
   const hostname = parsed.hostname.toLowerCase();
   // Require a genuine subdomain (e.g. `<name>-8080.app.github.dev`); the bare
   // `app.github.dev` / `github.dev` root domains are never valid Codespaces

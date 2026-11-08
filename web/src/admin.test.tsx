@@ -21,21 +21,19 @@ function page(element: React.ReactNode, path = '/admin/managers') {
 }
 describe('administrator account review', () => {
   it('filters the account queue by status and name and supports page controls', async () => {
-    const get = vi
-      .spyOn(api, 'get')
-      .mockResolvedValue({
-        data: {
-          items: [
-            {
-              id: 'm1',
-              email: 'applicant@demo.invalid',
-              status: 'PENDING_APPROVAL',
-              leasingManager: { fullName: 'Applicant' },
-            },
-          ],
-          total: 21,
-        },
-      });
+    const get = vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        items: [
+          {
+            id: 'm1',
+            email: 'applicant@demo.invalid',
+            status: 'PENDING_APPROVAL',
+            leasingManager: { fullName: 'Applicant' },
+          },
+        ],
+        total: 21,
+      },
+    });
     page(<Managers />);
     const user = userEvent.setup();
     expect(await screen.findByRole('link', { name: 'Applicant' })).toBeDefined();
@@ -72,6 +70,11 @@ describe('administrator account review', () => {
     page(<ManagerDetail />, '/admin/managers/m1');
     expect(await screen.findByText('****1234')).toBeDefined();
     expect(screen.getByText('MFA and policy approval required')).toBeDefined();
+    expect(
+      screen.getByText(
+        'Approval activates platform access. It does not certify legal sufficiency or property authorization.',
+      ),
+    ).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull();
     expect(screen.getByText('Document review not implemented')).toBeDefined();
   });

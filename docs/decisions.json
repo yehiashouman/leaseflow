@@ -1,0 +1,45 @@
+{
+  "owner": "PROJECT_OWNER",
+  "status": "PENDING",
+  "approvedDecisions": [],
+  "items": [
+    { "id": "DEC-01", "question": "Currency rounding and decimal policy" },
+    { "id": "DEC-02", "question": "Due days in shorter months" },
+    { "id": "DEC-03", "question": "Notice and move-out date boundaries" },
+    { "id": "DEC-04", "question": "Final-month rent and notice deductions" },
+    { "id": "DEC-05", "question": "Transfer proration and deposit treatment" },
+    { "id": "DEC-06", "question": "Negotiation expiry outcome" },
+    { "id": "DEC-07", "question": "Rolling-six-month eligibility boundaries" },
+    { "id": "DEC-08", "question": "Withdrawn and reversed frequency allowances" },
+    { "id": "DEC-09", "question": "Due-date request eligibility" },
+    { "id": "DEC-10", "question": "Overpayments, advances, and allocation order" },
+    { "id": "DEC-11", "question": "Cash and accrual report basis" },
+    { "id": "DEC-12", "question": "Shared-cost allocation method" },
+    { "id": "DEC-13", "question": "Exchange-rate source and authority" },
+    { "id": "DEC-14", "question": "Required unit evidence and activation" },
+    { "id": "DEC-15", "question": "Expired-document account and contract effects" },
+    { "id": "DEC-16", "question": "Rejection resubmission and suspension effects" },
+    { "id": "DEC-17", "question": "Retention, deletion, disputes, and backup policy" },
+    { "id": "DEC-18", "question": "Upload limits, OTP, invitation expiry, and reminders" },
+    {
+      "id": "DEC-19",
+      "question": "Hostnames, senders, templates, region, and recovery objectives"
+    },
+    { "id": "DEC-20", "question": "Production performance and portfolio targets" },
+    { "id": "DEC-21", "question": "Annual review reminder policy" },
+    { "id": "DEC-22", "question": "Administrator MFA and impersonation authority" },
+    { "id": "DEC-23", "question": "Contract and amendment acknowledgement policy" },
+    { "id": "DEC-24", "question": "Refund targets and unresolved disputes" },
+    { "id": "DEC-25", "question": "Capacity reservation and expiry policy" },
+    { "id": "DEC-26", "question": "Closed or suspended relationship document access" }
+  ],
+  "itemDefaults": {
+    "owner": "PROJECT_OWNER",
+    "status": "PENDING",
+    "resolution": null,
+    "approvedBy": null,
+    "approvedAt": null
+  },
+  "source": "requirements.md, section 29",
+  "specificationSha256": "1f0d0c95aebf04d005a810a930597929cc1831a5fc29231e3ddb1d6af9c736a9"
+}

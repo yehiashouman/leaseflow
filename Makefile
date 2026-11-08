@@ -1,10 +1,8 @@
 .PHONY: init up down logs test build migrate demo demo-reset
 init:
-	cp .env.example .env
-	cp api/.env.example api/.env
-	@echo "Update secrets in .env and api/.env, then run: make up"
+	node scripts/local.mjs init
 up:
-	docker compose up --build -d
+	node scripts/local.mjs up
 down:
 	docker compose down
 logs:
@@ -18,4 +16,4 @@ migrate:
 demo:
 	@bash scripts/demo.sh up
 demo-reset:
-	@bash scripts/demo.sh reset
+	@node scripts/local.mjs reset --demo $(CONFIRM)

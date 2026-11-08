@@ -7,6 +7,8 @@ vi.stubEnv('REDIS_URL', 'redis://localhost:6379');
 vi.stubEnv('JWT_ACCESS_SECRET', 'test-access-secret-at-least-32-characters');
 vi.stubEnv('JWT_REFRESH_SECRET', 'test-refresh-secret-at-least-32-characters');
 vi.stubEnv('DEMO_MODE', 'false');
+vi.stubEnv('CORS_ORIGINS', 'https://app.example.com');
+vi.stubEnv('TRUST_PROXY', 'false');
 beforeEach(() => {
   vi.stubEnv('ACCESS_TOKEN_TTL', '15m');
   vi.stubEnv('REFRESH_TOKEN_TTL', '30d');

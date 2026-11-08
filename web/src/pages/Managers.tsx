@@ -89,6 +89,10 @@ export function Managers() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Account review</h1>
+      <p className="text-sm text-muted-foreground">
+        Approval activates platform access. It does not certify legal sufficiency or property
+        authorization.
+      </p>
       <div className="flex flex-wrap gap-3">
         <Input
           className="max-w-sm"
@@ -190,6 +194,10 @@ export function ManagerDetail() {
         Back to accounts
       </Link>
       <h1 className="text-2xl font-semibold break-words">{profile?.fullName || data.email}</h1>
+      <p className="text-sm text-muted-foreground">
+        Approval activates platform access. It does not certify legal sufficiency or property
+        authorization.
+      </p>
       <Badge variant="secondary">{data.status.replaceAll('_', ' ')}</Badge>
       <dl className="grid gap-5 border-y py-5 sm:grid-cols-2">
         {[
