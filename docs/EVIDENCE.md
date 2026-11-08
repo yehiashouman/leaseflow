@@ -319,3 +319,40 @@ PDF-001 through PDF-009 and PDF-015 remain unchecked.
 Both additive migrations must precede deployment.
 Both API and web container builds pass.
 Details and explicit limits: [PDF-REPORTS.md](PDF-REPORTS.md).
+
+## Maintenance Responsibility and Cost Proposals
+
+Verified: 8 November 2026, Asia/Dubai.
+Code commit: `7246134d72313c9dca10fe4e94bbd89c20ad6c69`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, MySQL, migration, and real-browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42485244023).
+Preview: [synthetic maintenance, browser, and deployment verification](https://github.com/yehiashouman/leaseflow/actions/runs/42485244021).
+
+The baseline passes 72 API tests, 84 web tests, and 89 MySQL cases: 245 automated tests.
+Browser suites pass four interface fixtures, fourteen synthetic previews, and twelve real API/MySQL journeys: 30 cases.
+Lint, migration, schema validation, production/preview builds, and the high/critical audit gate pass.
+Seven moderate development-tool advisories remain.
+
+| Item      | Code                                                                         | Verified scope                                                                                                                                     |
+| --------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MAINT-002 | api/src/routes/maintenance.ts; web/src/components/maintenance-assessment.tsx | Only the current property manager records responsibility; the operational owner remains Leasing Manager even after tenant cost acceptance          |
+| MAINT-003 | api/src/routes/maintenance.ts; api/integration/maintenance.test.ts           | Strict schemas reject external assignments; tenant, roommate, foreign manager, and ordinary administrator writes fail                              |
+| MAINT-004 | api/src/maintenance-rules.ts; api/prisma/schema.prisma                       | Normal Wear / Leasing Manager Cost persists without a proposed tenant amount or financial entry                                                    |
+| MAINT-005 | api/src/routes/maintenance.ts; web/e2e/maintenance.live.spec.ts              | Tenant-Caused Damage / Proposed Tenant Cost persists exact decimals, contract currency, explanation, and factual evidence notes                    |
+| MAINT-006 | api/integration/maintenance.test.ts                                          | Under Review and No Cost remain distinct stored classifications and reject proposed tenant amounts                                                 |
+| MAINT-008 | api/integration/maintenance.test.ts; web/e2e/maintenance.live.spec.ts        | Only the primary tenant can accept/dispute the current proposal; revisions retain disputes and accepted responsibility cannot be silently replaced |
+
+Twelve new MySQL cases verify ownership, schemas, decimal values, replay keys, notices, safe audits, stale sessions, and competing writes.
+Four rule tests verify classifications and assessment-state boundaries.
+Four component tests verify literal amounts, evidence notes, retained conflict inputs, exact proposal targets, and command permissions.
+Two adapter tests verify synthetic persistence, replay, role denial, and unchanged payment records.
+Two new real-browser cases and two new synthetic-browser cases verify the complete dispute/revision/acceptance journey.
+Screenshots show desktop/mobile assessment history without page overflow.
+Accepted responsibility leaves payments and deposit entries unchanged.
+Repair acceptance leaves a pending cost proposal unanswered until an explicit cost response.
+The additive 20261108070000_maintenance_assessments migration must precede deployment.
+MAINT-001, MAINT-007, and MAINT-009 through MAINT-012 remain unchecked.
+Evidence notes do not complete private file evidence, invoices, expense records, or financial posting.
+All twenty-six owner decisions remain unresolved.
+Exact scope: [MAINTENANCE.md](MAINTENANCE.md).
+Both API and web container builds pass.

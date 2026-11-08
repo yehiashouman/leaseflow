@@ -53,4 +53,6 @@ All unresolved owner decisions remain unresolved.
 
 Apply the additive 20261108070000_maintenance_assessments migration before deployment.
 Local API, component, preview-adapter, and build verification precedes hosted MySQL and browser acceptance.
-Hosted evidence remains pending until EVIDENCE.md records a successful workflow run.
+Hosted verification passes 72 API tests, 84 web tests, and 89 MySQL cases: 245 automated tests.
+Browser suites pass 30 cases, including new real and synthetic maintenance journeys on desktop and mobile.
+Evidence: [maintenance responsibility and cost proposals](EVIDENCE.md#maintenance-responsibility-and-cost-proposals).

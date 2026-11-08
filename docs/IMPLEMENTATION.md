@@ -22,7 +22,7 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 ## Incomplete Release Work
 
 Maintenance responsibility, proposed tenant costs, and explicit acceptance/dispute now exist.
-Hosted acceptance remains pending for this batch.
+Hosted API, MySQL, desktop/mobile browser, and synthetic preview acceptance pass for this responsibility scope.
 Exact scope, limits, and required migration: [MAINTENANCE.md](MAINTENANCE.md).
 
 Private case-history report jobs, download controls, and source exports now exist.
@@ -50,8 +50,8 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 68 tests pass; database-dependent unit tests use mocks.
-- Web suite: 78 tests pass, including PDF controls, contract records, forms, roles, sessions, cases, profiles, notices, and preview data.
+- API suite: 72 tests pass; database-dependent unit tests use mocks.
+- Web suite: 84 tests pass, including maintenance, PDF controls, contracts, forms, roles, sessions, cases, profiles, notices, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -102,7 +102,7 @@ History preserves author snapshots, sequence, timestamps, and previous resolutio
 Replay-safe keys and locked, version-checked decisions prevent duplicate or concurrent effects.
 Related contract and dashboard responses exclude internal case keys and tenant account secrets.
 Current totals: 118 API/web tests, 39 MySQL cases, and fourteen browser cases pass.
-Late-payment, transfer, move-out, attachments, cost responsibility, notifications, and full support access remain incomplete.
+Late-payment, transfer, move-out, attachments, financial cost posting, provider delivery, and full support access remain incomplete.
 The final concurrency regression maps rolled-back contract deadlocks to 409 without automatic financial retries.
 
 ## Larger Operational Batch

@@ -21,6 +21,7 @@ The full application is not production-ready.
 - `docs/INVENTORY.md`: landlord lifecycle, property fields, and archive safeguards
 - `docs/CONTRACT-RECORDS.md`: scoped contract detail, paged records, and incomplete financial scope
 - `docs/PDF-REPORTS.md`: private case PDF jobs, authorized downloads, font limits, and both required migrations
+- `docs/MAINTENANCE.md`: maintenance responsibility, proposed costs, tenant responses, and the required migration
 
 ## Public Preview
 

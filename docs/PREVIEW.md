@@ -35,6 +35,7 @@ https://yehiashouman.github.io/leaseflow/
 - Filter case notices and preserve read state per preview role.
 - Exchange case messages, report resolution, accept completion, and reopen cases.
 - Preserve case history and decisions after reload without backend requests.
+- Record synthetic maintenance responsibility, propose costs, dispute proposals, revise amounts, and explicitly accept responsibility without ledger entries.
 - Inspect the disabled PDF export control; actual exports require the live API and report worker.
 - Open Security, inspect synthetic sessions, and revoke the synthetic second device.
 - Verify persisted synthetic session revocation after reload.

@@ -405,17 +405,20 @@ Requirements: 9, 22-25.
 Requirements: 9.2-10.
 
 - [ ] **MAINT-001** Capture category, urgency, description, photos/files, response, and completion evidence.
-- [ ] **MAINT-002** Keep operational maintenance responsibility with the Leasing Manager.
-- [ ] **MAINT-003** Exclude technician, building-management, and landlord workflows from initial scope.
-- [ ] **MAINT-004** Support Normal Wear / Leasing Manager Cost classification.
-- [ ] **MAINT-005** Support Tenant-Caused Damage / Proposed Tenant Cost classification.
-- [ ] **MAINT-006** Support Under Review and No Cost classifications.
+- [x] **MAINT-002** Keep operational maintenance responsibility with the Leasing Manager. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
+- [x] **MAINT-003** Exclude technician, building-management, and landlord workflows from initial scope. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
+- [x] **MAINT-004** Support Normal Wear / Leasing Manager Cost classification. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
+- [x] **MAINT-005** Support Tenant-Caused Damage / Proposed Tenant Cost classification. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
+- [x] **MAINT-006** Support Under Review and No Cost classifications. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [ ] **MAINT-007** Capture proposed tenant cost, explanation, and evidence.
-- [ ] **MAINT-008** Allow tenant acceptance or dispute.
+- [x] **MAINT-008** Allow tenant acceptance or dispute. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [ ] **MAINT-009** Create direct charge or proposed deposit deduction from accepted responsibility.
 - [ ] **MAINT-010** Prevent duplicate recovery through both charge and deposit routes.
 - [ ] **MAINT-011** Record vendor, category, unit, space, amount, currency, date, and invoice/evidence.
 - [ ] **MAINT-012** Record tenant recoveries separately from gross maintenance expense.
+
+These six closures cover responsibility and explicit cost responses, not complete evidence or financial posting.
+Evidence notes exist; private file evidence, charges, deductions, double-recovery controls, and expense records remain incomplete.
 
 ## 17. Room Changes and Atomic Transfers
 

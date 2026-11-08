@@ -83,7 +83,8 @@ The subsequent contract regression adds one API test and maps rolled-back Prisma
 
 - Late payment, room transfer, and move-out submission/status changes return 409 pending dedicated workflows.
 - Existing specialized cases remain privately readable and retain permitted messages.
-- Attachments, complaint occupant selection, cost responsibility, and completion evidence remain incomplete.
+- Attachments, complaint occupant selection, financial cost posting, and completion evidence remain incomplete.
+- Maintenance responsibility assessments and explicit cost acceptance/dispute now exist; see [MAINTENANCE.md](MAINTENANCE.md).
 - Configurable categories, response deadlines, assignments, and Deadlock workflows remain incomplete.
 - Private draft save/submit is implemented; draft content editing and deletion remain incomplete.
 - Provider notifications, automatic reminders, exports, and approved support access remain incomplete.
