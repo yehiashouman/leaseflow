@@ -181,6 +181,14 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     expect(
       await prisma.caseReportJob.count({ where: { requestId: caseId, status: 'COMPLETE' } }),
     ).toBe(1);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await page.screenshot({
+      path: testInfo.outputPath('case-exports.png'),
+      fullPage: true,
+      animations: 'disabled',
+    });
     await page.goto('/notifications');
     await expect(
       page.getByRole('link', { name: 'Browser tap repair ' + suffix, exact: true }).first(),

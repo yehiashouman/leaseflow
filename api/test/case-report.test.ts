@@ -3,9 +3,11 @@ import { PDFDocument } from 'pdf-lib';
 import {
   renderCasePdf,
   reportHash,
+  reportSnapshot,
   ReportRenderError,
   type ReportSnapshot,
 } from '../src/case-report.js';
+import type { CaseRecord } from '../src/case-data.js';
 
 const snapshot = (): ReportSnapshot => ({
   format: 'leaseflow-case-v1',
@@ -31,6 +33,17 @@ const snapshot = (): ReportSnapshot => ({
   ],
 });
 describe('case PDF renderer', () => {
+  it('rejects oversized snapshots instead of silently truncating factual history', () => {
+    const data = snapshot();
+    const row = {
+      ...data,
+      createdAt: new Date(),
+      events: Array.from({ length: 2001 }, () => ({ ...data.events[0], createdAt: new Date() })),
+    } as unknown as CaseRecord;
+    expect(() => reportSnapshot(row)).toThrow(new ReportRenderError('REPORT_TOO_LARGE'));
+    row.events = [{ ...row.events[0]!, message: 'A'.repeat(512001) }];
+    expect(() => reportSnapshot(row)).toThrow(new ReportRenderError('REPORT_TOO_LARGE'));
+  });
   it('hashes canonical factual data without dependence on JSON property order', () => {
     const original = snapshot();
     expect(reportHash(original)).toMatch(/^[a-f0-9]{64}$/);

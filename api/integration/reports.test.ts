@@ -339,6 +339,22 @@ describe('MySQL durable private case reports', () => {
       });
     }
   });
+  it('enforces manual retry limits and rejects corrupt source snapshots', async () => {
+    const job = await create();
+    await prisma.caseReportJob.update({
+      where: { id: job.id },
+      data: { status: 'FAILED', retryCount: 3 },
+    });
+    expect(
+      (await send('POST', '/' + job.id + '/retry', { expectedRetryCount: 3 })).statusCode,
+    ).toBe(409);
+    const stored = await prisma.caseReportJob.findUniqueOrThrow({ where: { id: job.id } });
+    await prisma.caseReportJob.update({
+      where: { id: job.id },
+      data: { snapshot: { ...(stored.snapshot as object), title: 'Corrupted source' } },
+    });
+    expect((await send('GET', '/' + job.id + '/source')).statusCode).toBe(409);
+  });
   it('enforces queue limits, query schemas, and current session revocation', async () => {
     await create();
     await create();

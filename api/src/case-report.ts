@@ -73,7 +73,7 @@ export async function renderCasePdf(input: unknown, reportId: string, generatedA
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
   let page = doc.addPage([595.28, 841.89]);
   let y = 790;
-  function line(text: string, heading = false) {
+  function wrap(text: string, heading = false) {
     const face = heading ? bold : font;
     const size = heading ? 13 : 10;
     const safe = text.replace(/\r\n?/g, '\n').replaceAll('\t', '    ');
@@ -82,17 +82,31 @@ export async function renderCasePdf(input: unknown, reportId: string, generatedA
     } catch {
       throw new ReportRenderError('UNSUPPORTED_TEXT');
     }
+    const lines: string[] = [];
     for (const paragraph of safe.split('\n')) {
       let buffer = '';
-      for (const char of Array.from(paragraph)) {
-        if (face.widthOfTextAtSize(buffer + char, size) > 491) {
-          draw(buffer, face, size);
-          buffer = '';
+      for (const token of paragraph.match(/\S+|\s+/g) ?? []) {
+        if (face.widthOfTextAtSize(buffer + token, size) <= 491) {
+          buffer += token;
+          continue;
         }
-        buffer += char;
+        if (buffer.trimEnd()) lines.push(buffer.trimEnd());
+        buffer = '';
+        for (const char of Array.from(token.trimStart())) {
+          if (face.widthOfTextAtSize(buffer + char, size) > 491) {
+            lines.push(buffer);
+            buffer = '';
+          }
+          buffer += char;
+        }
       }
-      draw(buffer, face, size);
+      lines.push(buffer.trimEnd());
     }
+    return lines;
+  }
+  function line(text: string, heading = false) {
+    for (const textLine of wrap(text, heading))
+      draw(textLine, heading ? bold : font, heading ? 13 : 10);
   }
   function draw(text: string, face: typeof font, size: number) {
     if (y < 65) {
@@ -119,12 +133,25 @@ export async function renderCasePdf(input: unknown, reportId: string, generatedA
   line('');
   line('Recorded history', true);
   for (const event of snapshot.events) {
-    line('');
-    line(`${event.sequence ?? '-'} | ${event.createdAt} | ${event.kind}`, true);
-    line(`${event.actorName ?? 'Legacy author unavailable'} | ${event.actorRole ?? 'System'}`);
-    if (event.fromStatus) line('From state: ' + event.fromStatus);
-    if (event.message) line(event.message);
-    line('Event ID: ' + event.id);
+    const block: [string, boolean][] = [
+      ['', false],
+      [`${event.sequence ?? '-'} | ${event.createdAt} | ${event.kind}`, true],
+      [`${event.actorName ?? 'Legacy author unavailable'} | ${event.actorRole ?? 'System'}`, false],
+      ...(event.fromStatus
+        ? [['From state: ' + event.fromStatus, false] as [string, boolean]]
+        : []),
+      ...(event.message ? [[event.message, false] as [string, boolean]] : []),
+      ['Event ID: ' + event.id, false],
+    ];
+    const height = block.reduce(
+      (total, [text, heading]) => total + wrap(text, heading).length * 15,
+      0,
+    );
+    if ((height <= 720 && y - height < 65) || y < 125) {
+      page = doc.addPage([595.28, 841.89]);
+      y = 790;
+    }
+    for (const [text, heading] of block) line(text, heading);
   }
   const pages = doc.getPages();
   pages.forEach((item, index) =>
