@@ -283,3 +283,39 @@ Full contract creation, acknowledgements, amendments, annual reviews, ledgers, e
 Both API and web container builds pass.
 No additional full checklist item closes from this partial contract implementation.
 Exact scope: [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md).
+
+## Private Case PDF Jobs
+
+Verified: 8 November 2026, Asia/Dubai.
+Code commit: `f4916f5eca68b3ca8830e3c0c6b6f43d578e3906`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop/mobile, and Poppler.
+Evidence: [API, migrations, MySQL, and real-browser reports](https://github.com/yehiashouman/leaseflow/actions/runs/42477399599).
+Preview: [synthetic workflows and deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42477305243).
+
+The baseline passes 68 API tests, 78 web tests, and 77 MySQL cases: 223 automated tests.
+Browser suites pass four interface fixtures, twelve synthetic previews, and ten real API/MySQL journeys: 26 cases.
+The real case journeys now include actual PDF downloads, text extraction, and rendered-page artifacts.
+Lint, both migrations, schema validation, production/preview builds, and the high/critical audit gate pass.
+Seven moderate development-tool advisories remain.
+
+| Item    | Code                                                          | Verified scope                                                                                                                              |
+| ------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| PDF-010 | api/src/case-report.ts; api/src/report-worker.ts              | Report ID, actual generation timestamp, immutable factual SHA-256, and separate PDF-byte hash                                               |
+| PDF-011 | api/src/case-report.ts; api/src/routes/reports.ts             | PDF metadata, visible document disclaimer, and JSON source disclaimer state factual records without legal certification                     |
+| PDF-012 | api/src/routes/reports.ts; api/src/report-worker.ts           | Scoped queue creation, private snapshots, background claims, fresh download access, and safe export audits                                  |
+| PDF-013 | api/prisma/schema.prisma; web/src/components/case-reports.tsx | Persistent QUEUED, RUNNING, COMPLETE, FAILED states and active-job status polls                                                             |
+| PDF-014 | api/integration/reports.test.ts                               | Persisted failures, explicit replay-safe retries, retry limits, expired leases, and stale-worker result rejection                           |
+| PDF-016 | api/integration/reports.test.ts; web/e2e/cases.live.spec.ts   | Poppler extracts actual PDF text; tests verify original authors, disputes, resolutions, disclaimer, report identity, timestamps, and hashes |
+
+Twelve new MySQL cases verify access, job privacy, retries, corruption, quotas, source preservation, and worker concurrency.
+Five renderer tests verify canonical hashes, real PDF structure, long tokens, page breaks, resource limits, and explicit unsupported-text failures.
+Four component tests verify replay keys, authorized byte downloads, source fallback, retry commands, pages, and errors.
+We verified both pages of a real browser-exported PDF and the mobile export interface without clipping or page overflow.
+Private tenant drafts remain hidden from managers, including report lists and replayed creation commands.
+Current authorization denies suspended sessions and inconsistent ownership; DEC-26 remains unresolved.
+Unsupported PDF glyphs cause a clear failure; UTF-8 JSON preserves the original source text.
+The sample PDF uses synthetic test data and does not certify complete relationship-report coverage.
+PDF-001 through PDF-009 and PDF-015 remain unchecked.
+Both additive migrations must precede deployment.
+Both API and web container builds pass.
+Details and explicit limits: [PDF-REPORTS.md](PDF-REPORTS.md).

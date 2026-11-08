@@ -69,5 +69,7 @@ Apply the additive 20261108050000_case_report_jobs migration before deployment.
 Apply 20261108060000_report_generated_at to separate queue and generation timestamps.
 The API adds pdf-lib as a runtime dependency.
 CI installs Poppler for actual PDF text and render assertions.
-Local renderer/component tests pass; hosted MySQL and browser evidence remains pending.
+All 68 API tests, 78 web tests, and 77 MySQL cases pass.
+Real browser suites verify PDF downloads, extracted text, and page renders on desktop and mobile.
+Evidence: [private case PDF jobs](EVIDENCE.md#private-case-pdf-jobs).
 Acceptance must verify extracted content and rendered pages, not only HTTP status codes.

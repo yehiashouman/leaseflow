@@ -20,6 +20,7 @@ The full application is not production-ready.
 - `docs/SESSIONS.md`: session security, API contracts, and migration constraints
 - `docs/INVENTORY.md`: landlord lifecycle, property fields, and archive safeguards
 - `docs/CONTRACT-RECORDS.md`: scoped contract detail, paged records, and incomplete financial scope
+- `docs/PDF-REPORTS.md`: private case PDF jobs, authorized downloads, font limits, and both required migrations
 
 ## Public Preview
 

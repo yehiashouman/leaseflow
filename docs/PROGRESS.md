@@ -7,27 +7,27 @@ Target: the complete initial release in requirements.md.
 
 ## Summary
 
-| Measure                                   | Verified status                                                                                               |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Total checklist tasks                     | 764                                                                                                           |
-| Completed tasks with evidence             | 60                                                                                                            |
-| Tasks without full completion evidence    | 704                                                                                                           |
-| Strict checklist completion               | 7.85%                                                                                                         |
-| UI foundation tasks                       | 10 of 10 verified                                                                                             |
-| Open owner decisions                      | 26                                                                                                            |
-| Local API unit/route tests                | 63 pass; database mocks where required                                                                        |
-| Local web/component/preview-adapter tests | 74 pass                                                                                                       |
-| GitHub browser suites                     | Twenty-six cases pass: four interface fixtures, twelve synthetic previews, and ten real API/MySQL journeys    |
-| New browser coverage                      | Contract terms, payment pages, deposit disputes, private drafts, and scoped case links pass on desktop/mobile |
-| MySQL suites                              | All 65 integration cases pass on MySQL 8.4 in GitHub Actions                                                  |
-| Local builds                              | API, web production, and preview pass                                                                         |
-| Local lint                                | API, integration sources, and web pass                                                                        |
-| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                             |
-| Production application                    | Incomplete; not approved for real operational use                                                             |
+| Measure                                   | Verified status                                                                                            |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Total checklist tasks                     | 764                                                                                                        |
+| Completed tasks with evidence             | 66                                                                                                         |
+| Tasks without full completion evidence    | 698                                                                                                        |
+| Strict checklist completion               | 8.64%                                                                                                      |
+| UI foundation tasks                       | 10 of 10 verified                                                                                          |
+| Open owner decisions                      | 26                                                                                                         |
+| Local API unit/route tests                | 68 pass; database mocks where required                                                                     |
+| Local web/component/preview-adapter tests | 78 pass                                                                                                    |
+| GitHub browser suites                     | Twenty-six cases pass: four interface fixtures, twelve synthetic previews, and ten real API/MySQL journeys |
+| New browser coverage                      | Real case PDF generation, authorized downloads, extracted content, and page renders pass on desktop/mobile |
+| MySQL suites                              | All 77 integration cases pass on MySQL 8.4 in GitHub Actions                                               |
+| Local builds                              | API, web production, and preview pass                                                                      |
+| Local lint                                | API, integration sources, and web pass                                                                     |
+| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                          |
+| Production application                    | Incomplete; not approved for real operational use                                                          |
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial contract, inventory, case, profile, and role work exists beyond the 60 completed tasks.
+Additional partial contract, inventory, case, profile, and role work exists beyond the 66 completed tasks.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Session Security Continuation
@@ -70,10 +70,19 @@ Six new component/adapter tests and six new MySQL tests pass.
 Two new real-browser and two new synthetic-preview cases pass across desktop and mobile.
 The verified baseline now includes 202 automated tests and 26 browser cases.
 The full contract and financial requirements remain incomplete; no additional full checklist task closes in this batch.
-PDF exports remain pending.
+Complete relationship PDF exports remain pending; scoped case-history exports now exist.
 See [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md) for endpoints and exact limits.
 
 ## Complete Scope Coverage
+
+The PDF continuation closes six report infrastructure tasks with case-history acceptance evidence.
+Private jobs persist immutable snapshots, source hashes, file hashes, statuses, worker leases, and explicit retry counters.
+Every download verifies current owner and relationship access and records a safe audit event.
+The verified baseline includes 223 automated tests and 26 browser cases.
+The browser suites now download real PDFs, extract their text, and render their pages.
+The preview disables PDF exports because it has no live worker.
+Full financial relationship reports, attachments, multilingual PDF fonts, retention, and closed-account access policies remain incomplete.
+See [PDF-REPORTS.md](PDF-REPORTS.md) for both required additive migrations and exact scope.
 
 The profile/notice continuation adds six verified tasks and real tenant self-service interfaces.
 Managers can inspect their own tenant directory without account secrets or pending phone candidates.
@@ -116,10 +125,10 @@ It does not mean that no code exists.
 | 19. Expenses, currency, reports         |    18 |                 0 | Complete expense interface and approved report calculations remain                                                            |
 | 20. Dashboards                          |    19 |                 0 | Role views exist; complete operational metrics and drill-downs remain                                                         |
 | 21. Notifications and providers         |    18 |                 1 | In-app unread state and history verified; external delivery, adapters, callbacks, templates, and retries remain               |
-| 22. PDF reports                         |    16 |                 0 | Authorized factual reports and content verification remain                                                                    |
+| 22. PDF reports                         |    16 |                 6 | Private case jobs, hashes, retries, status, and actual PDF content verified; full relationship reports remain                 |
 | 23. Shared interface and accessibility  |    28 |                10 | shadcn/ui foundation verified; complete business screens remain                                                               |
 | 24. API standards and ownership         |    19 |                 0 | Selected routes protected; complete schemas, idempotency, pagination remain                                                   |
-| 25. Jobs, deadlines, recovery           |    13 |                 0 | Durable scheduler, workers, retries, recovery remain                                                                          |
+| 25. Jobs, deadlines, recovery           |    13 |                 0 | Durable PDF worker exists; complete scheduler, provider, deadline, and recovery acceptance remains                            |
 | 26. Security and privacy                |    13 |                 0 | Selected access tests exist; comprehensive controls and policy gates remain                                                   |
 | 27. Local setup and Codespaces          |    19 |                 1 | Production demo guard verified; complete deployment journey remains                                                           |
 | 28. Production infrastructure           |    21 |                 0 | Infrastructure files exist; actual deployment/recovery acceptance remains                                                     |
@@ -136,7 +145,7 @@ It does not mean that no code exists.
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                         |
 | 40. Source coverage map                 |     0 |                 0 | Reference table; no tasks                                                                                                     |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                     |
-| Total                                   |   764 |                60 | 704 tasks without full completion evidence                                                                                    |
+| Total                                   |   764 |                66 | 698 tasks without full completion evidence                                                                                    |
 
 ## Implemented in This Continuation
 

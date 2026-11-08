@@ -49,7 +49,8 @@ This batch adds read-only records, not a complete contract or financial module.
 Stored payment statuses and deposit proposals do not certify funds or settle disputes.
 Contract creation, acknowledgements, amendments, annual reviews, transfers, and closure remain incomplete.
 Secondary-occupant identity data requires its approved schema and access policy.
-Receipts, evidence downloads, financial corrections, and PDF exports remain incomplete.
+Receipts, evidence downloads, financial corrections, and complete relationship PDF exports remain incomplete.
+Scoped case-history exports now exist; see [PDF-REPORTS.md](PDF-REPORTS.md).
 The preview uses synthetic browser-local records and creates no backend records.
 No database migration or new dependency accompanies this batch.
 All twenty-six owner decisions remain unresolved.

@@ -22,8 +22,8 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 ## Incomplete Release Work
 
 Private case-history report jobs, download controls, and source exports now exist.
-Hosted acceptance remains pending for this batch.
-Exact scope and required migration: [PDF-REPORTS.md](PDF-REPORTS.md).
+Hosted API, MySQL, browser downloads, extracted content, and PDF page renders pass for this case-history scope.
+Exact scope and both required migrations: [PDF-REPORTS.md](PDF-REPORTS.md).
 
 Read-only contract detail and paged payment, deposit, and case records now exist.
 Exact scope and limits: [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md).
@@ -34,7 +34,7 @@ Hosted API, MySQL, desktop/mobile browser, and preview acceptance pass for this 
 - Contract creation and amendments remain incomplete.
 - Financial ledgers, receipts, deposits, refunds, and disputes remain incomplete.
 - Transfer, move-out, late-payment requests, and complete case workflows remain incomplete.
-- Expenses, full reports, PDF exports, and durable notification jobs remain incomplete.
+- Expenses, full financial relationship reports, multilingual PDFs, and durable notification jobs remain incomplete.
 - Administrator moderation, governed audit exports, MFA, and support controls remain incomplete.
 - Full database acceptance, the full release browser journey, backup, and production acceptance remain unverified.
 - Unresolved decisions in requirements.md still require owner approval.
@@ -46,8 +46,8 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 63 tests pass; database-dependent unit tests use mocks.
-- Web suite: 74 tests pass, including contract records, forms, roles, sessions, cases, administrator review, profiles, notices, and preview data.
+- API suite: 68 tests pass; database-dependent unit tests use mocks.
+- Web suite: 78 tests pass, including PDF controls, contract records, forms, roles, sessions, cases, profiles, notices, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.

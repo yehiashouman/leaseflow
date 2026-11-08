@@ -557,13 +557,16 @@ Requirements: 13, 22-25.
 - [ ] **PDF-007** Include maintenance responsibility, deduction proposals, acceptance, and disputes.
 - [ ] **PDF-008** Include move-out notice calculation, deposit ledger, and refund status.
 - [ ] **PDF-009** Include chronological messages, authorship, acknowledgements, status changes, and attachments.
-- [ ] **PDF-010** Add generation timestamp, report identifier, and integrity hash.
-- [ ] **PDF-011** State that reports are factual platform records, not legal findings or certifications.
-- [ ] **PDF-012** Generate PDFs through authorized background jobs.
-- [ ] **PDF-013** Expose queued, complete, and failed report states.
-- [ ] **PDF-014** Allow recovery from failed report generation.
+- [x] **PDF-010** Add generation timestamp, report identifier, and integrity hash. [Evidence](docs/EVIDENCE.md#private-case-pdf-jobs).
+- [x] **PDF-011** State that reports are factual platform records, not legal findings or certifications. [Evidence](docs/EVIDENCE.md#private-case-pdf-jobs).
+- [x] **PDF-012** Generate PDFs through authorized background jobs. [Evidence](docs/EVIDENCE.md#private-case-pdf-jobs).
+- [x] **PDF-013** Expose queued, complete, and failed report states. [Evidence](docs/EVIDENCE.md#private-case-pdf-jobs).
+- [x] **PDF-014** Allow recovery from failed report generation. [Evidence](docs/EVIDENCE.md#private-case-pdf-jobs).
 - [ ] **PDF-015** Authorize every report download and respect approved closed-relationship access.
-- [ ] **PDF-016** Verify actual PDF content, not only a successful HTTP status.
+- [x] **PDF-016** Verify actual PDF content, not only a successful HTTP status. [Evidence](docs/EVIDENCE.md#private-case-pdf-jobs).
+
+These six closures cover private case-history exports, not complete relationship or financial reports.
+Multilingual PDF fonts, attachments, retention, and approved closed-account access remain incomplete.
 
 ## 23. Shared Interface and Accessibility
 
