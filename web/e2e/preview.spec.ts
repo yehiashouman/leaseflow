@@ -79,6 +79,7 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await expect(page.getByText('Synthetic second device', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Revoke session preview-other', exact: true }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).not.toBeVisible();
   await expect(page.getByText('Synthetic second device', { exact: true })).not.toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Security', exact: true })).toBeVisible();

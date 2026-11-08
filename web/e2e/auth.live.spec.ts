@@ -58,10 +58,20 @@ test('real session security works through the browser and MySQL', async ({
         .getByRole('link', { name: 'Security', exact: true })
         .click();
     await page.getByRole('button', { name: 'Revoke session ' + other.id, exact: true }).click();
+    const revocation = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'DELETE' &&
+        response.url().endsWith('/auth/sessions/' + other.id),
+    );
     await page
       .getByRole('alertdialog')
       .getByRole('button', { name: 'Confirm', exact: true })
       .click();
+    expect((await revocation).status()).toBe(204);
+    await expect(page.getByRole('alertdialog')).not.toBeVisible();
+    expect(
+      (await prisma.authSession.findUniqueOrThrow({ where: { id: other.id } })).revokedAt,
+    ).not.toBeNull();
     await expect(
       page.getByRole('button', { name: 'Revoke session ' + other.id, exact: true }),
     ).not.toBeVisible();
