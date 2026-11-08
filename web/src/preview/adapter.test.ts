@@ -34,7 +34,7 @@ describe('isolated preview data', () => {
     });
     await expect(
       client.get('/contracts/contract-1/records', { params: { section: 'invalid' } }),
-    ).rejects.toMatchObject({ response: { status: 400 } });
+    ).rejects.toMatchObject({ response: { status: 422 } });
     await expect(
       client.get('/contracts/contract-1', { headers: { Authorization: 'Bearer preview:ADMIN' } }),
     ).rejects.toMatchObject({ response: { status: 403 } });

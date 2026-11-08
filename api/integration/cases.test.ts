@@ -368,7 +368,7 @@ describe('MySQL private operational case workflow', () => {
       'section=requests&page=1.5',
       'section=payments&extra=1',
     ])
-      expect((await send('GET', path + '/records?' + query)).statusCode).toBe(400);
+      expect((await send('GET', path + '/records?' + query)).statusCode).toBe(422);
     await prisma.tenantProfile.update({
       where: { id: tenant.profileId },
       data: { managerId: outsider.profileId },

@@ -564,7 +564,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       page < 1 ||
       page > 10000
     )
-      return fail('Invalid record query', 400);
+      return fail('Invalid record query', 422);
     const rows =
       section === 'payments'
         ? (contract.payments ?? []).map((item: RecordData) => ({

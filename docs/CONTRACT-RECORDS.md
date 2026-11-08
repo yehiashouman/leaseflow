@@ -30,7 +30,7 @@ Date: 8 November 2026, Asia/Dubai.
 
 Ordinary administrators receive 403.
 Foreign and inconsistent relationships receive 404.
-Invalid sections, pages, and extra query fields receive 400.
+Invalid sections, pages, and extra query fields receive 422.
 Record pages return items, total, page, and pageSize.
 The existing list endpoint retains its array response and excludes nested payment/request collections.
 The detail screen uses the scoped record endpoint instead.
