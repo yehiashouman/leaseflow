@@ -33,11 +33,28 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await page.getByRole('dialog').getByLabel('Name *', { exact: true }).fill('Preview Owner Two');
   await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByRole('cell', { name: 'Preview Owner Two', exact: true })).toBeVisible();
+  await page.getByRole('link', { name: 'Preview Owner Two', exact: true }).click();
+  await page.getByRole('button', { name: 'Archive landlord', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).not.toBeVisible();
+  await page.getByRole('button', { name: 'Restore landlord', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).not.toBeVisible();
+  await page.getByRole('button', { name: 'Edit landlord', exact: true }).click();
+  await page.getByRole('dialog').getByLabel('Company', { exact: true }).fill('Preview Properties');
+  await page
+    .getByRole('dialog')
+    .getByLabel('Preferred contact', { exact: true })
+    .selectOption('EMAIL');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
   await navigation(page, 'Units', mobile);
   await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   const editor = page.getByRole('dialog');
   await editor.getByLabel('Unit name *', { exact: true }).fill('Preview Apartment Two');
   await editor.getByLabel('Area *', { exact: true }).fill('Demo Area');
+  await editor.getByLabel('Landlord', { exact: true }).selectOption({ label: 'Preview Owner Two' });
+  await editor.getByLabel('Address notes', { exact: true }).fill('Preview entrance\nThird floor');
   await editor.getByRole('checkbox').check();
   await editor.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('link', { name: 'Preview Apartment Two', exact: true }).click();
@@ -74,6 +91,12 @@ test('preview CRUD persists without backend requests and preserves role boundari
     true,
   );
   await page.screenshot({ path: testInfo.outputPath('inventory-preview.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Preview Owner Two', exact: true }).click();
+  await expect(
+    page.getByRole('link', { name: 'Preview Apartment Two', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Archive landlord', exact: true })).toBeDisabled();
+  await page.screenshot({ path: testInfo.outputPath('landlord-preview.png'), fullPage: true });
   await navigation(page, 'Security', mobile);
   await expect(page.getByRole('heading', { name: 'Security', exact: true })).toBeVisible();
   await expect(page.getByText('Synthetic second device', { exact: true })).toBeVisible();

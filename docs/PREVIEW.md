@@ -16,7 +16,10 @@ https://yehiashouman.github.io/leaseflow/
 - Select the manager, administrator, or tenant preview account.
 - Inspect role-specific dashboards and navigation.
 - Create and edit synthetic landlords.
+- Inspect landlord details and linked units; search and filter active or archived records.
+- Archive unlinked landlords, restore them, and preserve contact preferences and notes.
 - Create and edit draft units.
+- Capture address notes, GPS, and default deposits in unit forms.
 - Inspect unit details; add and edit Room or Master Room spaces.
 - Set vacant rooms to maintenance or inactive; restore them without deletion.
 - Verify occupied-room restrictions and preserved contract rent after base-price edits.

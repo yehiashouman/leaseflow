@@ -6,7 +6,7 @@ const db = vi.hoisted(() => ({
   leasingManagerProfile: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn() },
   tenantProfile: { findFirst: vi.fn() },
   landlord: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
-  unit: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
+  unit: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
   rentalSpace: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
   contract: { findMany: vi.fn(), create: vi.fn() },
   payment: { create: vi.fn() },
@@ -61,16 +61,98 @@ describe('inventory writes and role dashboards', () => {
   const unit = { name: 'Demo Apartment', area: 'Dubai Marina', declarationAccepted: true };
 
   it('rejects cross-manager landlord references', async () => {
-    db.landlord.findFirst.mockResolvedValue(null);
+    db.$queryRaw.mockResolvedValue([]);
     const response = await send('POST', '/api/v1/inventory/units', {
       ...unit,
       landlordId: 'other-manager-landlord',
     });
     expect(response.statusCode).toBe(404);
     expect(db.unit.create).not.toHaveBeenCalled();
-    expect(db.landlord.findFirst).toHaveBeenCalledWith({
-      where: { id: 'other-manager-landlord', managerId: 'manager-1' },
-    });
+    expect(db.$queryRaw.mock.calls[0]?.slice(1)).toEqual(['other-manager-landlord', 'manager-1']);
+  });
+  it('filters landlord lists by status and search within manager ownership', async () => {
+    db.landlord.findMany.mockResolvedValue([]);
+    expect(
+      (await send('GET', '/api/v1/inventory/landlords?status=ARCHIVED&q=Demo')).statusCode,
+    ).toBe(200);
+    expect(db.landlord.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          managerId: 'manager-1',
+          archivedAt: { not: null },
+          OR: expect.any(Array),
+        }),
+      }),
+    );
+    expect((await send('GET', '/api/v1/inventory/landlords?status=INVALID')).statusCode).toBe(422);
+  });
+  it('scopes landlord details and linked units to the manager', async () => {
+    db.landlord.findFirst.mockResolvedValue({ id: 'landlord-1', units: [] });
+    expect((await send('GET', '/api/v1/inventory/landlords/landlord-1')).statusCode).toBe(200);
+    expect(db.landlord.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'landlord-1', managerId: 'manager-1' },
+        include: expect.objectContaining({
+          units: expect.objectContaining({ where: { managerId: 'manager-1' } }),
+        }),
+      }),
+    );
+  });
+  it('blocks landlord archive while any units remain linked', async () => {
+    db.landlord.findFirst.mockResolvedValue({ id: 'landlord-1', archivedAt: null });
+    db.unit.count.mockResolvedValue(1);
+    expect((await send('POST', '/api/v1/inventory/landlords/landlord-1/archive')).statusCode).toBe(
+      409,
+    );
+    expect(db.landlord.update).not.toHaveBeenCalled();
+    expect(db.auditEvent.create).not.toHaveBeenCalled();
+  });
+  it('archives and restores without deletion and preserves audit values', async () => {
+    db.landlord.findFirst.mockResolvedValue({ id: 'landlord-1', archivedAt: null });
+    db.unit.count.mockResolvedValue(0);
+    db.landlord.update.mockResolvedValue({ id: 'landlord-1', archivedAt: new Date() });
+    expect((await send('POST', '/api/v1/inventory/landlords/landlord-1/archive')).statusCode).toBe(
+      200,
+    );
+    expect(db.auditEvent.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          action: 'ARCHIVE',
+          oldValue: { id: 'landlord-1', archivedAt: null },
+        }),
+      }),
+    );
+    db.$queryRaw.mockResolvedValue([{ id: 'landlord-1', archivedAt: new Date() }]);
+    db.landlord.update.mockResolvedValue({ id: 'landlord-1', archivedAt: null });
+    expect((await send('POST', '/api/v1/inventory/landlords/landlord-1/restore')).statusCode).toBe(
+      200,
+    );
+  });
+  it('blocks archived landlord edits and unit assignments', async () => {
+    db.$queryRaw.mockResolvedValue([{ id: 'landlord-1', archivedAt: new Date() }]);
+    expect(
+      (await send('PATCH', '/api/v1/inventory/landlords/landlord-1', { name: 'New Name' }))
+        .statusCode,
+    ).toBe(409);
+    expect(
+      (await send('POST', '/api/v1/inventory/units', { ...unit, landlordId: 'landlord-1' }))
+        .statusCode,
+    ).toBe(404);
+    expect(db.landlord.update).not.toHaveBeenCalled();
+    expect(db.unit.create).not.toHaveBeenCalled();
+  });
+  it('rejects landlord ownership/status injection and invalid contact preferences', async () => {
+    for (const extra of [
+      { managerId: 'forged' },
+      { archivedAt: new Date().toISOString() },
+      { preferredContactMethod: 'SMS' },
+      { email: 'person@' + ['a'.repeat(60), 'b'.repeat(60), 'c'.repeat(60), 'invalid'].join('.') },
+    ])
+      expect(
+        (await send('POST', '/api/v1/inventory/landlords', { name: 'Demo Owner', ...extra }))
+          .statusCode,
+      ).toBe(422);
+    expect(db.landlord.create).not.toHaveBeenCalled();
   });
   it('rejects ownership injection and absent declarations', async () => {
     expect(

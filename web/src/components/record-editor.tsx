@@ -97,6 +97,7 @@ export function RecordEditor({
                   name={field.name}
                   defaultValue={field.value ?? ''}
                   required={field.required}
+                  disabled={busy}
                   className="h-9 w-full rounded-md border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"
                 >
                   {field.options.map((option) => (
@@ -105,11 +106,23 @@ export function RecordEditor({
                     </option>
                   ))}
                 </select>
+              ) : field.type === 'textarea' ? (
+                <textarea
+                  id={'editor-' + field.name}
+                  name={field.name}
+                  defaultValue={field.value ?? ''}
+                  required={field.required}
+                  maxLength={field.maxLength ?? 5000}
+                  rows={4}
+                  disabled={busy}
+                  className="min-h-24 w-full rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-ring"
+                />
               ) : field.type === 'checkbox' ? (
                 <input
                   id={'editor-' + field.name}
                   name={field.name}
                   type="checkbox"
+                  disabled={busy}
                   defaultChecked={field.value === 'true' || field.value === 1}
                   required={field.required}
                   className="size-4 accent-primary"
@@ -119,6 +132,7 @@ export function RecordEditor({
                   id={'editor-' + field.name}
                   name={field.name}
                   type={field.type ?? 'text'}
+                  disabled={busy}
                   defaultValue={field.value ?? ''}
                   required={field.required}
                   min={field.min}

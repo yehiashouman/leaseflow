@@ -18,6 +18,7 @@ The full application is not production-ready.
 - `docs/PROGRESS.md`: full checklist progress and remaining scope
 - `docs/EVIDENCE.md`: verified task evidence and test results
 - `docs/SESSIONS.md`: session security, API contracts, and migration constraints
+- `docs/INVENTORY.md`: landlord lifecycle, property fields, and archive safeguards
 
 ## Public Preview
 

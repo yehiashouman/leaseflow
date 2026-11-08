@@ -8,6 +8,53 @@ const client = axios.create({
 });
 beforeEach(resetPreview);
 describe('isolated preview data', () => {
+  it('archives, filters, restores, and links synthetic landlord details', async () => {
+    const response = await client.post('/inventory/landlords', {
+      name: 'Archive Owner',
+      companyName: 'Archive Company',
+      preferredContactMethod: 'EMAIL',
+    });
+    const id = response.data.id;
+    await client.post('/inventory/landlords/' + id + '/archive');
+    expect(
+      (await client.get('/inventory/landlords')).data.some(
+        (item: { id: string }) => item.id === id,
+      ),
+    ).toBe(false);
+    expect(
+      (
+        await client.get('/inventory/landlords', {
+          params: { status: 'ARCHIVED', q: 'Archive Company' },
+        })
+      ).data,
+    ).toHaveLength(1);
+    await expect(
+      client.post('/inventory/units', {
+        name: 'Blocked Unit',
+        area: 'Dubai',
+        landlordId: id,
+        declarationAccepted: true,
+      }),
+    ).rejects.toMatchObject({ response: { status: 404 } });
+    await client.post('/inventory/landlords/' + id + '/restore');
+    await client.post('/inventory/units', {
+      name: 'Restored Unit',
+      area: 'Dubai',
+      landlordId: id,
+      declarationAccepted: true,
+    });
+    expect((await client.get('/inventory/landlords/' + id)).data.units).toHaveLength(1);
+  });
+  it('blocks archive of linked landlords and edits of archived landlords', async () => {
+    await expect(client.post('/inventory/landlords/landlord-1/archive')).rejects.toMatchObject({
+      response: { status: 409 },
+    });
+    const created = await client.post('/inventory/landlords', { name: 'Archived Owner' });
+    await client.post('/inventory/landlords/' + created.data.id + '/archive');
+    await expect(
+      client.patch('/inventory/landlords/' + created.data.id, { name: 'Forbidden Edit' }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+  });
   it('creates, edits, and persists a landlord without a network request', async () => {
     const created = await client.post('/inventory/landlords', {
       name: 'Demo Owner Two',

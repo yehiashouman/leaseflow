@@ -21,12 +21,13 @@ export type Unit = {
   name: string;
   building?: string;
   street?: string;
+  addressNotes?: string;
   emirate?: string;
   latitude?: string | number | null;
   longitude?: string | number | null;
   area: string;
   landlordId?: string;
-  landlord?: { name: string };
+  landlord?: { id?: string; name: string };
   currency: string;
   defaultDeposit: string | number;
   ownerMonthlyRent?: string | number;
@@ -60,8 +61,8 @@ export function Units() {
     queryFn: () => api.get<Landlord[]>('/inventory/landlords').then((response) => response.data),
   });
   const fields: EditorField[] = [
-    { name: 'name', label: 'Unit name', required: true },
-    { name: 'area', label: 'Area', required: true },
+    { name: 'name', label: 'Unit name', required: true, maxLength: 150 },
+    { name: 'area', label: 'Area', required: true, maxLength: 150 },
     {
       name: 'landlordId',
       label: 'Landlord',
@@ -70,9 +71,10 @@ export function Units() {
         ...(landlords.data ?? []).map((item) => ({ value: item.id, label: item.name })),
       ],
     },
-    { name: 'building', label: 'Building' },
-    { name: 'street', label: 'Street' },
-    { name: 'emirate', label: 'Emirate', value: 'Dubai', required: true },
+    { name: 'building', label: 'Building', maxLength: 150 },
+    { name: 'street', label: 'Street', maxLength: 200 },
+    { name: 'addressNotes', label: 'Address notes', type: 'textarea', maxLength: 1000 },
+    { name: 'emirate', label: 'Emirate', value: 'Dubai', required: true, maxLength: 100 },
     { name: 'latitude', label: 'Latitude', type: 'number', min: -90, max: 90, step: '0.0000001' },
     {
       name: 'longitude',
@@ -191,6 +193,7 @@ export function Units() {
             await client.invalidateQueries({ queryKey: ['units'] });
             await client.invalidateQueries({ queryKey: ['unit'] });
             await client.invalidateQueries({ queryKey: ['landlords'] });
+            await client.invalidateQueries({ queryKey: ['landlord'] });
             await client.invalidateQueries({ queryKey: ['dashboard'] });
           }}
         />

@@ -21,11 +21,12 @@ export const landlordSchema = z
   .object({
     name: z.string().trim().min(2).max(150),
     companyName: text(200),
-    email: z.email().nullable().optional(),
+    email: z.email().max(191).nullable().optional(),
     phone: text(40),
     whatsapp: text(40),
     address: text(500),
     notes: text(5000),
+    preferredContactMethod: z.enum(['EMAIL', 'PHONE', 'WHATSAPP']).nullable().optional(),
   })
   .strict();
 export const unitSchema = z
@@ -35,6 +36,7 @@ export const unitSchema = z
     landlordId: z.string().min(1).nullable().optional(),
     building: text(150),
     street: text(200),
+    addressNotes: text(1000),
     emirate: z.string().trim().min(2).max(100).default('Dubai'),
     latitude: z.coerce.number().min(-90).max(90).nullable().optional(),
     longitude: z.coerce.number().min(-180).max(180).nullable().optional(),
@@ -91,18 +93,69 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     if (!manager) throw app.httpErrors.forbidden('Manager profile required');
     return manager.id;
   }
-  async function verifyLandlord(id: string | null | undefined, owner: string) {
-    if (id && !(await prisma.landlord.findFirst({ where: { id, managerId: owner } })))
-      throw app.httpErrors.notFound('Landlord not found');
+  async function lockLandlord(tx: Prisma.TransactionClient, id: string, owner: string) {
+    const rows = await tx.$queryRaw<{ id: string; archivedAt: Date | null }[]>`
+      SELECT id, archivedAt FROM Landlord WHERE id = ${id} AND managerId = ${owner} FOR UPDATE
+    `;
+    if (!rows[0]) throw app.httpErrors.notFound('Landlord not found');
+    return rows[0];
+  }
+  async function verifyLandlord(
+    tx: Prisma.TransactionClient,
+    id: string | null | undefined,
+    owner: string,
+  ) {
+    if (id && (await lockLandlord(tx, id, owner)).archivedAt)
+      throw app.httpErrors.notFound('Active landlord not found');
   }
 
-  app.get('/landlords', { preHandler: managerOnly }, async (request) =>
-    prisma.landlord.findMany({
-      where: { managerId: await managerId(request.user.sub) },
-      include: { _count: { select: { units: true } } },
+  app.get('/landlords', { preHandler: managerOnly }, async (request) => {
+    const { status, q } = z
+      .object({
+        status: z.enum(['ACTIVE', 'ARCHIVED', 'ALL']).default('ACTIVE'),
+        q: z.string().trim().max(150).default(''),
+      })
+      .strict()
+      .parse(request.query);
+    const owner = await managerId(request.user.sub);
+    return prisma.landlord.findMany({
+      where: {
+        managerId: owner,
+        ...(status === 'ACTIVE'
+          ? { archivedAt: null }
+          : status === 'ARCHIVED'
+            ? { archivedAt: { not: null } }
+            : {}),
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q } },
+                { companyName: { contains: q } },
+                { email: { contains: q } },
+              ],
+            }
+          : {}),
+      },
+      include: { _count: { select: { units: { where: { managerId: owner } } } } },
       orderBy: { name: 'asc' },
-    }),
-  );
+    });
+  });
+  app.get('/landlords/:id', { preHandler: managerOnly }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    const owner = await managerId(request.user.sub);
+    const landlord = await prisma.landlord.findFirst({
+      where: { id, managerId: owner },
+      include: {
+        units: {
+          where: { managerId: owner },
+          select: { id: true, name: true, area: true, active: true },
+          orderBy: { name: 'asc' },
+        },
+      },
+    });
+    if (!landlord) throw app.httpErrors.notFound('Landlord not found');
+    return landlord;
+  });
   app.post('/landlords', { preHandler: managerOnly }, async (request, reply) => {
     const body = landlordSchema.parse(request.body);
     const owner = await managerId(request.user.sub);
@@ -118,6 +171,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     const body = landlordSchema.parse(request.body);
     const owner = await managerId(request.user.sub);
     return prisma.$transaction(async (tx) => {
+      if ((await lockLandlord(tx, id, owner)).archivedAt)
+        throw app.httpErrors.conflict('Restore the landlord before an edit');
       const existing = await tx.landlord.findFirst({ where: { id, managerId: owner } });
       if (!existing) throw app.httpErrors.notFound('Landlord not found');
       const updated = await tx.landlord.update({ where: { id, managerId: owner }, data: body });
@@ -125,6 +180,36 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       return updated;
     });
   });
+  for (const action of ['archive', 'restore'] as const) {
+    app.post('/landlords/:id/' + action, { preHandler: managerOnly }, async (request) => {
+      const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+      z.object({})
+        .strict()
+        .parse(request.body ?? {});
+      const owner = await managerId(request.user.sub);
+      return prisma.$transaction(async (tx) => {
+        const row = await lockLandlord(tx, id, owner);
+        const existing = await tx.landlord.findFirst({ where: { id, managerId: owner } });
+        if (!existing) throw app.httpErrors.notFound('Landlord not found');
+        if ((action === 'archive') === Boolean(row.archivedAt)) return existing;
+        if (action === 'archive' && (await tx.unit.count({ where: { landlordId: id } })))
+          throw app.httpErrors.conflict('Unlink all units before archive');
+        const updated = await tx.landlord.update({
+          where: { id, managerId: owner },
+          data: { archivedAt: action === 'archive' ? new Date() : null },
+        });
+        await recordAudit(
+          tx,
+          request,
+          action === 'archive' ? 'ARCHIVE' : 'RESTORE',
+          'Landlord',
+          updated,
+          existing,
+        );
+        return updated;
+      });
+    });
+  }
 
   app.get('/units', { preHandler: managerOnly }, async (request) =>
     prisma.unit.findMany({
@@ -146,8 +231,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     const { declarationAccepted: _declaration, ...body } = unitSchema.parse(request.body);
     void _declaration;
     const owner = await managerId(request.user.sub);
-    await verifyLandlord(body.landlordId, owner);
     const item = await prisma.$transaction(async (tx) => {
+      await verifyLandlord(tx, body.landlordId, owner);
       const created = await tx.unit.create({
         data: { ...body, managerId: owner, active: false, declarationAcceptedAt: new Date() },
         include: unitInclude,
@@ -162,8 +247,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     const { declarationAccepted: _declaration, ...body } = unitSchema.parse(request.body);
     void _declaration;
     const owner = await managerId(request.user.sub);
-    await verifyLandlord(body.landlordId, owner);
     return prisma.$transaction(async (tx) => {
+      await verifyLandlord(tx, body.landlordId, owner);
       const existing = await tx.unit.findFirst({ where: { id, managerId: owner } });
       if (!existing) throw app.httpErrors.notFound('Unit not found');
       const updated = await tx.unit.update({

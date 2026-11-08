@@ -167,17 +167,20 @@ model Landlord {
   id String @id @default(cuid())
   managerId String
   name String
-  companyName String?
+  companyName String? @db.VarChar(200)
   email String?
   phone String?
   whatsapp String?
-  address String?
+  address String? @db.VarChar(500)
   notes String? @db.Text
+  preferredContactMethod String?
+  archivedAt DateTime?
   manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
   units Unit[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([managerId])
+  @@index([managerId, archivedAt])
 }
 
 model Unit {
@@ -186,7 +189,8 @@ model Unit {
   landlordId String?
   name String
   building String?
-  street String?
+  street String? @db.VarChar(200)
+  addressNotes String? @db.Text
   area String
   emirate String @default("Dubai")
   latitude Decimal? @db.Decimal(10, 7)
@@ -387,7 +391,7 @@ model AuditEvent {
   oldValue Json?
   newValue Json?
   ip String?
-  userAgent String?
+  userAgent String? @db.Text
   actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
   createdAt DateTime @default(now())
   @@index([entityType, entityId, createdAt])

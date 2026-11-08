@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { QueryFeedback } from '@/components/query-feedback';
-import { RecordEditor, formValues } from '@/components/record-editor';
+import { LandlordEditor } from '@/components/landlord-editor';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 export type Landlord = {
   id: string;
@@ -22,34 +25,58 @@ export type Landlord = {
   whatsapp?: string;
   address?: string;
   notes?: string;
+  preferredContactMethod?: string | null;
+  archivedAt?: string | null;
+  units?: { id: string; name: string; area: string; active: boolean }[];
   _count?: { units: number };
 };
-const fields = [
-  { name: 'name', label: 'Name', required: true },
-  { name: 'companyName', label: 'Company' },
-  { name: 'email', label: 'Email', type: 'email' },
-  { name: 'phone', label: 'Phone', type: 'tel' },
-  { name: 'whatsapp', label: 'WhatsApp', type: 'tel' },
-  { name: 'address', label: 'Address' },
-  { name: 'notes', label: 'Notes', maxLength: 5000 },
-];
 export function Landlords() {
-  const client = useQueryClient();
   const [editor, setEditor] = useState<Landlord | 'new' | null>(null);
+  const [status, setStatus] = useState('ACTIVE');
+  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSearch(query), 250);
+    return () => window.clearTimeout(timer);
+  }, [query]);
   const {
     data = [],
     isPending,
     error,
     refetch,
   } = useQuery({
-    queryKey: ['landlords'],
-    queryFn: () => api.get<Landlord[]>('/inventory/landlords').then((response) => response.data),
+    queryKey: ['landlords', status, search],
+    queryFn: ({ signal }) =>
+      api
+        .get<Landlord[]>('/inventory/landlords', { params: { status, q: search }, signal })
+        .then((response) => response.data),
   });
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Landlords</h1>
         <Button onClick={() => setEditor('new')}>Add landlord</Button>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <Input
+          className="max-w-sm"
+          type="search"
+          aria-label="Search landlords"
+          placeholder="Search landlords"
+          maxLength={150}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <select
+          className="h-9 rounded-md border bg-background px-3 text-sm"
+          aria-label="Landlord status"
+          value={status}
+          onChange={(event) => setStatus(event.target.value)}
+        >
+          <option value="ACTIVE">Active</option>
+          <option value="ARCHIVED">Archived</option>
+          <option value="ALL">All</option>
+        </select>
       </div>
       {isPending || error ? (
         <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
@@ -61,27 +88,38 @@ export function Landlords() {
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Units</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
+                <TableCell>
+                  <Link to={'/landlords/' + item.id} className="font-medium text-primary underline">
+                    {item.name}
+                  </Link>
+                  <span className="block text-xs text-muted-foreground">{item.companyName}</span>
+                </TableCell>
                 <TableCell>{item.email || '-'}</TableCell>
                 <TableCell>{item.phone || '-'}</TableCell>
                 <TableCell>{item._count?.units ?? 0}</TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm" onClick={() => setEditor(item)}>
-                    Edit<span className="sr-only"> {item.name}</span>
-                  </Button>
+                  <Badge variant="secondary">{item.archivedAt ? 'Archived' : 'Active'}</Badge>
+                </TableCell>
+                <TableCell>
+                  {!item.archivedAt && (
+                    <Button variant="ghost" size="sm" onClick={() => setEditor(item)}>
+                      Edit<span className="sr-only"> {item.name}</span>
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
             {!data.length && (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                  No landlords yet
+                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                  {query || status !== 'ACTIVE' ? 'No matching landlords' : 'No landlords yet'}
                 </TableCell>
               </TableRow>
             )}
@@ -89,28 +127,10 @@ export function Landlords() {
         </Table>
       )}
       {editor && (
-        <RecordEditor
-          key={typeof editor === 'string' ? editor : editor.id}
-          open
-          onOpenChange={(open) => {
-            if (!open) setEditor(null);
-          }}
-          title={editor === 'new' ? 'Add landlord' : 'Edit landlord'}
-          fields={fields.map((field) => ({
-            ...field,
-            value: editor === 'new' ? '' : String(editor[field.name as keyof Landlord] ?? ''),
-          }))}
-          onSave={async (data) => {
-            const body = formValues(
-              data,
-              fields.map((field) => field.name),
-            );
-            if (editor === 'new') await api.post('/inventory/landlords', body);
-            else await api.patch('/inventory/landlords/' + editor.id, body);
-            await client.invalidateQueries({ queryKey: ['landlords'] });
-            await client.invalidateQueries({ queryKey: ['units'] });
-            await client.invalidateQueries({ queryKey: ['unit'] });
-          }}
+        <LandlordEditor
+          key={editor === 'new' ? 'new' : editor.id}
+          landlord={editor}
+          onClose={() => setEditor(null)}
         />
       )}
     </div>

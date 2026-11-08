@@ -18,6 +18,7 @@ import { Units } from './pages/Units';
 import { Contracts } from './pages/Contracts';
 import { Requests } from './pages/Requests';
 import { Landlords } from './pages/Landlords';
+import { LandlordDetail } from './pages/LandlordDetail';
 import { UnitDetail } from './pages/UnitDetail';
 import { PreviewBanner } from './components/preview-banner';
 import { previewMode, type Role } from './session';
@@ -176,6 +177,7 @@ export default function App() {
               <Route path="units" element={<Units />} />
               <Route path="units/:id" element={<UnitDetail />} />
               <Route path="landlords" element={<Landlords />} />
+              <Route path="landlords/:id" element={<LandlordDetail />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER', 'TENANT']} />}>
               <Route path="contracts" element={<Contracts />} />

@@ -37,8 +37,8 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 51 tests pass; database-dependent behavior uses mocks.
-- Web suite: 36 tests pass, including forms, roles, session cleanup, and preview data.
+- API suite: 57 tests pass; database-dependent behavior uses mocks.
+- Web suite: 44 tests pass, including forms, roles, session cleanup, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -71,3 +71,11 @@ Every protected request requires an active database session.
 All ten new MySQL cases and both real-browser cases pass on GitHub.
 Current totals: 87 API/web unit and component tests, 15 MySQL integration cases, and eight browser cases pass.
 Password reset, MFA, registration verification, provider delivery, and full security acceptance remain incomplete.
+
+## Landlord and Property Continuation
+
+See [INVENTORY.md](INVENTORY.md) for landlord detail, archive/restore, contact preferences, and complete address/GPS/deposit capture.
+Archive requires no linked units; current and legacy references remain intact.
+New assignments and archive share a row lock to prevent unsafe concurrent links.
+Eleven new MySQL cases and two new real-browser journeys await GitHub acceptance.
+Real browser tests now share the application suite in web/playwright.live.config.ts.

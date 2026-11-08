@@ -57,6 +57,8 @@ export function freshPreview(): PreviewStore {
         email: 'owner@preview.invalid',
         phone: '',
         companyName: 'Demo Properties',
+        preferredContactMethod: 'EMAIL',
+        archivedAt: null,
       },
     ],
     units: [unit],
@@ -178,13 +180,42 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     }));
   if (path.startsWith('/inventory/') && role !== 'LEASING_MANAGER')
     return fail('Insufficient permissions', 403);
-  if (method === 'get' && path === '/inventory/landlords')
+  if (method === 'get' && path === '/inventory/landlords') {
+    const status = config.params?.status ?? 'ACTIVE';
+    const query = String(config.params?.q ?? '')
+      .trim()
+      .toLowerCase();
+    if (!['ACTIVE', 'ARCHIVED', 'ALL'].includes(status))
+      return fail('Verify the landlord status.', 422);
     return respond(
-      store.landlords.map((landlord) => ({
-        ...landlord,
-        _count: { units: store.units.filter((unit) => unit.landlordId === landlord.id).length },
-      })),
+      store.landlords
+        .filter(
+          (landlord) =>
+            (status === 'ALL' ||
+              (status === 'ARCHIVED' ? Boolean(landlord.archivedAt) : !landlord.archivedAt)) &&
+            (!query ||
+              [landlord.name, landlord.companyName, landlord.email].some((value) =>
+                String(value ?? '')
+                  .toLowerCase()
+                  .includes(query),
+              )),
+        )
+        .map((landlord) => ({
+          ...landlord,
+          _count: { units: store.units.filter((unit) => unit.landlordId === landlord.id).length },
+        })),
     );
+  }
+  if (method === 'get' && /^\/inventory\/landlords\/[^/]+$/.test(path)) {
+    const landlord = store.landlords.find((item) => item.id === path.split('/').at(-1));
+    if (!landlord) return fail('Landlord not found', 404);
+    return respond({
+      ...landlord,
+      units: store.units
+        .filter((unit) => unit.landlordId === landlord.id)
+        .map(({ id, name, area, active }) => ({ id, name, area, active })),
+    });
+  }
   if (method === 'get' && path === '/inventory/units') return respond(units());
   if (method === 'get' && /^\/inventory\/units\/[^/]+$/.test(path))
     return respond(
@@ -218,7 +249,16 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return role !== 'ADMIN' ? respond(store.requests) : fail('Insufficient permissions', 403);
   if (role === 'LEASING_MANAGER' && ['post', 'patch'].includes(method)) {
     let item: RecordData;
-    if (/^\/inventory\/spaces\/[^/]+$/.test(path) && method === 'patch') {
+    if (/^\/inventory\/landlords\/[^/]+\/(archive|restore)$/.test(path) && method === 'post') {
+      const landlord = store.landlords.find((record) => record.id === path.split('/')[3]);
+      if (!landlord) return fail('Landlord not found', 404);
+      if (path.endsWith('/archive') && store.units.some((unit) => unit.landlordId === landlord.id))
+        return fail('Unlink all units before archive', 409);
+      landlord.archivedAt = path.endsWith('/archive')
+        ? (landlord.archivedAt ?? new Date().toISOString())
+        : null;
+      item = landlord;
+    } else if (/^\/inventory\/spaces\/[^/]+$/.test(path) && method === 'patch') {
       const space = store.units
         .flatMap((unit) => unit.spaces)
         .find((space) => space.id === path.split('/').at(-1));
@@ -279,10 +319,11 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       if (method === 'patch') {
         const existing = store.landlords.find((record) => record.id === path.split('/').at(-1));
         if (!existing) return fail('Landlord not found', 404);
+        if (existing.archivedAt) return fail('Restore the landlord before an edit', 409);
         Object.assign(existing, data);
         item = existing;
       } else {
-        item = { ...data, id: crypto.randomUUID() };
+        item = { ...data, id: crypto.randomUUID(), archivedAt: null };
         store.landlords.push(item);
       }
     } else if (/^\/inventory\/units\/[^/]+\/spaces$/.test(path) && method === 'post') {
@@ -304,7 +345,10 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     } else if (path.startsWith('/inventory/units')) {
       if (!data.name?.trim() || !data.area?.trim() || data.declarationAccepted !== true)
         return fail('Unit name, area, and declaration are required.', 422);
-      if (data.landlordId && !store.landlords.some((record) => record.id === data.landlordId))
+      if (
+        data.landlordId &&
+        !store.landlords.some((record) => record.id === data.landlordId && !record.archivedAt)
+      )
         return fail('Landlord not found', 404);
       if (method === 'patch') {
         const existing = store.units.find((record) => record.id === path.split('/').at(-1));

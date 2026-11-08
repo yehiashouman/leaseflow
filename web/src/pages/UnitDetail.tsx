@@ -32,10 +32,17 @@ export function UnitDetail() {
         Back to units
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">{data.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            {data.area} · {data.landlord?.name || 'No landlord linked'}
+        <div className="min-w-0 flex-1 basis-64">
+          <h1 className="text-2xl font-semibold break-words">{data.name}</h1>
+          <p className="text-sm break-words text-muted-foreground">
+            {data.area} ·{' '}
+            {data.landlord?.id ? (
+              <Link to={'/landlords/' + data.landlord.id} className="text-primary underline">
+                {data.landlord.name}
+              </Link>
+            ) : (
+              data.landlord?.name || 'No landlord linked'
+            )}
           </p>
         </div>
         <Badge variant="secondary">{data.active ? 'Active' : 'Draft'}</Badge>
@@ -55,7 +62,25 @@ export function UnitDetail() {
         </div>
         <div>
           <dt className="text-sm text-muted-foreground">Building</dt>
-          <dd>{data.building || '-'}</dd>
+          <dd className="break-words">{data.building || '-'}</dd>
+        </div>
+        <div>
+          <dt className="text-sm text-muted-foreground">Street</dt>
+          <dd className="break-words">{data.street || '-'}</dd>
+        </div>
+        <div>
+          <dt className="text-sm text-muted-foreground">Emirate</dt>
+          <dd className="break-words">{data.emirate || '-'}</dd>
+        </div>
+        <div>
+          <dt className="text-sm text-muted-foreground">Coordinates</dt>
+          <dd>
+            {data.latitude ?? '-'}, {data.longitude ?? '-'}
+          </dd>
+        </div>
+        <div className="sm:col-span-3">
+          <dt className="text-sm text-muted-foreground">Address notes</dt>
+          <dd className="whitespace-pre-wrap break-words">{data.addressNotes || '-'}</dd>
         </div>
       </dl>
       <div className="flex items-center justify-between">

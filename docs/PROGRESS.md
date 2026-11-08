@@ -15,8 +15,8 @@ Target: the complete initial release in requirements.md.
 | Strict checklist completion               | 3.40%                                                                                              |
 | UI foundation tasks                       | 10 of 10 verified                                                                                  |
 | Open owner decisions                      | 26                                                                                                 |
-| Local API unit/route tests                | 51 pass; database mocks where required                                                             |
-| Local web/component/preview-adapter tests | 36 pass                                                                                            |
+| Local API unit/route tests                | 57 pass; database mocks where required                                                             |
+| Local web/component/preview-adapter tests | 44 pass                                                                                            |
 | GitHub browser suites                     | Eight cases pass: four interface fixtures, two synthetic previews, and two real API/MySQL journeys |
 | New browser coverage                      | Room edit, maintenance, inactivity, restore, and reload persistence pass on desktop/mobile         |
 | MySQL suites                              | All 15 integration cases pass on MySQL 8.4 in GitHub Actions                                       |
@@ -38,6 +38,15 @@ The Security page provides scoped session review, revocation, sign-out-all, and 
 All ten new MySQL cases and both real-browser cases pass on GitHub.
 Six session-security tasks now have complete scoped evidence.
 Legacy users must sign in again after the session migration.
+
+## Landlord and Property Continuation
+
+We added landlord detail, search, archive, restore, linked-unit guards, and contact preferences.
+Unit forms and detail now include address notes alongside building, street, area, emirate, GPS, and default deposit.
+Database locks serialize archive against unit creation and reassignment.
+See [INVENTORY.md](INVENTORY.md) for exact scope, constraints, API contracts, migration, and verification.
+Eleven new MySQL cases and two new real-browser cases await GitHub acceptance.
+The verified checklist total stays at 26 until these gates pass.
 
 ## Complete Scope Coverage
 

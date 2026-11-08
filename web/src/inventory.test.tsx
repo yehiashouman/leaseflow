@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { api } from './api';
 import { Landlords } from './pages/Landlords';
 import { Units } from './pages/Units';
 import { UnitDetail } from './pages/UnitDetail';
+import { LandlordDetail } from './pages/LandlordDetail';
 
 afterEach(cleanup);
 function page(element: React.ReactNode, path = '/') {
@@ -16,6 +17,7 @@ function page(element: React.ReactNode, path = '/') {
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="/units/:id" element={element} />
+          <Route path="/landlords/:id" element={element} />
           <Route path="/" element={element} />
         </Routes>
       </MemoryRouter>
@@ -23,6 +25,125 @@ function page(element: React.ReactNode, path = '/') {
   );
 }
 describe('inventory forms', () => {
+  it('disables record fields until the save completes', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
+    let finish!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    vi.spyOn(api, 'post').mockImplementation(async () => {
+      await pending;
+      return { data: {} };
+    });
+    page(<Landlords />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Add landlord' }));
+    await user.type(screen.getByLabelText(/Name/), 'Pending Owner');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    try {
+      expect((screen.getByLabelText(/Name/) as HTMLInputElement).disabled).toBe(true);
+      expect((screen.getByLabelText('Preferred contact') as HTMLSelectElement).disabled).toBe(true);
+      expect((screen.getByLabelText('Notes') as HTMLTextAreaElement).disabled).toBe(true);
+    } finally {
+      await act(async () => finish());
+    }
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+  it('captures a landlord contact preference and multiline notes', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ data: {} });
+    page(<Landlords />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'Add landlord' }));
+    await user.type(screen.getByLabelText(/Name/), 'Preferred Owner');
+    await user.selectOptions(screen.getByLabelText('Preferred contact'), 'WHATSAPP');
+    await user.type(screen.getByLabelText('Notes'), 'First line\nSecond line');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(post).toHaveBeenCalledWith(
+      '/inventory/landlords',
+      expect.objectContaining({
+        preferredContactMethod: 'WHATSAPP',
+        notes: 'First line\nSecond line',
+      }),
+    );
+  });
+  it('filters landlords by status and debounced search', async () => {
+    const get = vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
+    page(<Landlords />);
+    const user = userEvent.setup();
+    await user.selectOptions(screen.getByLabelText('Landlord status'), 'ARCHIVED');
+    await user.type(screen.getByLabelText('Search landlords'), 'Owner');
+    await waitFor(() =>
+      expect(get).toHaveBeenCalledWith(
+        '/inventory/landlords',
+        expect.objectContaining({ params: { status: 'ARCHIVED', q: 'Owner' } }),
+      ),
+    );
+  });
+  it('shows linked units and blocks archive while links remain', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        id: 'l1',
+        name: 'Linked Owner',
+        companyName: 'Owner Company',
+        units: [
+          { id: 'u1', name: 'Unit One', area: 'Dubai', active: false },
+          { id: 'u2', name: 'Unit Two', area: 'Dubai', active: false },
+        ],
+      },
+    });
+    page(<LandlordDetail />, '/landlords/l1');
+    expect(await screen.findByRole('heading', { name: 'Linked Owner' })).toBeDefined();
+    expect(screen.getByRole('link', { name: 'Unit One' }).getAttribute('href')).toBe('/units/u1');
+    expect(screen.getByRole('link', { name: 'Unit Two' })).toBeDefined();
+    expect(
+      (screen.getByRole('button', { name: 'Archive landlord' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+  });
+  it('confirms archive and restore and refreshes landlord status', async () => {
+    const landlord = {
+      id: 'l1',
+      name: 'Lifecycle Owner',
+      archivedAt: null as string | null,
+      units: [],
+    };
+    vi.spyOn(api, 'get').mockImplementation(async () => ({ data: { ...landlord } }));
+    const post = vi.spyOn(api, 'post').mockImplementation(async (url) => {
+      landlord.archivedAt = url.endsWith('/archive') ? '2026-11-08T00:00:00Z' : null;
+      return { data: { ...landlord } };
+    });
+    page(<LandlordDetail />, '/landlords/l1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Archive landlord' }));
+    expect(post).not.toHaveBeenCalled();
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
+    );
+    await user.click(await screen.findByRole('button', { name: 'Restore landlord' }));
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
+    );
+    expect(await screen.findByRole('button', { name: 'Archive landlord' })).toBeDefined();
+    expect(post).toHaveBeenCalledWith('/inventory/landlords/l1/archive');
+    expect(post).toHaveBeenCalledWith('/inventory/landlords/l1/restore');
+  });
+  it('keeps archive confirmation open after a new linked-unit conflict', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: { id: 'l1', name: 'Conflicted Owner', units: [] },
+    });
+    vi.spyOn(api, 'post').mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { message: 'Unlink all units before archive' } },
+    });
+    page(<LandlordDetail />, '/landlords/l1');
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Archive landlord' }));
+    await user.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
+    );
+    expect((await screen.findByRole('alert')).textContent).toContain('Unlink all units');
+    expect(screen.getByRole('alertdialog')).toBeDefined();
+  });
   it('creates a landlord and refreshes the list', async () => {
     const rows: { id: string; name: string }[] = [];
     vi.spyOn(api, 'get').mockImplementation(async () => ({ data: [...rows] }));
