@@ -235,9 +235,17 @@ describe('MySQL landlord lifecycle and property metadata', () => {
     );
   });
   it('hides foreign legacy unit links from details and counts', async () => {
-    await prisma.unit.create({
+    const legacyUnit = await prisma.unit.create({
       data: { managerId: foreign.id, landlordId, name: 'Foreign legacy unit', area: 'Dubai' },
     });
+    const foreignDetail = await send('GET', '/units/' + legacyUnit.id, undefined, foreign);
+    expect(foreignDetail.statusCode).toBe(200);
+    expect(foreignDetail.json().landlord).toBeNull();
+    expect(
+      (await send('GET', '/units', undefined, foreign))
+        .json()
+        .find((unit: { id: string }) => unit.id === legacyUnit.id).landlord,
+    ).toBeNull();
     expect((await send('GET', '/landlords/' + landlordId)).json().units).toEqual([]);
     expect((await send('GET', '/landlords?q=' + suffix)).json()[0]._count.units).toBe(0);
     expect((await send('POST', '/landlords/' + landlordId + '/archive')).statusCode).toBe(409);

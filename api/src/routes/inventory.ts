@@ -62,7 +62,8 @@ export const spaceUpdateSchema = spaceSchema
   })
   .strict();
 
-const unitInclude = { landlord: true, spaces: true } as const;
+const unitInclude = (owner: string) =>
+  ({ landlord: { where: { managerId: owner } }, spaces: true }) as const;
 
 async function recordAudit(
   tx: Prisma.TransactionClient,
@@ -211,18 +212,20 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     });
   }
 
-  app.get('/units', { preHandler: managerOnly }, async (request) =>
-    prisma.unit.findMany({
-      where: { managerId: await managerId(request.user.sub) },
-      include: unitInclude,
+  app.get('/units', { preHandler: managerOnly }, async (request) => {
+    const owner = await managerId(request.user.sub);
+    return prisma.unit.findMany({
+      where: { managerId: owner },
+      include: unitInclude(owner),
       orderBy: { createdAt: 'desc' },
-    }),
-  );
+    });
+  });
   app.get('/units/:id', { preHandler: managerOnly }, async (request) => {
     const { id } = z.object({ id: z.string() }).parse(request.params);
+    const owner = await managerId(request.user.sub);
     const unit = await prisma.unit.findFirst({
-      where: { id, managerId: await managerId(request.user.sub) },
-      include: unitInclude,
+      where: { id, managerId: owner },
+      include: unitInclude(owner),
     });
     if (!unit) throw app.httpErrors.notFound('Unit not found');
     return unit;
@@ -235,7 +238,7 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       await verifyLandlord(tx, body.landlordId, owner);
       const created = await tx.unit.create({
         data: { ...body, managerId: owner, active: false, declarationAcceptedAt: new Date() },
-        include: unitInclude,
+        include: unitInclude(owner),
       });
       await recordAudit(tx, request, 'CREATE', 'Unit', created);
       return created;
@@ -254,7 +257,7 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       const updated = await tx.unit.update({
         where: { id, managerId: owner },
         data: { ...body, declarationAcceptedAt: new Date() },
-        include: unitInclude,
+        include: unitInclude(owner),
       });
       await recordAudit(tx, request, 'UPDATE', 'Unit', updated, existing);
       return updated;
