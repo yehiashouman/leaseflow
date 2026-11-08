@@ -283,4 +283,30 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
         (await prisma.contract.count({ where: { rentalSpaceId: space.id, status: 'ACTIVE' } })) > 0,
     ).toBe(false);
   });
+  it('rejects legacy disabled space types even when their unit and space flags are active', async () => {
+    await prisma.unit.update({ where: { id: unitId }, data: { active: true } });
+    for (const type of ['BED_SPACE', 'PARTITION'] as const) {
+      const space = await prisma.rentalSpace.create({
+        data: {
+          unitId,
+          name: 'Legacy disabled type',
+          type,
+          enabled: true,
+          status: 'AVAILABLE',
+          capacity: 2,
+        },
+      });
+      expect((await proposal(space.id)).statusCode).toBe(404);
+      expect(await prisma.contract.count({ where: { rentalSpaceId: space.id } })).toBe(0);
+      expect(
+        (
+          await send('POST', '/units/' + unitId + '/spaces', {
+            name: 'Future type',
+            type,
+            capacity: 1,
+          })
+        ).statusCode,
+      ).toBe(422);
+    }
+  });
 });

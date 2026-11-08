@@ -329,7 +329,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       : fail('Insufficient permissions', 403);
   if (path === '/dashboard/manager') {
     if (role !== 'LEASING_MANAGER') return fail('Insufficient permissions', 403);
-    const spaces = store.units.flatMap((unit) => unit.spaces);
+    const spaces = store.units.filter((unit) => !unit.archivedAt).flatMap((unit) => unit.spaces);
     return respond({
       units: store.units.filter((unit) => !unit.archivedAt).length,
       occupied: spaces.filter((space) => space.status === 'OCCUPIED').length,
@@ -497,6 +497,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     } else if (/^\/inventory\/units\/[^/]+\/(archive|restore)$/.test(path) && method === 'post') {
       const unit = store.units.find((record) => record.id === path.split('/')[3]);
       if (!unit) return fail('Unit not found', 404);
+      if (path.endsWith('/archive') === Boolean(unit.archivedAt)) return respond(unit);
       if (
         path.endsWith('/archive') &&
         store.contracts.some(

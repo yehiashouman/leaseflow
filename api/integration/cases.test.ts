@@ -531,6 +531,19 @@ describe('MySQL private operational case workflow', () => {
     ]);
     expect(shared.version).toBe(2);
   });
+  it('preserves seen, tenant-question, and manager-response states with valid role actions', async () => {
+    await decision('SEEN');
+    await decision('AWAITING_TENANT', manager, 'Please describe the leak');
+    const response = await decision('AWAITING_MANAGER', tenant, 'The tap drips continuously');
+    expect(response.events.map((event: { kind: string }) => event.kind)).toEqual([
+      'SUBMITTED',
+      'SEEN',
+      'AWAITING_TENANT',
+      'AWAITING_MANAGER',
+    ]);
+    expect(response.events[3].actorUserId).toBe(tenant.id);
+    expect((await decision('IN_PROGRESS')).status).toBe('IN_PROGRESS');
+  });
   it('rejects draft submission after contract closure without a shared event', async () => {
     const draft = (await send('POST', '', { ...submission(), draft: true })).json();
     await prisma.contract.update({ where: { id: contractId }, data: { status: 'CLOSED' } });

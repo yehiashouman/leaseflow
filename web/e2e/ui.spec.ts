@@ -119,13 +119,17 @@ test('login, responsive routes, theme, tables, and sign out', async ({ page }, t
 
 test('failed records expose retry, not a false empty state', async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('accessToken', 'ui-test-token'));
-  await page.route('**/api/v1/inventory/units', (route) =>
-    route.fulfill({ status: 503, json: { message: 'Unavailable' } }),
+  await page.route(
+    (url) => url.pathname === '/api/v1/inventory/units',
+    (route) => route.fulfill({ status: 503, json: { message: 'Unavailable' } }),
   );
   await page.goto('/units');
   await expect(page.getByRole('alert')).toContainText('Unable to load records');
   await expect(page.getByText('No units yet')).not.toBeVisible();
-  await page.route('**/api/v1/inventory/units', (route) => route.fulfill({ json: [] }));
+  await page.route(
+    (url) => url.pathname === '/api/v1/inventory/units',
+    (route) => route.fulfill({ json: [] }),
+  );
   await page.getByRole('button', { name: 'Retry' }).click();
   await expect(page.getByText('No units yet')).toBeVisible();
 });
