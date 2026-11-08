@@ -24,6 +24,7 @@ The full application is not production-ready.
 - `docs/MAINTENANCE.md`: maintenance responsibility, proposed costs, tenant responses, and the required migration
 - `docs/STARTUP.md`: repeatable local startup, guarded reset, and exact verification limits
 - `docs/CONFIGURATION.md`: all configuration groups, proxy policy, and pending provider settings
+- `docs/ACCOUNT-DOCUMENT-BATCH.md`: 100-item account/document matrix, migrations, evidence, and remaining work
 - `docs/TECHNICAL-SELECTIONS.md`: implementation selections without implied owner approval
 - `docs/decisions.json`: owner and pending status for all twenty-six business decisions
 
@@ -34,6 +35,14 @@ Open the [live preview](https://yehiashouman.github.io/leaseflow/).
 See [preview details](docs/PREVIEW.md) for deployment status and isolation limits.
 See [implementation progress](docs/IMPLEMENTATION.md) before any completion claim.
 The session migration requires existing API users to sign in again; see [session deployment](docs/SESSIONS.md).
+
+## Account and Private Document Workflows
+
+Initial registration, email verification, password recovery, and scoped tenant invitations now exist.
+Private files use quarantine, antivirus scans, sanitized copies, immutable versions, and authorized downloads.
+The [100-item matrix](docs/ACCOUNT-DOCUMENT-BATCH.md) records 60 verified items, 23 partial items, and 17 blocked items.
+Account and file actions require the live API; the public preview never accepts real identity files.
+Production activation and real SMTP/WhatsApp staging acceptance remain incomplete.
 
 ## GitHub Codespaces
 

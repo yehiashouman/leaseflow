@@ -63,9 +63,9 @@ Requirements: 1-3, 15, 18-21.
 
 - [ ] **BASE-001** Preserve Unit -> Rental Space -> Contract -> Primary Tenant / Secondary Occupant.
 - [x] **BASE-002** Keep landlords reusable records without initial-release login. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
-- [ ] **BASE-003** Keep Leasing Managers responsible for legal sufficiency and authorization.
+- [x] **BASE-003** Keep Leasing Managers responsible for legal sufficiency and authorization. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **BASE-004** Describe administrator approval as platform activation, never legal certification. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
-- [ ] **BASE-005** Keep public manager registration and invitation-only tenant accounts.
+- [x] **BASE-005** Keep public manager registration and invitation-only tenant accounts. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **BASE-006** Keep payments external; record money without collection or escrow. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **BASE-007** Preserve future inventory images, amenities, and availability without a public marketplace.
 - [x] **BASE-008** Keep optional compatibility fields non-binding. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
@@ -76,7 +76,7 @@ Requirements: 1-3, 15, 18-21.
 - [x] **BASE-013** Use Tailwind CSS 4 through its Vite plugin; remove Bootstrap and SCSS dependencies. [Evidence](docs/EVIDENCE.md#foundation).
 - [x] **BASE-014** Keep REST API independent from web deployment. [Evidence](docs/EVIDENCE.md#foundation).
 - [ ] **BASE-015** Use Redis with durable workers and a scheduler.
-- [ ] **BASE-016** Use private S3-compatible storage and development MinIO.
+- [x] **BASE-016** Use private S3-compatible storage and development MinIO. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **BASE-017** Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline.
 - [ ] **BASE-018** Select maintained PDF, job, upload-scan, and browser-test libraries.
 - [x] **BASE-019** Record technical selections without claims of original user approval. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
@@ -108,7 +108,7 @@ Requirements: 14, 24.
 - [ ] **DATA-004** Add uniqueness constraints for identity and retry-sensitive operations.
 - [ ] **DATA-005** Index ownership, relationship, status, deadline, period, and report query paths.
 - [x] **DATA-006** Persist verification states, role, account status, language, and timezone. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
-- [ ] **DATA-007** Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes.
+- [x] **DATA-007** Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **DATA-008** Persist primary and secondary occupants with effective allocation dates.
 - [ ] **DATA-009** Persist original contract terms and effective-dated amendments.
 - [ ] **DATA-010** Persist separate original due dates and approved expected dates.
@@ -117,7 +117,7 @@ Requirements: 14, 24.
 - [ ] **DATA-013** Apply the approved currency-round policy; never use binary floating-point for posted balances.
 - [ ] **DATA-014** Store original currency, original amount, AED value, rate, source, and source time.
 - [ ] **DATA-015** Keep AED as default and support USD.
-- [ ] **DATA-016** Persist file versions, private object keys, scan status, and expiry.
+- [x] **DATA-016** Persist file versions, private object keys, scan status, and expiry. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **DATA-017** Persist append-only audit, case, payment correction, and deposit events.
 - [ ] **DATA-018** Record real administrator and effective identity for impersonated actions.
 - [ ] **DATA-019** Preserve historical relationship access under the approved retention policy.
@@ -142,36 +142,36 @@ Requirements: 3, 16, 22.2, 23-24.
 - [x] **AUTH-007** Detect refresh-token replay and revoke affected sessions. [Evidence](docs/EVIDENCE.md#session-security).
 - [x] **AUTH-008** Protect refresh-token storage and transport. [Evidence](docs/EVIDENCE.md#session-security).
 - [x] **AUTH-009** Protect cookie-authenticated mutations against CSRF. [Evidence](docs/EVIDENCE.md#session-security).
-- [ ] **AUTH-010** Implement password reset with expiring single-use tokens.
-- [ ] **AUTH-011** Revoke affected sessions after password reset.
+- [x] **AUTH-010** Implement password reset with expiring single-use tokens. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **AUTH-011** Revoke affected sessions after password reset. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **AUTH-012** Implement password change and authorized session review. [Evidence](docs/EVIDENCE.md#session-security).
 - [ ] **AUTH-013** Reverify changed email addresses and phone numbers.
 - [ ] **AUTH-014** Require administrator MFA before privileged access.
 - [ ] **AUTH-015** Offer manager MFA according to the approved security policy.
 - [ ] **AUTH-016** Enforce rate limits for login, OTP, invitations, uploads, and reports.
-- [ ] **AUTH-017** Return safe actionable errors and request identifiers.
-- [ ] **AUTH-018** Exclude passwords, tokens, OTP values, and sensitive identifiers from logs.
+- [x] **AUTH-017** Return safe actionable errors and request identifiers. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **AUTH-018** Exclude passwords, tokens, OTP values, and sensitive identifiers from logs. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **AUTH-019** Verify unauthorized role transitions cannot elevate privileges. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 
 ## 5. Manager Registration and Activation
 
 Requirements: 3.1, 16, 22.2.
 
-- [ ] **MGR-001** Implement public manager registration without tenant self-registration.
-- [ ] **MGR-002** Capture full legal name, date of birth, nationality, email, and mobile number.
-- [ ] **MGR-003** Capture Emirates ID number, expiry date, and private document.
-- [ ] **MGR-004** Capture optional UAE licence type, number, authority, issue date, expiry, and document.
-- [ ] **MGR-005** Verify email through an expiring single-use link.
-- [ ] **MGR-006** Provide controlled email resend.
-- [ ] **MGR-007** Require email verification before Twilio WhatsApp OTP.
+- [x] **MGR-001** Implement public manager registration without tenant self-registration. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-002** Capture full legal name, date of birth, nationality, email, and mobile number. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-003** Capture Emirates ID number, expiry date, and private document. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-004** Capture optional UAE licence type, number, authority, issue date, expiry, and document. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-005** Verify email through an expiring single-use link. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-006** Provide controlled email resend. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-007** Require email verification before Twilio WhatsApp OTP. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MGR-008** Verify the manager's phone through Twilio.
 - [ ] **MGR-009** Enforce approved OTP expiry, attempts, and resend limits.
-- [ ] **MGR-010** Capture declarations for genuine, current identity, property, and authorization information.
-- [ ] **MGR-011** Store declaration version, accepted text hash, timestamp, and IP/session.
-- [ ] **MGR-012** Show profile and document completeness.
-- [ ] **MGR-013** Submit completed accounts to administrator moderation.
+- [x] **MGR-010** Capture declarations for genuine, current identity, property, and authorization information. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-011** Store declaration version, accepted text hash, timestamp, and IP/session. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-012** Show profile and document completeness. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MGR-013** Submit completed accounts to administrator moderation. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MGR-014** Show pending, rejected, suspended, and active status with permitted actions.
-- [ ] **MGR-015** Prevent duplicate registration submissions.
+- [x] **MGR-015** Prevent duplicate registration submissions. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MGR-016** Apply approved rejection-resubmission and suspension policies.
 - [ ] **MGR-017** Notify the manager of moderation outcomes.
 
@@ -207,23 +207,23 @@ Requirements: 4-5, 13-16, 23-26.
 
 - [ ] **FILE-001** Implement authorized upload for identity, licence, property, consent, payment, maintenance, complaint, and report files.
 - [ ] **FILE-002** Validate approved MIME types, actual content, file size, and ownership.
-- [ ] **FILE-003** Prevent executable uploads.
-- [ ] **FILE-004** Strip dangerous metadata where appropriate.
-- [ ] **FILE-005** Quarantine uploads until a virus scan accepts them.
-- [ ] **FILE-006** Expose scan status and rejected-file errors.
-- [ ] **FILE-007** Store documents in private S3-compatible buckets.
-- [ ] **FILE-008** Block public object access.
-- [ ] **FILE-009** Issue short-lived signed downloads after authorization.
-- [ ] **FILE-010** Audit document access and exports.
-- [ ] **FILE-011** Version documents instead of overwrite.
-- [ ] **FILE-012** Support unit, common-area, and space photos with authorized access.
-- [ ] **FILE-013** Preserve attachment authorship and case references.
-- [ ] **FILE-014** Mask sensitive identity numbers in routine screens and reports.
-- [ ] **FILE-015** Avoid document contents in email or WhatsApp.
+- [x] **FILE-003** Prevent executable uploads. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-004** Strip dangerous metadata where appropriate. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-005** Quarantine uploads until a virus scan accepts them. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-006** Expose scan status and rejected-file errors. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-007** Store documents in private S3-compatible buckets. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-008** Block public object access. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-009** Issue short-lived signed downloads after authorization. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-010** Audit document access and exports. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-011** Version documents instead of overwrite. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-012** Support unit, common-area, and space photos with authorized access. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-013** Preserve attachment authorship and case references. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-014** Mask sensitive identity numbers in routine screens and reports. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **FILE-015** Avoid document contents in email or WhatsApp. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **FILE-016** Implement approved expiry and retention policies.
 - [ ] **FILE-017** Implement authorized data export and appropriate deletion/anonymization.
 - [ ] **FILE-018** Preserve dispute holds and required financial/audit history.
-- [ ] **FILE-019** Verify unauthorized, expired-link, unscanned, oversized, and unsafe file paths.
+- [x] **FILE-019** Verify unauthorized, expired-link, unscanned, oversized, and unsafe file paths. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 
 ## 8. Landlords and Units
 
@@ -231,15 +231,15 @@ Requirements: 4.1-4.2, 22.4.
 
 - [x] **UNIT-001** Implement scoped landlord list, detail, create, edit, archive, and linked units. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-002** Capture landlord name and optional company/legal name. [Evidence](docs/EVIDENCE.md#landlord-and-property).
-- [ ] **UNIT-003** Capture email, phone, WhatsApp, preferred contact method, address, notes, and documents.
+- [x] **UNIT-003** Capture email, phone, WhatsApp, preferred contact method, address, notes, and documents. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **UNIT-004** Allow one landlord record to serve multiple manager-owned units. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-005** Capture unit name/reference, building, street, area/community, emirate, and address notes. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-006** Capture GPS latitude and longitude. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [ ] **UNIT-007** Link each unit to its manager and landlord.
 - [x] **UNIT-008** Capture owner rent, payment schedule, and currency. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **UNIT-009** Capture the default unit security deposit. [Evidence](docs/EVIDENCE.md#landlord-and-property).
-- [ ] **UNIT-010** Support unit and common-area images.
-- [ ] **UNIT-011** Support property documents and manager declarations.
+- [x] **UNIT-010** Support unit and common-area images. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **UNIT-011** Support property documents and manager declarations. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **UNIT-012** Capture tenancy contract, consent/delegation, title-deed copy, or approved evidence categories.
 - [ ] **UNIT-013** Prevent unit activation without required data, declarations, and documents.
 - [ ] **UNIT-014** Apply the confirmed evidence policy rather than infer legal sufficiency.
@@ -275,17 +275,17 @@ Requirements: 2.2, 4.3, 5.2, 14.1, 24.2.
 
 Requirements: 5, 22.2, 22.4-22.5.
 
-- [ ] **TEN-001** Allow managers to invite tenants by email.
-- [ ] **TEN-002** Scope each invitation to its manager and intended tenant.
-- [ ] **TEN-003** Implement invitation inspect, resend, revoke, expiry, and acceptance.
+- [x] **TEN-001** Allow managers to invite tenants by email. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **TEN-002** Scope each invitation to its manager and intended tenant. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **TEN-003** Implement invitation inspect, resend, revoke, expiry, and acceptance. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **TEN-004** Reject public tenant self-registration. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
-- [ ] **TEN-005** Verify invitation email before tenant phone confirmation.
+- [x] **TEN-005** Verify invitation email before tenant phone confirmation. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **TEN-006** Let tenants supply their own phone numbers. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **TEN-007** Verify tenant WhatsApp OTP through Twilio.
-- [ ] **TEN-008** Capture full name, date of birth, nationality, Emirates ID number, expiry, and document.
-- [ ] **TEN-009** Link the tenant only to the inviting manager under the initial policy.
+- [x] **TEN-008** Capture full name, date of birth, nationality, Emirates ID number, expiry, and document. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **TEN-009** Link the tenant only to the inviting manager under the initial policy. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **TEN-010** Implement email, WhatsApp, or Both preferences for non-security notices. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
-- [ ] **TEN-011** Prevent complete removal of critical security notices.
+- [x] **TEN-011** Prevent complete removal of critical security notices. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **TEN-012** Support one primary tenant and one contract for a single occupant.
 - [ ] **TEN-013** Support one primary tenant and optional secondary occupant for a couple.
 - [ ] **TEN-014** Capture secondary occupant identity and Emirates ID status without a separate account.
@@ -398,7 +398,7 @@ Requirements: 9, 22-25.
 - [ ] **CASE-013** Allow authorized reopening without deletion of previous resolution.
 - [ ] **CASE-014** Restrict sensitive complaint details to the relevant tenant, manager, and authorized support.
 - [ ] **CASE-015** Allow the complainant to select an involved occupant when known.
-- [ ] **CASE-016** Record complaint evidence and manager communication/actions.
+- [x] **CASE-016** Record complaint evidence and manager communication/actions. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **CASE-017** Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence.
 - [ ] **CASE-018** Keep general requests configurable without loss of event history.
 
@@ -406,13 +406,13 @@ Requirements: 9, 22-25.
 
 Requirements: 9.2-10.
 
-- [ ] **MAINT-001** Capture category, urgency, description, photos/files, response, and completion evidence.
+- [x] **MAINT-001** Capture category, urgency, description, photos/files, response, and completion evidence. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **MAINT-002** Keep operational maintenance responsibility with the Leasing Manager. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [x] **MAINT-003** Exclude technician, building-management, and landlord workflows from initial scope. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [x] **MAINT-004** Support Normal Wear / Leasing Manager Cost classification. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [x] **MAINT-005** Support Tenant-Caused Damage / Proposed Tenant Cost classification. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [x] **MAINT-006** Support Under Review and No Cost classifications. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
-- [ ] **MAINT-007** Capture proposed tenant cost, explanation, and evidence.
+- [x] **MAINT-007** Capture proposed tenant cost, explanation, and evidence. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **MAINT-008** Allow tenant acceptance or dispute. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [ ] **MAINT-009** Create direct charge or proposed deposit deduction from accepted responsibility.
 - [ ] **MAINT-010** Prevent duplicate recovery through both charge and deposit routes.
@@ -540,13 +540,13 @@ Requirements: 12, 25.
 - [ ] **MSG-008** Persist transactional notification intent before provider delivery.
 - [ ] **MSG-009** Retry transient failures with bounded attempts.
 - [ ] **MSG-010** Expose terminal failures for operational recovery.
-- [ ] **MSG-011** Keep valid business transactions independent from provider success.
+- [x] **MSG-011** Keep valid business transactions independent from provider success. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MSG-012** Verify provider callback signatures.
 - [ ] **MSG-013** Reject duplicate and replayed callbacks.
-- [ ] **MSG-014** Use real Twilio credentials outside automated test adapters.
+- [x] **MSG-014** Use real Twilio credentials outside automated test adapters. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MSG-015** Use approved WhatsApp templates where required.
-- [ ] **MSG-016** Keep OTP plaintext and sensitive documents out of logs and messages.
-- [ ] **MSG-017** Provide deterministic email and Twilio test adapters.
+- [x] **MSG-016** Keep OTP plaintext and sensitive documents out of logs and messages. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
+- [x] **MSG-017** Provide deterministic email and Twilio test adapters. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MSG-018** Verify real email and WhatsApp delivery separately in staging.
 
 ## 22. PDF Interaction Reports
@@ -809,9 +809,9 @@ Each screen requires functional API access, forms, validation, permissions, pers
 
 Requirements: 23.2.
 
-- [ ] **RESOURCE-001** Implement Authentication: Register manager; login; logout; refresh; password reset; current session; session revocation.
+- [x] **RESOURCE-001** Implement Authentication: Register manager; login; logout; refresh; password reset; current session; session revocation. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **RESOURCE-002** Implement Verification: Email token verification/resend; WhatsApp OTP request/confirmation; contact reverification.
-- [ ] **RESOURCE-003** Implement Invitations: Create, inspect, accept, resend, expire, and revoke tenant invitation.
+- [x] **RESOURCE-003** Implement Invitations: Create, inspect, accept, resend, expire, and revoke tenant invitation. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **RESOURCE-004** Implement Profiles: Own profile, manager profile, tenant profile, secondary occupant, preferences.
 - [ ] **RESOURCE-005** Implement Administration: Account review queue, moderation decisions, flags, taxonomies, templates, audit, support sessions.
 - [ ] **RESOURCE-006** Implement Landlords: List, detail, create, edit, archive, and linked units.
@@ -825,7 +825,7 @@ Requirements: 23.2.
 - [ ] **RESOURCE-014** Implement Transfers: Eligibility, approval, negotiation, preview, destination, effective execution, and event history.
 - [ ] **RESOURCE-015** Implement Move-out: Notice preview, acknowledgement, decision, waiver, effective exit, and settlement.
 - [ ] **RESOURCE-016** Implement Expenses: Categories, entries, allocations, evidence, recoveries, and audited adjustments.
-- [ ] **RESOURCE-017** Implement Documents: Authorized upload, scan status, version, metadata, expiring private download, and access audit.
+- [x] **RESOURCE-017** Implement Documents: Authorized upload, scan status, version, metadata, expiring private download, and access audit. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **RESOURCE-018** Implement Notifications: List, read/unread state, preferences, internal delivery records, provider callbacks.
 - [ ] **RESOURCE-019** Implement Reports: Role-specific dashboards, filtered financial data, export jobs, PDF status, and downloads.
 - [ ] **RESOURCE-020** Implement Operations: Liveness, readiness, protected metrics, job status, and deployment smoke probes.
@@ -840,10 +840,10 @@ Requirements: 25.1.
 - [ ] **WORKER-004** Implement Negotiation deadline: Expose the seven-day deadline; apply only the confirmed expiry policy from section 29.
 - [ ] **WORKER-005** Implement Annual reviews: Create one review per same-space anniversary; preserve transfer history.
 - [ ] **WORKER-006** Implement Document expiry: Notify affected users; show expired status without false legal certification.
-- [ ] **WORKER-007** Implement Invitations and security tokens: Enforce expiry, resend limits, revocation, and single-use verification.
+- [x] **WORKER-007** Implement Invitations and security tokens: Enforce expiry, resend limits, revocation, and single-use verification. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **WORKER-008** Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.
 - [ ] **WORKER-009** Implement Reports: Generate authorized PDFs; expose queued, complete, and failed states.
-- [ ] **WORKER-010** Implement File scan: Quarantine uploads until accepted; reject unsafe content.
+- [x] **WORKER-010** Implement File scan: Quarantine uploads until accepted; reject unsafe content. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **WORKER-011** Implement Retention: Apply the confirmed policy without destruction of protected history.
 
 ## 33. Notification Event Inventory
@@ -874,7 +874,7 @@ Requirements: 26.1.
 - [ ] **CONFIG-005** Document and validate Origins: Explicit production CORS allowlist and trusted proxy configuration.
 - [ ] **CONFIG-006** Document and validate Twilio: Account SID, auth token, Verify service SID, sender/template configuration.
 - [ ] **CONFIG-007** Document and validate Email: Provider or SMTP credentials, sender, callback configuration.
-- [ ] **CONFIG-008** Document and validate Storage: S3 endpoint/region, bucket, private credentials, signed-link lifetime.
+- [x] **CONFIG-008** Document and validate Storage: S3 endpoint/region, bucket, private credentials, signed-link lifetime. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **CONFIG-009** Document and validate Upload safety: Allowed content types, file size limits, scan service.
 - [ ] **CONFIG-010** Document and validate Financial defaults: AED, exchange-rate source, due day, notice, permitted request limits.
 - [ ] **CONFIG-011** Document and validate Observability: Log level, metrics access, error reporting, request IDs.
@@ -902,7 +902,7 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 
 - [ ] **TEST-AUTH-01** Verify Manager completes public registration, email, WhatsApp, identity, declarations, and administrator activation.
 - [ ] **TEST-AUTH-02** Verify Unverified, pending, rejected, and suspended accounts cannot bypass their permitted access.
-- [ ] **TEST-AUTH-03** Verify Tenant public self-registration fails; scoped invitation acceptance succeeds.
+- [x] **TEST-AUTH-03** Verify Tenant public self-registration fails; scoped invitation acceptance succeeds. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **TEST-AUTH-04** Verify Expired, reused, revoked, or mismatched verification tokens fail.
 - [ ] **TEST-AUTH-05** Verify Wrong OTP, resend abuse, login abuse, password reset, refresh replay, and logout enforce security controls.
 - [ ] **TEST-ROLE-01** Verify Admin, manager, and tenant reach distinct functional dashboards.
@@ -948,7 +948,7 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [ ] **TEST-FIN-02** Verify Currency conversion preserves original amount and saved rate; later rate changes do not rewrite history.
 - [ ] **TEST-MSG-01** Verify Preferences control non-security email and WhatsApp; critical security notices retain a required channel.
 - [ ] **TEST-MSG-02** Verify Delivery retry, provider rejection, duplicate callback, and bad signature retain correct business state.
-- [ ] **TEST-DOC-01** Verify Unsafe upload, oversized file, unauthorized download, expired URL, and unscanned file fail safely.
+- [x] **TEST-DOC-01** Verify Unsafe upload, oversized file, unauthorized download, expired URL, and unscanned file fail safely. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **TEST-PDF-01** Verify Both parties export the same factual event history with masked identities, authorship, timestamp, and integrity metadata.
 - [ ] **TEST-PDF-02** Verify Failed report job exposes a recoverable error; unauthorized report download fails.
 - [ ] **TEST-UI-01** Verify Every initial-release screen has functional actions and load, empty, error, success, and validation states.

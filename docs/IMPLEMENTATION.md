@@ -1,6 +1,6 @@
 # Implementation Progress
 
-Date: 8 November 2026.
+Date: 9 November 2026.
 This is a progress record, not a completion certificate.
 Complete scope report: [PROGRESS.md](PROGRESS.md).
 Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
@@ -33,8 +33,8 @@ Read-only contract detail and paged payment, deposit, and case records now exist
 Exact scope and limits: [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md).
 Hosted API, MySQL, desktop/mobile browser, and preview acceptance pass for this read-only scope.
 
-- Email and WhatsApp verification and invitations remain incomplete.
-- Document upload, scans, expiry, and unit activation remain incomplete.
+- Initial email verification and invitations exist; real WhatsApp staging, contact changes, and complete activation remain incomplete.
+- Private uploads, scans, versions, and expiring downloads exist; approved retention and unit activation remain incomplete.
 - Contract creation and amendments remain incomplete.
 - Financial ledgers, receipts, deposits, refunds, and disputes remain incomplete.
 - Transfer, move-out, late-payment requests, and complete case workflows remain incomplete.
@@ -141,3 +141,15 @@ All twenty-six owner decisions remain unresolved; this batch does not approve pr
 Fresh Compose acceptance passes, including default zero-user startup, explicit demo, proxy login, password-preserving restart, and database/file volume persistence.
 This batch closes thirty scoped tasks; strict completion is 102 of 764 tasks, or 13.35%.
 The remaining 662 tasks and all production release gates stay incomplete.
+
+## Account and Private Document Controls
+
+We updated 60 checklist items with code, API, persistence, interface, authorization, and test evidence.
+The 100-item target contains 60 verified, 23 partial, and 17 blocked items.
+Strict project completion is 162 of 764 tasks, or 21.20%.
+See [ACCOUNT-DOCUMENT-BATCH.md](ACCOUNT-DOCUMENT-BATCH.md) for the complete matrix and both additive migrations.
+All 362 automated tests and 36 browser cases pass for the recorded code evidence.
+The private-service suite uses real MinIO and ClamAV.
+The account suite uses deterministic SMTP and Twilio adapters; real staging delivery remains unverified.
+The public preview keeps private account and file actions separate from synthetic demonstrations.
+All 26 owner decisions and the production release gates remain open.

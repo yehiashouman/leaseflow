@@ -1,36 +1,48 @@
 # Full Project Progress Report
 
-Date: 8 November 2026, Asia/Dubai.
+Date: 9 November 2026, Asia/Dubai.
 Source: [checklist.md](../checklist.md).
 Evidence: [EVIDENCE.md](EVIDENCE.md).
 Target: the complete initial release in requirements.md.
 
 ## Summary
 
-| Measure                                   | Verified status                                                                                                             |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Total checklist tasks                     | 764                                                                                                                         |
-| Completed tasks with evidence             | 102                                                                                                                         |
-| Tasks without full completion evidence    | 662                                                                                                                         |
-| Strict checklist completion               | 13.35%                                                                                                                      |
-| UI foundation tasks                       | 10 of 10 verified                                                                                                           |
-| Open owner decisions                      | 26                                                                                                                          |
-| Local API unit/route tests                | 84 pass; database mocks where required                                                                                      |
-| Local web/component/preview-adapter tests | 84 pass                                                                                                                     |
-| Setup and governance tests                | 10 pass                                                                                                                     |
-| GitHub browser suites                     | Thirty cases pass: four interface fixtures, fourteen synthetic previews, and twelve real API/MySQL journeys                 |
-| Current browser coverage                  | Administrator disclaimers, role boundaries, maintenance proposals, disputes, and explicit acceptance pass on desktop/mobile |
-| MySQL suites                              | All 89 integration cases pass on MySQL 8.4 in GitHub Actions                                                                |
-| Fresh-stack Docker acceptance             | Pass: migrations, explicit demo, proxy login, changed password, retained volumes, refresh, CSRF, and proxy abuse controls   |
-| Local builds                              | API, web production, and preview pass                                                                                       |
-| Local lint                                | API, integration sources, and web pass                                                                                      |
-| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                                           |
-| Production application                    | Incomplete; not approved for real operational use                                                                           |
+| Measure                                   | Verified status                                                                                                      |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Total checklist tasks                     | 764                                                                                                                  |
+| Completed tasks with evidence             | 162                                                                                                                  |
+| Tasks without full completion evidence    | 602                                                                                                                  |
+| Strict checklist completion               | 21.20%                                                                                                               |
+| UI foundation tasks                       | 10 of 10 verified                                                                                                    |
+| Open owner decisions                      | 26                                                                                                                   |
+| Local API unit/route tests                | 123 pass; database mocks where required                                                                              |
+| Local web/component/preview-adapter tests | 94 pass                                                                                                              |
+| Setup and governance tests                | 11 pass                                                                                                              |
+| GitHub browser suites                     | 36 pass: four interface fixtures, fourteen synthetic previews, sixteen real API journeys, and two real-file journeys |
+| Current browser coverage                  | Account verification/recovery, invitations, private documents, role boundaries, maintenance, and earlier workflows   |
+| MySQL suites                              | 132 pass on MySQL 8.4 in GitHub Actions                                                                              |
+| Fresh-stack Docker acceptance             | Pass: zero-user startup, explicit demo, proxy login, password and volume persistence after restart.                  |
+| Local builds                              | API, web production, and isolated preview pass                                                                       |
+| Local lint                                | API, integration sources, and web pass                                                                               |
+| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                                    |
+| Production application                    | Incomplete; not approved for real operational use                                                                    |
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial contract, inventory, case, profile, and role work exists beyond the 102 completed tasks.
+Additional partial contract, inventory, case, profile, and role work exists beyond the 162 completed tasks.
 Do not substitute synthetic-preview results for real API/database acceptance.
+
+## Account and Private Document Continuation
+
+We verified 60 additional checklist tasks.
+The 100-item batch contains 60 verified, 23 partial, and 17 blocked items.
+Strict completion is 162 of 764 tasks, or 21.20%.
+We updated the checklist and requirement-to-code-to-test evidence for every closure.
+See [ACCOUNT-DOCUMENT-BATCH.md](ACCOUNT-DOCUMENT-BATCH.md) for all 100 identifiers and exact remaining work.
+The batch adds manager registration, initial verification, password recovery, tenant invitations, and private document workflows.
+Real MinIO, ClamAV, and desktop/mobile document acceptance pass.
+Real SMTP and WhatsApp staging delivery remain unverified.
+Production moderation, MFA, approved retention, contact changes, and full financial workflows remain incomplete.
 
 ## Platform and Startup Continuation
 
@@ -129,27 +141,27 @@ It does not mean that no code exists.
 
 | Checklist section                       | Total | Verified complete | Current state                                                                                                                       |
 | --------------------------------------- | ----: | ----------------: | ----------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Scope and architecture               |    20 |                11 | Stack and scope boundaries verified; durable services and complete workflows remain                                                 |
+| 1. Scope and architecture               |    20 |                14 | Manager responsibility, initial account boundaries, and private storage verified; Redis and complete workflows remain               |
 | 2. Decisions and change control         |    11 |                 3 | Decision owners, proposal boundaries, and source integrity verified; approvals and full traceability remain                         |
-| 3. Data and persistence                 |    26 |                 1 | Account states, roles, language, and timezone persist; complete entity migrations and invariants remain                             |
-| 4. Authentication and sessions          |    19 |                10 | Role login/routing, privilege boundaries, and sessions verified; verification, MFA, and reset remain                                |
-| 5. Manager registration and activation  |    17 |                 0 | Complete identity, declaration, verification, and moderation journey remains                                                        |
+| 3. Data and persistence                 |    26 |                 3 | Account security state, invitations, consent hashes, and versioned private documents persist; full financial models remain          |
+| 4. Authentication and sessions          |    19 |                14 | Role/session controls and password recovery verified; MFA, contact changes, and full verification gates remain                      |
+| 5. Manager registration and activation  |    17 |                12 | Registration, declarations, identity capture, and review submission verified; moderation outcomes and staging delivery remain       |
 | 6. Administration and support           |    21 |                 1 | Filtered account queue verified; masked detail/audit screens exist; moderation, MFA, and impersonation remain                       |
-| 7. Private documents and media          |    19 |                 0 | Upload, quarantine, scan, authorization, version, and expiry workflow remains                                                       |
-| 8. Landlords and units                  |    19 |                11 | Lifecycle, owner schedule, amenities, address/GPS/deposit verified; documents and activation remain                                 |
+| 7. Private documents and media          |    19 |                14 | Private scan, version, access, image, and evidence controls verified; approved retention, export, and upload policy remain          |
+| 8. Landlords and units                  |    19 |                14 | Landlord contacts, property documents, and photos verified; approved evidence categories and unit activation remain                 |
 | 9. Rental spaces and availability       |    17 |                10 | Type/hold restrictions, accessible help, capacity, and historical defaults verified; dated reservations remain                      |
-| 10. Tenant invitations and occupants    |    19 |                 5 | Phone candidates, notice preferences, and optional compatibility fields verified; invitations and verified onboarding remain        |
+| 10. Tenant invitations and occupants    |    19 |                12 | Scoped invitations and identity capture verified; full occupancy and tenant onboarding acceptance remain                            |
 | 11. Contracts and annual reviews        |    15 |                 0 | Basic API exists; real create interface, terms, amendments, reviews remain                                                          |
 | 12. Rent obligations and calculations   |    16 |                 0 | Basic proration exists; approved round/date rules and durable obligations remain                                                    |
 | 13. External payments and receipts      |    17 |                 0 | Basic API exists; ledger, allocations, receipts, corrections remain                                                                 |
 | 14. Late-payment requests               |    13 |                 0 | Complete eligibility and decision workflow remains                                                                                  |
-| 15. Cases and tenant requests           |    18 |                 4 | Private drafts, shared response states, history, and transition conflicts verified; specialized workflows and evidence remain       |
-| 16. Maintenance and cost responsibility |    12 |                 6 | Responsibility classes and tenant responses verified; complete evidence, bookkeeping, and financial posting remain                  |
+| 15. Cases and tenant requests           |    18 |                 5 | Operational complaint evidence and histories verified; specialized financial cases and full provider delivery remain                |
+| 16. Maintenance and cost responsibility |    12 |                 8 | Maintenance evidence and cost proposals verified; financial posting, expenses, and duplicate-recovery controls remain               |
 | 17. Room changes and transfers          |    18 |                 0 | Atomic dated transfer and negotiation workflow remains                                                                              |
 | 18. Deposits, move-out, disputes        |    29 |                 0 | Complete liabilities, notice, deduction, refund, and dispute workflow remains                                                       |
 | 19. Expenses, currency, reports         |    18 |                 0 | Complete expense interface and approved report calculations remain                                                                  |
 | 20. Dashboards                          |    19 |                 0 | Role views exist; complete operational metrics and drill-downs remain                                                               |
-| 21. Notifications and providers         |    18 |                 1 | In-app unread state and history verified; external delivery, adapters, callbacks, templates, and retries remain                     |
+| 21. Notifications and providers         |    18 |                 5 | Account email intent and deterministic provider adapters exist; complete preference-based delivery and operational recovery remain  |
 | 22. PDF reports                         |    16 |                 6 | Private case jobs, hashes, retries, status, and actual PDF content verified; full relationship reports remain                       |
 | 23. Shared interface and accessibility  |    28 |                10 | shadcn/ui foundation verified; complete business screens remain                                                                     |
 | 24. API standards and ownership         |    19 |                10 | Versioning, stable errors, role status, CSRF, origin/proxy policy, and redirect boundaries verified; full resource coverage remains |
@@ -159,18 +171,18 @@ It does not mean that no code exists.
 | 28. Production infrastructure           |    21 |                 0 | Infrastructure files exist; actual deployment/recovery acceptance remains                                                           |
 | 29. Entity inventory                    |    17 |                 0 | Complete entity coverage and migrations remain                                                                                      |
 | 30. Required screens                    |    46 |                 0 | Several screens exist; full per-screen acceptance remains                                                                           |
-| 31. API resources                       |    20 |                 0 | Selected resources exist; complete operations remain                                                                                |
-| 32. Background jobs                     |    11 |                 0 | Complete durable jobs remain                                                                                                        |
+| 31. API resources                       |    20 |                 3 | Authentication, invitations, and document resources verified; remaining domain resources stay incomplete                            |
+| 32. Background jobs                     |    11 |                 2 | Security-token expiry and file scans verified; Redis scheduler and full notification/financial jobs remain                          |
 | 33. Notification events                 |    12 |                 0 | Complete delivery event coverage remains                                                                                            |
-| 34. Configuration                       |    12 |                 0 | Environment samples exist; full provider/security configuration remains                                                             |
+| 34. Configuration                       |    12 |                 1 | Private storage configuration verified; approved production provider, upload, and retention settings remain                         |
 | 35. Calculation and ledger examples     |     9 |                 0 | Complete approved financial examples remain                                                                                         |
-| 36. Acceptance tests                    |    57 |                 0 | Selected tests exist; full acceptance coverage remains                                                                              |
+| 36. Acceptance tests                    |    57 |                 2 | Invitation boundaries and file safety acceptance verified; full release acceptance remains incomplete                               |
 | 37. Full browser journey                |    17 |                 0 | Preview tests pass; real end-to-end release journey remains                                                                         |
 | 38. Owner decisions                     |    26 |                 0 | DEC-01 through DEC-26 await explicit approval                                                                                       |
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                               |
 | 40. Source coverage map                 |     0 |                 0 | Reference table; no tasks                                                                                                           |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                           |
-| Total                                   |   764 |               102 | 662 tasks without full completion evidence                                                                                          |
+| Total                                   |   764 |               162 | 602 tasks without full completion evidence                                                                                          |
 
 ## Implemented in This Continuation
 
@@ -197,9 +209,9 @@ Existing money calculations remain provisional until DEC-01 approval.
 ## Next Execution Blocks
 
 1. Retain MySQL concurrency and preview browser suites as mandatory CI gates.
-2. Implement private file quarantine, authorized downloads, and identity-document screens.
-3. Implement manager registration, email verification, WhatsApp verification, and review screens.
-4. Implement tenant invitations and verified onboarding.
+2. Complete approved file retention, account export, document policy, and remaining private-file acceptance.
+3. Verify real SMTP and WhatsApp delivery; complete governed moderation and administrator MFA.
+4. Complete tenant activation and changed-contact reverification after approved policies.
 5. Complete unit activation after approval of DEC-14, DEC-15, and DEC-18.
 6. Complete contracts and ledgers after approval of financial and acknowledgement decisions.
 7. Complete cases, transfers, move-out, deposits, expenses, notifications, and reports.

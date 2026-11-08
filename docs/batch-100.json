@@ -7,47 +7,67 @@
   "items": [
     {
       "id": "BASE-003",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Keep Leasing Managers responsible for legal sufficiency and authorization.",
       "code": [
+        "api/src/account-policy.ts",
         "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "api/prisma/schema.prisma",
+        "web/src/pages/Account.tsx"
       ],
       "tests": [
-        "api/integration/accounts.test.ts",
         "api/test/account-policy.test.ts",
+        "api/integration/accounts.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "BASE-005",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Keep public manager registration and invitation-only tenant accounts.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "BASE-016",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Use private S3-compatible storage and development MinIO.",
       "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/file-storage.ts",
+        "api/src/file-policy.ts",
+        "docker-compose.yml",
+        "api/src/app.ts"
       ],
       "tests": [
-        "api/integration/documents.test.ts",
+        "api/test/file-storage.test.ts",
         "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "web/e2e/documents.files.spec.ts",
+        "api/test/file-startup.test.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "BASE-018",
@@ -67,39 +87,39 @@
     },
     {
       "id": "DATA-007",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes.",
       "code": [
-        "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "api/prisma/schema.prisma",
+        "api/prisma/migrations/20261109000000_private_documents/migration.sql",
+        "api/prisma/migrations/20261109010000_account_lifecycle/migration.sql"
       ],
-      "tests": [
-        "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
-      ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": ["api/integration/accounts.test.ts", "api/integration/documents.test.ts"],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "DATA-016",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Persist file versions, private object keys, scan status, and expiry.",
       "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/prisma/schema.prisma",
+        "api/prisma/migrations/20261109000000_private_documents/migration.sql",
+        "api/prisma/migrations/20261109010000_account_lifecycle/migration.sql"
       ],
-      "tests": [
-        "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
-      ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": ["api/integration/accounts.test.ts", "api/integration/documents.test.ts"],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "AUTH-010",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement password reset with expiring single-use tokens.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -109,13 +129,18 @@
       "tests": [
         "api/integration/accounts.test.ts",
         "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "web/e2e/accounts.live.spec.ts",
+        "web/src/account.test.tsx"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "AUTH-011",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Revoke affected sessions after password reset.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -125,9 +150,14 @@
       "tests": [
         "api/integration/accounts.test.ts",
         "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "web/e2e/accounts.live.spec.ts",
+        "web/src/account.test.tsx"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "AUTH-013",
@@ -163,39 +193,51 @@
     },
     {
       "id": "AUTH-017",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Return safe actionable errors and request identifiers.",
       "code": [
-        "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "api/src/errors.ts",
+        "api/src/app.ts",
+        "api/src/db.ts",
+        "api/src/file-worker.ts",
+        "api/src/email-worker.ts"
       ],
       "tests": [
+        "api/test/platform-contract.test.ts",
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "api/integration/documents.test.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "AUTH-018",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Exclude passwords, tokens, OTP values, and sensitive identifiers from logs.",
       "code": [
-        "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "api/src/errors.ts",
+        "api/src/app.ts",
+        "api/src/db.ts",
+        "api/src/file-worker.ts",
+        "api/src/email-worker.ts"
       ],
       "tests": [
+        "api/test/platform-contract.test.ts",
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "api/integration/documents.test.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-001",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement public manager registration without tenant self-registration.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -207,11 +249,15 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-002",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture full legal name, date of birth, nationality, email, and mobile number.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -223,43 +269,59 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-003",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture Emirates ID number, expiry date, and private document.",
       "code": [
         "api/src/routes/accounts.ts",
+        "api/src/routes/documents.ts",
         "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "web/src/components/documents.tsx"
       ],
       "tests": [
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "api/integration/documents.test.ts",
+        "web/e2e/accounts.live.spec.ts",
+        "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-004",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture optional UAE licence type, number, authority, issue date, expiry, and document.",
       "code": [
         "api/src/routes/accounts.ts",
+        "api/src/routes/documents.ts",
         "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "web/src/components/documents.tsx"
       ],
       "tests": [
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "api/integration/documents.test.ts",
+        "web/e2e/accounts.live.spec.ts",
+        "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-005",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Verify email through an expiring single-use link.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -271,11 +333,15 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-006",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Provide controlled email resend.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -287,11 +353,15 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-007",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Require email verification before Twilio WhatsApp OTP.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -303,7 +373,11 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-008",
@@ -339,67 +413,89 @@
     },
     {
       "id": "MGR-010",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture declarations for genuine, current identity, property, and authorization information.",
       "code": [
+        "api/src/account-policy.ts",
         "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "api/prisma/schema.prisma",
+        "web/src/pages/Account.tsx"
       ],
       "tests": [
-        "api/integration/accounts.test.ts",
         "api/test/account-policy.test.ts",
+        "api/integration/accounts.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-011",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Store declaration version, accepted text hash, timestamp, and IP/session.",
       "code": [
+        "api/src/account-policy.ts",
         "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "api/prisma/schema.prisma",
+        "web/src/pages/Account.tsx"
       ],
       "tests": [
-        "api/integration/accounts.test.ts",
         "api/test/account-policy.test.ts",
+        "api/integration/accounts.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-012",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Show profile and document completeness.",
       "code": [
         "api/src/routes/accounts.ts",
+        "api/src/routes/documents.ts",
         "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "web/src/components/documents.tsx"
       ],
       "tests": [
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "api/integration/documents.test.ts",
+        "web/e2e/accounts.live.spec.ts",
+        "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-013",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Submit completed accounts to administrator moderation.",
       "code": [
         "api/src/routes/accounts.ts",
+        "api/src/routes/documents.ts",
         "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "web/src/components/documents.tsx"
       ],
       "tests": [
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
-        "web/e2e/accounts.live.spec.ts"
+        "api/integration/documents.test.ts",
+        "web/e2e/accounts.live.spec.ts",
+        "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-014",
@@ -419,7 +515,7 @@
     },
     {
       "id": "MGR-015",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Prevent duplicate registration submissions.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -431,7 +527,11 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MGR-016",
@@ -499,7 +599,7 @@
     },
     {
       "id": "FILE-003",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Prevent executable uploads.",
       "code": [
         "api/src/routes/documents.ts",
@@ -511,11 +611,15 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-004",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Strip dangerous metadata where appropriate.",
       "code": [
         "api/src/routes/documents.ts",
@@ -527,11 +631,15 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-005",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Quarantine uploads until a virus scan accepts them.",
       "code": [
         "api/src/routes/documents.ts",
@@ -543,11 +651,15 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-006",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Expose scan status and rejected-file errors.",
       "code": [
         "api/src/routes/documents.ts",
@@ -559,59 +671,68 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-007",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Store documents in private S3-compatible buckets.",
-      "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
-      ],
+      "code": ["api/src/file-storage.ts", "api/src/file-policy.ts", "docker-compose.yml"],
       "tests": [
-        "api/integration/documents.test.ts",
+        "api/test/file-storage.test.ts",
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-008",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Block public object access.",
-      "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
-      ],
+      "code": ["api/src/file-storage.ts", "api/src/file-policy.ts", "docker-compose.yml"],
       "tests": [
-        "api/integration/documents.test.ts",
+        "api/test/file-storage.test.ts",
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-009",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Issue short-lived signed downloads after authorization.",
       "code": [
+        "api/src/file-grant.ts",
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
         "web/src/components/documents.tsx"
       ],
       "tests": [
+        "api/test/file-policy.test.ts",
         "api/integration/documents.test.ts",
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-010",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Audit document access and exports.",
       "code": [
         "api/src/routes/documents.ts",
@@ -623,11 +744,15 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-011",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Version documents instead of overwrite.",
       "code": [
         "api/src/routes/documents.ts",
@@ -639,71 +764,91 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-012",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Support unit, common-area, and space photos with authorized access.",
       "code": [
+        "api/src/routes/inventory.ts",
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
+        "web/src/pages/UnitDetail.tsx",
         "web/src/components/documents.tsx"
       ],
       "tests": [
+        "api/integration/unit-lifecycle.test.ts",
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-013",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Preserve attachment authorship and case references.",
       "code": [
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/case-data.ts",
+        "api/src/routes/maintenance.ts",
+        "web/src/pages/RequestDetail.tsx"
       ],
       "tests": [
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "api/integration/maintenance.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/maintenance.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-014",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Mask sensitive identity numbers in routine screens and reports.",
       "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/account-policy.ts",
+        "api/src/routes/accounts.ts",
+        "api/src/routes/admin.ts"
       ],
-      "tests": [
-        "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
-      ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": ["api/integration/accounts.test.ts", "api/integration/cases.test.ts"],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-015",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Avoid document contents in email or WhatsApp.",
       "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/account-email.ts",
+        "api/src/routes/invitations.ts",
+        "api/src/app.ts",
+        "api/src/db.ts"
       ],
       "tests": [
-        "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "api/test/account-policy.test.ts",
+        "api/integration/accounts.test.ts",
+        "api/test/platform-contract.test.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "FILE-016",
@@ -755,7 +900,7 @@
     },
     {
       "id": "FILE-019",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Verify unauthorized, expired-link, unscanned, oversized, and unsafe file paths.",
       "code": [
         "api/src/routes/documents.ts",
@@ -767,55 +912,95 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-001",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Allow managers to invite tenants by email.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-002",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Scope each invitation to its manager and intended tenant.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-003",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement invitation inspect, resend, revoke, expiry, and acceptance.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-005",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Verify invitation email before tenant phone confirmation.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-007",
@@ -831,39 +1016,62 @@
     },
     {
       "id": "TEN-008",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture full name, date of birth, nationality, Emirates ID number, expiry, and document.",
       "code": [
-        "api/src/routes/invitations.ts",
-        "web/src/pages/Invitations.tsx",
-        "web/src/pages/Account.tsx"
+        "api/src/routes/accounts.ts",
+        "api/src/routes/documents.ts",
+        "web/src/pages/Account.tsx",
+        "web/src/components/documents.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/accounts.live.spec.ts",
+        "web/e2e/documents.files.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-009",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Link the tenant only to the inviting manager under the initial policy.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-011",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Prevent complete removal of critical security notices.",
       "code": [
-        "api/src/routes/invitations.ts",
-        "web/src/pages/Invitations.tsx",
-        "web/src/pages/Account.tsx"
+        "api/src/account-email.ts",
+        "api/src/routes/accounts.ts",
+        "api/src/routes/profile.ts"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": ["api/integration/accounts.test.ts", "api/integration/cases.test.ts"],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEN-019",
@@ -879,51 +1087,65 @@
     },
     {
       "id": "UNIT-003",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture email, phone, WhatsApp, preferred contact method, address, notes, and documents.",
       "code": [
+        "api/src/routes/inventory.ts",
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "web/src/pages/LandlordDetail.tsx"
       ],
       "tests": [
+        "api/integration/landlords.test.ts",
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "web/e2e/inventory.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "UNIT-010",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Support unit and common-area images.",
       "code": [
+        "api/src/routes/inventory.ts",
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
+        "web/src/pages/UnitDetail.tsx",
         "web/src/components/documents.tsx"
       ],
       "tests": [
+        "api/integration/unit-lifecycle.test.ts",
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "UNIT-011",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Support property documents and manager declarations.",
       "code": [
+        "api/src/routes/inventory.ts",
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
+        "web/src/pages/UnitDetail.tsx",
         "web/src/components/documents.tsx"
       ],
       "tests": [
+        "api/integration/unit-lifecycle.test.ts",
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "UNIT-012",
@@ -1055,51 +1277,69 @@
     },
     {
       "id": "CASE-016",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Record complaint evidence and manager communication/actions.",
       "code": [
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/case-data.ts",
+        "api/src/routes/maintenance.ts",
+        "web/src/pages/RequestDetail.tsx"
       ],
       "tests": [
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "api/integration/maintenance.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/maintenance.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MAINT-001",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture category, urgency, description, photos/files, response, and completion evidence.",
       "code": [
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/case-data.ts",
+        "api/src/routes/maintenance.ts",
+        "web/src/pages/RequestDetail.tsx"
       ],
       "tests": [
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "api/integration/maintenance.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/maintenance.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MAINT-007",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Capture proposed tenant cost, explanation, and evidence.",
       "code": [
         "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/case-data.ts",
+        "api/src/routes/maintenance.ts",
+        "web/src/pages/RequestDetail.tsx"
       ],
       "tests": [
         "api/integration/documents.test.ts",
-        "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "api/integration/maintenance.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/maintenance.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MAINT-011",
@@ -1167,19 +1407,27 @@
     },
     {
       "id": "MSG-011",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Keep valid business transactions independent from provider success.",
-      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "code": ["api/src/routes/accounts.ts", "api/src/account-email.ts", "api/src/email-worker.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MSG-014",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Use real Twilio credentials outside automated test adapters.",
-      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "code": ["api/src/routes/accounts.ts", "api/src/account-email.ts", "api/src/email-worker.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MSG-015",
@@ -1191,19 +1439,36 @@
     },
     {
       "id": "MSG-016",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Keep OTP plaintext and sensitive documents out of logs and messages.",
-      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
-      "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "code": [
+        "api/src/account-email.ts",
+        "api/src/routes/invitations.ts",
+        "api/src/app.ts",
+        "api/src/db.ts"
+      ],
+      "tests": [
+        "api/test/account-policy.test.ts",
+        "api/integration/accounts.test.ts",
+        "api/test/platform-contract.test.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MSG-017",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Provide deterministic email and Twilio test adapters.",
-      "code": ["api/src/account-email.ts", "api/src/email-worker.ts", "api/src/routes/accounts.ts"],
+      "code": ["api/src/routes/accounts.ts", "api/src/account-email.ts", "api/src/email-worker.ts"],
       "tests": ["api/integration/accounts.test.ts", "api/test/account-policy.test.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "MSG-018",
@@ -1247,7 +1512,7 @@
     },
     {
       "id": "RESOURCE-001",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement Authentication: Register manager; login; logout; refresh; password reset; current session; session revocation.",
       "code": [
         "api/src/routes/accounts.ts",
@@ -1259,7 +1524,11 @@
         "api/test/account-policy.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "RESOURCE-002",
@@ -1279,19 +1548,28 @@
     },
     {
       "id": "RESOURCE-003",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement Invitations: Create, inspect, accept, resend, expire, and revoke tenant invitation.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "RESOURCE-017",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement Documents: Authorized upload, scan status, version, metadata, expiring private download, and access audit.",
       "code": [
         "api/src/routes/documents.ts",
@@ -1303,7 +1581,11 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "RESOURCE-018",
@@ -1323,19 +1605,24 @@
     },
     {
       "id": "WORKER-007",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement Invitations and security tokens: Enforce expiry, resend limits, revocation, and single-use verification.",
       "code": [
+        "api/src/routes/invitations.ts",
         "api/src/routes/accounts.ts",
-        "web/src/pages/Account.tsx",
-        "api/src/account-policy.ts"
+        "web/src/pages/Invitations.tsx",
+        "web/src/pages/Account.tsx"
       ],
       "tests": [
         "api/integration/accounts.test.ts",
-        "api/test/account-policy.test.ts",
+        "api/integration/cases.test.ts",
         "web/e2e/accounts.live.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "WORKER-008",
@@ -1347,7 +1634,7 @@
     },
     {
       "id": "WORKER-010",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Implement File scan: Quarantine uploads until accepted; reject unsafe content.",
       "code": [
         "api/src/routes/documents.ts",
@@ -1359,7 +1646,11 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "CONFIG-006",
@@ -1387,19 +1678,25 @@
     },
     {
       "id": "CONFIG-008",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Document and validate Storage: S3 endpoint/region, bucket, private credentials, signed-link lifetime.",
       "code": [
-        "api/src/routes/documents.ts",
-        "api/src/file-worker.ts",
-        "web/src/components/documents.tsx"
+        "api/src/file-storage.ts",
+        "api/src/file-policy.ts",
+        "docker-compose.yml",
+        "api/src/app.ts"
       ],
       "tests": [
-        "api/integration/documents.test.ts",
+        "api/test/file-storage.test.ts",
         "api/acceptance/files.test.ts",
-        "web/e2e/documents.files.spec.ts"
+        "web/e2e/documents.files.spec.ts",
+        "api/test/file-startup.test.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "CONFIG-009",
@@ -1419,19 +1716,28 @@
     },
     {
       "id": "TEST-AUTH-03",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Verify Tenant public self-registration fails; scoped invitation acceptance succeeds.",
       "code": [
         "api/src/routes/invitations.ts",
+        "api/src/routes/accounts.ts",
         "web/src/pages/Invitations.tsx",
         "web/src/pages/Account.tsx"
       ],
-      "tests": ["api/integration/accounts.test.ts", "web/e2e/accounts.live.spec.ts"],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "tests": [
+        "api/integration/accounts.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/accounts.live.spec.ts"
+      ],
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     },
     {
       "id": "TEST-DOC-01",
-      "status": "PENDING_VERIFICATION",
+      "status": "VERIFIED",
       "requirement": "Verify Unsafe upload, oversized file, unauthorized download, expired URL, and unscanned file fail safely.",
       "code": [
         "api/src/routes/documents.ts",
@@ -1443,7 +1749,31 @@
         "api/acceptance/files.test.ts",
         "web/e2e/documents.files.spec.ts"
       ],
-      "note": "Final database, browser, and applicable real-service acceptance remains pending."
+      "note": "Verified for this requirement; production approval and separate staging delivery remain outside this closure.",
+      "commit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+      "verified": "2026-11-09",
+      "environment": "GitHub Actions: Node 22, MySQL 8.4, MinIO, ClamAV, Chromium desktop/mobile",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227"
     }
-  ]
+  ],
+  "counts": {
+    "VERIFIED": 60,
+    "PARTIAL": 23,
+    "BLOCKED": 17
+  },
+  "verification": {
+    "codeCommit": "8e7ee86140dae5f522903197c625bfe2e3787cc9",
+    "applicationCI": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841227",
+    "previewCI": "https://github.com/yehiashouman/leaseflow/actions/runs/42525841269",
+    "apiUnitTests": 123,
+    "webUnitTests": 94,
+    "operationsTests": 11,
+    "mysqlTests": 132,
+    "realFileServiceTests": 2,
+    "automatedTotal": 362,
+    "browserTotal": 36,
+    "productionApproved": false,
+    "realSMTPDelivery": "UNVERIFIED",
+    "realTwilioDelivery": "UNVERIFIED"
+  }
 }
