@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { Prisma } from '@prisma/client';
 
 const db = vi.hoisted(() => ({
   user: { findUnique: vi.fn(), count: vi.fn() },
@@ -489,5 +490,27 @@ describe('inventory writes and role dashboards', () => {
       data: { status: 'PARTIAL' },
     });
     expect(db.auditEvent.create).toHaveBeenCalledOnce();
+  });
+  it('returns a conflict after a rolled-back contract deadlock without an automatic financial retry', async () => {
+    db.tenantProfile.findFirst.mockResolvedValue({ id: 'tenant-1' });
+    db.$transaction.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Deadlock', {
+        code: 'P2034',
+        clientVersion: '7.10.0',
+      }),
+    );
+    const response = await send('POST', '/api/v1/contracts', {
+      tenantId: 'tenant-1',
+      rentalSpaceId: 'space-1',
+      startDate: '2026-11-01',
+      monthlyRent: 3000,
+      depositAmount: 3000,
+    });
+    expect(response.statusCode).toBe(409);
+    expect(response.json().message).toContain('Concurrent contract change');
+    expect(db.$transaction).toHaveBeenCalledOnce();
+    expect(db.contract.create).not.toHaveBeenCalled();
+    expect(db.payment.create).not.toHaveBeenCalled();
+    expect(db.auditEvent.create).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
@@ -57,58 +58,66 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
       where: { id: body.tenantId, managerId: manager.id },
     });
     if (!tenant) return reply.notFound('Tenant or enabled rental space not found');
-    const contract = await prisma.$transaction(async (tx) => {
-      if (!(await lockOwnedSpace(tx, body.rentalSpaceId, manager.id)))
-        throw app.httpErrors.notFound('Tenant or enabled rental space not found');
-      const space = await tx.rentalSpace.findFirst({
-        where: {
-          id: body.rentalSpaceId,
-          enabled: true,
-          status: { notIn: ['INACTIVE', 'MAINTENANCE'] },
-          unit: { managerId: manager.id, active: true },
-          type: { in: ['ROOM', 'MASTER_ROOM'] },
-        },
+    const contract = await prisma
+      .$transaction(async (tx) => {
+        if (!(await lockOwnedSpace(tx, body.rentalSpaceId, manager.id)))
+          throw app.httpErrors.notFound('Tenant or enabled rental space not found');
+        const space = await tx.rentalSpace.findFirst({
+          where: {
+            id: body.rentalSpaceId,
+            enabled: true,
+            status: { notIn: ['INACTIVE', 'MAINTENANCE'] },
+            unit: { managerId: manager.id, active: true },
+            type: { in: ['ROOM', 'MASTER_ROOM'] },
+          },
+        });
+        if (!space) throw app.httpErrors.notFound('Tenant or enabled rental space not found');
+        const contracts = await tx.contract.findMany({
+          where: { rentalSpaceId: space.id, status: { in: [...openContractStatuses] } },
+          select: { secondaryOccupant: true },
+        });
+        const occupants = occupantCount(contracts) + (body.secondaryOccupant ? 2 : 1);
+        if (occupants > space.capacity)
+          throw app.httpErrors.conflict('Rental space capacity reached');
+        const created = await tx.contract.create({
+          data: { ...body, status: 'ACTIVE' } as never,
+          include: { rentalSpace: true },
+        });
+        const firstAmount = proratedRent(body.monthlyRent, body.startDate);
+        await tx.payment.create({
+          data: {
+            contractId: created.id,
+            periodStart: body.startDate,
+            dueDate: body.startDate,
+            amountDue: firstAmount,
+            currency: body.currency,
+            status: 'DUE',
+          },
+        });
+        const updatedSpace = await tx.rentalSpace.update({
+          where: { id: space.id },
+          data: { status: occupiedStatus(occupants, space.capacity) },
+        });
+        await tx.auditEvent.create({
+          data: {
+            actorUserId: request.user.sub,
+            ip: request.ip,
+            userAgent: request.headers['user-agent'],
+            action: 'CREATE',
+            entityType: 'Contract',
+            entityId: created.id,
+            newValue: JSON.parse(JSON.stringify(created)),
+          },
+        });
+        return { ...created, rentalSpace: updatedSpace };
+      })
+      .catch((cause: unknown) => {
+        if (cause instanceof Prisma.PrismaClientKnownRequestError && cause.code === 'P2034')
+          throw app.httpErrors.conflict(
+            'Concurrent contract change. Reload availability and retry',
+          );
+        throw cause;
       });
-      if (!space) throw app.httpErrors.notFound('Tenant or enabled rental space not found');
-      const contracts = await tx.contract.findMany({
-        where: { rentalSpaceId: space.id, status: { in: [...openContractStatuses] } },
-        select: { secondaryOccupant: true },
-      });
-      const occupants = occupantCount(contracts) + (body.secondaryOccupant ? 2 : 1);
-      if (occupants > space.capacity)
-        throw app.httpErrors.conflict('Rental space capacity reached');
-      const created = await tx.contract.create({
-        data: { ...body, status: 'ACTIVE' } as never,
-        include: { rentalSpace: true },
-      });
-      const firstAmount = proratedRent(body.monthlyRent, body.startDate);
-      await tx.payment.create({
-        data: {
-          contractId: created.id,
-          periodStart: body.startDate,
-          dueDate: body.startDate,
-          amountDue: firstAmount,
-          currency: body.currency,
-          status: 'DUE',
-        },
-      });
-      const updatedSpace = await tx.rentalSpace.update({
-        where: { id: space.id },
-        data: { status: occupiedStatus(occupants, space.capacity) },
-      });
-      await tx.auditEvent.create({
-        data: {
-          actorUserId: request.user.sub,
-          ip: request.ip,
-          userAgent: request.headers['user-agent'],
-          action: 'CREATE',
-          entityType: 'Contract',
-          entityId: created.id,
-          newValue: JSON.parse(JSON.stringify(created)),
-        },
-      });
-      return { ...created, rentalSpace: updatedSpace };
-    });
     return reply.code(201).send(contract);
   });
 };

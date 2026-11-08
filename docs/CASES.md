@@ -70,12 +70,13 @@ Local API and web suites, lint, production builds, and preview builds pass.
 New tests cover role rules, form failures, history, retries, stale decisions, and synthetic persistence.
 MySQL cases cover privacy, concurrent messages/decisions, legacy relationships, and transactional history.
 Real-browser cases exercise tenant/manager messages, dispute, resolution, acceptance, closure, and narrow layouts.
-Hosted verification passes 62 API tests, 55 web tests, 39 MySQL cases, and fourteen browser cases.
+The case acceptance baseline passes 62 API tests, 55 web tests, 39 MySQL cases, and fourteen browser cases.
 Evidence: [API, MySQL, and real browsers](https://github.com/yehiashouman/leaseflow/actions/runs/42439739883).
 Preview: [synthetic browsers and Pages deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42439739898).
 We verified both desktop and mobile case-history screenshots without clipping.
 Live tests model separate clients through test-only proxy headers; production rate limits remain enabled.
 This does not approve a production trusted-proxy policy.
+The subsequent contract regression adds one API test and maps rolled-back Prisma P2034 conflicts to 409 without financial retries.
 
 ## Remaining Scope
 

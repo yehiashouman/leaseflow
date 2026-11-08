@@ -15,7 +15,7 @@ Target: the complete initial release in requirements.md.
 | Strict checklist completion               | 4.45%                                                                                                  |
 | UI foundation tasks                       | 10 of 10 verified                                                                                      |
 | Open owner decisions                      | 26                                                                                                     |
-| Local API unit/route tests                | 62 pass; database mocks where required                                                                 |
+| Local API unit/route tests                | 63 pass; database mocks where required                                                                 |
 | Local web/component/preview-adapter tests | 55 pass                                                                                                |
 | GitHub browser suites                     | Fourteen cases pass: four interface fixtures, four synthetic previews, and six real API/MySQL journeys |
 | New browser coverage                      | Private case messages, dispute, resolution, tenant acceptance, and closure pass on desktop/mobile      |

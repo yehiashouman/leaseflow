@@ -38,7 +38,7 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 62 tests pass; database-dependent unit tests use mocks.
+- API suite: 63 tests pass; database-dependent unit tests use mocks.
 - Web suite: 55 tests pass, including forms, roles, session cleanup, cases, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
@@ -89,5 +89,6 @@ Both roles use real message and status APIs; tenant acceptance never follows aut
 History preserves author snapshots, sequence, timestamps, and previous resolution events.
 Replay-safe keys and locked, version-checked decisions prevent duplicate or concurrent effects.
 Related contract and dashboard responses exclude internal case keys and tenant account secrets.
-Current totals: 117 API/web tests, 39 MySQL cases, and fourteen browser cases pass.
+Current totals: 118 API/web tests, 39 MySQL cases, and fourteen browser cases pass.
 Late-payment, transfer, move-out, attachments, cost responsibility, notifications, and full support access remain incomplete.
+The final concurrency regression maps rolled-back contract deadlocks to 409 without automatic financial retries.
