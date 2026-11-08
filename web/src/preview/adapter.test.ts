@@ -8,6 +8,37 @@ const client = axios.create({
 });
 beforeEach(resetPreview);
 describe('isolated preview data', () => {
+  it('serves contract detail and paged records while denying ordinary administrator access', async () => {
+    const detail = (await client.get('/contracts/contract-1')).data;
+    expect(detail).toMatchObject({ id: 'contract-1', endDate: null, noticeDays: 30 });
+    expect(detail).not.toHaveProperty('payments');
+    const records = (
+      await client.get('/contracts/contract-1/records', {
+        params: { section: 'payments', page: 1 },
+      })
+    ).data;
+    expect(records).toMatchObject({
+      total: 1,
+      pageSize: 20,
+      items: [{ currency: 'AED', amountPaid: '1000' }],
+    });
+    expect(
+      (
+        await client.get('/contracts/contract-1/records', {
+          params: { section: 'payments', page: 2 },
+        })
+      ).data.items,
+    ).toEqual([]);
+    await expect(client.get('/contracts/missing')).rejects.toMatchObject({
+      response: { status: 404 },
+    });
+    await expect(
+      client.get('/contracts/contract-1/records', { params: { section: 'invalid' } }),
+    ).rejects.toMatchObject({ response: { status: 400 } });
+    await expect(
+      client.get('/contracts/contract-1', { headers: { Authorization: 'Bearer preview:ADMIN' } }),
+    ).rejects.toMatchObject({ response: { status: 403 } });
+  });
   it('archives and restores vacant units without activation or room deletion', async () => {
     const created = (
       await client.post('/inventory/units', {

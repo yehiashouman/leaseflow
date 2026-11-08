@@ -80,19 +80,25 @@ export function freshPreview(): PreviewStore {
         id: 'contract-1',
         status: 'ACTIVE',
         startDate: '2026-11-01T00:00:00Z',
+        endDate: null,
         tenant: { fullName: 'Demo Tenant' },
         currency: 'AED',
         monthlyRent: '3500',
         depositAmount: '3000',
         dueDay: 1,
         noticeDays: 30,
-        rentalSpace: { ...unit.spaces[0], unit: { name: unit.name } },
+        rentalSpace: { ...unit.spaces[0], unit: { id: unit.id, name: unit.name, area: unit.area } },
         payments: [
           {
             id: 'payment-1',
+            periodStart: '2026-11-01T00:00:00Z',
             dueDate: '2026-11-01T00:00:00Z',
             amountDue: '3500',
             amountPaid: '1000',
+            currency: 'AED',
+            paidAt: null,
+            method: null,
+            reference: null,
             status: 'PARTIALLY_PAID',
           },
         ],
@@ -526,6 +532,68 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
   }
   if (path === '/contracts' && method === 'get')
     return role !== 'ADMIN' ? respond(store.contracts) : fail('Insufficient permissions', 403);
+  if (/^\/contracts\/[^/]+(?:\/records)?$/.test(path) && method === 'get') {
+    if (role === 'ADMIN') return fail('Insufficient permissions', 403);
+    const contract = store.contracts.find((item) => item.id === path.split('/')[2]);
+    if (!contract) return fail('Contract not found', 404);
+    if (!path.endsWith('/records')) {
+      return respond(
+        Object.fromEntries(
+          [
+            'id',
+            'status',
+            'startDate',
+            'monthlyRent',
+            'currency',
+            'dueDay',
+            'noticeDays',
+            'depositAmount',
+            'tenant',
+            'rentalSpace',
+          ]
+            .map((key) => [key, contract[key]])
+            .concat([['endDate', contract.endDate ?? null]]),
+        ),
+      );
+    }
+    const section = config.params?.section;
+    const page = Number(config.params?.page ?? 1);
+    if (
+      !['payments', 'deposits', 'requests'].includes(section) ||
+      !Number.isInteger(page) ||
+      page < 1 ||
+      page > 10000
+    )
+      return fail('Invalid record query', 400);
+    const rows =
+      section === 'payments'
+        ? (contract.payments ?? []).map((item: RecordData) => ({
+            ...item,
+            currency: item.currency ?? contract.currency,
+            periodStart: item.periodStart ?? item.dueDate,
+          }))
+        : section === 'deposits'
+          ? []
+          : store.requests
+              .filter(
+                (item) =>
+                  (item.contractId ?? 'contract-1') === contract.id &&
+                  (role === 'TENANT' || item.status !== 'DRAFT'),
+              )
+              .map(({ id, title, type, status, createdAt }) => ({
+                id,
+                title,
+                type,
+                status,
+                createdAt,
+              }));
+    return respond({
+      items: rows.slice((page - 1) * 20, page * 20),
+      total: rows.length,
+      page,
+      pageSize: 20,
+    });
+  }
   if (path === '/requests' || path.startsWith('/requests/')) {
     if (role === 'ADMIN') return fail('Insufficient permissions', 403);
     if (path === '/requests/options' && method === 'get') {

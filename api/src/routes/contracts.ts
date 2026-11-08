@@ -3,7 +3,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
-import { caseContractScope, caseContractSelect } from '../case-data.js';
+import { caseContractScope } from '../case-data.js';
 import {
   lockOwnedSpace,
   occupantCount,
@@ -21,22 +21,111 @@ export function proratedRent(monthlyRent: number, startDate: Date) {
 }
 
 export const contractRoutes: FastifyPluginAsync = async (app) => {
+  app.addHook('onSend', async (_request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+  });
+  const participants = allowRoles('LEASING_MANAGER', 'TENANT');
+  const select = {
+    id: true,
+    status: true,
+    startDate: true,
+    endDate: true,
+    monthlyRent: true,
+    currency: true,
+    dueDay: true,
+    noticeDays: true,
+    depositAmount: true,
+    tenant: { select: { id: true, fullName: true } },
+    rentalSpace: {
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        unit: { select: { id: true, name: true, area: true } },
+      },
+    },
+    createdAt: true,
+    updatedAt: true,
+  } satisfies Prisma.ContractSelect;
   app.get('/', { preHandler: allowRoles('LEASING_MANAGER', 'TENANT') }, async (request) => {
-    if (request.user.role === 'TENANT')
-      return prisma.contract.findMany({
-        where: caseContractScope(request.user),
-        include: {
-          rentalSpace: caseContractSelect.rentalSpace,
-          payments: true,
-          requests: { select: { id: true, type: true, title: true, status: true } },
-        },
-      });
     return prisma.contract.findMany({
       where: caseContractScope(request.user),
-      include: {
-        tenant: { select: { id: true, fullName: true } },
-        rentalSpace: { include: { unit: true } },
-      },
+      select,
+      orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
+    });
+  });
+  app.get('/:id', { preHandler: participants }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    const row = await prisma.contract.findFirst({
+      where: { id, ...caseContractScope(request.user) },
+      select,
+    });
+    if (!row) throw app.httpErrors.notFound('Contract not found');
+    return row;
+  });
+  app.get('/:id/records', { preHandler: participants }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    const { section, page } = z
+      .object({
+        section: z.enum(['payments', 'deposits', 'requests']),
+        page: z.coerce.number().int().min(1).max(10000).default(1),
+      })
+      .strict()
+      .parse(request.query);
+    return prisma.$transaction(async (tx) => {
+      const scope = caseContractScope(request.user);
+      if (!(await tx.contract.findFirst({ where: { id, ...scope }, select: { id: true } })))
+        throw app.httpErrors.notFound('Contract not found');
+      const where = { contractId: id, contract: scope };
+      const pagination = { skip: (page - 1) * 20, take: 20 };
+      if (section === 'payments') {
+        const items = await tx.payment.findMany({
+          where,
+          select: {
+            id: true,
+            periodStart: true,
+            dueDate: true,
+            amountDue: true,
+            amountPaid: true,
+            currency: true,
+            status: true,
+            paidAt: true,
+            method: true,
+            reference: true,
+          },
+          orderBy: [{ dueDate: 'desc' }, { id: 'desc' }],
+          ...pagination,
+        });
+        return { items, total: await tx.payment.count({ where }), page, pageSize: 20 };
+      }
+      if (section === 'deposits') {
+        const items = await tx.depositEntry.findMany({
+          where,
+          select: {
+            id: true,
+            type: true,
+            amount: true,
+            description: true,
+            createdAt: true,
+            tenantAcceptedAt: true,
+            tenantDisputedAt: true,
+          },
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+          ...pagination,
+        });
+        return { items, total: await tx.depositEntry.count({ where }), page, pageSize: 20 };
+      }
+      const visible = {
+        ...where,
+        ...(request.user.role === 'LEASING_MANAGER' ? { status: { not: 'DRAFT' as const } } : {}),
+      };
+      const items = await tx.request.findMany({
+        where: visible,
+        select: { id: true, type: true, title: true, status: true, createdAt: true },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        ...pagination,
+      });
+      return { items, total: await tx.request.count({ where: visible }), page, pageSize: 20 };
     });
   });
   app.post('/', { preHandler: allowRoles('LEASING_MANAGER') }, async (request, reply) => {

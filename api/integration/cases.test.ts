@@ -106,6 +106,8 @@ describe('MySQL private operational case workflow', () => {
       });
       await prisma.requestEvent.deleteMany({ where: { request: { contractId: { in: ids } } } });
       await prisma.request.deleteMany({ where: { contractId: { in: ids } } });
+      await prisma.payment.deleteMany({ where: { contractId: { in: ids } } });
+      await prisma.depositEntry.deleteMany({ where: { contractId: { in: ids } } });
       await prisma.contract.deleteMany({ where: { id: { in: ids } } });
       await prisma.rentalSpace.deleteMany({ where: { unit: { managerId: { in: managers } } } });
       await prisma.unit.deleteMany({ where: { managerId: { in: managers } } });
@@ -225,6 +227,164 @@ describe('MySQL private operational case workflow', () => {
       expect((await send('GET', '/' + requestId, undefined, manager)).statusCode).toBe(404);
     } finally {
       await prisma.request.update({ where: { id: requestId }, data: { status: 'SUBMITTED' } });
+    }
+  });
+  it('serves scoped stored contract terms without private unit costs or occupant JSON', async () => {
+    await prisma.contract.update({
+      where: { id: contractId },
+      data: {
+        secondaryOccupant: { fullName: 'Private companion', identityKey: 'private-identity-key' },
+      },
+    });
+    for (const actor of [tenant, manager]) {
+      const response = await send('GET', '/api/v1/contracts/' + contractId, undefined, actor);
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(response.json()).toMatchObject({
+        id: contractId,
+        endDate: null,
+        monthlyRent: '3000',
+        depositAmount: '2000',
+        noticeDays: 30,
+        tenant: { id: tenant.profileId },
+        rentalSpace: { unit: { name: 'Case Unit' } },
+      });
+      for (const field of [
+        'ownerMonthlyRent',
+        'passwordHash',
+        'secondaryOccupant',
+        'identityKey',
+        'managerId',
+      ])
+        expect(response.body).not.toContain(field);
+    }
+  });
+  it('denies foreign contract detail and record access, including ordinary administrators', async () => {
+    for (const actor of [roommate, outsider, admin]) {
+      for (const suffix of [
+        '',
+        '/records?section=payments',
+        '/records?section=deposits',
+        '/records?section=requests',
+      ]) {
+        const response = await send(
+          'GET',
+          '/api/v1/contracts/' + contractId + suffix,
+          undefined,
+          actor,
+        );
+        expect(response.statusCode).toBe(actor === admin ? 403 : 404);
+        expect(response.body).not.toContain('Case Tenant');
+      }
+    }
+    expect((await send('GET', '/api/v1/contracts/missing')).statusCode).toBe(404);
+  });
+  it('keeps tenant drafts private in contract case records and totals', async () => {
+    const created = await send('POST', '', {
+      ...submission(),
+      draft: true,
+      title: 'Hidden contract draft',
+    });
+    expect(created.statusCode, created.body).toBe(201);
+    const path = '/api/v1/contracts/' + contractId + '/records?section=requests';
+    const own = await send('GET', path);
+    const managed = await send('GET', path, undefined, manager);
+    expect(own.body).toContain('Hidden contract draft');
+    expect(managed.body).not.toContain('Hidden contract draft');
+    expect(own.json().total).toBe(managed.json().total + 1);
+    expect(managed.body).not.toContain('Private complaint text');
+    expect(managed.body).not.toContain('clientId');
+  });
+  it('pages contract payments without evidence keys and preserves stored decimal values', async () => {
+    await prisma.payment.createMany({
+      data: Array.from({ length: 21 }, (_, index) => ({
+        contractId,
+        periodStart: new Date(Date.UTC(2024, index, 1)),
+        dueDate: new Date(Date.UTC(2024, index, 1)),
+        amountDue: '3000.15',
+        amountPaid: '1000.05',
+        currency: 'USD',
+        evidenceKey: 'private-payment-key',
+      })),
+    });
+    try {
+      const path = '/api/v1/contracts/' + contractId + '/records?section=payments';
+      const first = await send('GET', path);
+      const second = await send('GET', path + '&page=2');
+      expect(first.json()).toMatchObject({ total: 21, page: 1, pageSize: 20 });
+      expect(first.json().items).toHaveLength(20);
+      expect(second.json().items).toHaveLength(1);
+      expect(first.json().items[0]).toMatchObject({
+        amountDue: '3000.15',
+        amountPaid: '1000.05',
+        currency: 'USD',
+      });
+      expect(
+        new Set([...first.json().items, ...second.json().items].map((item) => item.id)).size,
+      ).toBe(21);
+      expect(first.body).not.toContain('evidenceKey');
+      expect(first.headers['cache-control']).toBe('no-store');
+    } finally {
+      await prisma.payment.deleteMany({ where: { contractId } });
+    }
+  });
+  it('returns deposit facts without evidence storage paths or financial mutations', async () => {
+    const entry = await prisma.depositEntry.create({
+      data: {
+        contractId,
+        type: 'DEDUCTION_PROPOSED',
+        amount: '45.25',
+        description: 'Disputed deduction',
+        tenantDisputedAt: new Date(),
+        evidenceKey: 'private-deposit-key',
+      },
+    });
+    try {
+      for (const actor of [tenant, manager]) {
+        const response = await send(
+          'GET',
+          '/api/v1/contracts/' + contractId + '/records?section=deposits',
+          undefined,
+          actor,
+        );
+        expect(response.json().items[0]).toMatchObject({
+          id: entry.id,
+          amount: '45.25',
+          description: 'Disputed deduction',
+        });
+        expect(response.json().items[0].tenantDisputedAt).toBeTruthy();
+        expect(response.body).not.toContain('evidenceKey');
+      }
+      expect(await prisma.depositEntry.count({ where: { contractId } })).toBe(1);
+    } finally {
+      await prisma.depositEntry.delete({ where: { id: entry.id } });
+    }
+  });
+  it('rejects invalid contract record queries and inconsistent ownership after reassignment', async () => {
+    const path = '/api/v1/contracts/' + contractId;
+    for (const query of [
+      'section=unknown',
+      'section=payments&page=0',
+      'section=requests&page=1.5',
+      'section=payments&extra=1',
+    ])
+      expect((await send('GET', path + '/records?' + query)).statusCode).toBe(400);
+    await prisma.tenantProfile.update({
+      where: { id: tenant.profileId },
+      data: { managerId: outsider.profileId },
+    });
+    try {
+      for (const actor of [tenant, manager, outsider]) {
+        expect((await send('GET', path, undefined, actor)).statusCode).toBe(404);
+        expect(
+          (await send('GET', path + '/records?section=payments', undefined, actor)).statusCode,
+        ).toBe(404);
+      }
+    } finally {
+      await prisma.tenantProfile.update({
+        where: { id: tenant.profileId },
+        data: { managerId: manager.profileId },
+      });
     }
   });
   it('denies roommates, foreign managers, administrators, and foreign contract submissions', async () => {

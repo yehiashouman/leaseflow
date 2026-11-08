@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { FileText, Plus } from 'lucide-react';
 import { api } from '../api';
 import { Badge } from '@/components/ui/badge';
@@ -65,7 +66,9 @@ export function Contracts() {
                 <TableRow key={contract.id}>
                   <TableCell>{contract.tenant?.fullName ?? 'Tenant'}</TableCell>
                   <TableCell>
-                    {contract.rentalSpace.name}
+                    <Link className="text-primary underline" to={'/contracts/' + contract.id}>
+                      {contract.rentalSpace.name}
+                    </Link>
                     <span className="block text-xs text-muted-foreground">
                       {contract.rentalSpace.unit.name}
                     </span>
@@ -84,7 +87,7 @@ export function Contracts() {
           {!data.length && (
             <div className="flex min-h-48 flex-col items-center justify-center gap-3 text-muted-foreground">
               <FileText className="size-7" aria-hidden="true" />
-              <p>No active contracts</p>
+              <p>No contracts</p>
             </div>
           )}
         </>

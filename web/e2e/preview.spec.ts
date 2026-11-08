@@ -1,5 +1,37 @@
 import { expect, test, type Page } from '@playwright/test';
 
+test('preview contract terms and records remain read-only on desktop and mobile', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/v1')) requests.push(request.url());
+  });
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+  await page.getByRole('link', { name: 'My contracts', exact: true }).click();
+  await page.getByRole('link', { name: 'Master Room', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Master Room contract', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Open-ended', { exact: true })).toBeVisible();
+  await expect(page.getByText('AED 1,000.00', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Deposit entries', exact: true }).click();
+  await expect(page.getByText('No records', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cases', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Kitchen tap repair', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: testInfo.outputPath('contract-preview.png'), fullPage: true });
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: 'Master Room contract', exact: true }),
+  ).toBeVisible();
+  expect(requests).toEqual([]);
+});
+
 async function navigation(page: Page, label: string, mobile: boolean) {
   if (mobile) {
     await page.getByRole('button', { name: 'Open navigation' }).click();

@@ -145,9 +145,12 @@ export function TenantDetail() {
       <ul className="divide-y">
         {data.contracts?.map((contract) => (
           <li className="space-y-2 py-4" key={contract.id}>
-            <p className="break-words">
+            <Link
+              className="block break-words text-primary underline"
+              to={'/contracts/' + contract.id}
+            >
               {contract.rentalSpace.unit.name} / {contract.rentalSpace.name}
-            </p>
+            </Link>
             <Badge variant="outline">{contract.status.replaceAll('_', ' ')}</Badge>
             <p className="text-sm text-muted-foreground">{caseDate(contract.startDate)}</p>
           </li>

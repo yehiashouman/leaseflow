@@ -73,7 +73,9 @@ export function TenantDashboard() {
         <>
           <section className="space-y-3 border-b pb-6">
             <h2 className="text-lg font-semibold">
-              {contract.rentalSpace.name} · {contract.rentalSpace.unit.name}
+              <Link className="text-primary underline" to={'/contracts/' + contract.id}>
+                {contract.rentalSpace.name} · {contract.rentalSpace.unit.name}
+              </Link>
             </h2>
             <Badge variant="secondary">{contract.status.replaceAll('_', ' ')}</Badge>
             <dl className="grid gap-4 sm:grid-cols-3">

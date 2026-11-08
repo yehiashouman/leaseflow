@@ -21,6 +21,10 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 
 ## Incomplete Release Work
 
+Read-only contract detail and paged payment, deposit, and case records now exist.
+Exact scope and limits: [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md).
+Hosted acceptance for this continuation remains pending.
+
 - Email and WhatsApp verification and invitations remain incomplete.
 - Document upload, scans, expiry, and unit activation remain incomplete.
 - Contract creation and amendments remain incomplete.
