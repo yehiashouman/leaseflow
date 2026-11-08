@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import { env } from '../config.js';
 import { caseContractScope } from '../case-data.js';
 import {
   lockOwnedSpace,
@@ -129,6 +130,10 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     });
   });
   app.post('/', { preHandler: allowRoles('LEASING_MANAGER') }, async (request, reply) => {
+    if (env.NODE_ENV === 'production')
+      throw app.httpErrors.conflict(
+        'Contract activation requires approved financial and acknowledgement policies.',
+      );
     const body = z
       .object({
         tenantId: z.string(),

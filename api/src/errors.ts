@@ -15,15 +15,16 @@ const codes: Record<number, string> = {
 };
 export function sendApiError(cause: unknown, request: FastifyRequest, reply: FastifyReply) {
   if (cause instanceof ZodError)
-    return reply
-      .code(422)
-      .send({
-        error: 'ValidationError',
-        code: 'VALIDATION_FAILED',
-        message: 'Verify the request fields.',
-        details: cause.issues.map(({ code, path, message }) => ({ code, path, message })),
-        requestId: request.id,
-      });
+    return reply.code(422).send({
+      error: 'ValidationError',
+      code: 'VALIDATION_FAILED',
+      message: cause.issues
+        .map(({ path, message }) => `${path.join('.') || 'request'}: ${message}`)
+        .join('; ')
+        .slice(0, 1000),
+      details: cause.issues.map(({ code, path, message }) => ({ code, path, message })),
+      requestId: request.id,
+    });
   const error = cause as { statusCode?: number; name?: string; message?: string; code?: string };
   const status =
     error.statusCode && error.statusCode >= 400 && error.statusCode <= 599 ? error.statusCode : 500;
@@ -32,25 +33,23 @@ export function sendApiError(cause: unknown, request: FastifyRequest, reply: Fas
       { requestId: request.id, status, errorType: error.name ?? 'Error' },
       'API request failed',
     );
-  return reply
-    .code(status)
-    .send({
-      error:
-        error.code === 'FST_CORS_ORIGIN_DENIED'
-          ? 'Forbidden'
-          : status >= 500
-            ? 'InternalServerError'
-            : (error.name ?? 'Error'),
-      code:
-        error.code === 'FST_CORS_ORIGIN_DENIED'
-          ? 'ORIGIN_DENIED'
-          : (codes[status] ?? (status >= 500 ? 'INTERNAL_ERROR' : 'REQUEST_REJECTED')),
-      message:
-        status >= 500
-          ? status === 503
-            ? 'Service is not ready.'
-            : 'Internal server error'
-          : (error.message ?? 'Request rejected'),
-      requestId: request.id,
-    });
+  return reply.code(status).send({
+    error:
+      error.code === 'FST_CORS_ORIGIN_DENIED'
+        ? 'Forbidden'
+        : status >= 500
+          ? 'InternalServerError'
+          : (error.name ?? 'Error'),
+    code:
+      error.code === 'FST_CORS_ORIGIN_DENIED'
+        ? 'ORIGIN_DENIED'
+        : (codes[status] ?? (status >= 500 ? 'INTERNAL_ERROR' : 'REQUEST_REJECTED')),
+    message:
+      status >= 500
+        ? status === 503
+          ? 'Service is not ready.'
+          : 'Internal server error'
+        : (error.message ?? 'Request rejected'),
+    requestId: request.id,
+  });
 }

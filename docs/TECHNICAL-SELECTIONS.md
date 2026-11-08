@@ -32,4 +32,6 @@ The itemDefaults object in decisions.json applies to every item unless an item e
 All twenty-six current items remain PENDING with no approved answer or approval date.
 Approved business changes require explicit owner evidence and updates to dependent code and tests.
 Proposed due-day, rounding, date-boundary, retention, and acknowledgement options remain unapproved.
+Production contract activation and payment writes return 409 until financial and acknowledgement policies receive approval and verified implementation.
+Development-only financial scaffolds remain available for tests; they are not accepted business rules.
 The original SPECIFICATION.md retains its recorded SHA-256 hash.

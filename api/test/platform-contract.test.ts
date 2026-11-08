@@ -10,7 +10,7 @@ const db = vi.hoisted(() => ({
 vi.mock('../src/db.js', () => ({ prisma: db }));
 import { buildApp } from '../src/app.js';
 import { requiredMigrations } from '../src/readiness.js';
-import { parseConfiguration, proxyConfiguration } from '../src/config.js';
+import { env, parseConfiguration, proxyConfiguration } from '../src/config.js';
 const settings = () => ({
   DATABASE_URL: 'mysql://test:test@localhost/leaseflow_test',
   REDIS_URL: 'redis://localhost:6379',
@@ -115,6 +115,7 @@ describe('API platform contract', () => {
     });
     expect(validation.statusCode).toBe(422);
     expect(validation.json().code).toBe('VALIDATION_FAILED');
+    expect(validation.json().message).toContain('name:');
     expect(validation.body).not.toContain('never-echo-this');
     const missing = await app.inject('/missing-resource');
     expect(missing.json().code).toBe('NOT_FOUND');
@@ -137,6 +138,29 @@ describe('API platform contract', () => {
       headers: { 'x-request-id': 'private@example.com/' },
     });
     expect(invalid.headers['x-request-id']).not.toBe('private@example.com/');
+  });
+  it('blocks production financial writes before provisional policies can reach the database', async () => {
+    const previous = env.NODE_ENV;
+    env.NODE_ENV = 'production';
+    db.user.findUnique.mockResolvedValue({ role: 'LEASING_MANAGER', status: 'ACTIVE' });
+    try {
+      for (const url of ['/api/v1/contracts', '/api/v1/payments/missing/record']) {
+        const response = await app.inject({
+          method: 'POST',
+          url,
+          payload: {},
+          headers: {
+            authorization:
+              'Bearer ' + app.jwt.sign({ sub: 'manager', role: 'LEASING_MANAGER', sid: 'session' }),
+          },
+        });
+        expect(response.statusCode).toBe(409);
+        expect(response.json().code).toBe('CONFLICT');
+        expect(response.json().message).toContain('approved financial');
+      }
+    } finally {
+      env.NODE_ENV = previous;
+    }
   });
   it('rejects spoofed forwarding headers from an untrusted peer', async () => {
     const response = await app.inject({

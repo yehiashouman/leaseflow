@@ -46,6 +46,10 @@ An exact public Codespaces login/upload/PDF journey remains a separate unverifie
 
 ## Scope
 
+Local MinIO builds from official source commit 9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a because its community container is no longer public.
+The first build requires Go dependency downloads and additional time.
+The archived upstream and its dependencies require a separate security and license review before any production use.
+This development image does not approve a production storage provider or satisfy production storage acceptance.
 The demo is not a production administrator bootstrap.
 Full application workflows, MFA, identity verification, providers, uploads, finance, and release acceptance remain incomplete.
 Configuration inventory: [CONFIGURATION.md](CONFIGURATION.md).
