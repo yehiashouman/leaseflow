@@ -27,7 +27,7 @@ https://yehiashouman.github.io/leaseflow/
 - Inspect unit details; add and edit Room or Master Room spaces.
 - Set vacant rooms to maintenance or inactive; restore them without deletion.
 - Verify occupied-room restrictions and preserved contract rent after base-price edits.
-- Inspect synthetic contracts and requests.
+- Inspect synthetic contract terms, payment pages, deposit empty states, and linked case records.
 - Submit synthetic operational cases and inspect private role-specific histories.
 - Save private tenant drafts and explicitly submit them before manager access.
 - Edit a synthetic tenant profile, optional preferences, and an unverified phone candidate.

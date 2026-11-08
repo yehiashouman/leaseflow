@@ -14,7 +14,7 @@ Date: 8 November 2026, Asia/Dubai.
 - Each record category provides twenty-item pages with deterministic date and ID order.
 - Manager case records and totals exclude private tenant drafts.
 - Record category changes reset the page.
-- API responses exclude account secrets, owner costs, arbitrary occupant JSON, and evidence storage keys.
+- Contract read responses exclude account secrets, owner costs, arbitrary occupant JSON, and evidence storage keys.
 - Every request verifies the current account session and consistent tenant/property ownership.
 - Contract responses use Cache-Control: no-store.
 
@@ -40,7 +40,8 @@ The detail screen uses the scoped record endpoint instead.
 Local component and preview-adapter tests cover stored values, currency, pages, section resets, failures, and role denial.
 Six MySQL cases cover ownership, draft privacy, decimal values, pagination, safe projections, and reassignment.
 Desktop/mobile browser tests cover real API records and equivalent synthetic preview navigation.
-Hosted results remain pending until their workflow evidence appears in EVIDENCE.md.
+Hosted API, MySQL, and browser suites pass.
+Evidence: [contract record verification](EVIDENCE.md#contract-detail-and-private-records).
 
 ## Limits
 

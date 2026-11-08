@@ -7,27 +7,27 @@ Target: the complete initial release in requirements.md.
 
 ## Summary
 
-| Measure                                   | Verified status                                                                                                              |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Total checklist tasks                     | 764                                                                                                                          |
-| Completed tasks with evidence             | 60                                                                                                                           |
-| Tasks without full completion evidence    | 704                                                                                                                          |
-| Strict checklist completion               | 7.85%                                                                                                                        |
-| UI foundation tasks                       | 10 of 10 verified                                                                                                            |
-| Open owner decisions                      | 26                                                                                                                           |
-| Local API unit/route tests                | 63 pass; database mocks where required                                                                                       |
-| Local web/component/preview-adapter tests | 68 pass                                                                                                                      |
-| GitHub browser suites                     | Twenty-two cases pass: four interface fixtures, ten synthetic previews, and eight real API/MySQL journeys                    |
-| New browser coverage                      | Tenant profile edits, candidate phones, directory scope, historical authorship, and notice read state pass on desktop/mobile |
-| MySQL suites                              | All 59 integration cases pass on MySQL 8.4 in GitHub Actions                                                                 |
-| Local builds                              | API, web production, and preview pass                                                                                        |
-| Local lint                                | API, integration sources, and web pass                                                                                       |
-| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                                            |
-| Production application                    | Incomplete; not approved for real operational use                                                                            |
+| Measure                                   | Verified status                                                                                               |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Total checklist tasks                     | 764                                                                                                           |
+| Completed tasks with evidence             | 60                                                                                                            |
+| Tasks without full completion evidence    | 704                                                                                                           |
+| Strict checklist completion               | 7.85%                                                                                                         |
+| UI foundation tasks                       | 10 of 10 verified                                                                                             |
+| Open owner decisions                      | 26                                                                                                            |
+| Local API unit/route tests                | 63 pass; database mocks where required                                                                        |
+| Local web/component/preview-adapter tests | 74 pass                                                                                                       |
+| GitHub browser suites                     | Twenty-six cases pass: four interface fixtures, twelve synthetic previews, and ten real API/MySQL journeys    |
+| New browser coverage                      | Contract terms, payment pages, deposit disputes, private drafts, and scoped case links pass on desktop/mobile |
+| MySQL suites                              | All 65 integration cases pass on MySQL 8.4 in GitHub Actions                                                  |
+| Local builds                              | API, web production, and preview pass                                                                         |
+| Local lint                                | API, integration sources, and web pass                                                                        |
+| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                             |
+| Production application                    | Incomplete; not approved for real operational use                                                             |
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial inventory, case, profile, and role work exists beyond the 60 completed tasks.
+Additional partial contract, inventory, case, profile, and role work exists beyond the 60 completed tasks.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Session Security Continuation
@@ -59,6 +59,19 @@ See [CASES.md](CASES.md) for endpoints, migration, controls, and incomplete scop
 All thirteen new MySQL cases and both new real-browser cases pass on GitHub.
 Two case-history/acknowledgement tasks now have scoped evidence.
 This does not complete specialized financial cases, attachments, notifications, deadlines, or approved support access.
+
+## Contract Record Continuation
+
+We added scoped contract detail with stored terms and paged payment, deposit, and case records.
+Managers cannot read private tenant drafts through record lists or totals.
+Read responses exclude owner costs, evidence storage paths, and arbitrary occupant identity JSON.
+The directory, dashboard, and contract list link to the new detail screen.
+Six new component/adapter tests and six new MySQL tests pass.
+Two new real-browser and two new synthetic-preview cases pass across desktop and mobile.
+The verified baseline now includes 202 automated tests and 26 browser cases.
+The full contract and financial requirements remain incomplete; no additional full checklist task closes in this batch.
+PDF exports remain pending.
+See [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md) for endpoints and exact limits.
 
 ## Complete Scope Coverage
 

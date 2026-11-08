@@ -296,7 +296,7 @@ Requirements: 5, 22.2, 22.4-22.5.
 ## 11. Contracts and Annual Reviews
 
 Read-only contract detail and paged records exist; full contract tasks remain unchecked.
-See [contract record scope](docs/CONTRACT-RECORDS.md) for implemented behavior and pending hosted evidence.
+See [contract record scope](docs/CONTRACT-RECORDS.md) and [verified evidence](docs/EVIDENCE.md#contract-detail-and-private-records).
 
 Requirements: 6, 14, 17, 22-24.
 

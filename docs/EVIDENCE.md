@@ -250,3 +250,36 @@ Read operations cannot change another recipient's unread state.
 We verified desktop/mobile profile screenshots and the synthetic workflow without backend requests.
 Full tenant onboarding, private documents, phone verification, provider delivery, critical security delivery, and retention policy remain incomplete.
 Exact migration and design constraints: [PROFILES-NOTIFICATIONS.md](PROFILES-NOTIFICATIONS.md).
+
+## Contract Detail and Private Records
+
+Verified: 8 November 2026, Asia/Dubai.
+Code commits: `d0d615cf152a299cab8439a194a0832b2b6207f1` and `338019ebd9edc5d3303b30de83e773fbe541bfa1`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, MySQL, and real-browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42475466920).
+Preview: [interface, synthetic contract, and deployment verification](https://github.com/yehiashouman/leaseflow/actions/runs/42475466916).
+
+The baseline passes 63 API tests, 74 web tests, and 65 MySQL cases: 202 automated tests.
+Browser suites pass four interface fixtures, twelve synthetic previews, and ten real API/MySQL journeys: 26 cases.
+Lint, migrations, schema validation, production/preview builds, and the high/critical audit gate pass.
+Seven moderate development-tool advisories remain.
+
+| Surface            | Code                                                          | Verified assertions                                                                                                             |
+| ------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Contract detail    | api/src/routes/contracts.ts; web/src/pages/ContractDetail.tsx | Stored dates, open-ended terms, notice exceptions, rent, currency, and deposit appear without financial writes                  |
+| Access             | api/integration/cases.test.ts                                 | Foreign managers, roommates, administrators, and inconsistent relationships cannot read private contract terms or records       |
+| Payment records    | api/integration/cases.test.ts; web/src/contracts.test.tsx     | Decimal values and per-record currencies remain intact; twenty-item pages contain no duplicate records or private evidence keys |
+| Deposit entries    | api/integration/cases.test.ts; web/e2e/contracts.live.spec.ts | Stored proposals and dispute dates appear without acceptance or fund settlement                                                 |
+| Case records       | api/src/routes/contracts.ts; web/e2e/contracts.live.spec.ts   | Tenant drafts appear only to their tenant; manager lists and totals exclude drafts                                              |
+| Browser navigation | web/e2e/contracts.live.spec.ts; web/e2e/preview.spec.ts       | List/detail links, category changes, page resets, reload, and desktop/mobile layouts pass                                       |
+
+We verified real and synthetic desktop/mobile screenshots without page overflow.
+The first database run found an incorrect 400 status assertion for schema errors.
+The correction preserves the existing 422 API policy and aligns preview validation with it.
+No database migration or new dependency accompanies this batch.
+The contract list retains its array response but now excludes nested payment/request collections and unsafe legacy fields.
+The detail screen uses independently authorized, paged record reads.
+Full contract creation, acknowledgements, amendments, annual reviews, ledgers, evidence downloads, and PDF reports remain incomplete.
+Both API and web container builds pass.
+No additional full checklist item closes from this partial contract implementation.
+Exact scope: [CONTRACT-RECORDS.md](CONTRACT-RECORDS.md).
