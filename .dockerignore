@@ -4,5 +4,6 @@ node_modules
 **/dist
 coverage
 .env*
+**/.env*
 *.log
 infrastructure/terraform/.terraform

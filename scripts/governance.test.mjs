@@ -35,5 +35,6 @@ test('development forwarding and service exposure preserve the intended boundary
   assert.equal(config.portsAttributes['8080'].protocol, 'http');
   assert.deepEqual(config.forwardPorts, [8080]);
   assert.equal(config.otherPortsAttributes.visibility, 'private');
+  assert(read('.dockerignore').split('\n').includes('**/.env*'));
   assert(read('docs/TECHNICAL-SELECTIONS.md').includes('not owner approval'));
 });
