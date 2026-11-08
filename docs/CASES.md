@@ -7,6 +7,7 @@ This implementation does not complete the case or maintenance modules.
 ## Interfaces
 
 - Tenants select an open contract and submit a title, description, category, and urgency.
+- Tenants can save a private draft and explicitly submit it after review; managers cannot inspect unsubmitted drafts.
 - Both parties filter case lists by title, type, and status.
 - Each case shows immutable messages, status events, author snapshots, and Dubai timestamps.
 - Managers respond, request tenant input, start work, reject, or report resolution.
@@ -18,14 +19,14 @@ This implementation does not complete the case or maintenance modules.
 
 ## API
 
-| Method | Path                          | Behavior                                                                                              |
-| ------ | ----------------------------- | ----------------------------------------------------------------------------------------------------- |
-| GET    | /api/v1/requests              | Scoped list; optional q, status, and type filters                                                     |
-| GET    | /api/v1/requests/options      | Tenant-only open contracts and four supported request types                                           |
-| GET    | /api/v1/requests/:id          | Private case, safe contract summary, history, and permitted actions                                   |
-| POST   | /api/v1/requests              | Tenant-only submission; contractId, clientId, type, title, description, optional category and urgency |
-| POST   | /api/v1/requests/:id/messages | Append immutable message; clientId and message                                                        |
-| POST   | /api/v1/requests/:id/respond  | Version-checked decision; clientId, expectedVersion, status, and optional message                     |
+| Method | Path                          | Behavior                                                                                                           |
+| ------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| GET    | /api/v1/requests              | Scoped list; optional q, status, and type filters                                                                  |
+| GET    | /api/v1/requests/options      | Tenant-only open contracts and four supported request types                                                        |
+| GET    | /api/v1/requests/:id          | Private case, safe contract summary, history, and permitted actions                                                |
+| POST   | /api/v1/requests              | Tenant-only submission; contractId, clientId, type, title, description, optional category, urgency, and draft flag |
+| POST   | /api/v1/requests/:id/messages | Append immutable message; clientId and message                                                                     |
+| POST   | /api/v1/requests/:id/respond  | Version-checked decision; clientId, expectedVersion, status, and optional message                                  |
 
 clientId must contain a UUID.
 Unchanged retries return current state without duplicate events.
@@ -83,7 +84,8 @@ The subsequent contract regression adds one API test and maps rolled-back Prisma
 - Late payment, room transfer, and move-out submission/status changes return 409 pending dedicated workflows.
 - Existing specialized cases remain privately readable and retain permitted messages.
 - Attachments, complaint occupant selection, cost responsibility, and completion evidence remain incomplete.
-- Configurable categories, response deadlines, assignments, Draft, and Deadlock workflows remain incomplete.
+- Configurable categories, response deadlines, assignments, and Deadlock workflows remain incomplete.
+- Private draft save/submit is implemented; draft content editing and deletion remain incomplete.
 - Provider notifications, automatic reminders, exports, and approved support access remain incomplete.
 - Historical access after suspension or closure remains subject to unresolved owner decisions.
 - The public preview uses synthetic browser-local records without API, financial, or provider effects.

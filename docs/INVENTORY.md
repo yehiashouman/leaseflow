@@ -85,4 +85,5 @@ Existing records remain active; existing unit links stay unchanged.
 - Preview desktop/mobile cases verify equivalent synthetic controls without backend requests.
 
 Verification passes in [CI](https://github.com/yehiashouman/leaseflow/actions/runs/42436239708) at commit `a208bdebdbbf251fe85aa33e4b40334c13b30515`.
-Documents, images, activation evidence, unit archive/restore, full finance, and complete inventory acceptance remain incomplete.
+Unit archive/restore, amenities, and owner schedules now have implementation and evidence in [OPERATIONS-BATCH.md](OPERATIONS-BATCH.md).
+Documents, images, activation evidence, full finance, and complete inventory acceptance remain incomplete.

@@ -27,7 +27,7 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 - Financial ledgers, receipts, deposits, refunds, and disputes remain incomplete.
 - Transfer, move-out, late-payment requests, and complete case workflows remain incomplete.
 - Expenses, full reports, PDF exports, and durable notification jobs remain incomplete.
-- Administrator moderation screens and audit explorer remain incomplete.
+- Administrator moderation, governed audit exports, MFA, and support controls remain incomplete.
 - Full database acceptance, the full release browser journey, backup, and production acceptance remain unverified.
 - Unresolved decisions in requirements.md still require owner approval.
 
@@ -39,7 +39,7 @@ Do not mark a full checklist module complete from partial implementation evidenc
 ## Local Verification
 
 - API suite: 63 tests pass; database-dependent unit tests use mocks.
-- Web suite: 55 tests pass, including forms, roles, session cleanup, cases, and preview data.
+- Web suite: 64 tests pass, including forms, roles, session cleanup, cases, administrator review, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -92,3 +92,15 @@ Related contract and dashboard responses exclude internal case keys and tenant a
 Current totals: 118 API/web tests, 39 MySQL cases, and fourteen browser cases pass.
 Late-payment, transfer, move-out, attachments, cost responsibility, notifications, and full support access remain incomplete.
 The final concurrency regression maps rolled-back contract deadlocks to 409 without automatic financial retries.
+
+## Larger Operational Batch
+
+See [OPERATIONS-BATCH.md](OPERATIONS-BATCH.md) for unit lifecycle, owner schedules, amenities, administrator review, and private drafts.
+Unit archive blocks open contracts and preserves records; restore never reactivates a unit automatically.
+Owner schedules remain literal metadata, not posted financial instructions.
+Administrator queues and audit summaries exclude account secrets and arbitrary legacy payloads.
+Account moderation remains blocked until approved MFA and document/identity policy exist.
+Private drafts stay hidden from managers until a tenant explicitly submits them.
+We verified twenty additional checklist tasks, including existing role and space restrictions.
+Current acceptance totals: 127 API/web tests, 53 MySQL cases, and twenty browser cases.
+Full production approval, documents, invitations, MFA, financial workflows, providers, and recovery remain incomplete.

@@ -61,7 +61,9 @@ No new endpoint changes account roles or bypasses session status checks.
 ## Verification
 
 Local baseline: 63 API tests, 64 web tests, lint, schema validation, and production builds pass.
-Hosted MySQL and browser results remain pending until recorded in EVIDENCE.md.
+Hosted verification passes 53 MySQL cases and twenty browser cases across interface, synthetic, and real API/database suites.
+Evidence: [API and database workflows](https://github.com/yehiashouman/leaseflow/actions/runs/42464193791).
+Preview: [desktop/mobile interface verification and deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42464193852).
 New MySQL tests cover archive races, defaults, custom amenities, private drafts, administrator privacy, and role injection.
 Real browsers cover administrator login/review, masked identities, unit forms/archive/restore, and explicit draft submission.
 Synthetic preview tests cover the same interfaces without backend requests or real records.

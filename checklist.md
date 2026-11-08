@@ -131,10 +131,10 @@ Requirements: 14, 24.
 
 Requirements: 3, 16, 22.2, 23-24.
 
-- [ ] **AUTH-001** Implement role-aware login for Administrator, Leasing Manager, and Tenant.
+- [x] **AUTH-001** Implement role-aware login for Administrator, Leasing Manager, and Tenant. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **AUTH-002** Enforce verification and account-status restrictions on every protected request.
-- [ ] **AUTH-003** Route each role to its own dashboard.
-- [ ] **AUTH-004** Prevent administrator fallback to manager-only endpoints.
+- [x] **AUTH-003** Route each role to its own dashboard. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **AUTH-004** Prevent administrator fallback to manager-only endpoints. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **AUTH-005** Implement logout and session revocation. [Evidence](docs/EVIDENCE.md#session-security).
 - [x] **AUTH-006** Issue short-lived access tokens and rotating refresh tokens. [Evidence](docs/EVIDENCE.md#session-security).
 - [x] **AUTH-007** Detect refresh-token replay and revoke affected sessions. [Evidence](docs/EVIDENCE.md#session-security).
@@ -149,7 +149,7 @@ Requirements: 3, 16, 22.2, 23-24.
 - [ ] **AUTH-016** Enforce rate limits for login, OTP, invitations, uploads, and reports.
 - [ ] **AUTH-017** Return safe actionable errors and request identifiers.
 - [ ] **AUTH-018** Exclude passwords, tokens, OTP values, and sensitive identifiers from logs.
-- [ ] **AUTH-019** Verify unauthorized role transitions cannot elevate privileges.
+- [x] **AUTH-019** Verify unauthorized role transitions cannot elevate privileges. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 
 ## 5. Manager Registration and Activation
 
@@ -177,7 +177,7 @@ Requirements: 3.1, 16, 22.2.
 
 Requirements: 3.2, 16, 22.3.
 
-- [ ] **ADMIN-001** Build the account review queue.
+- [x] **ADMIN-001** Build the account review queue. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **ADMIN-002** Show platform counts, security alerts, and operational health summaries.
 - [ ] **ADMIN-003** Inspect account identity status, declarations, documents, and history.
 - [ ] **ADMIN-004** Approve, reject, suspend, and restore accounts with reasons.
@@ -234,17 +234,17 @@ Requirements: 4.1-4.2, 22.4.
 - [x] **UNIT-005** Capture unit name/reference, building, street, area/community, emirate, and address notes. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-006** Capture GPS latitude and longitude. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [ ] **UNIT-007** Link each unit to its manager and landlord.
-- [ ] **UNIT-008** Capture owner rent, payment schedule, and currency.
+- [x] **UNIT-008** Capture owner rent, payment schedule, and currency. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **UNIT-009** Capture the default unit security deposit. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [ ] **UNIT-010** Support unit and common-area images.
 - [ ] **UNIT-011** Support property documents and manager declarations.
 - [ ] **UNIT-012** Capture tenancy contract, consent/delegation, title-deed copy, or approved evidence categories.
 - [ ] **UNIT-013** Prevent unit activation without required data, declarations, and documents.
 - [ ] **UNIT-014** Apply the confirmed evidence policy rather than infer legal sufficiency.
-- [ ] **UNIT-015** Support air conditioning, furnished, bed, television, refrigerator, and bathroom amenities.
-- [ ] **UNIT-016** Support kitchen, laundry, balcony, parking, Wi-Fi, and cleaning amenities.
-- [ ] **UNIT-017** Support configurable additional amenities.
-- [ ] **UNIT-018** Expose unit status and safe archive/restore actions.
+- [x] **UNIT-015** Support air conditioning, furnished, bed, television, refrigerator, and bathroom amenities. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **UNIT-016** Support kitchen, laundry, balcony, parking, Wi-Fi, and cleaning amenities. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **UNIT-017** Support configurable additional amenities. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **UNIT-018** Expose unit status and safe archive/restore actions. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **UNIT-019** Show unit spaces, occupants, contracts, finance, maintenance, and deposit exposure.
 
 ## 9. Rental Spaces and Availability
@@ -252,20 +252,20 @@ Requirements: 4.1-4.2, 22.4.
 Requirements: 2.2, 4.3, 5.2, 14.1, 24.2.
 
 - [ ] **SPACE-001** Implement space list, detail, create, edit, status, and permitted archive actions.
-- [ ] **SPACE-002** Enable Room and Master Room.
+- [x] **SPACE-002** Enable Room and Master Room. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **SPACE-003** Require private bathroom facilities for Master Room classification. [Evidence](docs/EVIDENCE.md#room-controls).
-- [ ] **SPACE-004** Retain Bed Space and Partition types as globally disabled future features.
-- [ ] **SPACE-005** Reject disabled-type activation, allocation, advertisement, and contracts in the API.
-- [ ] **SPACE-006** Show Future feature explanation through keyboard, touch, and hover-compatible help.
-- [ ] **SPACE-007** Capture internal name/number, type, capacity, and availability.
+- [x] **SPACE-004** Retain Bed Space and Partition types as globally disabled future features. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **SPACE-005** Reject disabled-type activation, allocation, advertisement, and contracts in the API. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **SPACE-006** Show Future feature explanation through keyboard, touch, and hover-compatible help. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
+- [x] **SPACE-007** Capture internal name/number, type, capacity, and availability. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **SPACE-008** Capture photos, amenities, optional compatibility notes, and base asking rent.
 - [ ] **SPACE-009** Inherit unit deposit defaults for new contract proposals.
 - [x] **SPACE-010** Support active, inactive, and maintenance status. [Evidence](docs/EVIDENCE.md#room-controls).
-- [ ] **SPACE-011** Block new allocations to inactive or maintenance spaces.
+- [x] **SPACE-011** Block new allocations to inactive or maintenance spaces. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **SPACE-012** Count primary and secondary occupants against physical capacity. [Evidence](docs/EVIDENCE.md#room-controls).
 - [ ] **SPACE-013** Verify capacity across every affected date.
 - [ ] **SPACE-014** Serialize concurrent reservations and transfers.
-- [ ] **SPACE-015** Preserve historical contracts when asking prices and defaults change.
+- [x] **SPACE-015** Preserve historical contracts when asking prices and defaults change. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **SPACE-016** Implement approved reservation and expiry policy.
 - [ ] **SPACE-017** Preserve operational holds after effective transfer or move-out.
 
@@ -276,7 +276,7 @@ Requirements: 5, 22.2, 22.4-22.5.
 - [ ] **TEN-001** Allow managers to invite tenants by email.
 - [ ] **TEN-002** Scope each invitation to its manager and intended tenant.
 - [ ] **TEN-003** Implement invitation inspect, resend, revoke, expiry, and acceptance.
-- [ ] **TEN-004** Reject public tenant self-registration.
+- [x] **TEN-004** Reject public tenant self-registration. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **TEN-005** Verify invitation email before tenant phone confirmation.
 - [ ] **TEN-006** Let tenants supply their own phone numbers.
 - [ ] **TEN-007** Verify tenant WhatsApp OTP through Twilio.
@@ -381,10 +381,10 @@ Requirements: 9, 22-25.
 - [ ] **CASE-001** Implement maintenance, neighbor complaint, late payment, room change, move-out, key/lock, and general request forms.
 - [ ] **CASE-002** Capture type, description, attachments, relevant contract, and authorized relationship.
 - [ ] **CASE-003** Support configurable request categories and response deadlines.
-- [ ] **CASE-004** Support Draft, Submitted, Seen, Awaiting Leasing Manager, and Awaiting Tenant states.
+- [x] **CASE-004** Support Draft, Submitted, Seen, Awaiting Leasing Manager, and Awaiting Tenant states. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **CASE-005** Support Approved, Rejected, In Progress, Resolved, Accepted, Reopened, Deadlock, and Closed states.
 - [ ] **CASE-006** Define valid transitions per request type and role.
-- [ ] **CASE-007** Reject invalid or concurrent transitions.
+- [x] **CASE-007** Reject invalid or concurrent transitions. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **CASE-008** Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements.
 - [x] **CASE-009** Identify each event author and timestamp. Evidence: [case history verification](docs/EVIDENCE.md#operational-cases).
 - [ ] **CASE-010** Notify both parties of case updates.

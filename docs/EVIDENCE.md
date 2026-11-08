@@ -140,7 +140,7 @@ Both API and web container builds pass in the same run.
 We verified landlord preview screenshots on desktop and mobile.
 Public HTML, JavaScript, and CSS return HTTP 200.
 Boundary cases verify company/address/street storage and long user-agent audit metadata.
-Documents, unit activation, unit archive/restore, and the complete inventory module remain incomplete.
+At that commit, documents, unit activation, unit archive/restore, and complete inventory acceptance remained incomplete.
 
 ## Operational Cases
 
@@ -170,3 +170,53 @@ The long preview test now uses separate inventory and case journeys without long
 Migration and exact scope: [CASES.md](CASES.md).
 All other CASE tasks remain unchecked because their complete workflows lack evidence.
 Attachments, specialized financial requests, cost responsibility, deadlines, notifications, and authorized support remain incomplete.
+
+## Inventory, Review, and Draft Controls
+
+Verified: 8 November 2026, Asia/Dubai.
+Code commit: `039b56a9d83e4519fa8f0b61dba8ee15c33e8623`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, database, and real-browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42464193791).
+Preview: [interface fixtures, synthetic workflows, and deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42464193852).
+Earlier real-browser feature evidence: [eight role and workflow journeys](https://github.com/yehiashouman/leaseflow/actions/runs/42463931811).
+
+The acceptance baseline passes 63 API tests, 64 web tests, and 53 MySQL cases.
+Total: 180 automated tests; lint, migrations, schema validation, builds, and the high/critical audit gate pass.
+Both API and web container builds pass.
+Seven moderate development-tool advisories remain.
+Browser coverage totals twenty cases: four interface fixtures, eight synthetic previews, and eight real API/MySQL journeys.
+These twenty additional task closures include new features and newly verified existing role/space behavior.
+They do not certify twenty modules or the complete application.
+
+| Item      | Code                                                                                              | Test and evidence scope                                                                                                                                                |
+| --------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AUTH-001  | api/src/routes/auth.ts; web/src/pages/Login.tsx; web/src/pages/Dashboard.tsx                      | Real-browser admin, manager, and tenant journeys verify login and persisted role identity                                                                              |
+| AUTH-003  | web/src/pages/Dashboard.tsx; web/src/pages/RoleDashboards.tsx; web/src/App.tsx                    | Real browsers verify Platform overview, Portfolio overview, and My accommodation for their respective roles                                                            |
+| AUTH-004  | api/src/auth.ts; web/src/App.tsx                                                                  | api/integration/cases.test.ts and web/e2e/admin.live.spec.ts verify manager-only denial and administrator route fallback                                               |
+| AUTH-019  | api/src/auth.ts; api/src/routes/auth.ts; api/src/routes/admin.ts                                  | MySQL tests reject registration role injection, mismatched role claims, and unauthorized administrator endpoints without new users                                     |
+| ADMIN-001 | api/src/routes/admin.ts; web/src/pages/Managers.tsx                                               | MySQL, component, and real-browser tests verify account filters, pages, safe summaries, detail links, and ordinary-role denial                                         |
+| UNIT-008  | api/prisma/schema.prisma; api/src/routes/inventory.ts; web/src/pages/Units.tsx                    | api/integration/unit-lifecycle.test.ts persists USD/AED, decimal owner rent, and literal multiline payment schedules; real browsers capture and display the schedule   |
+| UNIT-015  | api/src/routes/inventory.ts; web/src/unit-amenities.ts; web/src/pages/Units.tsx                   | MySQL and real browsers persist air conditioning, furnished, bed, television, refrigerator, and bathroom flags                                                         |
+| UNIT-016  | api/src/routes/inventory.ts; web/src/unit-amenities.ts; web/src/pages/Units.tsx                   | MySQL and real browsers persist kitchen, laundry, balcony, parking, Wi-Fi, and cleaning flags                                                                          |
+| UNIT-017  | api/src/routes/inventory.ts; web/src/pages/Units.tsx; web/src/pages/UnitDetail.tsx                | Tests verify custom labels, duplicate-label removal, limits, edits, persistence, and display                                                                           |
+| UNIT-018  | api/src/routes/inventory.ts; api/src/space-availability.ts; web/src/components/unit-lifecycle.tsx | MySQL verifies open-contract guards, archive/admission races, preserved history, and single audit events; browsers verify confirmation, reload, and draft-only restore |
+| SPACE-002 | api/src/routes/inventory.ts; web/src/pages/UnitDetail.tsx                                         | Existing route, form, and MySQL suites verify Room and Master Room create/edit with required bathroom rules                                                            |
+| SPACE-004 | api/prisma/schema.prisma; api/src/routes/inventory.ts; api/src/routes/contracts.ts                | Enum retention and database/API tests verify globally disabled Bed Space and Partition, including legacy active flags                                                  |
+| SPACE-005 | api/src/routes/inventory.ts; api/src/routes/contracts.ts                                          | MySQL tests deny legacy disabled-type contracts; route tests deny disabled-type create/edit; public advertisement has no writable initial-release endpoint             |
+| SPACE-006 | web/src/pages/UnitDetail.tsx; web/e2e/preview.spec.ts                                             | Desktop keyboard and mobile touch open the Future feature disclosure; the summary also exposes native hover title help                                                 |
+| SPACE-007 | api/src/routes/inventory.ts; web/src/pages/UnitDetail.tsx                                         | Route, component, MySQL, and browser suites persist names, supported types, physical capacity, and operational availability                                            |
+| SPACE-011 | api/src/routes/contracts.ts; api/src/space-availability.ts                                        | api/integration/space.test.ts verifies contract rejection for inactive and maintenance spaces                                                                          |
+| SPACE-015 | api/src/routes/inventory.ts; api/src/routes/contracts.ts                                          | api/integration/space.test.ts and unit-lifecycle.test.ts verify unchanged contract rent/deposit after asking-price and unit-default edits                              |
+| TEN-004   | api/src/routes/auth.ts                                                                            | MySQL tests verify absent public tenant registration, rejected TENANT role injection, and no created user                                                              |
+| CASE-004  | api/src/case-rules.ts; api/src/routes/requests.ts; web/src/components/case-editor.tsx             | MySQL verifies private Draft, Submitted, Seen, Awaiting Tenant, and Awaiting Manager; real browsers explicitly submit a private draft                                  |
+| CASE-007  | api/src/case-rules.ts; api/src/routes/requests.ts                                                 | MySQL verifies version conflicts, serialized decisions, role denial, invalid states, closed-contract draft rejection, and replay-safe events                           |
+
+Owner payment schedules remain descriptive records, not posted obligations or approved due-date calculations.
+Additional amenities are unit-specific labels; the global administrator amenity catalog remains incomplete.
+Draft content editing/deletion, document review, MFA, account moderation, and approved support remain incomplete.
+Unsupported financial case types still reject generic mutations rather than invent business rules.
+The account-status mutation endpoint now fails closed until its MFA and identity/document policy prerequisites exist.
+Audit summaries exclude arbitrary legacy bodies instead of exposing old sensitive complaint or credential payloads.
+We verified administrator review and unit amenity screenshots without clipping.
+The failed browser fixture used an exact URL without new filter parameters; pathname matching restores the same failure/retry assertions.
+Migration, exact scope, and remaining gates: [OPERATIONS-BATCH.md](OPERATIONS-BATCH.md).
