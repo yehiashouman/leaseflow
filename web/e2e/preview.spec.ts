@@ -118,5 +118,52 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await logout(page, mobile);
   await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+  await navigation(page, 'Requests', mobile);
+  await page.getByRole('button', { name: 'New request', exact: true }).click();
+  await page
+    .getByRole('dialog')
+    .getByLabel('Title *', { exact: true })
+    .fill('Preview private repair');
+  await page
+    .getByRole('dialog')
+    .getByLabel('Description *', { exact: true })
+    .fill('Synthetic case details');
+  await page.getByRole('dialog').getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Preview private repair', exact: true }),
+  ).toBeVisible();
+  const caseUrl = page.url();
+  await logout(page, mobile);
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Portfolio overview' })).toBeVisible();
+  await page.goto(caseUrl);
+  for (const [label, response] of [
+    ['Start work', ''],
+    ['Mark resolved', 'Synthetic repair completed'],
+  ]) {
+    await page.getByRole('button', { name: label, exact: true }).click();
+    if (response)
+      await page.getByRole('alertdialog').getByLabel('Response', { exact: false }).fill(response);
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Confirm', exact: true })
+      .click();
+    await expect(page.getByRole('alertdialog')).not.toBeVisible();
+  }
+  await expect(page.getByRole('button', { name: 'Close case', exact: true })).not.toBeVisible();
+  await logout(page, mobile);
+  await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+  await page.goto(caseUrl);
+  await page.getByRole('button', { name: 'Accept completion', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).not.toBeVisible();
+  await page.reload();
+  await expect(page.getByText('Completion accepted', { exact: false })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: testInfo.outputPath('case-preview.png'), fullPage: true });
   expect(backendRequests).toEqual([]);
 });

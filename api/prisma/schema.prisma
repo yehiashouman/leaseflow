@@ -319,24 +319,34 @@ model Request {
   metadata Json?
   decisionDueAt DateTime?
   resolvedAt DateTime?
+  version Int @default(0)
+  clientId String?
   contract Contract @relation(fields: [contractId], references: [id])
   events RequestEvent[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([contractId, status])
   @@index([decisionDueAt, status])
+  @@unique([contractId, clientId])
 }
 
 model RequestEvent {
   id String @id @default(cuid())
   requestId String
   actorUserId String?
+  actorName String? @db.VarChar(150)
+  actorRole Role?
+  clientId String?
+  sequence Int?
+  fromStatus String?
   kind String
   message String? @db.Text
   metadata Json?
   request Request @relation(fields: [requestId], references: [id])
   createdAt DateTime @default(now())
   @@index([requestId, createdAt])
+  @@unique([requestId, clientId])
+  @@unique([requestId, sequence])
 }
 
 model Expense {

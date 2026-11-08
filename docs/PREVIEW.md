@@ -24,6 +24,9 @@ https://yehiashouman.github.io/leaseflow/
 - Set vacant rooms to maintenance or inactive; restore them without deletion.
 - Verify occupied-room restrictions and preserved contract rent after base-price edits.
 - Inspect synthetic contracts and requests.
+- Submit synthetic operational cases and inspect private role-specific histories.
+- Exchange case messages, report resolution, accept completion, and reopen cases.
+- Preserve case history and decisions after reload without backend requests.
 - Open Security, inspect synthetic sessions, and revoke the synthetic second device.
 - Verify persisted synthetic session revocation after reload.
 - Reset synthetic data through the preview banner.

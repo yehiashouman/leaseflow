@@ -17,6 +17,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Units } from './pages/Units';
 import { Contracts } from './pages/Contracts';
 import { Requests } from './pages/Requests';
+import { RequestDetail } from './pages/RequestDetail';
 import { Landlords } from './pages/Landlords';
 import { LandlordDetail } from './pages/LandlordDetail';
 import { UnitDetail } from './pages/UnitDetail';
@@ -182,6 +183,7 @@ export default function App() {
             <Route element={<Guard roles={['LEASING_MANAGER', 'TENANT']} />}>
               <Route path="contracts" element={<Contracts />} />
               <Route path="requests" element={<Requests />} />
+              <Route path="requests/:id" element={<RequestDetail />} />
             </Route>
           </Route>
         </Route>

@@ -1,5 +1,6 @@
 import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios';
 import type { Role, SessionUser } from '../session';
+import { mutatePreviewCase, previewCase, previewCaseContract, previewCaseTypes } from './cases';
 
 type RecordData = { id: string; [key: string]: any };
 type PreviewStore = {
@@ -93,6 +94,23 @@ export function freshPreview(): PreviewStore {
         title: 'Kitchen tap repair',
         description: 'Synthetic request for the preview.',
         status: 'SUBMITTED',
+        contractId: 'contract-1',
+        version: 1,
+        metadata: { urgency: 'NORMAL', category: 'Plumbing' },
+        createdAt: '2026-11-01T08:00:00Z',
+        updatedAt: '2026-11-01T08:00:00Z',
+        events: [
+          {
+            id: 'event-1',
+            kind: 'SUBMITTED',
+            message: 'Synthetic request for the preview.',
+            actorUserId: 'preview-TENANT',
+            actorName: 'Demo Tenant',
+            actorRole: 'TENANT',
+            sequence: 1,
+            createdAt: '2026-11-01T08:00:00Z',
+          },
+        ],
       },
     ],
   };
@@ -227,7 +245,16 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       : fail('Insufficient permissions', 403);
   if (path === '/dashboard/tenant')
     return role === 'TENANT'
-      ? respond({ contracts: store.contracts })
+      ? respond({
+          contracts: store.contracts.map((contract) => ({
+            ...contract,
+            requests: store.requests.filter(
+              (item) =>
+                (item.contractId ?? 'contract-1') === contract.id &&
+                !['ACCEPTED', 'CLOSED', 'REJECTED'].includes(item.status),
+            ),
+          })),
+        })
       : fail('Insufficient permissions', 403);
   if (path === '/dashboard/manager') {
     if (role !== 'LEASING_MANAGER') return fail('Insufficient permissions', 403);
@@ -236,7 +263,9 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       units: store.units.length,
       occupied: spaces.filter((space) => space.status === 'OCCUPIED').length,
       vacant: spaces.filter((space) => space.status === 'AVAILABLE').length,
-      openRequests: store.requests.length,
+      openRequests: store.requests.filter(
+        (item) => !['ACCEPTED', 'CLOSED', 'REJECTED'].includes(item.status),
+      ).length,
       overdue: 0,
       depositsHeld: 3000,
       income: 1000,
@@ -245,8 +274,130 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
   }
   if (path === '/contracts' && method === 'get')
     return role !== 'ADMIN' ? respond(store.contracts) : fail('Insufficient permissions', 403);
-  if (path === '/requests' && method === 'get')
-    return role !== 'ADMIN' ? respond(store.requests) : fail('Insufficient permissions', 403);
+  if (path === '/requests' || path.startsWith('/requests/')) {
+    if (role === 'ADMIN') return fail('Insufficient permissions', 403);
+    if (path === '/requests/options' && method === 'get') {
+      if (role !== 'TENANT') return fail('Insufficient permissions', 403);
+      return respond({
+        types: previewCaseTypes,
+        contracts: store.contracts
+          .filter((contract) =>
+            ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status),
+          )
+          .map(previewCaseContract),
+      });
+    }
+    if (path === '/requests' && method === 'get') {
+      const query = String(config.params?.q ?? '')
+        .trim()
+        .toLowerCase();
+      return respond(
+        store.requests
+          .filter(
+            (item) =>
+              (role !== 'LEASING_MANAGER' || item.status !== 'DRAFT') &&
+              (!config.params?.status || item.status === config.params.status) &&
+              (!config.params?.type || item.type === config.params.type) &&
+              (!query || item.title.toLowerCase().includes(query)),
+          )
+          .map((item) => previewCase(item, store.contracts, role)),
+      );
+    }
+    if (path === '/requests' && method === 'post') {
+      if (role !== 'TENANT') return fail('Insufficient permissions', 403);
+      if (!previewCaseTypes.includes(data.type))
+        return fail('Dedicated workflow not implemented', 409);
+      if (
+        Object.keys(data).some(
+          (key) =>
+            ![
+              'contractId',
+              'clientId',
+              'type',
+              'title',
+              'description',
+              'category',
+              'urgency',
+            ].includes(key),
+        ) ||
+        typeof data.title !== 'string' ||
+        data.title.trim().length < 3 ||
+        data.title.trim().length > 160 ||
+        typeof data.description !== 'string' ||
+        data.description.trim().length < 3 ||
+        data.description.trim().length > 5000 ||
+        !/^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/i.test(data.clientId ?? '') ||
+        (data.category != null &&
+          (typeof data.category !== 'string' || data.category.length > 100)) ||
+        !['NORMAL', 'URGENT'].includes(data.urgency ?? 'NORMAL')
+      )
+        return fail('Verify the request fields.', 422);
+      const contract = store.contracts.find((item) => item.id === data.contractId);
+      if (!contract) return fail('Contract not found', 404);
+      const content = {
+        type: data.type,
+        title: data.title.trim(),
+        description: data.description.trim(),
+        metadata: { category: data.category?.trim() || null, urgency: data.urgency ?? 'NORMAL' },
+      };
+      let record = store.requests.find(
+        (item) => item.contractId === data.contractId && item.clientId === data.clientId,
+      );
+      if (record) {
+        if (
+          Object.entries(content).some(
+            ([key, value]) => JSON.stringify(record![key]) !== JSON.stringify(value),
+          )
+        )
+          return fail('Submission key reused with different content', 409);
+      } else {
+        if (!['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status))
+          return fail('A new request requires an open contract', 409);
+        const now = new Date().toISOString();
+        record = {
+          id: crypto.randomUUID(),
+          ...content,
+          contractId: contract.id,
+          clientId: data.clientId,
+          status: 'SUBMITTED',
+          version: 1,
+          createdAt: now,
+          updatedAt: now,
+          events: [
+            {
+              id: crypto.randomUUID(),
+              kind: 'SUBMITTED',
+              message: content.description,
+              actorUserId: 'preview-TENANT',
+              actorName: 'Demo Tenant',
+              actorRole: 'TENANT',
+              sequence: 1,
+              createdAt: now,
+            },
+          ],
+        };
+        store.requests.push(record);
+        localStorage.setItem(storageKey, JSON.stringify(store));
+      }
+      return respond(previewCase(record, store.contracts, role), 201);
+    }
+    const match = path.match(/^\/requests\/([^/]+)(?:\/(messages|respond))?$/);
+    if (match) {
+      const record = store.requests.find(
+        (item) => item.id === match[1] && (role !== 'LEASING_MANAGER' || item.status !== 'DRAFT'),
+      );
+      if (!record) return fail('Request not found', 404);
+      if (!match[2] && method === 'get') return respond(previewCase(record, store.contracts, role));
+      if (match[2] && method === 'post') {
+        mutatePreviewCase(record, match[2], data, role, fail);
+        localStorage.setItem(storageKey, JSON.stringify(store));
+        return respond(
+          previewCase(record, store.contracts, role),
+          match[2] === 'messages' ? 201 : 200,
+        );
+      }
+    }
+  }
   if (role === 'LEASING_MANAGER' && ['post', 'patch'].includes(method)) {
     let item: RecordData;
     if (/^\/inventory\/landlords\/[^/]+\/(archive|restore)$/.test(path) && method === 'post') {

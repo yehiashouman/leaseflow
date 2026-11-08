@@ -1,0 +1,85 @@
+export type CaseAction = { status: string; requiresMessage: boolean };
+export type CaseContract = {
+  id: string;
+  status: string;
+  startDate?: string;
+  tenant?: { id: string; fullName: string };
+  rentalSpace?: { id?: string; name: string; unit: { id?: string; name: string; area?: string } };
+};
+export type CaseEvent = {
+  id: string;
+  kind: string;
+  message?: string | null;
+  createdAt?: string;
+  actorUserId?: string | null;
+  actorName?: string | null;
+  actorRole?: string | null;
+  fromStatus?: string | null;
+  sequence?: number | null;
+};
+export type CaseRecord = {
+  id: string;
+  contractId: string;
+  type: string;
+  status: string;
+  title: string;
+  description: string;
+  version: number;
+  createdAt?: string;
+  updatedAt?: string;
+  resolvedAt?: string | null;
+  metadata?: { category?: string | null; urgency?: string };
+  contract?: CaseContract;
+  events?: CaseEvent[];
+  allowedActions?: CaseAction[];
+  canMessage?: boolean;
+};
+export const caseTypes: Record<string, string> = {
+  MAINTENANCE: 'Maintenance',
+  NEIGHBOR_COMPLAINT: 'Neighbor complaint',
+  KEY_LOCK_CHANGE: 'Key/lock change',
+  GENERAL: 'General request',
+  LATE_PAYMENT: 'Late payment',
+  ROOM_CHANGE: 'Room change',
+  MOVE_OUT: 'Move-out',
+};
+export const caseStatuses: Record<string, string> = {
+  DRAFT: 'Draft',
+  SUBMITTED: 'Submitted',
+  SEEN: 'Seen',
+  AWAITING_MANAGER: 'Awaiting manager',
+  AWAITING_TENANT: 'Awaiting tenant',
+  APPROVED: 'Approved',
+  REJECTED: 'Rejected',
+  IN_PROGRESS: 'In progress',
+  RESOLVED: 'Resolved - awaiting tenant acknowledgement',
+  ACCEPTED: 'Accepted',
+  REOPENED: 'Reopened',
+  DEADLOCK: 'External resolution required',
+  CLOSED: 'Closed',
+};
+export const caseCommands: Record<string, string> = {
+  SEEN: 'Mark seen',
+  AWAITING_MANAGER: 'Send to manager',
+  AWAITING_TENANT: 'Request tenant response',
+  APPROVED: 'Approve request',
+  REJECTED: 'Reject request',
+  IN_PROGRESS: 'Start work',
+  RESOLVED: 'Mark resolved',
+  ACCEPTED: 'Accept completion',
+  REOPENED: 'Reopen case',
+  CLOSED: 'Close case',
+};
+export function caseEventLabel(kind: string) {
+  return kind === 'MESSAGE'
+    ? 'Message'
+    : kind === 'RESOLVED'
+      ? 'Resolution reported'
+      : kind === 'ACCEPTED'
+        ? 'Completion accepted'
+        : (caseStatuses[kind] ?? kind.replaceAll('_', ' '));
+}
+export function caseDate(value?: string | null) {
+  if (!value || !Number.isFinite(new Date(value).getTime())) return '-';
+  return new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' });
+}
