@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { UserStatus } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
+import { maskIdentity } from '../account-policy.js';
 import { prisma } from '../db.js';
 
 const summary = {
@@ -92,7 +93,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       leasingManager: user.leasingManager
         ? {
             ...user.leasingManager,
-            emiratesIdNumber: mask(user.leasingManager.emiratesIdNumber),
+            emiratesIdNumber: maskIdentity(user.leasingManager.emiratesIdNumber),
             licenseNumber: mask(user.leasingManager.licenseNumber),
           }
         : null,

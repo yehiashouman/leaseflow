@@ -298,7 +298,7 @@ describe('MySQL account tokens, private setup sessions, invitations, and durable
     const me = await send('GET', '/api/v1/auth/setup/me', undefined, row.accessToken);
     expect(me.json().identityComplete).toBe(false);
     expect(me.body).not.toContain('784-1990-1234567-1');
-    expect(me.json().profile.emiratesIdNumber).toBe('****67-1');
+    expect(me.json().profile.emiratesIdNumber).toBe('****5671');
   });
   it('issues generic password-recovery responses and revokes all sessions after one-time reset', async () => {
     const row = await register();

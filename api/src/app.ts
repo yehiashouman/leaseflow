@@ -35,7 +35,16 @@ import { maintenanceRoutes } from './routes/maintenance.js';
 
 export async function buildApp() {
   const app = Fastify({
-    logger: { level: env.LOG_LEVEL },
+    logger: {
+      level: env.LOG_LEVEL,
+      serializers: {
+        req: (request) => ({
+          method: request.method,
+          url: request.url?.split('?')[0],
+          remoteAddress: request.ip,
+        }),
+      },
+    },
     trustProxy: trustedProxies,
     bodyLimit: 2 * 1024 * 1024,
     requestIdHeader: false,

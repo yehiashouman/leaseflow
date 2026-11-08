@@ -12,6 +12,8 @@ import {
   declarationText,
   declarationVersion,
   securityLimits,
+  sealIdentity,
+  maskIdentity,
 } from '../account-policy.js';
 import { issueAccountToken } from '../account-email.js';
 import { env } from '../config.js';
@@ -278,20 +280,21 @@ export const accountRoutes: FastifyPluginAsync<{ phoneProvider?: PhoneProvider }
           (!row.expiresAt || row.expiresAt > new Date()),
       ) &&
       (!user.leasingManager?.licenseNumber ||
-        documents.some(
-          (row) =>
-            row.series.purpose === 'LICENSE' &&
-            row.status === 'CLEAN' &&
-            (!row.expiresAt || row.expiresAt > new Date()),
-        )),
+        (Boolean(
+          user.leasingManager.licenseExpiry && user.leasingManager.licenseExpiry > new Date(),
+        ) &&
+          documents.some(
+            (row) =>
+              row.series.purpose === 'LICENSE' &&
+              row.status === 'CLEAN' &&
+              (!row.expiresAt || row.expiresAt > new Date()),
+          ))),
     );
     const maskProfile = (value: typeof profile) =>
       value
         ? {
             ...value,
-            emiratesIdNumber: value.emiratesIdNumber
-              ? '****' + value.emiratesIdNumber.slice(-4)
-              : null,
+            emiratesIdNumber: maskIdentity(value.emiratesIdNumber),
           }
         : null;
     return {
@@ -459,7 +462,7 @@ export const accountRoutes: FastifyPluginAsync<{ phoneProvider?: PhoneProvider }
         fullName: body.fullName,
         dateOfBirth: new Date(body.dateOfBirth),
         nationality: body.nationality,
-        emiratesIdNumber: body.emiratesIdNumber,
+        emiratesIdNumber: sealIdentity(body.emiratesIdNumber),
         emiratesIdExpiry: new Date(body.emiratesIdExpiry),
       };
       if (user.role === 'LEASING_MANAGER')

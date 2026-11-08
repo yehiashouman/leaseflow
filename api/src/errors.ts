@@ -27,7 +27,11 @@ export function sendApiError(cause: unknown, request: FastifyRequest, reply: Fas
     });
   const error = cause as { statusCode?: number; name?: string; message?: string; code?: string };
   const status =
-    error.statusCode && error.statusCode >= 400 && error.statusCode <= 599 ? error.statusCode : 500;
+    error.code === 'P2034'
+      ? 409
+      : error.statusCode && error.statusCode >= 400 && error.statusCode <= 599
+        ? error.statusCode
+        : 500;
   if (status >= 500)
     request.log.error(
       { requestId: request.id, status, errorType: error.name ?? 'Error' },
@@ -49,7 +53,9 @@ export function sendApiError(cause: unknown, request: FastifyRequest, reply: Fas
         ? status === 503
           ? 'Service is not ready.'
           : 'Internal server error'
-        : (error.message ?? 'Request rejected'),
+        : error.code === 'P2034'
+          ? 'Record changed. Reload before retry.'
+          : (error.message ?? 'Request rejected'),
     requestId: request.id,
   });
 }

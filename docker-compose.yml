@@ -26,6 +26,13 @@ services:
     volumes: [minio-data:/data]
     healthcheck: {test: [CMD, wget, -q, -O-, http://127.0.0.1:9000/minio/health/live], interval: 10s, timeout: 3s, retries: 10}
     networks: [backend]
+  clamav:
+    image: clamav/clamav:stable
+    profiles: [private-files]
+    restart: unless-stopped
+    volumes: [clamav-data:/var/lib/clamav]
+    networks: [backend, scan-updates]
+    healthcheck: {test: [CMD, clamdcheck.sh], interval: 10s, timeout: 5s, retries: 30, start_period: 60s}
   migrate:
     build: {context: ., dockerfile: api/Dockerfile, target: build}
     working_dir: /app
@@ -56,6 +63,8 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       DEMO_MODE: "${DEMO_MODE:-false}"
       TRUST_PROXY: ${TRUST_PROXY:-172.29.80.0/24}
+      FILES_ENABLED: ${FILES_ENABLED:-false}
+      CLAMAV_HOST: clamav
       S3_ENDPOINT: http://minio:9000
       S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minio-local-secret}
@@ -72,5 +81,5 @@ services:
     depends_on: {api: {condition: service_healthy}}
     networks: [frontend]
     security_opt: [no-new-privileges:true]
-volumes: {mysql-data: {}, redis-data: {}, minio-data: {}}
-networks: {backend: {internal: true}, frontend: {ipam: {config: [{subnet: "${FRONTEND_SUBNET:-172.29.80.0/24}"}]}}}
+volumes: {mysql-data: {}, redis-data: {}, minio-data: {}, clamav-data: {}}
+networks: {scan-updates: {}, backend: {internal: true}, frontend: {ipam: {config: [{subnet: "${FRONTEND_SUBNET:-172.29.80.0/24}"}]}}}

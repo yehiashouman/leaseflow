@@ -120,15 +120,24 @@ const forbiddenPdfKeys = new Set([
 ]);
 export async function sanitizeFile(bytes: Buffer, mimeType: string): Promise<Buffer> {
   if (mimeType.startsWith('image/')) {
-    const image = sharp(bytes, { limitInputPixels: 40000000, animated: false, failOn: 'warning' });
-    const metadata = await image.metadata();
-    if ((metadata.pages ?? 1) > 1) throw new UnsafeFile('ANIMATED_IMAGE');
-    const output = image
-      .rotate()
-      .resize({ width: 4096, height: 4096, fit: 'inside', withoutEnlargement: true });
-    return mimeType === 'image/png'
-      ? output.png().toBuffer()
-      : output.jpeg({ quality: 90 }).toBuffer();
+    try {
+      const image = sharp(bytes, {
+        limitInputPixels: 40000000,
+        animated: false,
+        failOn: 'warning',
+      });
+      const metadata = await image.metadata();
+      if ((metadata.pages ?? 1) > 1) throw new UnsafeFile('ANIMATED_IMAGE');
+      const output = image
+        .rotate()
+        .resize({ width: 4096, height: 4096, fit: 'inside', withoutEnlargement: true });
+      return mimeType === 'image/png'
+        ? await output.png().toBuffer()
+        : await output.jpeg({ quality: 90 }).toBuffer();
+    } catch (cause) {
+      if (cause instanceof UnsafeFile) throw cause;
+      throw new UnsafeFile('INVALID_IMAGE');
+    }
   }
   let source: PDFDocument;
   try {
