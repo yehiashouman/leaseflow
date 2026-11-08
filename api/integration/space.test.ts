@@ -11,6 +11,7 @@ describe('MySQL room persistence and concurrent contract admission', () => {
   let unitId: string;
   let spaceId: string;
   let tenantId: string;
+  let sessionId: string;
   const userIds: string[] = [];
 
   beforeAll(async () => {
@@ -31,6 +32,11 @@ describe('MySQL room persistence and concurrent contract admission', () => {
     userId = manager.id;
     userIds.push(userId);
     managerId = manager.leasingManager!.id;
+    sessionId = (
+      await prisma.authSession.create({
+        data: { userId, expiresAt: new Date(Date.now() + 3600000) },
+      })
+    ).id;
     const tenant = await prisma.user.create({
       data: {
         email: randomUUID() + '@integration.invalid',
@@ -69,7 +75,10 @@ describe('MySQL room persistence and concurrent contract admission', () => {
       await prisma.tenantProfile.deleteMany({ where: { managerId } });
       await prisma.leasingManagerProfile.deleteMany({ where: { id: managerId } });
     }
-    if (userIds.length) await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    if (userIds.length) {
+      await prisma.authSession.deleteMany({ where: { userId: { in: userIds } } });
+      await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    }
     if (app) await app.close();
     else await prisma.$disconnect();
   });
@@ -78,7 +87,8 @@ describe('MySQL room persistence and concurrent contract admission', () => {
       method: 'PATCH',
       url: '/api/v1/inventory/spaces/' + id,
       headers: {
-        authorization: 'Bearer ' + app.jwt.sign({ sub: userId, role: 'LEASING_MANAGER' }),
+        authorization:
+          'Bearer ' + app.jwt.sign({ sub: userId, role: 'LEASING_MANAGER', sid: sessionId }),
       },
       payload: {
         name: 'Room Updated',
@@ -95,7 +105,8 @@ describe('MySQL room persistence and concurrent contract admission', () => {
       method: 'POST',
       url: '/api/v1/contracts',
       headers: {
-        authorization: 'Bearer ' + app.jwt.sign({ sub: userId, role: 'LEASING_MANAGER' }),
+        authorization:
+          'Bearer ' + app.jwt.sign({ sub: userId, role: 'LEASING_MANAGER', sid: sessionId }),
       },
       payload: {
         tenantId,

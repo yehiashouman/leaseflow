@@ -1,4 +1,4 @@
-import { Building2, FileText, Inbox, LayoutDashboard, LogOut, Menu } from 'lucide-react';
+import { Building2, FileText, Inbox, LayoutDashboard, LogOut, Menu, Shield } from 'lucide-react';
 import { Navigate, NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { useAuth } from './auth';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,8 @@ import { UnitDetail } from './pages/UnitDetail';
 import { PreviewBanner } from './components/preview-banner';
 import { previewMode, type Role } from './session';
 import { QueryFeedback } from './components/query-feedback';
+import { Security } from './pages/Security';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -29,6 +31,7 @@ const navigation = [
   { to: '/landlords', label: 'Landlords', icon: Building2 },
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
+  { to: '/security', label: 'Security', icon: Shield },
 ];
 
 function Guard({ roles }: { roles?: Role[] }) {
@@ -48,6 +51,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
   const links = navigation.filter(
     (item) =>
       item.to === '/' ||
+      item.to === '/security' ||
       user?.role === 'LEASING_MANAGER' ||
       (user?.role === 'TENANT' && ['/contracts', '/requests'].includes(item.to)),
   );
@@ -83,7 +87,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
 }
 
 function Layout() {
-  const { logout, user } = useAuth();
+  const { logout, user, logoutPending, logoutError } = useAuth();
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[220px_minmax(0,1fr)]">
       <aside className="hidden flex-col gap-8 border-r bg-card px-4 py-6 lg:flex">
@@ -92,7 +96,12 @@ function Layout() {
           LeaseFlow
         </NavLink>
         <Navigation />
-        <Button variant="ghost" className="mt-auto justify-start" onClick={logout}>
+        <Button
+          variant="ghost"
+          className="mt-auto justify-start"
+          disabled={logoutPending}
+          onClick={() => void logout()}
+        >
           <LogOut aria-hidden="true" />
           Sign out
         </Button>
@@ -123,7 +132,8 @@ function Layout() {
                 <Button
                   variant="ghost"
                   className="mx-4 mt-auto mb-4 justify-start"
-                  onClick={logout}
+                  disabled={logoutPending}
+                  onClick={() => void logout()}
                 >
                   <LogOut aria-hidden="true" />
                   Sign out
@@ -140,6 +150,11 @@ function Layout() {
           </div>
         </header>
         <main id="main-content" className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+          {logoutError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{logoutError}</AlertDescription>
+            </Alert>
+          )}
           <Outlet />
         </main>
       </div>
@@ -156,6 +171,7 @@ export default function App() {
         <Route element={<Guard />}>
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
+            <Route path="security" element={<Security />} />
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>
               <Route path="units" element={<Units />} />
               <Route path="units/:id" element={<UnitDetail />} />

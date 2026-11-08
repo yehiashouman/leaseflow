@@ -29,6 +29,15 @@ jobs:
       - run: npm run prisma:migrate -w api
       - run: npm run test:integration -w api
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:auth -w web
+      - name: Retain authentication browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: authentication-browser-verification
+          path: web/test-results/auth
+          retention-days: 7
       - run: npm audit --audit-level=high
       - run: npx prisma validate --schema api/prisma/schema.prisma
       - name: Validate Docker Compose configuration

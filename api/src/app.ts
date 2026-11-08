@@ -4,6 +4,7 @@ import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import sensible from '@fastify/sensible';
+import cookie from '@fastify/cookie';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { ZodError } from 'zod';
@@ -20,6 +21,7 @@ import { adminRoutes } from './routes/admin.js';
 export async function buildApp() {
   const app = Fastify({ logger: { level: env.LOG_LEVEL }, trustProxy: true, bodyLimit: 2 * 1024 * 1024, requestIdHeader: 'x-request-id' });
   await app.register(sensible);
+  await app.register(cookie);
   await app.register(helmet, { global: true });
   await app.register(cors, {
     origin: (origin, cb) => {

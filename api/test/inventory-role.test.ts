@@ -11,6 +11,7 @@ const db = vi.hoisted(() => ({
   contract: { findMany: vi.fn(), create: vi.fn() },
   payment: { create: vi.fn() },
   auditEvent: { create: vi.fn() },
+  authSession: { findFirst: vi.fn() },
   $transaction: vi.fn(),
   $queryRaw: vi.fn(),
   $disconnect: vi.fn(),
@@ -38,6 +39,7 @@ describe('inventory writes and role dashboards', () => {
     db.leasingManagerProfile.findUniqueOrThrow.mockResolvedValue({ id: 'manager-1' });
     db.$transaction.mockImplementation((callback) => callback(db));
     db.auditEvent.create.mockResolvedValue({});
+    db.authSession.findFirst.mockResolvedValue({ id: 'session-1' });
     db.$queryRaw.mockResolvedValue([{ id: 'space-1' }]);
     db.contract.findMany.mockResolvedValue([]);
   });
@@ -51,7 +53,9 @@ describe('inventory writes and role dashboards', () => {
       method,
       url,
       payload,
-      headers: { authorization: 'Bearer ' + app.jwt.sign({ sub: 'user-1', role }) },
+      headers: {
+        authorization: 'Bearer ' + app.jwt.sign({ sub: 'user-1', role, sid: 'session-1' }),
+      },
     });
   }
   const unit = { name: 'Demo Apartment', area: 'Dubai Marina', declarationAccepted: true };

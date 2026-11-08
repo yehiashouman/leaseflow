@@ -9,3 +9,15 @@ export type SessionUser = {
 };
 export const previewMode = import.meta.env.VITE_PREVIEW === 'true';
 export const sessionKey = previewMode ? 'leaseflow-preview-token' : 'accessToken';
+export const sessionOwnerKey = previewMode ? 'leaseflow-preview-owner' : 'leaseflow-session-owner';
+let version = 0;
+export const sessionVersion = () => version;
+export function clearSessionStorage() {
+  version++;
+  sessionStorage.removeItem(sessionKey);
+  sessionStorage.removeItem(sessionOwnerKey);
+}
+export function startSession(token: string) {
+  clearSessionStorage();
+  sessionStorage.setItem(sessionKey, token);
+}

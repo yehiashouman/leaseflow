@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export function durationSeconds(value: string) {
+  const match = /^([1-9]\d*)([smhd])$/.exec(value);
+  if (!match) return NaN;
+  const units: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 };
+  return Number(match[1]) * units[match[2]!]!;
+}
+
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -8,8 +15,20 @@ const schema = z.object({
   REDIS_URL: z.string().min(1),
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_REFRESH_SECRET: z.string().min(32),
-  ACCESS_TOKEN_TTL: z.string().default('15m'),
-  REFRESH_TOKEN_TTL: z.string().default('30d'),
+  ACCESS_TOKEN_TTL: z
+    .string()
+    .default('15m')
+    .refine(
+      (value) => durationSeconds(value) > 0 && durationSeconds(value) <= 3600,
+      'Use a positive duration up to 1h.',
+    ),
+  REFRESH_TOKEN_TTL: z
+    .string()
+    .default('30d')
+    .refine(
+      (value) => durationSeconds(value) > 0 && durationSeconds(value) <= 90 * 86400,
+      'Use a positive duration up to 90d.',
+    ),
   CORS_ORIGINS: z.string().default('http://localhost:8080'),
   DEMO_MODE: z
     .string()
@@ -60,7 +79,9 @@ function isCodespacesOrigin(origin: string): boolean {
   // Require a genuine subdomain (e.g. `<name>-8080.app.github.dev`); the bare
   // `app.github.dev` / `github.dev` root domains are never valid Codespaces
   // origins and must not match.
-  return codespacesWildcardHosts.some((suffix) => hostname.endsWith(suffix) && hostname !== suffix.slice(1));
+  return codespacesWildcardHosts.some(
+    (suffix) => hostname.endsWith(suffix) && hostname !== suffix.slice(1),
+  );
 }
 
 const devLoopbackOrigins = new Set(['http://localhost:8080', 'http://127.0.0.1:8080']);

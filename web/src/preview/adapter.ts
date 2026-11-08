@@ -7,6 +7,7 @@ type PreviewStore = {
   units: RecordData[];
   contracts: RecordData[];
   requests: RecordData[];
+  revokedSessions?: string[];
 };
 const storageKey = 'leaseflow-preview-data-v1';
 const accounts: Record<string, Role> = {
@@ -136,6 +137,40 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return fail('Preview session required', 401);
   if (path === '/auth/me') return respond(userFor(role));
   const store = readStore();
+  if (path === '/auth/logout' && method === 'post') return respond(null, 204);
+  if (path === '/auth/sessions' && method === 'get') {
+    const now = new Date().toISOString();
+    return respond([
+      {
+        id: 'preview-current',
+        current: true,
+        userAgent: 'Current preview browser',
+        ip: '192.0.2.10',
+        createdAt: now,
+        lastUsedAt: now,
+        expiresAt: '2099-01-01T00:00:00Z',
+      },
+      ...((store.revokedSessions ?? []).includes(role + ':preview-other')
+        ? []
+        : [
+            {
+              id: 'preview-other',
+              current: false,
+              userAgent: 'Synthetic second device',
+              ip: '192.0.2.20',
+              createdAt: now,
+              lastUsedAt: now,
+              expiresAt: '2099-01-01T00:00:00Z',
+            },
+          ]),
+    ]);
+  }
+  if (path === '/auth/logout-all' && method === 'post') return respond(null, 204);
+  if (/^\/auth\/sessions\/(preview-current|preview-other)$/.test(path) && method === 'delete') {
+    store.revokedSessions = [...(store.revokedSessions ?? []), role + ':' + path.split('/').at(-1)];
+    localStorage.setItem(storageKey, JSON.stringify(store));
+    return respond(null, 204);
+  }
   const units = () =>
     store.units.map((unit) => ({
       ...unit,

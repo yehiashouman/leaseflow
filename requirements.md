@@ -20,6 +20,7 @@
 
 Implementation status is recorded in `docs/IMPLEMENTATION.md`.
 Full scope progress and verified checklist evidence are recorded in `docs/PROGRESS.md` and `docs/EVIDENCE.md`.
+Session API implementation, migration, and deployment constraints are recorded in `docs/SESSIONS.md`; they do not approve unresolved owner decisions.
 The GitHub Pages preview is synthetic and does not replace API or production acceptance.
 See `docs/PREVIEW.md` for deployment and isolation requirements.
 

@@ -1,6 +1,6 @@
 # Implementation Progress
 
-Date: 7 November 2026.
+Date: 8 November 2026.
 This is a progress record, not a completion certificate.
 Complete scope report: [PROGRESS.md](PROGRESS.md).
 Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
@@ -27,7 +27,7 @@ Verified checklist evidence: [EVIDENCE.md](EVIDENCE.md).
 - Transfer, move-out, and request workflows remain incomplete.
 - Expenses, full reports, PDF exports, and durable notification jobs remain incomplete.
 - Administrator moderation screens and audit explorer remain incomplete.
-- Database integration, full browser, backup, and production acceptance remain unverified.
+- Full database acceptance, the full release browser journey, backup, and production acceptance remain unverified.
 - Unresolved decisions in requirements.md still require owner approval.
 
 New units stay drafts until the document and activation workflows exist.
@@ -37,8 +37,8 @@ Do not mark a full checklist module complete from partial implementation evidenc
 
 ## Local Verification
 
-- API suite: 37 tests pass; database-dependent behavior uses mocks.
-- Web suite: 27 tests pass, including forms, roles, session cleanup, and preview data.
+- API suite: 51 tests pass; database-dependent behavior uses mocks.
+- Web suite: 36 tests pass, including forms, roles, session cleanup, and preview data.
 - API and web production builds pass.
 - The isolated GitHub Pages preview build passes.
 - Production JavaScript excludes preview fixtures and preview credentials.
@@ -61,3 +61,12 @@ Contract admission and room edits share a database row lock.
 Contract, first obligation, occupancy status, and audit writes use one transaction.
 Real MySQL concurrency verification passes; CI retains this release gate.
 The public preview uses equivalent synthetic room controls with local persistence.
+
+## Session Security Continuation
+
+See [SESSIONS.md](SESSIONS.md) for API contracts, cookie policy, migration, tests, and explicit limitations.
+The Security interface now connects session review, revocation, and password change to real API operations.
+Refresh cookies replace JSON refresh-token transport.
+Every protected request requires an active database session.
+Ten new MySQL cases and two real-browser cases await GitHub verification.
+Password reset, MFA, registration verification, provider delivery, and full security acceptance remain incomplete.

@@ -21,10 +21,13 @@ https://yehiashouman.github.io/leaseflow/
 - Set vacant rooms to maintenance or inactive; restore them without deletion.
 - Verify occupied-room restrictions and preserved contract rent after base-price edits.
 - Inspect synthetic contracts and requests.
+- Open Security, inspect synthetic sessions, and revoke the synthetic second device.
+- Verify persisted synthetic session revocation after reload.
 - Reset synthetic data through the preview banner.
 
 Unsupported workflows return errors instead of simulated success.
 Browser-local changes do not reach a server.
+The preview does not support real password changes or real session revocation.
 Reset affects only preview data, not real application sessions.
 
 ## Deployment

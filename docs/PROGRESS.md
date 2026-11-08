@@ -1,6 +1,6 @@
 # Full Project Progress Report
 
-Date: 7 November 2026, Asia/Dubai.
+Date: 8 November 2026, Asia/Dubai.
 Source: [checklist.md](../checklist.md).
 Evidence: [EVIDENCE.md](EVIDENCE.md).
 Target: the complete initial release in requirements.md.
@@ -15,8 +15,8 @@ Target: the complete initial release in requirements.md.
 | Strict checklist completion               | 2.62%                                                                                      |
 | UI foundation tasks                       | 10 of 10 verified                                                                          |
 | Open owner decisions                      | 26                                                                                         |
-| Local API unit/route tests                | 37 pass; database mocks where required                                                     |
-| Local web/component/preview-adapter tests | 27 pass                                                                                    |
+| Local API unit/route tests                | 51 pass; database mocks where required                                                     |
+| Local web/component/preview-adapter tests | 36 pass                                                                                    |
 | Previous GitHub browser run               | Four normal-interface and two synthetic-preview tests pass                                 |
 | New browser coverage                      | Room edit, maintenance, inactivity, restore, and reload persistence pass on desktop/mobile |
 | New MySQL suite                           | All five persistence/concurrency cases pass on MySQL 8.4 in GitHub Actions                 |
@@ -30,6 +30,15 @@ An unchecked task can contain partial code; it lacks complete acceptance evidenc
 Additional partial inventory and role work exists beyond the 20 completed tasks.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
+## Session Security Continuation
+
+Session security implementation and migration details: [SESSIONS.md](SESSIONS.md).
+We added database-backed session revocation, HttpOnly refresh cookies, serialized rotation, and replay-family revocation.
+The Security page provides scoped session review, revocation, sign-out-all, and password change.
+Ten new MySQL cases and two real-browser cases await GitHub verification.
+The verified task total stays at 20 until these acceptance gates pass.
+Legacy users must sign in again after the session migration.
+
 ## Complete Scope Coverage
 
 The table covers every numbered checklist section and final sign-off.
@@ -41,7 +50,7 @@ It does not mean that no code exists.
 | 1. Scope and architecture               |    20 |                 6 | Stack verified; durable services and complete workflows remain                                      |
 | 2. Decisions and change control         |    11 |                 0 | Requirements retained; decision approvals and full traceability remain                              |
 | 3. Data and persistence                 |    26 |                 0 | Initial schema exists; complete entity migrations and invariants remain                             |
-| 4. Authentication and sessions          |    19 |                 0 | Role access and account status implemented; MFA, reset, replay protection remain                    |
+| 4. Authentication and sessions          |    19 |                 0 | Session rotation, revocation, and password change await acceptance; MFA and reset remain            |
 | 5. Manager registration and activation  |    17 |                 0 | Complete identity, declaration, verification, and moderation journey remains                        |
 | 6. Administration and support           |    21 |                 0 | Counts exist; review screens, safe moderation, impersonation remain                                 |
 | 7. Private documents and media          |    19 |                 0 | Upload, quarantine, scan, authorization, version, and expiry workflow remains                       |

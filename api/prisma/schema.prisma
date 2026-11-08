@@ -120,6 +120,7 @@ model User {
   leasingManager LeasingManagerProfile?
   tenant TenantProfile?
   refreshTokens RefreshToken[]
+  authSessions AuthSession[]
   auditEvents AuditEvent[] @relation("AuditActor")
 }
 
@@ -356,8 +357,25 @@ model RefreshToken {
   tokenHash String @unique
   expiresAt DateTime
   revokedAt DateTime?
+  sessionId String?
+  session AuthSession? @relation(fields: [sessionId], references: [id])
   user User @relation(fields: [userId], references: [id])
   @@index([userId, expiresAt])
+  @@index([sessionId])
+}
+
+model AuthSession {
+  id String @id @default(cuid())
+  userId String
+  createdAt DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  ip String?
+  userAgent String? @db.VarChar(500)
+  user User @relation(fields: [userId], references: [id])
+  refreshTokens RefreshToken[]
+  @@index([userId, revokedAt, expiresAt])
 }
 
 model AuditEvent {
