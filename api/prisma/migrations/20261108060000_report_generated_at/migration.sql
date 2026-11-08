@@ -1,0 +1,1 @@
+ALTER TABLE `CaseReportJob` ADD COLUMN `generatedAt` DATETIME(3) NULL;

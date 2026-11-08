@@ -66,6 +66,7 @@ The public preview clearly disables PDF exports because it has no live report wo
 ## Migration and Verification
 
 Apply the additive 20261108050000_case_report_jobs migration before deployment.
+Apply 20261108060000_report_generated_at to separate queue and generation timestamps.
 The API adds pdf-lib as a runtime dependency.
 CI installs Poppler for actual PDF text and render assertions.
 Local renderer/component tests pass; hosted MySQL and browser evidence remains pending.

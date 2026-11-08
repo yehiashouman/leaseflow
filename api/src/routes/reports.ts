@@ -17,6 +17,7 @@ const selected = {
   retryCount: true,
   failureCode: true,
   createdAt: true,
+  generatedAt: true,
   completedAt: true,
 } as const;
 const params = z.object({ id: z.string().min(1).max(191) });
@@ -182,7 +183,8 @@ export const reportRoutes: FastifyPluginAsync = async (app) => {
         await audit();
         return reply.type('application/json; charset=utf-8').send({
           reportId: row.id,
-          generatedAt: row.createdAt,
+          queuedAt: row.createdAt,
+          generatedAt: row.generatedAt,
           snapshotHash: row.snapshotHash,
           snapshot: row.snapshot,
           disclaimer: 'Factual platform records. Not legal findings or certification.',
@@ -235,6 +237,7 @@ export const reportRoutes: FastifyPluginAsync = async (app) => {
             pdfBytes: null,
             pdfHash: null,
             completedAt: null,
+            generatedAt: null,
           },
         });
         if (!changed.count)

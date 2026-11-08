@@ -183,6 +183,9 @@ describe('MySQL durable private case reports', () => {
     expect(await runReportWorkerOnce()).toBe(true);
     const status = (await send('GET', '/' + job.id)).json();
     expect(status.status).toBe('COMPLETE');
+    expect(new Date(status.generatedAt).getTime()).toBeGreaterThanOrEqual(
+      new Date(status.createdAt).getTime(),
+    );
     const response = await send('GET', '/' + job.id + '/file');
     expect(response.statusCode, response.body).toBe(200);
     expect(response.headers['content-type']).toBe('application/pdf');
@@ -202,6 +205,7 @@ describe('MySQL durable private case reports', () => {
         job.snapshotHash,
         'Not legal findings or certification',
         'All timestamps UTC',
+        status.generatedAt,
       ])
         expect(text).toContain(value);
       for (const value of ['ownerMonthlyRent', 'passwordHash', 'clientId'])

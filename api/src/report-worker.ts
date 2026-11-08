@@ -29,6 +29,7 @@ export async function runReportWorkerOnce(render = renderCasePdf) {
         where: { id: row.id },
         data: {
           status: 'RUNNING',
+          generatedAt: new Date(),
           attempts: { increment: 1 },
           leaseToken: randomUUID(),
           leaseExpiresAt: new Date(Date.now() + 60000),
@@ -41,7 +42,7 @@ export async function runReportWorkerOnce(render = renderCasePdf) {
   if (!job) return false;
   try {
     if (reportHash(job.snapshot) !== job.snapshotHash) throw new Error('Report integrity mismatch');
-    const bytes = await render(job.snapshot, job.id, job.createdAt);
+    const bytes = await render(job.snapshot, job.id, job.generatedAt!);
     await prisma.caseReportJob.updateMany({
       where: { id: job.id, status: 'RUNNING', leaseToken: job.leaseToken },
       data: {

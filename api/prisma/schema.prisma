@@ -393,6 +393,7 @@ model CaseReportJob {
   leaseExpiresAt DateTime?
   failureCode String?
   createdAt DateTime @default(now())
+  generatedAt DateTime?
   completedAt DateTime?
   request Request @relation(fields: [requestId], references: [id])
   @@unique([ownerUserId, clientId])
