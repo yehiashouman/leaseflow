@@ -78,3 +78,33 @@ The complete rental-space module remains incomplete.
 This host lacks MySQL and Docker; GitHub executes the MySQL integration suite instead.
 CI passes migrations and all five cases in api/integration/space.test.ts.
 Real provider delivery, full release journeys, recovery, and production approval remain unverified.
+
+## Session Security
+
+Verified: 8 November 2026, Asia/Dubai.
+Commit: `697cbf81516bd51c95f2ca7fb69d46acbcd76d35`.
+Environment: GitHub Actions, MySQL 8.4, Node 22, Chromium desktop and mobile.
+Evidence: [API, MySQL, and real-browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/42432955154).
+Preview evidence: [synthetic desktop/mobile verification and deployment](https://github.com/yehiashouman/leaseflow/actions/runs/42432955148).
+
+The run passes 51 API tests, 36 web tests, and 15 MySQL integration cases.
+Two additional real-browser cases pass login, cookie renewal, revocation, password change, and logout against MySQL.
+The preview run passes four normal-interface and two synthetic-preview browser cases.
+Builds, lint, migrations, schema validation, and the high/critical dependency-audit gate pass.
+Seven moderate development-tool advisories remain; the audit gate stays enabled.
+Additional local assertions verify cookie-only mutation rejection and the exact 900-second access-token lifetime in api/test/sessions.test.ts.
+Both API and web container builds pass in the same verification run.
+
+| Item     | Code                                                             | Test and evidence scope                                                                                                                     |
+| -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| AUTH-005 | api/src/auth.ts; api/src/routes/auth.ts; web/src/auth.tsx        | api/integration/sessions.test.ts; web/e2e/auth.live.spec.ts verify immediate revocation and server-confirmed logout                         |
+| AUTH-006 | api/src/sessions.ts; api/src/config.ts; api/prisma/schema.prisma | api/test/session-policy.test.ts; api/integration/sessions.test.ts verify TTL values, rotation, and absolute expiry                          |
+| AUTH-007 | api/src/routes/auth.ts; api/src/sessions.ts                      | api/integration/sessions.test.ts verifies replay-family revocation, independent sessions, and concurrent refresh                            |
+| AUTH-008 | api/src/sessions.ts; api/prisma/schema.prisma; web/src/api.ts    | API tests verify hashes and Secure/HttpOnly/Strict/host-only production flags; real browsers verify HttpOnly behavior                       |
+| AUTH-009 | api/src/sessions.ts; api/src/routes/auth.ts; web/src/api.ts      | api/test/sessions.test.ts verifies required custom headers and cross-site rejection; bearer-only mutations reject cookie-only authorization |
+| AUTH-012 | api/src/routes/auth.ts; web/src/pages/Security.tsx               | MySQL and real-browser tests verify password proof, matching confirmation, session isolation, and password-change revocation                |
+
+The desktop test now waits for the 204 revocation response and verifies database revocation before the strict 401 access assertion.
+This corrects test timing without retries, sleeps, or weaker acceptance criteria.
+Session limitations and migration requirements remain explicit in [SESSIONS.md](SESSIONS.md).
+This evidence does not certify MFA, password reset, or the entire authentication module.

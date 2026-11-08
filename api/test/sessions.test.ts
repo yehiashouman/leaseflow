@@ -22,6 +22,7 @@ vi.stubEnv('REDIS_URL', 'redis://localhost:6379');
 vi.stubEnv('JWT_ACCESS_SECRET', 'test-access-secret-at-least-32-characters');
 vi.stubEnv('JWT_REFRESH_SECRET', 'test-refresh-secret-at-least-32-characters');
 vi.stubEnv('LOG_LEVEL', 'silent');
+vi.stubEnv('ACCESS_TOKEN_TTL', '15m');
 
 describe('revocable session routes', () => {
   let app: FastifyInstance;
@@ -80,7 +81,11 @@ describe('revocable session routes', () => {
     expect(raw).toMatch(/^[A-Za-z0-9_-]{64}$/);
     expect(db.refreshToken.create.mock.calls[0]?.[0].data.tokenHash).not.toBe(raw);
     expect(db.refreshToken.create.mock.calls[0]?.[0].data.tokenHash).toHaveLength(64);
-    expect(app.jwt.decode<{ sid: string }>(response.json().accessToken)?.sid).toBe('session-1');
+    const claims = app.jwt.decode<{ sid: string; exp: number; iat: number }>(
+      response.json().accessToken,
+    )!;
+    expect(claims.sid).toBe('session-1');
+    expect(claims.exp - claims.iat).toBe(900);
   });
   it('requires the custom header and rejects cross-site cookie operations', async () => {
     expect(
@@ -97,6 +102,25 @@ describe('revocable session routes', () => {
       (await send('POST', '/refresh', undefined, { 'sec-fetch-site': 'cross-site' })).statusCode,
     ).toBe(403);
     expect(db.authSession.create).not.toHaveBeenCalled();
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/api/v1/auth/logout-all',
+          headers: { cookie: 'leaseflow_refresh=' + 'a'.repeat(64), 'x-leaseflow-session': '1' },
+        })
+      ).statusCode,
+    ).toBe(401);
+    expect(
+      (
+        await app.inject({
+          method: 'POST',
+          url: '/api/v1/auth/password',
+          headers: { cookie: 'leaseflow_refresh=' + 'a'.repeat(64), 'x-leaseflow-session': '1' },
+          payload: { currentPassword: password, newPassword: 'ReplacementPassword123!' },
+        })
+      ).statusCode,
+    ).toBe(401);
   });
   it('rejects inactive and incorrect-password logins without a session', async () => {
     db.user.findUnique.mockResolvedValue({

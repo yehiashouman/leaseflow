@@ -135,14 +135,14 @@ Requirements: 3, 16, 22.2, 23-24.
 - [ ] **AUTH-002** Enforce verification and account-status restrictions on every protected request.
 - [ ] **AUTH-003** Route each role to its own dashboard.
 - [ ] **AUTH-004** Prevent administrator fallback to manager-only endpoints.
-- [ ] **AUTH-005** Implement logout and session revocation.
-- [ ] **AUTH-006** Issue short-lived access tokens and rotating refresh tokens.
-- [ ] **AUTH-007** Detect refresh-token replay and revoke affected sessions.
-- [ ] **AUTH-008** Protect refresh-token storage and transport.
-- [ ] **AUTH-009** Protect cookie-authenticated mutations against CSRF.
+- [x] **AUTH-005** Implement logout and session revocation. [Evidence](docs/EVIDENCE.md#session-security).
+- [x] **AUTH-006** Issue short-lived access tokens and rotating refresh tokens. [Evidence](docs/EVIDENCE.md#session-security).
+- [x] **AUTH-007** Detect refresh-token replay and revoke affected sessions. [Evidence](docs/EVIDENCE.md#session-security).
+- [x] **AUTH-008** Protect refresh-token storage and transport. [Evidence](docs/EVIDENCE.md#session-security).
+- [x] **AUTH-009** Protect cookie-authenticated mutations against CSRF. [Evidence](docs/EVIDENCE.md#session-security).
 - [ ] **AUTH-010** Implement password reset with expiring single-use tokens.
 - [ ] **AUTH-011** Revoke affected sessions after password reset.
-- [ ] **AUTH-012** Implement password change and authorized session review.
+- [x] **AUTH-012** Implement password change and authorized session review. [Evidence](docs/EVIDENCE.md#session-security).
 - [ ] **AUTH-013** Reverify changed email addresses and phone numbers.
 - [ ] **AUTH-014** Require administrator MFA before privileged access.
 - [ ] **AUTH-015** Offer manager MFA according to the approved security policy.

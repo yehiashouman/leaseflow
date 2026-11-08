@@ -110,5 +110,5 @@ Session and token-history cleanup remains subject to the unresolved retention po
 - Synthetic desktop/mobile browser cases verify security-page layout and persisted preview revocation.
 
 Real MySQL and browser execution use GitHub Actions; this local host lacks those execution prerequisites.
-Verify the latest CI results before acceptance of this feature.
+Verification passes in [CI](https://github.com/yehiashouman/leaseflow/actions/runs/42432955154) at commit `697cbf81516bd51c95f2ca7fb69d46acbcd76d35`.
 Provider delivery, administrator MFA, password reset, recovery, and full release acceptance remain separate gates.

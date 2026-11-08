@@ -68,5 +68,6 @@ See [SESSIONS.md](SESSIONS.md) for API contracts, cookie policy, migration, test
 The Security interface now connects session review, revocation, and password change to real API operations.
 Refresh cookies replace JSON refresh-token transport.
 Every protected request requires an active database session.
-Ten new MySQL cases and two real-browser cases await GitHub verification.
+All ten new MySQL cases and both real-browser cases pass on GitHub.
+Current totals: 87 API/web unit and component tests, 15 MySQL integration cases, and eight browser cases pass.
 Password reset, MFA, registration verification, provider delivery, and full security acceptance remain incomplete.

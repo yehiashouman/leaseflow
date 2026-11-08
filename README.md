@@ -1,6 +1,7 @@
 # Leaseflow
 
-Production-oriented shared-accommodation operations platform for Leasing Managers and tenants.
+Shared-accommodation operations platform for Leasing Managers and tenants, under implementation.
+The full application is not production-ready.
 
 ## Repository
 
@@ -14,12 +15,17 @@ Production-oriented shared-accommodation operations platform for Leasing Manager
 - `docs/UI.md` — shadcn/ui component, theme and accessibility conventions
 - `docs/PREVIEW.md` — public GitHub Pages preview setup and boundaries
 - `docs/IMPLEMENTATION.md` — implemented workflows and outstanding release work
+- `docs/PROGRESS.md`: full checklist progress and remaining scope
+- `docs/EVIDENCE.md`: verified task evidence and test results
+- `docs/SESSIONS.md`: session security, API contracts, and migration constraints
 
 ## Public Preview
 
 The GitHub Pages preview uses synthetic browser-local data, not the production API.
-See [preview setup](docs/PREVIEW.md) for owner activation and deployment status.
+Open the [live preview](https://yehiashouman.github.io/leaseflow/).
+See [preview details](docs/PREVIEW.md) for deployment status and isolation limits.
 See [implementation progress](docs/IMPLEMENTATION.md) before any completion claim.
+The session migration requires existing API users to sign in again; see [session deployment](docs/SESSIONS.md).
 
 ## GitHub Codespaces
 

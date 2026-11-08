@@ -7,27 +7,27 @@ Target: the complete initial release in requirements.md.
 
 ## Summary
 
-| Measure                                   | Verified status                                                                            |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Total checklist tasks                     | 764                                                                                        |
-| Completed tasks with evidence             | 20                                                                                         |
-| Tasks without full completion evidence    | 744                                                                                        |
-| Strict checklist completion               | 2.62%                                                                                      |
-| UI foundation tasks                       | 10 of 10 verified                                                                          |
-| Open owner decisions                      | 26                                                                                         |
-| Local API unit/route tests                | 51 pass; database mocks where required                                                     |
-| Local web/component/preview-adapter tests | 36 pass                                                                                    |
-| Previous GitHub browser run               | Four normal-interface and two synthetic-preview tests pass                                 |
-| New browser coverage                      | Room edit, maintenance, inactivity, restore, and reload persistence pass on desktop/mobile |
-| New MySQL suite                           | All five persistence/concurrency cases pass on MySQL 8.4 in GitHub Actions                 |
-| Local builds                              | API, web production, and preview pass                                                      |
-| Local lint                                | API, integration sources, and web pass                                                     |
-| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                          |
-| Production application                    | Incomplete; not approved for real operational use                                          |
+| Measure                                   | Verified status                                                                                    |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Total checklist tasks                     | 764                                                                                                |
+| Completed tasks with evidence             | 26                                                                                                 |
+| Tasks without full completion evidence    | 738                                                                                                |
+| Strict checklist completion               | 3.40%                                                                                              |
+| UI foundation tasks                       | 10 of 10 verified                                                                                  |
+| Open owner decisions                      | 26                                                                                                 |
+| Local API unit/route tests                | 51 pass; database mocks where required                                                             |
+| Local web/component/preview-adapter tests | 36 pass                                                                                            |
+| GitHub browser suites                     | Eight cases pass: four interface fixtures, two synthetic previews, and two real API/MySQL journeys |
+| New browser coverage                      | Room edit, maintenance, inactivity, restore, and reload persistence pass on desktop/mobile         |
+| MySQL suites                              | All 15 integration cases pass on MySQL 8.4 in GitHub Actions                                       |
+| Local builds                              | API, web production, and preview pass                                                              |
+| Local lint                                | API, integration sources, and web pass                                                             |
+| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                  |
+| Production application                    | Incomplete; not approved for real operational use                                                  |
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial inventory and role work exists beyond the 20 completed tasks.
+Additional partial inventory and role work exists beyond the 26 completed tasks.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Session Security Continuation
@@ -35,8 +35,8 @@ Do not substitute synthetic-preview results for real API/database acceptance.
 Session security implementation and migration details: [SESSIONS.md](SESSIONS.md).
 We added database-backed session revocation, HttpOnly refresh cookies, serialized rotation, and replay-family revocation.
 The Security page provides scoped session review, revocation, sign-out-all, and password change.
-Ten new MySQL cases and two real-browser cases await GitHub verification.
-The verified task total stays at 20 until these acceptance gates pass.
+All ten new MySQL cases and both real-browser cases pass on GitHub.
+Six session-security tasks now have complete scoped evidence.
 Legacy users must sign in again after the session migration.
 
 ## Complete Scope Coverage
@@ -50,7 +50,7 @@ It does not mean that no code exists.
 | 1. Scope and architecture               |    20 |                 6 | Stack verified; durable services and complete workflows remain                                      |
 | 2. Decisions and change control         |    11 |                 0 | Requirements retained; decision approvals and full traceability remain                              |
 | 3. Data and persistence                 |    26 |                 0 | Initial schema exists; complete entity migrations and invariants remain                             |
-| 4. Authentication and sessions          |    19 |                 0 | Session rotation, revocation, and password change await acceptance; MFA and reset remain            |
+| 4. Authentication and sessions          |    19 |                 6 | Session rotation, revocation, CSRF controls, and password change verified; MFA and reset remain     |
 | 5. Manager registration and activation  |    17 |                 0 | Complete identity, declaration, verification, and moderation journey remains                        |
 | 6. Administration and support           |    21 |                 0 | Counts exist; review screens, safe moderation, impersonation remain                                 |
 | 7. Private documents and media          |    19 |                 0 | Upload, quarantine, scan, authorization, version, and expiry workflow remains                       |
@@ -88,7 +88,7 @@ It does not mean that no code exists.
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                               |
 | 40. Source coverage map                 |     0 |                 0 | Reference table; no tasks                                                                           |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                           |
-| Total                                   |   764 |                20 | 744 tasks without full completion evidence                                                          |
+| Total                                   |   764 |                26 | 738 tasks without full completion evidence                                                          |
 
 ## Implemented in This Continuation
 
