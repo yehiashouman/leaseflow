@@ -16,6 +16,50 @@ async function logout(page: Page, mobile: boolean) {
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
 }
 
+test('preview tenant profiles, directory, and read notices persist without backend requests', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/api/v1')) requests.push(request.url());
+  });
+  const mobile = testInfo.project.name === 'mobile';
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+  await navigation(page, 'My profile', mobile);
+  await page.getByRole('button', { name: 'Edit profile', exact: true }).click();
+  const editor = page.getByRole('dialog');
+  await editor.getByLabel('Full name *', { exact: true }).fill('Updated Preview Tenant');
+  await editor.getByLabel('Phone awaiting verification', { exact: true }).fill('+971500000099');
+  await editor.getByLabel('Sleep schedule', { exact: true }).fill('Early');
+  await editor.getByLabel('Non-security notices', { exact: true }).selectOption('EMAIL');
+  await editor.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: 'Updated Preview Tenant', exact: true }),
+  ).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.screenshot({ path: testInfo.outputPath('profile-preview.png'), fullPage: true });
+  await navigation(page, 'Notifications', mobile);
+  await expect(page.getByRole('link', { name: 'Kitchen tap repair', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Mark all read', exact: true }).click();
+  await page.getByLabel('Notification status', { exact: true }).selectOption('UNREAD');
+  await expect(page.getByText('No notifications', { exact: true })).toBeVisible();
+  await logout(page, mobile);
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Portfolio overview' })).toBeVisible();
+  await navigation(page, 'Tenants', mobile);
+  await page.getByRole('link', { name: 'Updated Preview Tenant', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Updated Preview Tenant', exact: true }),
+  ).toBeVisible();
+  expect(requests).toEqual([]);
+});
+
 test('preview unit amenities and archive persist without activation', async ({
   page,
 }, testInfo) => {

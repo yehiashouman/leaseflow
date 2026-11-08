@@ -152,8 +152,67 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     expect(saved.events[2].actorName).toBe('Browser Case Manager');
     expect(await prisma.payment.count({ where: { contractId: contract.id } })).toBe(0);
     expect(await prisma.depositEntry.count({ where: { contractId: contract.id } })).toBe(0);
+    await page.goto('/notifications');
+    await expect(
+      page.getByRole('link', { name: 'Browser tap repair ' + suffix, exact: true }).first(),
+    ).toBeVisible();
+    const read = page.waitForResponse(
+      (response) =>
+        response.url().endsWith('/notifications/read-all') &&
+        response.request().method() === 'POST',
+    );
+    await page.getByRole('button', { name: 'Mark all read', exact: true }).click();
+    expect((await read).status()).toBe(200);
+    await page.getByLabel('Notification status', { exact: true }).selectOption('UNREAD');
+    await expect(page.getByText('No notifications', { exact: true })).toBeVisible();
+    await page.goto('/profile');
+    await page.getByRole('button', { name: 'Edit profile', exact: true }).click();
+    const profileEditor = page.getByRole('dialog');
+    const updatedName = 'Updated Tenant ' + suffix;
+    await profileEditor.getByLabel('Full name *', { exact: true }).fill(updatedName);
+    await profileEditor
+      .getByLabel('Phone awaiting verification', { exact: true })
+      .fill('+971500000099');
+    await profileEditor.getByLabel('Nationality', { exact: true }).fill('Egyptian');
+    await profileEditor.getByLabel('Sleep schedule', { exact: true }).fill('Early');
+    await profileEditor
+      .getByLabel('Non-security notices', { exact: true })
+      .selectOption('WHATSAPP');
+    const update = page.waitForResponse(
+      (response) => response.url().endsWith('/profile') && response.request().method() === 'PATCH',
+    );
+    await profileEditor.getByRole('button', { name: 'Save', exact: true }).click();
+    expect((await update).status()).toBe(200);
+    await expect(profileEditor).not.toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('heading', { name: updatedName, exact: true })).toBeVisible();
+    await expect(page.getByText('+971500000099', { exact: true })).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath('tenant-profile.png'), fullPage: true });
+    await managerPage.goto('/tenants');
+    await managerPage.getByRole('link', { name: updatedName, exact: true }).click();
+    await expect(
+      managerPage.getByRole('heading', { name: updatedName, exact: true }),
+    ).toBeVisible();
+    const identity = await prisma.user.findUniqueOrThrow({
+      where: { id: tenant.id },
+      include: { tenant: true },
+    });
+    expect(identity.phoneVerifiedAt).toBeNull();
+    expect(identity.phone).toBeNull();
+    expect(identity.tenant?.pendingPhone).toBe('+971500000099');
+    expect(identity.notifyEmail).toBe(false);
+    expect(
+      (await prisma.requestEvent.findFirstOrThrow({ where: { requestId: caseId, sequence: 1 } }))
+        .actorName,
+    ).toBe('Browser Case Tenant');
   } finally {
     await context.close();
+    await prisma.notification.deleteMany({
+      where: { event: { request: { contractId: contract.id } } },
+    });
     await prisma.requestEvent.deleteMany({ where: { request: { contractId: contract.id } } });
     await prisma.request.deleteMany({ where: { contractId: contract.id } });
     await prisma.contract.delete({ where: { id: contract.id } });

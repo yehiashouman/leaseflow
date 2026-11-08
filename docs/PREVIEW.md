@@ -30,6 +30,9 @@ https://yehiashouman.github.io/leaseflow/
 - Inspect synthetic contracts and requests.
 - Submit synthetic operational cases and inspect private role-specific histories.
 - Save private tenant drafts and explicitly submit them before manager access.
+- Edit a synthetic tenant profile, optional preferences, and an unverified phone candidate.
+- Inspect the manager's synthetic tenant directory and contract references.
+- Filter case notices and preserve read state per preview role.
 - Exchange case messages, report resolution, accept completion, and reopen cases.
 - Preserve case history and decisions after reload without backend requests.
 - Open Security, inspect synthetic sessions, and revoke the synthetic second device.

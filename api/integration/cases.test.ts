@@ -101,6 +101,9 @@ describe('MySQL private operational case workflow', () => {
         select: { id: true },
       });
       const ids = contracts.map((item) => item.id);
+      await prisma.notification.deleteMany({
+        where: { event: { request: { contractId: { in: ids } } } },
+      });
       await prisma.requestEvent.deleteMany({ where: { request: { contractId: { in: ids } } } });
       await prisma.request.deleteMany({ where: { contractId: { in: ids } } });
       await prisma.contract.deleteMany({ where: { id: { in: ids } } });
@@ -666,5 +669,189 @@ describe('MySQL private operational case workflow', () => {
       },
     });
     expect(forged.statusCode).toBe(401);
+  });
+  const profileBody = (expectedVersion: number) => ({
+    expectedVersion,
+    fullName: 'Profile Tenant',
+    dateOfBirth: '1990-01-02',
+    nationality: 'Egyptian',
+    gender: null,
+    pendingPhone: '+971500000099',
+    preferredLanguage: 'ar',
+    timezone: 'Asia/Dubai',
+    deliveryPreference: 'EMAIL',
+    matchingPreferences: {
+      gender: null,
+      nationality: null,
+      language: 'Arabic',
+      culture: null,
+      lifestyle: 'Quiet',
+      sleepSchedule: 'Early',
+      smoking: 'NON_SMOKING',
+      noise: 'Low',
+      sharedLanguage: null,
+    },
+  });
+  it('persists optional tenant profile and delivery preferences without changing verified identity or historical authors', async () => {
+    const current = (await send('GET', '/api/v1/profile')).json();
+    const updated = await send('PATCH', '/api/v1/profile', profileBody(current.profileVersion));
+    expect(updated.statusCode, updated.body).toBe(200);
+    expect(updated.json()).toMatchObject({
+      profileVersion: current.profileVersion + 1,
+      preferredLanguage: 'ar',
+      timezone: 'Asia/Dubai',
+      deliveryPreference: 'EMAIL',
+      securityEmail: current.email,
+      phone: current.phone,
+      phoneVerifiedAt: current.phoneVerifiedAt,
+      tenant: {
+        fullName: 'Profile Tenant',
+        pendingPhone: '+971500000099',
+        matchingPreferences: { sleepSchedule: 'Early', smoking: 'NON_SMOKING' },
+      },
+    });
+    expect((await send('GET', '/' + requestId)).json().events[0].actorName).toBe('Case Tenant');
+    expect(
+      (await send('PATCH', '/api/v1/profile', profileBody(current.profileVersion))).statusCode,
+    ).toBe(409);
+    const audit = await prisma.auditEvent.findFirstOrThrow({
+      where: { entityId: tenant.id, action: 'PROFILE_UPDATE' },
+    });
+    expect(JSON.stringify(audit.newValue)).not.toContain('+971500000099');
+    await prisma.tenantProfile.update({
+      where: { id: tenant.profileId },
+      data: { fullName: 'Case Tenant' },
+    });
+  });
+  it('rejects profile ownership/verification injection and invalid preferences or dates', async () => {
+    const version = (await send('GET', '/api/v1/profile')).json().profileVersion;
+    for (const extra of [
+      { role: 'ADMIN' },
+      { managerId: outsider.profileId },
+      { phoneVerifiedAt: new Date().toISOString() },
+      { timezone: 'Not/AZone' },
+      { dateOfBirth: '2999-01-01' },
+      { dateOfBirth: '2026-02-30' },
+      { pendingPhone: '123' },
+      { deliveryPreference: 'NONE' },
+      { matchingPreferences: { ...profileBody(version).matchingPreferences, required: true } },
+    ])
+      expect(
+        (await send('PATCH', '/api/v1/profile', { ...profileBody(version), ...extra })).statusCode,
+      ).toBe(422);
+    expect((await send('GET', '/api/v1/profile', undefined, manager)).statusCode).toBe(403);
+    expect((await send('GET', '/api/v1/profile', undefined, admin)).statusCode).toBe(403);
+  });
+  it('serializes profile edits and allows empty, non-binding compatibility preferences', async () => {
+    const version = (await send('GET', '/api/v1/profile')).json().profileVersion;
+    const body = {
+      ...profileBody(version),
+      nationality: null,
+      gender: null,
+      pendingPhone: null,
+      dateOfBirth: null,
+      matchingPreferences: {
+        gender: null,
+        nationality: null,
+        language: null,
+        culture: null,
+        lifestyle: null,
+        sleepSchedule: null,
+        noise: null,
+        sharedLanguage: null,
+        smoking: 'NO_PREFERENCE',
+      },
+    };
+    const results = await Promise.all([
+      send('PATCH', '/api/v1/profile', body),
+      send('PATCH', '/api/v1/profile', body),
+    ]);
+    expect(results.map((response) => response.statusCode).sort()).toEqual([200, 409]);
+    expect((await send('GET', '/api/v1/profile')).json().tenant.matchingPreferences).toMatchObject({
+      nationality: null,
+      gender: null,
+      smoking: 'NO_PREFERENCE',
+    });
+    expect((await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })).status).toBe(
+      'ACTIVE',
+    );
+    await prisma.tenantProfile.update({
+      where: { id: tenant.profileId },
+      data: { fullName: 'Case Tenant' },
+    });
+  });
+  it('limits the tenant directory and contract summaries to the current manager', async () => {
+    const list = await send('GET', '/api/v1/tenants?q=Case%20Tenant', undefined, manager);
+    expect(list.statusCode).toBe(200);
+    expect(list.json().items.some((item: { id: string }) => item.id === tenant.profileId)).toBe(
+      true,
+    );
+    expect(list.body).not.toContain('passwordHash');
+    expect(list.body).not.toContain('pendingPhone');
+    const detail = await send('GET', '/api/v1/tenants/' + tenant.profileId, undefined, manager);
+    expect(detail.json().contracts.some((item: { id: string }) => item.id === contractId)).toBe(
+      true,
+    );
+    expect(
+      (await send('GET', '/api/v1/tenants/' + tenant.profileId, undefined, outsider)).statusCode,
+    ).toBe(404);
+    expect((await send('GET', '/api/v1/tenants')).statusCode).toBe(403);
+    expect((await send('GET', '/api/v1/tenants', undefined, admin)).statusCode).toBe(403);
+  });
+  it('persists notices for both participants once and preserves read timestamps across retries', async () => {
+    const notices = await prisma.notification.findMany({ where: { event: { requestId } } });
+    expect(notices.map((item) => item.recipientUserId).sort()).toEqual(
+      [tenant.id, manager.id].sort(),
+    );
+    const own = notices.find((item) => item.recipientUserId === tenant.id)!;
+    expect((await send('GET', '/api/v1/notifications')).body).not.toContain(
+      'Private complaint text',
+    );
+    expect((await send('POST', '/api/v1/notifications/' + own.id + '/read')).json().updated).toBe(
+      1,
+    );
+    const first = (await prisma.notification.findUniqueOrThrow({ where: { id: own.id } })).readAt;
+    expect((await send('POST', '/api/v1/notifications/' + own.id + '/read')).json().updated).toBe(
+      0,
+    );
+    expect((await prisma.notification.findUniqueOrThrow({ where: { id: own.id } })).readAt).toEqual(
+      first,
+    );
+    expect(
+      (await send('POST', '/api/v1/notifications/' + own.id + '/read', undefined, manager))
+        .statusCode,
+    ).toBe(404);
+    expect((await send('GET', '/api/v1/notifications', undefined, admin)).statusCode).toBe(403);
+    const body = { clientId: randomUUID(), message: 'Notice once' };
+    await send('POST', '/' + requestId + '/messages', body);
+    await send('POST', '/' + requestId + '/messages', body);
+    expect(await prisma.notification.count({ where: { event: { requestId } } })).toBe(4);
+    await send('POST', '/api/v1/notifications/read-all');
+    expect((await send('GET', '/api/v1/notifications/count')).json().unread).toBe(0);
+    expect(
+      await prisma.notification.count({ where: { recipientUserId: manager.id, readAt: null } }),
+    ).toBeGreaterThan(0);
+  });
+  it('excludes private drafts and hides notices after inconsistent relationship changes', async () => {
+    const draft = (await send('POST', '', { ...submission(), draft: true })).json();
+    expect(await prisma.notification.count({ where: { event: { requestId: draft.id } } })).toBe(0);
+    await prisma.tenantProfile.update({
+      where: { id: tenant.profileId },
+      data: { managerId: outsider.profileId },
+    });
+    try {
+      const notices = (await send('GET', '/api/v1/notifications')).json().items;
+      expect(
+        notices.some(
+          (item: { event: { request: { id: string } } }) => item.event.request.id === requestId,
+        ),
+      ).toBe(false);
+      expect((await send('GET', '/api/v1/notifications/count')).json().unread).toBe(0);
+    } finally {
+      await prisma.tenantProfile.update({
+        where: { id: tenant.profileId },
+        data: { managerId: manager.profileId },
+      });
+    }
   });
 });

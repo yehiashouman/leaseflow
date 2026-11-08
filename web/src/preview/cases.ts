@@ -74,6 +74,7 @@ export function mutatePreviewCase(
   data: Record<string, any>,
   role: Role,
   fail: (message: string, status: number) => never,
+  actorName?: string,
 ) {
   const keys =
     action === 'messages'
@@ -136,7 +137,7 @@ export function mutatePreviewCase(
       kind,
       message: message || null,
       actorUserId: 'preview-' + role,
-      actorName: role === 'TENANT' ? 'Demo Tenant' : 'Demo Manager',
+      actorName: actorName ?? (role === 'TENANT' ? 'Demo Tenant' : 'Demo Manager'),
       actorRole: role,
       sequence: record.version,
       createdAt: now,

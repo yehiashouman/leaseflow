@@ -24,6 +24,7 @@ Session API implementation, migration, and deployment constraints are recorded i
 Landlord lifecycle, property metadata, archive guards, and verification scope are recorded in `docs/INVENTORY.md`.
 Operational case APIs, immutable history, tenant acknowledgement, migration, and incomplete scope are recorded in `docs/CASES.md`.
 Unit archive, amenities, owner schedules, administrator review, and request drafts are recorded in `docs/OPERATIONS-BATCH.md`.
+Tenant profiles, optional preferences, tenant directory, and in-app case notices are recorded in `docs/PROFILES-NOTIFICATIONS.md`.
 The GitHub Pages preview is synthetic and does not replace API or production acceptance.
 See `docs/PREVIEW.md` for deployment and isolation requirements.
 

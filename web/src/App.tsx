@@ -27,6 +27,9 @@ import { QueryFeedback } from './components/query-feedback';
 import { Security } from './pages/Security';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Managers, ManagerDetail, AdminAudit } from './pages/Managers';
+import { Profile } from './pages/Profile';
+import { Tenants, TenantDetail } from './pages/Tenants';
+import { Notifications } from './pages/Notifications';
 
 const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -35,6 +38,9 @@ const navigation = [
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
   { to: '/security', label: 'Security', icon: Shield },
+  { to: '/profile', label: 'My profile', icon: Shield },
+  { to: '/tenants', label: 'Tenants', icon: Building2 },
+  { to: '/notifications', label: 'Notifications', icon: Inbox },
   { to: '/admin/managers', label: 'Account review', icon: Shield },
   { to: '/admin/audit', label: 'Audit history', icon: FileText },
 ];
@@ -58,8 +64,11 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
       item.to === '/' ||
       item.to === '/security' ||
       (user?.role === 'ADMIN' && item.to.startsWith('/admin/')) ||
-      (user?.role === 'LEASING_MANAGER' && !item.to.startsWith('/admin/')) ||
-      (user?.role === 'TENANT' && ['/contracts', '/requests'].includes(item.to)),
+      (user?.role === 'LEASING_MANAGER' &&
+        !item.to.startsWith('/admin/') &&
+        item.to !== '/profile') ||
+      (user?.role === 'TENANT' &&
+        ['/contracts', '/requests', '/profile', '/notifications'].includes(item.to)),
   );
   return (
     <nav aria-label="Main navigation" className="grid gap-1">
@@ -184,15 +193,21 @@ export default function App() {
               <Route path="admin/audit" element={<AdminAudit />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>
+              <Route path="tenants" element={<Tenants />} />
+              <Route path="tenants/:id" element={<TenantDetail />} />
               <Route path="units" element={<Units />} />
               <Route path="units/:id" element={<UnitDetail />} />
               <Route path="landlords" element={<Landlords />} />
               <Route path="landlords/:id" element={<LandlordDetail />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER', 'TENANT']} />}>
+              <Route path="notifications" element={<Notifications />} />
               <Route path="contracts" element={<Contracts />} />
               <Route path="requests" element={<Requests />} />
               <Route path="requests/:id" element={<RequestDetail />} />
+            </Route>
+            <Route element={<Guard roles={['TENANT']} />}>
+              <Route path="profile" element={<Profile />} />
             </Route>
           </Route>
         </Route>

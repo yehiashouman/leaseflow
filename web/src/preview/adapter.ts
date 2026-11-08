@@ -1,6 +1,7 @@
 import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from 'axios';
 import type { Role, SessionUser } from '../session';
 import { mutatePreviewCase, previewCase, previewCaseContract, previewCaseTypes } from './cases';
+import { preferenceFields } from '../profile-fields';
 
 type RecordData = { id: string; [key: string]: any };
 type PreviewStore = {
@@ -9,6 +10,8 @@ type PreviewStore = {
   contracts: RecordData[];
   requests: RecordData[];
   revokedSessions?: string[];
+  profile?: RecordData;
+  readNotices?: Record<string, string>;
 };
 const storageKey = 'leaseflow-preview-data-v1';
 const accounts: Record<string, Role> = {
@@ -166,6 +169,184 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return fail('Preview session required', 401);
   if (path === '/auth/me') return respond(userFor(role));
   const store = readStore();
+  const profile = store.profile ?? {
+    id: 'preview-TENANT',
+    email: 'tenant@preview.invalid',
+    phone: null,
+    phoneVerifiedAt: null,
+    preferredLanguage: 'en',
+    timezone: 'Asia/Dubai',
+    profileVersion: 0,
+    deliveryPreference: 'BOTH',
+    securityEmail: 'tenant@preview.invalid',
+    tenant: {
+      id: 'tenant-1',
+      fullName: 'Demo Tenant',
+      nationality: null,
+      gender: null,
+      dateOfBirth: null,
+      pendingPhone: null,
+      matchingPreferences: {},
+    },
+  };
+  if (path === '/profile') {
+    if (role !== 'TENANT') return fail('Insufficient permissions', 403);
+    if (method === 'get') return respond(profile);
+    if (method === 'patch') {
+      if (
+        Array.isArray(data.matchingPreferences) ||
+        Object.keys(data.matchingPreferences ?? {}).some(
+          (key) => ![...Object.keys(preferenceFields), 'smoking'].includes(key),
+        ) ||
+        !['NO_PREFERENCE', 'SMOKING', 'NON_SMOKING'].includes(data.matchingPreferences?.smoking) ||
+        (data.dateOfBirth != null &&
+          (!/^\d{4}-\d{2}-\d{2}$/.test(data.dateOfBirth) ||
+            !Number.isFinite(Date.parse(data.dateOfBirth)) ||
+            new Date(data.dateOfBirth).toISOString().slice(0, 10) !== data.dateOfBirth ||
+            data.dateOfBirth > new Date().toISOString().slice(0, 10)))
+      )
+        return fail('Verify the profile fields.', 422);
+      if (
+        Object.keys(data).some(
+          (key) =>
+            ![
+              'expectedVersion',
+              'fullName',
+              'dateOfBirth',
+              'nationality',
+              'gender',
+              'pendingPhone',
+              'preferredLanguage',
+              'timezone',
+              'deliveryPreference',
+              'matchingPreferences',
+            ].includes(key),
+        ) ||
+        typeof data.fullName !== 'string' ||
+        data.fullName.trim().length < 2 ||
+        data.fullName.trim().length > 150 ||
+        !['EMAIL', 'WHATSAPP', 'BOTH'].includes(data.deliveryPreference) ||
+        !data.matchingPreferences ||
+        typeof data.matchingPreferences !== 'object' ||
+        (data.pendingPhone !== null && !/^\+[1-9]\d{7,14}$/.test(data.pendingPhone ?? ''))
+      )
+        return fail('Verify the profile fields.', 422);
+      if (data.expectedVersion !== profile.profileVersion)
+        return fail('Profile changed. Reload before another edit', 409);
+      try {
+        Intl.getCanonicalLocales(data.preferredLanguage);
+        new Intl.DateTimeFormat('en', { timeZone: data.timezone });
+      } catch {
+        return fail('Verify the language and timezone.', 422);
+      }
+      profile.tenant = {
+        ...profile.tenant,
+        fullName: data.fullName.trim(),
+        dateOfBirth: data.dateOfBirth,
+        nationality: data.nationality,
+        gender: data.gender,
+        pendingPhone: data.pendingPhone,
+        matchingPreferences: data.matchingPreferences,
+      };
+      Object.assign(profile, {
+        preferredLanguage: data.preferredLanguage,
+        timezone: data.timezone,
+        deliveryPreference: data.deliveryPreference,
+        profileVersion: profile.profileVersion + 1,
+      });
+      store.profile = profile;
+      localStorage.setItem(storageKey, JSON.stringify(store));
+      return respond(profile);
+    }
+  }
+  if (path === '/tenants' || path.startsWith('/tenants/')) {
+    if (role !== 'LEASING_MANAGER') return fail('Insufficient permissions', 403);
+    if (method !== 'get') return fail('Tenant write workflow not implemented', 501);
+    const tenant = {
+      id: 'tenant-1',
+      fullName: profile.tenant.fullName,
+      nationality: profile.tenant.nationality,
+      gender: profile.tenant.gender,
+      user: {
+        email: profile.email,
+        phone: profile.phone,
+        phoneVerifiedAt: profile.phoneVerifiedAt,
+        status: 'ACTIVE',
+      },
+    };
+    if (path === '/tenants') {
+      const q = String(config.params?.q ?? '').toLowerCase();
+      const page = Number(config.params?.page ?? 1);
+      const items = [tenant].filter((item) =>
+        (item.fullName + item.user.email).toLowerCase().includes(q),
+      );
+      return respond({
+        items: items.slice((page - 1) * 20, page * 20),
+        total: items.length,
+        page,
+        pageSize: 20,
+      });
+    }
+    if (path === '/tenants/tenant-1')
+      return respond({
+        ...tenant,
+        contracts: store.contracts.map((item) => ({
+          id: item.id,
+          status: item.status,
+          startDate: item.startDate,
+          rentalSpace: { name: item.rentalSpace.name, unit: { name: item.rentalSpace.unit.name } },
+        })),
+      });
+    return fail('Tenant not found', 404);
+  }
+  if (path === '/notifications' || path.startsWith('/notifications/')) {
+    if (role === 'ADMIN') return fail('Insufficient permissions', 403);
+    const notices = store.requests
+      .filter((item) => item.status !== 'DRAFT')
+      .flatMap((item) =>
+        (item.events ?? [])
+          .filter((event: RecordData) => event.kind !== 'DRAFT_CREATED')
+          .map((event: RecordData) => ({
+            id: role + ':' + event.id,
+            readAt: store.readNotices?.[role + ':' + event.id] ?? null,
+            createdAt: event.createdAt,
+            event: { kind: event.kind, request: { id: item.id, title: item.title } },
+          })),
+      )
+      .reverse();
+    if (path === '/notifications/count')
+      return respond({ unread: notices.filter((item) => !item.readAt).length });
+    if (path === '/notifications' && method === 'get') {
+      const status = config.params?.status ?? 'ALL';
+      const page = Number(config.params?.page ?? 1);
+      const items = notices.filter(
+        (item) => status === 'ALL' || (status === 'UNREAD' ? !item.readAt : Boolean(item.readAt)),
+      );
+      return respond({
+        items: items.slice((page - 1) * 20, page * 20),
+        total: items.length,
+        page,
+        pageSize: 20,
+      });
+    }
+    if (
+      method === 'post' &&
+      (path === '/notifications/read-all' || /^\/notifications\/[^/]+\/read$/.test(path))
+    ) {
+      const id = path === '/notifications/read-all' ? null : path.split('/')[2];
+      const visible = notices.filter((item) => !id || item.id === id);
+      if (id && !visible.length) return fail('Notification not found', 404);
+      store.readNotices ??= {};
+      let updated = 0;
+      for (const item of visible)
+        if (!item.readAt) {
+          store.readNotices[item.id] = new Date().toISOString();
+          updated++;
+        }
+      localStorage.setItem(storageKey, JSON.stringify(store));
+      return respond({ updated });
+    }
+  }
   if (path.startsWith('/admin/')) {
     if (role !== 'ADMIN') return fail('Insufficient permissions', 403);
     if (method !== 'get')
@@ -444,7 +625,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
               kind: data.draft ? 'DRAFT_CREATED' : 'SUBMITTED',
               message: content.description,
               actorUserId: 'preview-TENANT',
-              actorName: 'Demo Tenant',
+              actorName: profile.tenant.fullName,
               actorRole: 'TENANT',
               sequence: 1,
               createdAt: now,
@@ -474,7 +655,14 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           )
         )
           return fail('Submission requires an open contract', 409);
-        mutatePreviewCase(record, match[2], data, role, fail);
+        mutatePreviewCase(
+          record,
+          match[2],
+          data,
+          role,
+          fail,
+          role === 'TENANT' ? profile.tenant.fullName : 'Demo Manager',
+        );
         localStorage.setItem(storageKey, JSON.stringify(store));
         return respond(
           previewCase(record, store.contracts, role),

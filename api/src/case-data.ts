@@ -159,4 +159,26 @@ export async function caseAudit(
       newValue: { eventId, type: row.type, status: row.status, version: row.version },
     },
   });
+  if (row.status !== 'DRAFT') {
+    const target = await tx.request.findUniqueOrThrow({
+      where: { id: row.id },
+      select: {
+        contract: {
+          select: {
+            tenant: { select: { userId: true } },
+            rentalSpace: {
+              select: { unit: { select: { manager: { select: { userId: true } } } } },
+            },
+          },
+        },
+      },
+    });
+    const recipients = [
+      ...new Set([target.contract.tenant.userId, target.contract.rentalSpace.unit.manager.userId]),
+    ];
+    await tx.notification.createMany({
+      data: recipients.map((recipientUserId) => ({ recipientUserId, eventId })),
+      skipDuplicates: true,
+    });
+  }
 }
