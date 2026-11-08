@@ -188,12 +188,12 @@ export default function App() {
     <>
       {previewMode && <PreviewBanner />}
       <Routes>
-        <Route path="/register" element={<Account mode="register" />} />
-        <Route path="/account-setup" element={<Account mode="setup" />} />
-        <Route path="/forgot-password" element={<Account mode="forgot" />} />
-        <Route path="/reset-password" element={<Account mode="reset" />} />
-        <Route path="/verify-email" element={<Account mode="verify" />} />
-        <Route path="/invitation" element={<Account mode="invitation" />} />
+        <Route path="/register" element={<Account key="register" mode="register" />} />
+        <Route path="/account-setup" element={<Account key="setup" mode="setup" />} />
+        <Route path="/forgot-password" element={<Account key="forgot" mode="forgot" />} />
+        <Route path="/reset-password" element={<Account key="reset" mode="reset" />} />
+        <Route path="/verify-email" element={<Account key="verify" mode="verify" />} />
+        <Route path="/invitation" element={<Account key="invitation" mode="invitation" />} />
         <Route path="/login" element={<Login />} />
         <Route element={<Guard />}>
           <Route element={<Layout />}>

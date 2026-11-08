@@ -8,6 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 import { QueryFeedback } from '@/components/query-feedback';
 type Invitation = {
   id: string;
@@ -20,6 +27,7 @@ type Invitation = {
 export function AccountInvitations() {
   const client = useQueryClient(),
     key = useRef({ signature: '', id: crypto.randomUUID() });
+  const revokeTrigger = useRef<HTMLButtonElement | null>(null);
   const [page, setPage] = useState(1),
     [status, setStatus] = useState(''),
     [busy, setBusy] = useState(false),
@@ -72,7 +80,9 @@ export function AccountInvitations() {
   }
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Tenant invitations</h1>
+      <h1 id="invitation-heading" tabIndex={-1} className="text-2xl font-semibold">
+        Tenant invitations
+      </h1>
       {previewMode ? (
         <p>Invitations require the live API and configured email provider.</p>
       ) : (
@@ -106,7 +116,7 @@ export function AccountInvitations() {
             </div>
             <Button disabled={busy}>Invite tenant</Button>
           </form>
-          {error && (
+          {error && !revoke && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -164,7 +174,15 @@ export function AccountInvitations() {
                         >
                           Resend invitation
                         </Button>
-                        <Button variant="outline" disabled={busy} onClick={() => setRevoke(row)}>
+                        <Button
+                          variant="outline"
+                          disabled={busy}
+                          onClick={(event) => {
+                            revokeTrigger.current = event.currentTarget;
+                            setError('');
+                            setRevoke(row);
+                          }}
+                        >
                           Revoke invitation
                         </Button>
                       </div>
@@ -191,32 +209,53 @@ export function AccountInvitations() {
               </div>
             </>
           )}
-          {revoke && (
-            <div
-              role="alertdialog"
-              aria-label="Confirm invitation revocation"
-              className="space-y-3 rounded-md border p-4"
-            >
-              <p>Revoke the invitation for {revoke.email}?</p>
-              <div className="flex gap-2">
-                <Button
-                  disabled={busy}
-                  onClick={() =>
-                    void run(async () => {
-                      await api.post('/invitations/' + revoke.id + '/revoke', {});
-                      setRevoke(null);
-                      setSuccess('Invitation revoked.');
-                    })
-                  }
-                >
-                  Confirm revocation
-                </Button>
-                <Button variant="outline" disabled={busy} onClick={() => setRevoke(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
+          <Sheet
+            open={Boolean(revoke)}
+            onOpenChange={(open) => {
+              if (!open && !busy) setRevoke(null);
+            }}
+          >
+            {revoke && (
+              <SheetContent
+                role="alertdialog"
+                onCloseAutoFocus={(event) => {
+                  event.preventDefault();
+                  if (revokeTrigger.current?.isConnected && !revokeTrigger.current.disabled)
+                    revokeTrigger.current.focus();
+                  else document.getElementById('invitation-heading')?.focus();
+                }}
+              >
+                <SheetHeader>
+                  <SheetTitle>Revoke invitation?</SheetTitle>
+                  <SheetDescription>Revoke the invitation for {revoke.email}?</SheetDescription>
+                </SheetHeader>
+                <div className="space-y-4 px-4">
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      disabled={busy}
+                      onClick={() =>
+                        void run(async () => {
+                          await api.post('/invitations/' + revoke.id + '/revoke', {});
+                          setRevoke(null);
+                          setSuccess('Invitation revoked.');
+                        })
+                      }
+                    >
+                      Confirm revocation
+                    </Button>
+                    <Button variant="outline" disabled={busy} onClick={() => setRevoke(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            )}
+          </Sheet>
         </>
       )}
     </div>

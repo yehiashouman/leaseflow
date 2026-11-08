@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { accountApi, setupSessionKey } from '../account-api';
@@ -33,19 +33,26 @@ const headings: Record<Mode, string> = {
 };
 const fieldClass = 'grid gap-2';
 export function Account({ mode }: { mode: Mode }) {
+  const location = useLocation();
   const navigate = useNavigate(),
     client = useQueryClient();
-  const [token] = useState(
-    () => new URLSearchParams(window.location.hash.slice(1)).get('token') ?? '',
-  );
+  const linkToken = new URLSearchParams(location.hash.slice(1)).get('token') ?? '';
+  const [retainedToken, setRetainedToken] = useState(linkToken);
+  const token = linkToken || retainedToken;
   const [session, setSession] = useState(() => Boolean(sessionStorage.getItem(setupSessionKey)));
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [success, setSuccess] = useState('');
   useEffect(() => {
-    if (window.location.hash)
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  }, []);
+    if (!linkToken) return;
+    if (linkToken !== retainedToken) {
+      client.removeQueries({ queryKey: ['invitation-inspect', retainedToken] });
+      setRetainedToken(linkToken);
+      setError('');
+      setSuccess('');
+    }
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }, [client, linkToken, retainedToken]);
   const policy = useQuery({
     queryKey: ['account-policy'],
     enabled: !previewMode,
@@ -61,7 +68,7 @@ export function Account({ mode }: { mode: Mode }) {
     retry: false,
   });
   const invitation = useQuery({
-    queryKey: ['invitation-inspect'],
+    queryKey: ['invitation-inspect', token],
     enabled: !previewMode && mode === 'invitation' && Boolean(token),
     queryFn: () =>
       accountApi
@@ -107,10 +114,15 @@ export function Account({ mode }: { mode: Mode }) {
       });
     };
   }
+  function clearSetupCache() {
+    client.removeQueries({ queryKey: ['account-setup'] });
+    client.removeQueries({ queryKey: ['account-documents'] });
+    client.removeQueries({ queryKey: ['document-policy', 'account-documents'] });
+  }
   function startSession(data: { accessToken?: string }) {
     if (!data.accessToken) return;
     sessionStorage.setItem(setupSessionKey, data.accessToken);
-    client.removeQueries({ queryKey: ['account-setup'] });
+    clearSetupCache();
     setSession(true);
     navigate('/account-setup');
   }
@@ -284,7 +296,7 @@ export function Account({ mode }: { mode: Mode }) {
                       variant="outline"
                       onClick={() => {
                         sessionStorage.removeItem(setupSessionKey);
-                        client.removeQueries({ queryKey: ['account-setup'] });
+                        clearSetupCache();
                         setSession(false);
                       }}
                     >
@@ -508,8 +520,8 @@ export function Account({ mode }: { mode: Mode }) {
                           void run(async () => {
                             await accountApi.post('/auth/setup/logout', {});
                             sessionStorage.removeItem(setupSessionKey);
-                            client.removeQueries({ queryKey: ['account-setup'] });
-                            client.removeQueries({ queryKey: ['account-documents'] });
+                            clearSetupCache();
+
                             setSession(false);
                           })
                         }
