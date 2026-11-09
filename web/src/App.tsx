@@ -1,3 +1,4 @@
+import { Preferences } from './pages/Preferences';
 import { Building2, FileText, Inbox, LayoutDashboard, LogOut, Menu, Shield } from 'lucide-react';
 import { Navigate, NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { useAuth } from './auth';
@@ -48,6 +49,7 @@ const navigation = [
   { to: '/invitations', label: 'Invitations', icon: Inbox },
   { to: '/documents', label: 'My documents', icon: FileText },
   { to: '/security', label: 'Security', icon: Shield },
+  { to: '/preferences', label: 'Preferences', icon: Shield },
   { to: '/profile', label: 'My profile', icon: Shield },
   { to: '/tenants', label: 'Tenants', icon: Building2 },
   { to: '/delivery', label: 'Delivery status', icon: Inbox },
@@ -75,6 +77,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
     (item) =>
       item.to === '/' ||
       item.to === '/security' ||
+      item.to === '/preferences' ||
       (user?.role === 'ADMIN' && item.to.startsWith('/admin/')) ||
       (user?.role === 'LEASING_MANAGER' &&
         !item.to.startsWith('/admin/') &&
@@ -212,6 +215,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="security" element={<Security />} />
+            <Route path="preferences" element={<Preferences />} />
             <Route element={<Guard roles={['ADMIN']} />}>
               <Route path="admin/managers" element={<Managers />} />
               <Route path="admin/managers/:id" element={<ManagerDetail />} />

@@ -73,3 +73,11 @@ They do not receive private message payloads or sender impersonation access.
 This module covers operational case events.
 Future financial events need their own immutable source records and notice integration.
 It does not resolve the pending provider, reminder, retention, or production decisions.
+
+## Account Preferences
+
+Every active role can inspect and edit its own notice language, timezone preference, and non-security channel preference at `/preferences`.
+`GET /api/v1/profile/preferences` exposes only the caller's preference projection.
+`PATCH /api/v1/profile/preferences` requires the current profile version and rejects ownership, identity, or verification fields.
+Account email notices remain independent of the non-security channel preference.
+The interface retains explicit contract-calendar timezone labels.

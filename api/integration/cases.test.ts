@@ -320,6 +320,8 @@ describe('MySQL private operational case workflow', () => {
     const owned = await dashboard(manager),
       foreign = await dashboard(outsider),
       own = await dashboard(tenant);
+    expect(owned.json().deadlineSummary.approaching).toBeGreaterThanOrEqual(1);
+    expect(foreign.json().deadlineSummary).toEqual({ overdue: 0, approaching: 0 });
     expect(owned.json().deadlines.some((item: { id: string }) => item.id === requestId)).toBe(true);
     expect(foreign.json().deadlines).toEqual([]);
     expect(own.json().contracts.every((item: { id: string }) => item.id === contractId)).toBe(true);
@@ -1091,6 +1093,101 @@ describe('MySQL private operational case workflow', () => {
       noise: 'Low',
       sharedLanguage: null,
     },
+  });
+  it('persists own language and channel preferences for managers, tenants, and administrators', async () => {
+    for (const actor of [manager, tenant, admin]) {
+      const headers = {
+        authorization:
+          'Bearer ' + app.jwt.sign({ sub: actor.id, role: actor.role, sid: actor.sid }),
+      };
+      const before = await prisma.user.findUniqueOrThrow({ where: { id: actor.id } });
+      try {
+        const response = await app.inject({
+          method: 'PATCH',
+          url: '/api/v1/profile/preferences',
+          headers,
+          payload: {
+            expectedVersion: before.profileVersion,
+            preferredLanguage: 'ar',
+            timezone: 'Asia/Dubai',
+            deliveryPreference: 'WHATSAPP',
+          },
+        });
+        expect(response.statusCode, response.body).toBe(200);
+        expect(response.json()).toMatchObject({
+          preferredLanguage: 'ar',
+          deliveryPreference: 'WHATSAPP',
+          profileVersion: before.profileVersion + 1,
+        });
+        expect(response.json().securityNotice).toContain('account email');
+        const persisted = await prisma.user.findUniqueOrThrow({ where: { id: actor.id } });
+        expect(persisted.notifyEmail).toBe(false);
+        expect(persisted.notifyWhatsapp).toBe(true);
+        expect(persisted.email).toBe(before.email);
+        expect(persisted.emailVerifiedAt).toEqual(before.emailVerifiedAt);
+        const own = await app.inject({
+          method: 'GET',
+          url: '/api/v1/profile/preferences',
+          headers,
+        });
+        expect(own.headers['cache-control']).toBe('no-store');
+        expect(own.body).not.toMatch(/passwordHash|emiratesId|phone|tenantId|managerId/);
+      } finally {
+        await prisma.user.update({
+          where: { id: actor.id },
+          data: {
+            preferredLanguage: before.preferredLanguage,
+            timezone: before.timezone,
+            notifyEmail: before.notifyEmail,
+            notifyWhatsapp: before.notifyWhatsapp,
+          },
+        });
+      }
+    }
+  });
+  it('rejects preference ownership injection, invalid calendar settings, and stale profile versions', async () => {
+    const headers = {
+      authorization:
+        'Bearer ' + app.jwt.sign({ sub: manager.id, role: manager.role, sid: manager.sid }),
+    };
+    const current = await prisma.user.findUniqueOrThrow({ where: { id: manager.id } });
+    const body = {
+      expectedVersion: current.profileVersion,
+      preferredLanguage: 'en',
+      timezone: 'Asia/Dubai',
+      deliveryPreference: 'BOTH',
+    };
+    for (const extra of [
+      { userId: tenant.id },
+      { timezone: 'No/Such' },
+      { preferredLanguage: 'not_a_language' },
+      { notifyEmail: false },
+      { email: 'replace@example.invalid' },
+    ]) {
+      expect(
+        (
+          await app.inject({
+            method: 'PATCH',
+            url: '/api/v1/profile/preferences',
+            headers,
+            payload: { ...body, ...extra },
+          })
+        ).statusCode,
+      ).toBe(422);
+    }
+    expect(
+      (
+        await app.inject({
+          method: 'PATCH',
+          url: '/api/v1/profile/preferences',
+          headers,
+          payload: { ...body, expectedVersion: current.profileVersion + 1 },
+        })
+      ).statusCode,
+    ).toBe(409);
+    expect(
+      (await prisma.user.findUniqueOrThrow({ where: { id: manager.id } })).profileVersion,
+    ).toBe(current.profileVersion);
   });
   it('persists optional tenant profile and delivery preferences without changing verified identity or historical authors', async () => {
     const current = (await send('GET', '/api/v1/profile')).json();

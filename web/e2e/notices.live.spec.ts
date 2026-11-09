@@ -67,6 +67,15 @@ test('real case notices retain private delivery history and require acknowledgem
     await expect(
       page.getByRole('heading', { name: 'My accommodation', exact: true }),
     ).toBeVisible();
+    await page.goto('/preferences');
+    await page.getByRole('button', { name: 'Edit preferences', exact: true }).click();
+    const preferences = page.getByRole('dialog');
+    await preferences.getByLabel('Notice language tag *', { exact: true }).fill('ar');
+    await preferences.getByLabel('Non-security notices *', { exact: true }).selectOption('BOTH');
+    await preferences.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(preferences).not.toBeVisible();
+    await page.reload();
+    await expect(page.getByText('ar', { exact: true })).toBeVisible();
     await page.goto('/requests');
     await page.getByRole('button', { name: 'New request', exact: true }).click();
     let dialog = page.getByRole('dialog');
@@ -88,6 +97,7 @@ test('real case notices retain private delivery history and require acknowledgem
         notification: { event: { requestId: request.id } },
       },
     });
+    expect(delivery.language).toBe('ar');
     await prisma.noticeDelivery.update({
       where: { id: delivery.id },
       data: { state: 'UNKNOWN', attempts: 1, failureCode: 'WORKER_INTERRUPTED' },

@@ -311,6 +311,30 @@ describe('inventory writes and role dashboards', () => {
       (await send('POST', '/api/v1/inventory/units', { ...unit, latitude: 91 })).statusCode,
     ).toBe(422);
   });
+  it('returns dashboard dependency failures without fabricated zero totals for each role', async () => {
+    for (const role of ['ADMIN', 'TENANT', 'LEASING_MANAGER'] as const) {
+      db.user.findUnique.mockResolvedValue({ status: 'ACTIVE', role });
+      db.user.count.mockRejectedValue(new Error('Dependency unavailable'));
+      db.contract.findMany.mockRejectedValue(new Error('Dependency unavailable'));
+      db.leasingManagerProfile.findUniqueOrThrow.mockRejectedValue(
+        new Error('Dependency unavailable'),
+      );
+      const response = await send(
+        'GET',
+        '/api/v1/dashboard/' +
+          (role === 'ADMIN' ? 'admin' : role === 'TENANT' ? 'tenant' : 'manager'),
+        undefined,
+        role,
+      );
+      expect(response.statusCode).toBe(500);
+      expect(response.json()).toMatchObject({
+        code: 'INTERNAL_ERROR',
+        message: 'Internal server error',
+      });
+      for (const field of ['units', 'managers', 'contracts'])
+        expect(response.json()[field]).toBeUndefined();
+    }
+  });
   it('routes administrators to their own dashboard and blocks manager resources', async () => {
     db.user.findUnique.mockResolvedValue({ status: 'ACTIVE', role: 'ADMIN' });
     db.user.count.mockResolvedValue(2);

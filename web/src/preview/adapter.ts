@@ -20,6 +20,7 @@ type PreviewStore = {
   profile?: RecordData;
   readNotices?: Record<string, string>;
   expenses?: RecordData[];
+  preferences?: Partial<Record<Role, Record<string, unknown>>>;
 };
 const storageKey = 'leaseflow-preview-data-v1';
 const accounts: Record<string, Role> = {
@@ -183,6 +184,43 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return fail('Preview session required', 401);
   if (path === '/auth/me') return respond(userFor(role));
   const store = readStore();
+  if (path === '/profile/preferences' && ['get', 'patch'].includes(method)) {
+    const current = store.preferences?.[role] ?? {
+      preferredLanguage: 'en',
+      timezone: 'Asia/Dubai',
+      profileVersion: 0,
+      deliveryPreference: 'BOTH',
+    };
+    if (method === 'patch') {
+      if (data.expectedVersion !== current.profileVersion)
+        return fail('Preferences changed. Reload before another edit', 409);
+      if (
+        !['EMAIL', 'WHATSAPP', 'BOTH'].includes(data.deliveryPreference) ||
+        typeof data.preferredLanguage !== 'string' ||
+        typeof data.timezone !== 'string'
+      )
+        return fail('Invalid preferences', 422);
+      try {
+        Intl.getCanonicalLocales(data.preferredLanguage);
+        new Intl.DateTimeFormat('en', { timeZone: data.timezone });
+      } catch {
+        return fail('Invalid language or timezone', 422);
+      }
+      store.preferences ??= {};
+      store.preferences[role] = {
+        preferredLanguage: data.preferredLanguage,
+        timezone: data.timezone,
+        deliveryPreference: data.deliveryPreference,
+        profileVersion: Number(current.profileVersion) + 1,
+      };
+      localStorage.setItem(storageKey, JSON.stringify(store));
+    }
+    return respond({
+      ...(store.preferences?.[role] ?? current),
+      securityNotice:
+        'Critical account notices retain the account email channel regardless of these preferences.',
+    });
+  }
   const expenseResult = previewExpenses(config, store, role, respond, fail, () =>
     localStorage.setItem(storageKey, JSON.stringify(store)),
   );
@@ -623,6 +661,25 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       : fail('Insufficient permissions', 403);
   if (path === '/contracts' && method === 'get')
     return role !== 'ADMIN' ? respond(store.contracts) : fail('Insufficient permissions', 403);
+  if (/^\/payments\/[^/]+\/receipts$/.test(path) && method === 'get') {
+    if (!['LEASING_MANAGER', 'TENANT'].includes(role)) return fail('Insufficient permissions', 403);
+    if (
+      !store.contracts.some((contract) =>
+        ((contract.payments ?? []) as RecordData[]).some(
+          (payment) => payment.id === path.split('/')[2],
+        ),
+      )
+    )
+      return fail('Payment not found', 404);
+    return respond({
+      items: [],
+      total: 0,
+      page: 1,
+      pageSize: 20,
+      recordEnabled: false,
+      basis: 'Synthetic preview; individual payment records require the live API.',
+    });
+  }
   if (/^\/contracts\/[^/]+(?:\/records)?$/.test(path) && method === 'get') {
     if (role === 'ADMIN') return fail('Insufficient permissions', 403);
     const contract = store.contracts.find((item) => item.id === path.split('/')[2]);

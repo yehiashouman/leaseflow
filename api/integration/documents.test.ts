@@ -262,6 +262,44 @@ describe('MySQL private documents, quarantine, immutable versions, and access gr
       await prisma.expense.delete({ where: { id: expense.id } });
     }
   });
+  it('keeps draft-contract payment evidence private until the contract becomes visible', async () => {
+    const payment = await prisma.payment.create({
+      data: {
+        contractId,
+        periodStart: new Date('2026-01-01'),
+        dueDate: new Date('2026-01-01'),
+        amountDue: '100.00',
+      },
+    });
+    try {
+      await prisma.contract.update({ where: { id: contractId }, data: { status: 'DRAFT' } });
+      const row = await create(
+        meta({
+          purpose: 'PAYMENT_EVIDENCE',
+          targetId: payment.id,
+          title: 'Private draft payment evidence',
+        }),
+        manager,
+      );
+      await clean();
+      expect((await send('GET', '/' + row.id, undefined, tenant)).statusCode).toBe(404);
+      expect((await send('POST', '/' + row.id + '/grant', {}, tenant)).statusCode).toBe(404);
+      expect(
+        (
+          await send('GET', '?purpose=PAYMENT_EVIDENCE&targetId=' + payment.id, undefined, tenant)
+        ).json().total,
+      ).toBe(0);
+      expect((await download(row.id, manager)).statusCode).toBe(200);
+      await prisma.contract.update({ where: { id: contractId }, data: { status: 'ACTIVE' } });
+      expect((await download(row.id, tenant)).statusCode).toBe(200);
+      expect((await send('POST', '/' + row.id + '/grant', {}, foreign)).statusCode).toBe(404);
+    } finally {
+      await prisma.contract.update({ where: { id: contractId }, data: { status: 'ACTIVE' } });
+      await prisma.document.deleteMany({ where: { series: { paymentId: payment.id } } });
+      await prisma.documentSeries.deleteMany({ where: { paymentId: payment.id } });
+      await prisma.payment.delete({ where: { id: payment.id } });
+    }
+  });
   it('scopes secondary identity files to their primary tenant and manager without a new login', async () => {
     const occupant = await prisma.contractOccupant.create({
       data: {

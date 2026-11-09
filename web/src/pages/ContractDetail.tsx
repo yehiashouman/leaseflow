@@ -1,3 +1,4 @@
+import { PaymentReceipts } from '@/components/payment-receipts';
 import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -126,6 +127,7 @@ function Records({ id, currency }: { id: string; currency: string }) {
                         </div>
                       ))}
                     </dl>
+                    <PaymentReceipts paymentId={row.id} currency={row.currency} />
                   </>
                 ) : 'amount' in row ? (
                   <>

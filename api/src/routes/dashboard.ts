@@ -115,6 +115,8 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
         ] as import('@prisma/client').RequestStatus[],
       },
     };
+    const now = new Date();
+    const horizon = new Date(now.getTime() + 7 * 86400000);
     const result = await prisma.$transaction(
       async (tx) => {
         const [units, spaceGroups, requestGroups, awaitingManager, deadlines, payments, expenses] =
@@ -182,7 +184,12 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
         for (const expense of expenses)
           currency(expense.currency).expenses = new Prisma.Decimal(expense._sum.amount ?? 0);
         const spaces = spaceGroups.reduce((sum, g) => sum + g._count._all, 0);
+        const [overdueDeadlines, approachingDeadlines] = await Promise.all([
+          tx.request.count({ where: { ...open, decisionDueAt: { lt: now } } }),
+          tx.request.count({ where: { ...open, decisionDueAt: { gte: now, lte: horizon } } }),
+        ]);
         return {
+          deadlineSummary: { overdue: overdueDeadlines, approaching: approachingDeadlines },
           units,
           spaces,
           occupied: count('OCCUPIED') + count('PARTIAL'),

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Building2, DoorOpen, Inbox, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
+import { caseTypes } from '../cases';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { QueryFeedback } from '@/components/query-feedback';
@@ -30,6 +31,7 @@ type PortfolioDashboard = Record<string, unknown> & {
     expenses: string;
   }[];
   financialBasis?: string;
+  deadlineSummary?: { overdue: number; approaching: number };
 };
 function ManagerDashboard() {
   const { data, isPending, error, refetch } = useQuery({
@@ -64,6 +66,15 @@ function ManagerDashboard() {
         <h2 id="case-deadlines" className="font-semibold">
           Request deadlines
         </h2>
+        {data?.deadlineSummary && (
+          <p>
+            {data.deadlineSummary.overdue} overdue · {data.deadlineSummary.approaching} due within
+            seven days
+          </p>
+        )}
+        <p className="text-sm text-muted-foreground">
+          Earliest ten open request deadlines. Each date links to the authorized request.
+        </p>
         {data?.deadlines?.length ? (
           data.deadlines.map((item) => (
             <p key={item.id} className="flex flex-wrap justify-between gap-3 border-b py-2">
@@ -79,6 +90,19 @@ function ManagerDashboard() {
         ) : (
           <p className="text-sm text-muted-foreground">No recorded request deadlines.</p>
         )}
+      </section>
+      <section className="space-y-3 border-t pt-6" aria-labelledby="open-case-types">
+        <h2 id="open-case-types" className="font-semibold">
+          Open requests by type
+        </h2>
+        <dl className="grid gap-3 sm:grid-cols-2">
+          {Object.entries(caseTypes).map(([key, label]) => (
+            <div key={key}>
+              <dt className="text-sm text-muted-foreground">{label}</dt>
+              <dd>{data?.requestsByType ? (data.requestsByType[key] ?? 0) : 'Unavailable'}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
       <section className="space-y-3 border-t pt-6" aria-labelledby="recorded-amounts">
         <h2 id="recorded-amounts" className="font-semibold">

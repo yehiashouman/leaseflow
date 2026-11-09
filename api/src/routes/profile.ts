@@ -109,8 +109,89 @@ export const profileRoutes: FastifyPluginAsync = async (app) => {
   app.addHook('onSend', async (_request, reply) => {
     reply.header('Cache-Control', 'no-store');
   });
+  const ownPreferences = allowRoles('ADMIN', 'LEASING_MANAGER', 'TENANT');
+  const preferenceSelect = {
+    id: true,
+    preferredLanguage: true,
+    timezone: true,
+    profileVersion: true,
+    notifyEmail: true,
+    notifyWhatsapp: true,
+  } as const;
+  const preferenceDto = (user: Prisma.UserGetPayload<{ select: typeof preferenceSelect }>) => ({
+    preferredLanguage: user.preferredLanguage,
+    timezone: user.timezone,
+    profileVersion: user.profileVersion,
+    deliveryPreference:
+      user.notifyEmail && user.notifyWhatsapp
+        ? 'BOTH'
+        : user.notifyWhatsapp
+          ? 'WHATSAPP'
+          : user.notifyEmail
+            ? 'EMAIL'
+            : null,
+    securityNotice:
+      'Critical account notices retain the account email channel regardless of these preferences.',
+  });
+  app.get('/preferences', { preHandler: ownPreferences }, async (request) =>
+    preferenceDto(
+      await prisma.user.findUniqueOrThrow({
+        where: { id: request.user.sub },
+        select: preferenceSelect,
+      }),
+    ),
+  );
+  app.patch('/preferences', { preHandler: ownPreferences }, async (request) => {
+    const body = updateSchema
+      .pick({
+        expectedVersion: true,
+        preferredLanguage: true,
+        timezone: true,
+        deliveryPreference: true,
+      })
+      .parse(request.body);
+    return prisma.$transaction(
+      async (tx) => {
+        if (!(await activeAccount(tx, request)))
+          throw app.httpErrors.unauthorized('Session is no longer active');
+        const current = await tx.user.findUniqueOrThrow({
+          where: { id: request.user.sub },
+          select: preferenceSelect,
+        });
+        if (current.profileVersion !== body.expectedVersion)
+          throw app.httpErrors.conflict('Preferences changed. Reload before another edit');
+        const updated = await tx.user.update({
+          where: { id: current.id },
+          data: {
+            preferredLanguage: body.preferredLanguage,
+            timezone: body.timezone,
+            notifyEmail: body.deliveryPreference !== 'WHATSAPP',
+            notifyWhatsapp: body.deliveryPreference !== 'EMAIL',
+            profileVersion: { increment: 1 },
+          },
+          select: preferenceSelect,
+        });
+        await tx.auditEvent.create({
+          data: {
+            actorUserId: current.id,
+            action: 'PREFERENCES_UPDATE',
+            entityType: 'User',
+            entityId: current.id,
+            newValue: { profileVersion: updated.profileVersion },
+            ip: request.ip,
+            userAgent: request.headers['user-agent'],
+          },
+        });
+        return preferenceDto(updated);
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
+  });
   app.get('/', { preHandler: tenantOnly }, async (request) => {
-    const user = await prisma.user.findUniqueOrThrow({ where: { id: request.user.sub }, select: userSelect });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: request.user.sub },
+      select: userSelect,
+    });
     if (!user.tenant) throw app.httpErrors.notFound('Tenant profile not found');
     return dto(user);
   });

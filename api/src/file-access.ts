@@ -55,7 +55,15 @@ export function seriesScope(actor: Actor): Prisma.DocumentSeriesWhereInput {
         },
       },
       { purpose: 'CASE_EVIDENCE', request: caseScope(actor) },
-      { purpose: 'PAYMENT_EVIDENCE', payment: { contract: caseContractScope(actor) } },
+      {
+        purpose: 'PAYMENT_EVIDENCE',
+        payment: {
+          contract: {
+            ...caseContractScope(actor),
+            ...(actor.role === 'TENANT' ? { status: { not: 'DRAFT' as const } } : {}),
+          },
+        },
+      },
     ],
   };
 }

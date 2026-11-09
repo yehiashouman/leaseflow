@@ -131,6 +131,7 @@ model User {
   outboundEmails OutboundEmail[]
   expenseVoids ExpenseVoid[]
   expenseRecoveries ExpenseRecovery[]
+  paymentReceipts PaymentReceipt[]
 }
 
 model LeasingManagerProfile {
@@ -324,9 +325,29 @@ model ContractReview {
   @@index([dueAt, reviewedAt])
 }
 
+model PaymentReceipt {
+  id String @id @default(cuid())
+  paymentId String
+  actorUserId String
+  clientId String
+  payloadHash String @db.Char(64)
+  amount Decimal @db.Decimal(12, 2)
+  currency String @db.VarChar(3)
+  paidAt DateTime
+  method String @db.VarChar(50)
+  reference String? @db.VarChar(150)
+  recordedBalance Decimal @db.Decimal(12, 2)
+  createdAt DateTime @default(now())
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  @@unique([actorUserId, clientId])
+  @@index([paymentId, createdAt, id])
+}
+
 model Payment {
   id String @id @default(cuid())
   contractId String
+  receipts PaymentReceipt[]
   periodStart DateTime
   dueDate DateTime
   amountDue Decimal @db.Decimal(12, 2)
