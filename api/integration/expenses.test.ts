@@ -274,6 +274,43 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
       expect((await send('POST', '', body(extra))).statusCode).toBe(422);
     expect((await send('GET', '?from=2026-12-01&to=2026-01-01')).statusCode).toBe(422);
   });
+  it('binds recovery payers to owned tenants and preserves their name snapshots', async () => {
+    const profile = await prisma.tenantProfile.findUniqueOrThrow({ where: { userId: tenant.id } });
+    const row = await create();
+    const receipt = await send('POST', '/' + row.id + '/recoveries', {
+      clientId: randomUUID(),
+      amount: '20.00',
+      paidAt: '2026-11-09',
+      method: 'Cash',
+      payerTenantId: profile.id,
+    });
+    expect(receipt.statusCode, receipt.body).toBe(201);
+    expect(receipt.json().recoveries[0]).toMatchObject({
+      payerTenantId: profile.id,
+      payerName: 'Expense Tenant',
+    });
+    try {
+      await prisma.tenantProfile.update({
+        where: { id: profile.id },
+        data: { fullName: 'Changed Current Name' },
+      });
+      const persisted = await send('GET', '/' + row.id);
+      expect(persisted.json().recoveries[0].payerName).toBe('Expense Tenant');
+    } finally {
+      await prisma.tenantProfile.update({
+        where: { id: profile.id },
+        data: { fullName: 'Expense Tenant' },
+      });
+    }
+    const denied = await send('POST', '/' + row.id + '/recoveries', {
+      clientId: randomUUID(),
+      amount: '1.00',
+      paidAt: '2026-11-09',
+      method: 'Cash',
+      payerTenantId: 'foreign-or-unknown',
+    });
+    expect(denied.statusCode).toBe(404);
+  });
   it('refuses production writes without a journal row', async () => {
     const previous = env.NODE_ENV;
     env.NODE_ENV = 'production';

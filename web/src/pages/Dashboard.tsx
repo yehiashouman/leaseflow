@@ -89,7 +89,7 @@ function ManagerDashboard() {
               {[
                 ['outstanding', 'Outstanding'],
                 ['overdue', 'Overdue balance'],
-                ['received', 'Recorded receipts'],
+                ['received', 'Recorded payments'],
                 ['expenses', 'Recorded expenses'],
               ].map(([key, label]) => (
                 <div key={key}>

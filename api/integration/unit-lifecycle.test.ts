@@ -130,6 +130,7 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
   }
   async function proposal(spaceId: string) {
     return send('POST', '/api/v1/contracts', {
+      clientId: randomUUID(),
       tenantId,
       rentalSpaceId: spaceId,
       startDate: '2026-11-01',

@@ -36,6 +36,8 @@ const select = {
       paidAt: true,
       method: true,
       reference: true,
+      payerTenantId: true,
+      payerName: true,
       notes: true,
       createdAt: true,
     },
@@ -118,7 +120,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
   }
   app.get('/options', async (request) => {
     const managerId = await owner(request);
-    const [landlords, units, spaces, contracts] = await Promise.all([
+    const [landlords, units, spaces, contracts, tenants] = await Promise.all([
       prisma.landlord.findMany({
         where: { managerId, archivedAt: null },
         select: { id: true, name: true },
@@ -147,8 +149,22 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
         orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
         take: 500,
       }),
+      prisma.tenantProfile.findMany({
+        where: { managerId },
+        select: { id: true, fullName: true },
+        orderBy: [{ fullName: 'asc' }, { id: 'asc' }],
+        take: 500,
+      }),
     ]);
-    return { categories: expenseCategories, landlords, units, spaces, contracts, limit: 500 };
+    return {
+      categories: expenseCategories,
+      landlords,
+      units,
+      spaces,
+      contracts,
+      tenants,
+      limit: 500,
+    };
   });
   async function listWhere(request: FastifyRequest) {
     const query = listSchema.parse(request.query),
@@ -387,6 +403,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
         method: z.string().trim().min(2).max(80),
         reference: z.string().trim().max(200).default(''),
         notes: z.string().trim().max(5000).default(''),
+        payerTenantId: z.string().min(1).max(191).optional(),
       })
       .strict()
       .parse(request.body);
@@ -411,6 +428,13 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
         );
         if (total.plus(body.amount).greaterThan(expense.amount))
           throw app.httpErrors.conflict('Recovery exceeds unrecovered expense');
+        const payer = body.payerTenantId
+          ? await tx.tenantProfile.findFirst({
+              where: { id: body.payerTenantId, managerId },
+              select: { fullName: true },
+            })
+          : null;
+        if (body.payerTenantId && !payer) throw app.httpErrors.notFound('Payer tenant not found');
         const recovered = await tx.expenseRecovery.create({
           data: {
             ...normalized,
@@ -418,6 +442,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
             actorUserId: request.user.sub,
             paidAt: new Date(body.paidAt),
             payloadHash: hash,
+            payerName: payer?.fullName ?? null,
           },
         });
         await audit(tx, request, 'EXPENSE_RECOVERY', id, {

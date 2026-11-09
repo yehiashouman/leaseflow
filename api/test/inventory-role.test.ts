@@ -45,6 +45,7 @@ describe('inventory writes and role dashboards', () => {
     db.authSession.findFirst.mockResolvedValue({ id: 'session-1' });
     db.$queryRaw.mockResolvedValue([{ id: 'space-1' }]);
     db.contract.findMany.mockResolvedValue([]);
+    db.rentalSpace.update.mockResolvedValue({ status: 'PARTIAL' });
   });
   function send(
     method: 'GET' | 'POST' | 'PATCH',
@@ -66,6 +67,13 @@ describe('inventory writes and role dashboards', () => {
   }
   const unit = { name: 'Demo Apartment', area: 'Dubai Marina', declarationAccepted: true };
 
+  it('rejects a session revoked after the initial inventory permission check', async () => {
+    db.user.findFirst.mockResolvedValue(null);
+    const response = await send('POST', '/api/v1/inventory/units', unit);
+    expect(response.statusCode).toBe(401);
+    expect(db.unit.create).not.toHaveBeenCalled();
+    expect(db.auditEvent.create).not.toHaveBeenCalled();
+  });
   it('rejects cross-manager landlord references', async () => {
     db.$queryRaw.mockResolvedValue([]);
     const response = await send('POST', '/api/v1/inventory/units', {
@@ -74,7 +82,8 @@ describe('inventory writes and role dashboards', () => {
     });
     expect(response.statusCode).toBe(404);
     expect(db.unit.create).not.toHaveBeenCalled();
-    expect(db.$queryRaw.mock.calls[0]?.slice(1)).toEqual(['other-manager-landlord', 'manager-1']);
+    expect(db.$queryRaw.mock.calls[0]?.slice(1)).toEqual(['user-1']);
+    expect(db.$queryRaw.mock.calls[1]?.slice(1)).toEqual(['other-manager-landlord', 'manager-1']);
   });
   it('filters landlord lists by status and search within manager ownership', async () => {
     db.landlord.findMany.mockResolvedValue([]);
@@ -364,7 +373,7 @@ describe('inventory writes and role dashboards', () => {
     expect((await send('PATCH', '/api/v1/inventory/spaces/space-1', roomEdit)).statusCode).toBe(
       200,
     );
-    expect(db.$queryRaw).toHaveBeenCalledOnce();
+    expect(db.$queryRaw).toHaveBeenCalledTimes(2);
     expect(db.rentalSpace.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: 'AVAILABLE', enabled: true }),
@@ -383,7 +392,8 @@ describe('inventory writes and role dashboards', () => {
       404,
     );
     expect(db.rentalSpace.update).not.toHaveBeenCalled();
-    expect(db.$queryRaw.mock.calls[0]?.slice(1)).toEqual(['foreign', 'manager-1']);
+    expect(db.$queryRaw.mock.calls[0]?.slice(1)).toEqual(['user-1']);
+    expect(db.$queryRaw.mock.calls[1]?.slice(1)).toEqual(['foreign', 'manager-1']);
   });
   it('counts secondary occupants and preserves committed capacity', async () => {
     db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', type: 'ROOM', capacity: 2 });

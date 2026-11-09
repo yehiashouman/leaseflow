@@ -13,6 +13,24 @@ const codes: Record<number, string> = {
   429: 'RATE_LIMITED',
   503: 'NOT_READY',
 };
+export function isTransactionConflict(cause: unknown) {
+  const error = cause as {
+    code?: string;
+    meta?: {
+      code?: string;
+      driverAdapterError?: { cause?: { kind?: string; originalCode?: string } };
+    };
+  } | null;
+  if (error?.code === 'P2034') return true;
+  if (error?.code !== 'P2010') return false;
+  const driver = error.meta?.driverAdapterError?.cause;
+  return (
+    ['1213', '1205'].includes(String(error.meta?.code)) ||
+    driver?.kind === 'TransactionWriteConflict' ||
+    ['1213', '1205'].includes(String(driver?.originalCode))
+  );
+}
+
 export function sendApiError(cause: unknown, request: FastifyRequest, reply: FastifyReply) {
   if (cause instanceof ZodError)
     return reply.code(422).send({
@@ -26,12 +44,12 @@ export function sendApiError(cause: unknown, request: FastifyRequest, reply: Fas
       requestId: request.id,
     });
   const error = cause as { statusCode?: number; name?: string; message?: string; code?: string };
-  const status =
-    error.code === 'P2034'
-      ? 409
-      : error.statusCode && error.statusCode >= 400 && error.statusCode <= 599
-        ? error.statusCode
-        : 500;
+  const conflict = isTransactionConflict(cause);
+  const status = conflict
+    ? 409
+    : error.statusCode && error.statusCode >= 400 && error.statusCode <= 599
+      ? error.statusCode
+      : 500;
   if (status >= 500)
     request.log.error(
       { requestId: request.id, status, errorType: error.name ?? 'Error' },
@@ -53,7 +71,7 @@ export function sendApiError(cause: unknown, request: FastifyRequest, reply: Fas
         ? status === 503
           ? 'Service is not ready.'
           : 'Internal server error'
-        : error.code === 'P2034'
+        : conflict
           ? 'Record changed. Reload before retry.'
           : (error.message ?? 'Request rejected'),
     requestId: request.id,

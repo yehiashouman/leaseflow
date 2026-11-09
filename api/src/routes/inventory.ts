@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { activeAccount } from '../account-data.js';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
 import {
@@ -186,6 +187,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     const body = landlordSchema.parse(request.body);
     const owner = await managerId(request.user.sub);
     const item = await prisma.$transaction(async (tx) => {
+      if (!(await activeAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Session is no longer active');
       const created = await tx.landlord.create({ data: { ...body, managerId: owner } });
       await recordAudit(tx, request, 'CREATE', 'Landlord', created);
       return created;
@@ -197,6 +200,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     const body = landlordSchema.parse(request.body);
     const owner = await managerId(request.user.sub);
     return prisma.$transaction(async (tx) => {
+      if (!(await activeAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Session is no longer active');
       if ((await lockLandlord(tx, id, owner)).archivedAt)
         throw app.httpErrors.conflict('Restore the landlord before an edit');
       const existing = await tx.landlord.findFirst({ where: { id, managerId: owner } });
@@ -214,6 +219,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
         .parse(request.body ?? {});
       const owner = await managerId(request.user.sub);
       return prisma.$transaction(async (tx) => {
+        if (!(await activeAccount(tx, request)))
+          throw app.httpErrors.unauthorized('Session is no longer active');
         const row = await lockLandlord(tx, id, owner);
         const existing = await tx.landlord.findFirst({ where: { id, managerId: owner } });
         if (!existing) throw app.httpErrors.notFound('Landlord not found');
@@ -283,6 +290,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     void _declaration;
     const owner = await managerId(request.user.sub);
     const item = await prisma.$transaction(async (tx) => {
+      if (!(await activeAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Session is no longer active');
       await verifyLandlord(tx, body.landlordId, owner);
       const created = await tx.unit.create({
         data: { ...body, managerId: owner, active: false, declarationAcceptedAt: new Date() },
@@ -299,6 +308,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     void _declaration;
     const owner = await managerId(request.user.sub);
     return prisma.$transaction(async (tx) => {
+      if (!(await activeAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Session is no longer active');
       await verifyLandlord(tx, body.landlordId, owner);
       if ((await lockUnit(tx, id, owner)).archivedAt)
         throw app.httpErrors.conflict('Restore the unit before an edit');
@@ -322,6 +333,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       const owner = await managerId(request.user.sub);
       return prisma.$transaction(
         async (tx) => {
+          if (!(await activeAccount(tx, request)))
+            throw app.httpErrors.unauthorized('Session is no longer active');
           const row = await lockUnit(tx, id, owner);
           const existing = await tx.unit.findFirst({ where: { id, managerId: owner } });
           if (!existing) throw app.httpErrors.notFound('Unit not found');
@@ -361,6 +374,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     if (!['ROOM', 'MASTER_ROOM'].includes(body.type))
       return reply.unprocessableEntity('Future feature: this accommodation type is disabled');
     const item = await prisma.$transaction(async (tx) => {
+      if (!(await activeAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Session is no longer active');
       if ((await lockUnit(tx, unitId, owner)).archivedAt)
         throw app.httpErrors.conflict('Restore the unit before a new room');
       if (!(await tx.unit.findFirst({ where: { id: unitId, managerId: owner } })))
@@ -384,6 +399,8 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       throw app.httpErrors.unprocessableEntity('Master Room requires a private bathroom');
     const owner = await managerId(request.user.sub);
     return prisma.$transaction(async (tx) => {
+      if (!(await activeAccount(tx, request)))
+        throw app.httpErrors.unauthorized('Session is no longer active');
       if (!(await lockOwnedSpace(tx, id, owner))) throw app.httpErrors.notFound('Room not found');
       const existing = await tx.rentalSpace.findFirst({
         where: { id, unit: { managerId: owner } },

@@ -55,6 +55,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
         id: true,
         name: true,
         type: true,
+        status: true,
         unit: { select: { id: true, name: true, area: true } },
       },
     },
@@ -297,7 +298,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             status: 'DUE',
           },
         });
-        await tx.rentalSpace.update({
+        const updatedSpace = await tx.rentalSpace.update({
           where: { id: space.id },
           data: { status: occupiedStatus(occupants, space.capacity) },
         });
@@ -321,7 +322,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             },
           },
         });
-        return created;
+        return { ...created, rentalSpace: { ...created.rentalSpace, status: updatedSpace.status } };
       })
       .catch((cause: unknown) => {
         if (cause instanceof Prisma.PrismaClientKnownRequestError && cause.code === 'P2034')

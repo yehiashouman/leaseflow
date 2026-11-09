@@ -34,6 +34,7 @@ type Expense = {
     paidAt: string;
     method: string;
     reference: string | null;
+    payerName?: string | null;
     notes: string | null;
   }[];
 };
@@ -43,6 +44,7 @@ type Options = {
   units: { id: string; name: string }[];
   spaces: { id: string; name: string; unit: { name: string } }[];
   contracts: { id: string; tenant: { fullName: string }; rentalSpace: { name: string } }[];
+  tenants?: { id: string; fullName: string }[];
   limit: number;
 };
 const today = () => new Date().toISOString().slice(0, 10);
@@ -365,6 +367,11 @@ export function ExpenseDetail() {
     queryFn: ({ signal }) =>
       api.get<Expense>('/expenses/' + id, { signal }).then((response) => response.data),
   });
+  const payers = useQuery({
+    queryKey: ['expense-options'],
+    enabled: action === 'recoveries',
+    queryFn: () => api.get<Options>('/expenses/options').then((response) => response.data),
+  });
   if (query.isPending || query.error)
     return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
   const data = query.data!;
@@ -441,6 +448,7 @@ export function ExpenseDetail() {
               {data.currency} {row.amount} · {date(row.paidAt)} (UTC) · {row.method}
             </p>
             <p className="break-words">{row.reference}</p>
+            <p>{row.payerName ? 'Payer snapshot: ' + row.payerName : 'Payer tenant not linked'}</p>
             <p className="whitespace-pre-wrap break-words">{row.notes}</p>
           </article>
         ))}
@@ -473,6 +481,17 @@ export function ExpenseDetail() {
               : [
                   moneyField(data.currency),
                   {
+                    name: 'payerTenantId',
+                    label: 'Payer tenant (optional)',
+                    options: [
+                      { value: '', label: 'No tenant link' },
+                      ...(payers.data?.tenants ?? []).map((row) => ({
+                        value: row.id,
+                        label: row.fullName,
+                      })),
+                    ],
+                  },
+                  {
                     name: 'paidAt',
                     label: 'Payment date (UTC)',
                     type: 'date',
@@ -501,6 +520,9 @@ export function ExpenseDetail() {
                     method: form.get('method'),
                     reference: form.get('reference') || '',
                     notes: form.get('notes') || '',
+                    ...(form.get('payerTenantId')
+                      ? { payerTenantId: String(form.get('payerTenantId')) }
+                      : {}),
                   };
             const response = await api.post<Expense>('/expenses/' + id + '/' + action, body);
             client.setQueryData(['expense', id], response.data);

@@ -175,6 +175,7 @@ model TenantProfile {
   user User @relation(fields: [userId], references: [id])
   manager LeasingManagerProfile @relation(fields: [managerId], references: [id])
   contracts Contract[]
+  expenseRecoveries ExpenseRecovery[]
 }
 
 model Landlord {
@@ -522,6 +523,8 @@ model ExpenseVoid {
 }
 
 model ExpenseRecovery {
+  payerTenantId String?
+  payerName String? @db.VarChar(191)
   id String @id @default(cuid())
   expenseId String
   actorUserId String
@@ -535,6 +538,8 @@ model ExpenseRecovery {
   createdAt DateTime @default(now())
   expense Expense @relation(fields: [expenseId], references: [id], onDelete: Restrict)
   actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  payer TenantProfile? @relation(fields: [payerTenantId], references: [id], onDelete: Restrict)
+  @@index([payerTenantId])
   @@unique([expenseId, clientId])
 }
 

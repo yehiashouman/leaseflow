@@ -1,7 +1,7 @@
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { Role } from '../session';
 type Row = { id: string; [key: string]: any };
-type Store = { expenses?: Row[]; units: Row[]; landlords: Row[]; contracts: Row[] };
+type Store = { expenses?: Row[]; units: Row[]; landlords: Row[]; contracts: Row[]; profile?: Row };
 const categories = [
   'OWNER_RENT',
   'ELECTRICITY',
@@ -56,6 +56,7 @@ export function previewExpenses(
         .filter((row) => !row.archivedAt)
         .flatMap((unit) => unit.spaces.map((row: Row) => ({ ...row, unit: { name: unit.name } }))),
       contracts: store.contracts,
+      tenants: [{ id: 'tenant-1', fullName: store.profile?.tenant?.fullName ?? 'Demo Tenant' }],
       limit: 500,
     });
   if (method === 'get' && ['/expenses', '/expenses/export.csv'].includes(path)) {
@@ -209,8 +210,11 @@ export function previewExpenses(
     }
     if (row.void || minor(data.amount) > minor(dto(row).unrecovered))
       return fail('Recovery exceeds unrecovered expense', 409);
+    if (data.payerTenantId && data.payerTenantId !== 'tenant-1')
+      return fail('Payer tenant not found', 404);
     row.recoveries.push({
       ...data,
+      payerName: data.payerTenantId ? (store.profile?.tenant?.fullName ?? 'Demo Tenant') : null,
       amount: cash(minor(data.amount)),
       paidAt: data.paidAt + 'T00:00:00Z',
       id: crypto.randomUUID(),
