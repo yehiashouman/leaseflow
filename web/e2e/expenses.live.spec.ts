@@ -8,6 +8,9 @@ test.afterAll(async () => {
 test('real expense record, external recovery, immutable original, CSV, and reasoned void survive reload', async ({
   page,
 }, testInfo) => {
+  await page.setExtraHTTPHeaders({
+    'X-Forwarded-For': testInfo.project.name === 'mobile' ? '198.51.100.181' : '198.51.100.180',
+  });
   if (!new URL(process.env.DATABASE_URL!).pathname.endsWith('_test'))
     throw new Error('Expense browser verification requires a _test database');
   const password = 'ExpenseBrowser123!',

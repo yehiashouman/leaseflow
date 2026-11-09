@@ -410,7 +410,9 @@ model Notification {
   readAt DateTime?
   createdAt DateTime @default(now())
   event RequestEvent @relation(fields: [eventId], references: [id])
+  deliveries NoticeDelivery[]
   @@unique([recipientUserId, eventId])
+  @@unique([id, recipientUserId])
   @@index([recipientUserId, readAt, createdAt])
 }
 
@@ -755,4 +757,81 @@ model PhoneChallenge {
   consumedAt DateTime?
   leaseToken String?
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+}
+
+enum NoticeChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NoticeState {
+  PAUSED
+  QUEUED
+  RUNNING
+  ACCEPTED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  UNKNOWN
+  SUPPRESSED
+}
+
+model NoticeDelivery {
+  id String @id @default(cuid())
+  notificationId String
+  recipientUserId String
+  channel NoticeChannel
+  template String @db.VarChar(80)
+  language String @db.VarChar(35)
+  recipientCipher String? @db.Text
+  recipientHint String? @db.VarChar(320)
+  payloadCipher String @db.Text
+  state NoticeState @default(PAUSED)
+  retrySequence Int @default(0)
+  retryClientId String? @db.VarChar(36)
+  retryPayloadHash String? @db.VarChar(64)
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now())
+  leaseToken String?
+  leaseExpiresAt DateTime?
+  providerId String? @db.VarChar(191)
+  providerTemplateId String? @db.VarChar(191)
+  failureCode String? @db.VarChar(80)
+  acceptedAt DateTime?
+  deliveredAt DateTime?
+  readAt DateTime?
+  createdAt DateTime @default(now())
+  notification Notification @relation(fields: [notificationId, recipientUserId], references: [id, recipientUserId], onDelete: Cascade)
+  attemptLog NoticeAttempt[]
+  callbacks NoticeCallback[]
+  @@unique([notificationId, channel, retrySequence])
+  @@unique([recipientUserId, retryClientId])
+  @@unique([channel, providerId])
+  @@index([state, channel, nextAttemptAt])
+  @@index([state, leaseExpiresAt])
+  @@index([recipientUserId, createdAt])
+}
+
+model NoticeAttempt {
+  id String @id @default(cuid())
+  deliveryId String
+  number Int
+  state NoticeState @default(RUNNING)
+  failureCode String? @db.VarChar(80)
+  providerId String? @db.VarChar(191)
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+  delivery NoticeDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  @@unique([deliveryId, number])
+}
+
+model NoticeCallback {
+  id String @id @default(cuid())
+  deliveryId String
+  fingerprint String @unique @db.VarChar(64)
+  providerId String @db.VarChar(191)
+  state NoticeState
+  receivedAt DateTime @default(now())
+  delivery NoticeDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
 }

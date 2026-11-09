@@ -1,0 +1,56 @@
+CREATE UNIQUE INDEX Notification_id_recipientUserId_key ON Notification(id, recipientUserId);
+CREATE TABLE NoticeDelivery (
+ id VARCHAR(191) NOT NULL PRIMARY KEY,
+ notificationId VARCHAR(191) NOT NULL,
+ recipientUserId VARCHAR(191) NOT NULL,
+ channel ENUM('EMAIL','WHATSAPP') NOT NULL,
+ template VARCHAR(80) NOT NULL,
+ language VARCHAR(35) NOT NULL,
+ recipientCipher TEXT NULL,
+ recipientHint VARCHAR(320) NULL,
+ payloadCipher TEXT NOT NULL,
+ state ENUM('PAUSED','QUEUED','RUNNING','ACCEPTED','SENT','DELIVERED','READ','FAILED','UNKNOWN','SUPPRESSED') NOT NULL DEFAULT 'PAUSED',
+ retrySequence INTEGER NOT NULL DEFAULT 0,
+ retryClientId VARCHAR(36) NULL,
+ retryPayloadHash VARCHAR(64) NULL,
+ attempts INTEGER NOT NULL DEFAULT 0,
+ nextAttemptAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ leaseToken VARCHAR(191) NULL,
+ leaseExpiresAt DATETIME(3) NULL,
+ providerId VARCHAR(191) NULL,
+ providerTemplateId VARCHAR(191) NULL,
+ failureCode VARCHAR(80) NULL,
+ acceptedAt DATETIME(3) NULL,
+ deliveredAt DATETIME(3) NULL,
+ readAt DATETIME(3) NULL,
+ createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ UNIQUE INDEX NoticeDelivery_notificationId_channel_retrySequence_key (notificationId, channel, retrySequence),
+ UNIQUE INDEX NoticeDelivery_recipientUserId_retryClientId_key (recipientUserId, retryClientId),
+ UNIQUE INDEX NoticeDelivery_channel_providerId_key (channel, providerId),
+ INDEX NoticeDelivery_state_channel_nextAttemptAt_idx (state, channel, nextAttemptAt),
+ INDEX NoticeDelivery_state_leaseExpiresAt_idx (state, leaseExpiresAt),
+ INDEX NoticeDelivery_recipientUserId_createdAt_idx (recipientUserId, createdAt),
+ CONSTRAINT NoticeDelivery_notification_recipient_fkey FOREIGN KEY (notificationId, recipientUserId) REFERENCES Notification(id, recipientUserId) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE NoticeAttempt (
+ id VARCHAR(191) NOT NULL PRIMARY KEY,
+ deliveryId VARCHAR(191) NOT NULL,
+ number INTEGER NOT NULL,
+ state ENUM('PAUSED','QUEUED','RUNNING','ACCEPTED','SENT','DELIVERED','READ','FAILED','UNKNOWN','SUPPRESSED') NOT NULL DEFAULT 'RUNNING',
+ failureCode VARCHAR(80) NULL,
+ providerId VARCHAR(191) NULL,
+ startedAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ finishedAt DATETIME(3) NULL,
+ UNIQUE INDEX NoticeAttempt_deliveryId_number_key (deliveryId, number),
+ CONSTRAINT NoticeAttempt_deliveryId_fkey FOREIGN KEY (deliveryId) REFERENCES NoticeDelivery(id) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE NoticeCallback (
+ id VARCHAR(191) NOT NULL PRIMARY KEY,
+ deliveryId VARCHAR(191) NOT NULL,
+ fingerprint VARCHAR(64) NOT NULL,
+ providerId VARCHAR(191) NOT NULL,
+ state ENUM('PAUSED','QUEUED','RUNNING','ACCEPTED','SENT','DELIVERED','READ','FAILED','UNKNOWN','SUPPRESSED') NOT NULL,
+ receivedAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ UNIQUE INDEX NoticeCallback_fingerprint_key (fingerprint),
+ CONSTRAINT NoticeCallback_deliveryId_fkey FOREIGN KEY (deliveryId) REFERENCES NoticeDelivery(id) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

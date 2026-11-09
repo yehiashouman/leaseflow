@@ -8,6 +8,9 @@ test.afterAll(async () => {
 test('real monthly contract captures a couple, defaults, exact initial rent, and private occupant snapshots', async ({
   page,
 }, testInfo) => {
+  await page.setExtraHTTPHeaders({
+    'X-Forwarded-For': testInfo.project.name === 'mobile' ? '198.51.100.183' : '198.51.100.182',
+  });
   if (!new URL(process.env.DATABASE_URL!).pathname.endsWith('_test'))
     throw new Error('Contract setup requires a _test database');
   const suffix = randomUUID(),

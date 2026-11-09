@@ -7,6 +7,7 @@ const db = vi.hoisted(() => ({
   caseReportJob: { groupBy: vi.fn() },
   document: { groupBy: vi.fn() },
   outboundEmail: { groupBy: vi.fn() },
+  noticeDelivery: { groupBy: vi.fn() },
   $transaction: vi.fn(),
   $disconnect: vi.fn(),
 }));
@@ -28,6 +29,7 @@ beforeEach(() => {
   db.user.findUnique.mockResolvedValue({ status: 'ACTIVE', role: 'ADMIN' });
   db.authSession.findFirst.mockResolvedValue({ id: 'sid' });
   db.$transaction.mockImplementation((callback) => callback(db));
+  db.noticeDelivery.groupBy.mockResolvedValue([]);
   for (const table of [db.caseReportJob, db.document, db.outboundEmail])
     table.groupBy.mockResolvedValue([
       { status: 'FAILED', failureCode: 'DELIVERY_UNAVAILABLE', _count: { _all: 2 } },

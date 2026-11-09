@@ -235,6 +235,10 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     localStorage.setItem(storageKey, JSON.stringify(store));
     return respond(previewCase(record, store.contracts, role));
   }
+  if (path === '/notifications/deliveries' && method === 'get')
+    return role === 'ADMIN'
+      ? fail('Insufficient permissions', 403)
+      : respond({ items: [], total: 0, pageSize: 20, enabledChannels: [] });
   if (path === '/operations/jobs')
     return role === 'ADMIN'
       ? respond({
@@ -242,6 +246,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           reports: [],
           files: [],
           emails: [],
+          notices: [],
           recovery: 'Synthetic preview only. Real provider and file jobs require the live API.',
         })
       : fail('Insufficient permissions', 403);

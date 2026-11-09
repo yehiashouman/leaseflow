@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { DeliveryStatus } from './pages/DeliveryStatus';
 import { Expenses, ExpenseDetail } from './pages/Expenses';
 import { Operations } from './pages/Operations';
 import { Login } from './pages/Login';
@@ -49,6 +50,7 @@ const navigation = [
   { to: '/security', label: 'Security', icon: Shield },
   { to: '/profile', label: 'My profile', icon: Shield },
   { to: '/tenants', label: 'Tenants', icon: Building2 },
+  { to: '/delivery', label: 'Delivery status', icon: Inbox },
   { to: '/notifications', label: 'Notifications', icon: Inbox },
   { to: '/admin/managers', label: 'Account review', icon: Shield },
   { to: '/admin/operations', label: 'Job status', icon: Shield },
@@ -78,7 +80,14 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
         !item.to.startsWith('/admin/') &&
         item.to !== '/profile') ||
       (user?.role === 'TENANT' &&
-        ['/contracts', '/requests', '/profile', '/notifications', '/documents'].includes(item.to)),
+        [
+          '/contracts',
+          '/requests',
+          '/profile',
+          '/notifications',
+          '/documents',
+          '/delivery',
+        ].includes(item.to)),
   );
   return (
     <nav aria-label="Main navigation" className="grid gap-1">
@@ -223,6 +232,7 @@ export default function App() {
             <Route element={<Guard roles={['LEASING_MANAGER', 'TENANT']} />}>
               <Route path="documents" element={<MyDocuments />} />
               <Route path="notifications" element={<Notifications />} />
+              <Route path="delivery" element={<DeliveryStatus />} />
               <Route path="contracts" element={<Contracts />} />
               <Route path="contracts/:id" element={<ContractDetail />} />
               <Route path="requests" element={<Requests />} />

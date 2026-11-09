@@ -58,6 +58,9 @@ export function Notifications() {
           Mark all read
         </Button>
       </div>
+      <Link className="text-primary underline" to="/delivery">
+        External delivery status
+      </Link>
       <select
         aria-label="Notification status"
         className="h-9 rounded-md border bg-background px-3 text-sm"

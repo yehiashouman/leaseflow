@@ -69,6 +69,8 @@ const verifyService = () => {
   return twilio(env.TWILIO_ACCOUNT_SID, env.TWILIO_AUTH_TOKEN, {
     timeout: 15000,
     maxRetries: 0,
+    autoRetry: false,
+    logLevel: 'error',
   }).verify.v2.services(env.TWILIO_VERIFY_SERVICE_SID);
 };
 export const twilioPhoneProvider: PhoneProvider = {

@@ -7,12 +7,16 @@ export const operationRoutes: FastifyPluginAsync = async (app) => {
     reply.header('Cache-Control', 'no-store');
   });
   app.get('/jobs', { preHandler: allowRoles('ADMIN') }, async () => {
-    const [reports, files, emails] = await prisma.$transaction(
+    const [reports, files, emails, notices] = await prisma.$transaction(
       async (tx) =>
         Promise.all([
           tx.caseReportJob.groupBy({ by: ['status', 'failureCode'], _count: { _all: true } }),
           tx.document.groupBy({ by: ['status', 'failureCode'], _count: { _all: true } }),
           tx.outboundEmail.groupBy({ by: ['status', 'failureCode'], _count: { _all: true } }),
+          tx.noticeDelivery.groupBy({
+            by: ['channel', 'state', 'failureCode'],
+            _count: { _all: true },
+          }),
         ]),
       { isolationLevel: 'RepeatableRead' },
     );
@@ -29,6 +33,11 @@ export const operationRoutes: FastifyPluginAsync = async (app) => {
       reports: summarize(reports),
       files: summarize(files),
       emails: summarize(emails),
+      notices: notices.map((row) => ({
+        status: row.channel + '_' + row.state,
+        failureCode: row.failureCode,
+        count: row._count._all,
+      })),
       recovery:
         'Report and file owners use their authorized retry actions. Account owners request a fresh verification or recovery link. Provider delivery requires separate acceptance.',
     };

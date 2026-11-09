@@ -3,7 +3,14 @@ import { api } from '../api';
 import { QueryFeedback } from '@/components/query-feedback';
 import { Card, CardContent } from '@/components/ui/card';
 type Row = { status: string; failureCode: string | null; count: number };
-type Status = { observedAt: string; reports: Row[]; files: Row[]; emails: Row[]; recovery: string };
+type Status = {
+  observedAt: string;
+  reports: Row[];
+  files: Row[];
+  emails: Row[];
+  notices: Row[];
+  recovery: string;
+};
 export function Operations() {
   const query = useQuery({
     queryKey: ['operations'],
@@ -21,8 +28,8 @@ export function Operations() {
         Observed: {new Date(data.observedAt).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' })}{' '}
         (Asia/Dubai). Refresh interval: 30 seconds.
       </p>
-      <div className="grid gap-4 lg:grid-cols-3">
-        {(['reports', 'files', 'emails'] as const).map((group) => (
+      <div className="grid gap-4 lg:grid-cols-4">
+        {(['reports', 'files', 'emails', 'notices'] as const).map((group) => (
           <Card key={group}>
             <CardContent className="space-y-3">
               <h2 className="font-semibold capitalize">{group}</h2>

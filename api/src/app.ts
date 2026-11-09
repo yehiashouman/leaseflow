@@ -1,3 +1,6 @@
+import { noticeDeliveryRoutes } from './routes/notice-delivery.js';
+import { providerStatusRoutes } from './routes/provider-status.js';
+import { noticeWorker } from './notice-worker.js';
 import { expenseRoutes } from './routes/expenses.js';
 import { operationRoutes } from './routes/operations.js';
 import { registerMetrics } from './metrics.js';
@@ -104,6 +107,8 @@ export async function buildApp() {
     }
   });
   registerMetrics(app);
+  await app.register(noticeDeliveryRoutes, { prefix: '/api/v1/notifications' });
+  await app.register(providerStatusRoutes, { prefix: '/api/v1/providers/twilio' });
   await app.register(expenseRoutes, { prefix: '/api/v1/expenses' });
   await app.register(operationRoutes, { prefix: '/api/v1/operations' });
   await app.register(invitationRoutes, { prefix: '/api/v1/invitations' });
@@ -121,6 +126,7 @@ export async function buildApp() {
   await app.register(notificationRoutes, { prefix: '/api/v1/notifications' });
   await app.register(reportRoutes, { prefix: '/api/v1/reports' });
   await app.register(documentRoutes, { prefix: '/api/v1/documents' });
+  const notices = noticeWorker(() => app.log.error('Notification worker failed'));
   const emails = emailWorker(() => app.log.error('Email worker failed'));
   const files = fileWorker(() => app.log.error('File worker failed'));
   const worker = reportWorker(() => app.log.error('Report worker failed'));
@@ -128,11 +134,13 @@ export async function buildApp() {
     if (fileConfig.FILES_ENABLED === 'true') await privateStorage.verify();
   });
   app.addHook('onListen', async () => {
+    notices.start();
     emails.start();
     files.start();
     worker.start();
   });
   app.addHook('onClose', async () => {
+    await notices.stop();
     await emails.stop();
     await files.stop();
     await worker.stop();

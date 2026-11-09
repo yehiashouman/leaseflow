@@ -1,3 +1,4 @@
+import { queueCaseNotices } from './notice-data.js';
 import { Prisma } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
@@ -209,5 +210,6 @@ export async function caseAudit(
       data: recipients.map((recipientUserId) => ({ recipientUserId, eventId })),
       skipDuplicates: true,
     });
+    await queueCaseNotices(tx, eventId);
   }
 }
