@@ -1,0 +1,51 @@
+ALTER TABLE Expense
+ ADD COLUMN landlordId VARCHAR(191) NULL,
+ ADD COLUMN rentalSpaceId VARCHAR(191) NULL,
+ ADD COLUMN contractId VARCHAR(191) NULL,
+ ADD COLUMN scopeKind VARCHAR(20) NOT NULL DEFAULT 'PORTFOLIO',
+ ADD COLUMN clientId VARCHAR(36) NULL,
+ ADD COLUMN payloadHash VARCHAR(64) NULL,
+ ADD COLUMN vendor VARCHAR(200) NULL,
+ MODIFY COLUMN description TEXT NULL,
+ ADD COLUMN createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ ADD UNIQUE INDEX Expense_managerId_clientId_key (managerId, clientId),
+ ADD INDEX Expense_managerId_category_incurredAt_idx (managerId, category, incurredAt),
+ ADD INDEX Expense_landlordId_idx (landlordId),
+ ADD INDEX Expense_rentalSpaceId_idx (rentalSpaceId),
+ ADD INDEX Expense_contractId_idx (contractId),
+ ADD CONSTRAINT Expense_landlordId_fkey FOREIGN KEY (landlordId) REFERENCES Landlord(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+ ADD CONSTRAINT Expense_rentalSpaceId_fkey FOREIGN KEY (rentalSpaceId) REFERENCES RentalSpace(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+ ADD CONSTRAINT Expense_contractId_fkey FOREIGN KEY (contractId) REFERENCES Contract(id) ON DELETE RESTRICT ON UPDATE CASCADE;
+UPDATE Expense SET scopeKind = 'UNIT' WHERE unitId IS NOT NULL;
+CREATE TABLE ExpenseVoid (
+ id VARCHAR(191) NOT NULL PRIMARY KEY,
+ expenseId VARCHAR(191) NOT NULL,
+ actorUserId VARCHAR(191) NOT NULL,
+ clientId VARCHAR(36) NOT NULL,
+ reason VARCHAR(1000) NOT NULL,
+ createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ UNIQUE INDEX ExpenseVoid_expenseId_key (expenseId),
+ CONSTRAINT ExpenseVoid_actorUserId_fkey FOREIGN KEY (actorUserId) REFERENCES User(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+ CONSTRAINT ExpenseVoid_expenseId_fkey FOREIGN KEY (expenseId) REFERENCES Expense(id) ON DELETE RESTRICT ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE ExpenseRecovery (
+ id VARCHAR(191) NOT NULL PRIMARY KEY,
+ expenseId VARCHAR(191) NOT NULL,
+ actorUserId VARCHAR(191) NOT NULL,
+ clientId VARCHAR(36) NOT NULL,
+ payloadHash VARCHAR(64) NOT NULL,
+ amount DECIMAL(12,2) NOT NULL,
+ paidAt DATETIME(3) NOT NULL,
+ method VARCHAR(80) NOT NULL,
+ reference VARCHAR(200) NULL,
+ notes TEXT NULL,
+ createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+ UNIQUE INDEX ExpenseRecovery_expenseId_clientId_key (expenseId, clientId),
+ CONSTRAINT ExpenseRecovery_actorUserId_fkey FOREIGN KEY (actorUserId) REFERENCES User(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+ CONSTRAINT ExpenseRecovery_expenseId_fkey FOREIGN KEY (expenseId) REFERENCES Expense(id) ON DELETE RESTRICT ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE DocumentSeries
+ MODIFY COLUMN purpose ENUM('IDENTITY','LICENSE','LANDLORD_DOCUMENT','PROPERTY_DOCUMENT','CONSENT','UNIT_PHOTO','COMMON_PHOTO','SPACE_PHOTO','CASE_EVIDENCE','PAYMENT_EVIDENCE','EXPENSE_EVIDENCE') NOT NULL,
+ ADD COLUMN expenseId VARCHAR(191) NULL,
+ ADD INDEX DocumentSeries_expenseId_idx (expenseId),
+ ADD CONSTRAINT DocumentSeries_expenseId_fkey FOREIGN KEY (expenseId) REFERENCES Expense(id) ON DELETE RESTRICT ON UPDATE CASCADE;

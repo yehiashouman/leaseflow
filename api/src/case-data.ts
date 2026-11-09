@@ -47,6 +47,7 @@ export const caseSelect = {
   createdAt: true,
   updatedAt: true,
   resolvedAt: true,
+  decisionDueAt: true,
   contract: { select: caseContractSelect },
   maintenanceAssessments: {
     select: {

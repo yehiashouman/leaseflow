@@ -50,6 +50,7 @@ export const documentPurposes = [
   'SPACE_PHOTO',
   'CASE_EVIDENCE',
   'PAYMENT_EVIDENCE',
+  'EXPENSE_EVIDENCE',
 ] as const;
 export const fileMetadataSchema = z
   .object({

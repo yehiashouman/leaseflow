@@ -29,6 +29,7 @@ export type CaseRecord = {
   createdAt?: string;
   updatedAt?: string;
   resolvedAt?: string | null;
+  decisionDueAt?: string | null;
   metadata?: { category?: string | null; urgency?: string };
   contract?: CaseContract;
   events?: CaseEvent[];
@@ -99,6 +100,7 @@ export function caseEventLabel(kind: string) {
   if (kind === 'MAINTENANCE_ACCEPTED') return 'Proposed cost accepted';
   if (kind === 'MAINTENANCE_DISPUTED') return 'Proposed cost disputed';
   if (kind === 'EVIDENCE_ADDED') return 'Private evidence added';
+  if (kind === 'DEADLINE_CHANGED') return 'Response deadline changed';
   if (kind === 'DRAFT_CREATED') return 'Draft saved';
   return kind === 'MESSAGE'
     ? 'Message'

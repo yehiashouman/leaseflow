@@ -7,6 +7,7 @@ import {
   previewCaseContract,
   previewCaseTypes,
 } from './cases';
+import { previewExpenses } from './expenses';
 import { preferenceFields } from '../profile-fields';
 
 type RecordData = { id: string; [key: string]: any };
@@ -18,6 +19,7 @@ type PreviewStore = {
   revokedSessions?: string[];
   profile?: RecordData;
   readNotices?: Record<string, string>;
+  expenses?: RecordData[];
 };
 const storageKey = 'leaseflow-preview-data-v1';
 const accounts: Record<string, Role> = {
@@ -181,6 +183,68 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     return fail('Preview session required', 401);
   if (path === '/auth/me') return respond(userFor(role));
   const store = readStore();
+  const expenseResult = previewExpenses(config, store, role, respond, fail, () =>
+    localStorage.setItem(storageKey, JSON.stringify(store)),
+  );
+  if (expenseResult) return expenseResult;
+  const deadline = /^\/requests\/([^/]+)\/deadline$/.exec(path);
+  if (deadline && method === 'post') {
+    if (role !== 'LEASING_MANAGER') return fail('Insufficient permissions', 403);
+    const record = store.requests.find((row) => row.id === deadline[1] && row.status !== 'DRAFT');
+    if (!record) return fail('Request not found', 404);
+    record.events ??= [];
+    const prior = record.events.find((event: RecordData) => event.clientId === data.clientId);
+    const intent = JSON.stringify({
+      dueAt: data.dueAt,
+      reason: data.reason,
+      expectedVersion: data.expectedVersion,
+    });
+    if (prior) {
+      if (prior.metadata?.intent !== intent || prior.kind !== 'DEADLINE_CHANGED')
+        return fail('Deadline key reused with different content', 409);
+      return respond(previewCase(record, store.contracts, role));
+    }
+    if (
+      !previewCaseTypes.includes(record.type) ||
+      ['DRAFT', 'CLOSED', 'ACCEPTED', 'REJECTED', 'RESOLVED'].includes(record.status)
+    )
+      return fail('A deadline requires an open operational case', 409);
+    if (data.expectedVersion !== (record.version ?? 0))
+      return fail('Case changed. Review the latest history', 409);
+    if (
+      !data.clientId ||
+      typeof data.reason !== 'string' ||
+      data.reason.trim().length < 3 ||
+      (data.dueAt !== null &&
+        (!Number.isFinite(Date.parse(data.dueAt)) || Date.parse(data.dueAt) <= Date.now()))
+    )
+      return fail('Choose a future deadline and add a reason', 422);
+    record.version = (record.version ?? 0) + 1;
+    record.events.push({
+      id: crypto.randomUUID(),
+      clientId: data.clientId,
+      kind: 'DEADLINE_CHANGED',
+      actorName: 'Demo Manager',
+      actorRole: 'LEASING_MANAGER',
+      sequence: record.version,
+      createdAt: new Date().toISOString(),
+      metadata: { intent },
+      message: `Response deadline: ${record.decisionDueAt ?? 'none'} -> ${data.dueAt ?? 'none'}. Reason: ${data.reason}`,
+    });
+    record.decisionDueAt = data.dueAt;
+    localStorage.setItem(storageKey, JSON.stringify(store));
+    return respond(previewCase(record, store.contracts, role));
+  }
+  if (path === '/operations/jobs')
+    return role === 'ADMIN'
+      ? respond({
+          observedAt: new Date().toISOString(),
+          reports: [],
+          files: [],
+          emails: [],
+          recovery: 'Synthetic preview only. Real provider and file jobs require the live API.',
+        })
+      : fail('Insufficient permissions', 403);
   const profile = store.profile ?? {
     id: 'preview-TENANT',
     email: 'tenant@preview.invalid',
@@ -530,10 +594,15 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       openRequests: store.requests.filter(
         (item) => !['DRAFT', 'ACCEPTED', 'CLOSED', 'REJECTED'].includes(item.status),
       ).length,
-      overdue: 0,
-      depositsHeld: 3000,
-      income: 1000,
-      expenses: 8000,
+      maintenance: spaces.filter((space) => space.status === 'MAINTENANCE').length,
+      awaitingManager: store.requests.filter((item) =>
+        ['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'REOPENED'].includes(item.status),
+      ).length,
+      deadlines: store.requests
+        .filter((item) => item.decisionDueAt)
+        .map((item) => ({ id: item.id, title: item.title, decisionDueAt: item.decisionDueAt })),
+      financialRecords: [],
+      financialBasis: 'Synthetic preview. Financial records require the live API.',
     });
   }
   if (path === '/contracts' && method === 'get')

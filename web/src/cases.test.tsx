@@ -99,11 +99,9 @@ describe('private case interfaces', () => {
   });
   it('waits for confirmation and posts the frozen case version', async () => {
     vi.spyOn(api, 'get').mockResolvedValue({ data: sample() });
-    const post = vi
-      .spyOn(api, 'post')
-      .mockResolvedValue({
-        data: { ...sample(), status: 'ACCEPTED', version: 5, allowedActions: [] },
-      });
+    const post = vi.spyOn(api, 'post').mockResolvedValue({
+      data: { ...sample(), status: 'ACCEPTED', version: 5, allowedActions: [] },
+    });
     page(<RequestDetail />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Accept completion' }));
@@ -132,7 +130,10 @@ describe('private case interfaces', () => {
     page(<RequestDetail />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Reopen case' }));
-    await user.type(screen.getByLabelText(/Response/), 'The leak remains');
+    await user.type(
+      within(screen.getByRole('alertdialog')).getByLabelText(/Response/),
+      'The leak remains',
+    );
     await user.click(
       within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
     );
@@ -144,9 +145,10 @@ describe('private case interfaces', () => {
     await user.click(screen.getByRole('button', { name: 'Review latest' }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     await user.click(screen.getByRole('button', { name: 'Reopen case' }));
-    expect((screen.getByLabelText(/Response/) as HTMLTextAreaElement).value).toBe(
-      'The leak remains',
-    );
+    expect(
+      (within(screen.getByRole('alertdialog')).getByLabelText(/Response/) as HTMLTextAreaElement)
+        .value,
+    ).toBe('The leak remains');
     await user.click(
       within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Confirm' }),
     );

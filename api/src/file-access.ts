@@ -15,6 +15,7 @@ export const purposeTargets = {
   SPACE_PHOTO: 'rentalSpaceId',
   CASE_EVIDENCE: 'requestId',
   PAYMENT_EVIDENCE: 'paymentId',
+  EXPENSE_EVIDENCE: 'expenseId',
 } as const;
 export function seriesScope(actor: Actor): Prisma.DocumentSeriesWhereInput {
   if (actor.role === 'ADMIN') return { id: { in: [] } };
@@ -39,6 +40,7 @@ export function seriesScope(actor: Actor): Prisma.DocumentSeriesWhereInput {
               },
               unit: manager,
             },
+            { purpose: 'EXPENSE_EVIDENCE' as const, expense: manager },
             { purpose: 'SPACE_PHOTO' as const, rentalSpace: { unit: manager } },
           ]
         : []),
@@ -75,6 +77,7 @@ export const documentSelect = {
       rentalSpaceId: true,
       requestId: true,
       paymentId: true,
+      expenseId: true,
     },
   },
 } satisfies Prisma.DocumentSelect;
@@ -104,6 +107,12 @@ export async function lockFileTarget(
   }
   if (actor.role !== 'LEASING_MANAGER') return false;
   const owned = { manager: { userId: actor.sub } };
+  if (target === 'expenseId') {
+    await tx.$queryRaw`SELECT id FROM Expense WHERE id = ${meta.targetId} FOR UPDATE`;
+    return Boolean(
+      await tx.expense.findFirst({ where: { id: meta.targetId, ...owned }, select: { id: true } }),
+    );
+  }
   if (target === 'landlordId') {
     await tx.$queryRaw`SELECT id FROM Landlord WHERE id = ${meta.targetId} FOR UPDATE`;
     return Boolean(

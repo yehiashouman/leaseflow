@@ -1,0 +1,1609 @@
+{
+  "target": 200,
+  "baselineCompleted": 162,
+  "baselineTotal": 764,
+  "date": "2026-11-09",
+  "timezone": "Asia/Dubai",
+  "items": [
+    {
+      "id": "FIN-001",
+      "requirement": "Record tenant rent receipts, accepted charges, and other unit income distinctly.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-002",
+      "requirement": "Record owner rent, electricity, water, cooling, internet, maintenance, and cleaning costs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-003",
+      "requirement": "Record furnishings, licences/fees, and other categorized expenses.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-004",
+      "requirement": "Capture vendor, date, amount, currency, scope, notes, and evidence.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-005",
+      "requirement": "Allocate costs to portfolio, landlord, unit, space, or contract where meaningful.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-006",
+      "requirement": "Apply confirmed shared-cost allocation rules and effective dates.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-007",
+      "requirement": "Calculate unit gross profit from unit income minus owner rent and attributed expenses.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-008",
+      "requirement": "Calculate space contribution from attributed income minus direct space costs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-009",
+      "requirement": "Show separately allocated shared costs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-010",
+      "requirement": "Keep deposit receipt and refund liabilities outside operational profit.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-011",
+      "requirement": "Separate cash receipts from unpaid accepted charges.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-012",
+      "requirement": "Label cash/accrual basis explicitly under the approved policy.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-013",
+      "requirement": "Default report totals to AED.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-014",
+      "requirement": "Preserve original currency and saved conversion snapshot.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-015",
+      "requirement": "Use the approved rate provider, refresh, fallback, and manual-override policy.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-016",
+      "requirement": "Provide monthly income/expense, unit profit, occupancy, arrears, and deposit liability reports.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-017",
+      "requirement": "Provide maintenance-cost and contract-contribution reports.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "FIN-018",
+      "requirement": "Support authorized filters, exports, and reconciliation to ledger source records.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MAINT-009",
+      "requirement": "Create direct charge or proposed deposit deduction from accepted responsibility.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MAINT-010",
+      "requirement": "Prevent duplicate recovery through both charge and deposit routes.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MAINT-011",
+      "requirement": "Record vendor, category, unit, space, amount, currency, date, and invoice/evidence.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MAINT-012",
+      "requirement": "Record tenant recoveries separately from gross maintenance expense.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-001",
+      "requirement": "Build an administrator dashboard separate from business-role dashboards.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-002",
+      "requirement": "Build a manager dashboard from owned operational data.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-003",
+      "requirement": "Show units, enabled spaces, occupancy, vacancies, and maintenance blocks.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-004",
+      "requirement": "Show rent due today, within seven days, overdue, partially paid, and received this month.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-005",
+      "requirement": "Show deposits held, projected refunds, refunds due, and disputed deductions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-006",
+      "requirement": "Show open maintenance, complaints, room changes, late requests, and move-outs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-007",
+      "requirement": "Show requests that await the manager and approaching deadlines.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-008",
+      "requirement": "Show annual-review milestones and expiring identity, licence, unit, and consent documents.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-009",
+      "requirement": "Show monthly income, owner rent, expenses, and estimated unit profit.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-010",
+      "requirement": "Build a tenant dashboard scoped to the authenticated relationship.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-011",
+      "requirement": "Show current unit/space, move-in date, and months/days of occupancy.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-012",
+      "requirement": "Show next payment date, rent, current balance, and payment history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-013",
+      "requirement": "Show held deposit, proposals, projected refund, and refund status.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-014",
+      "requirement": "Show unresolved requests, recent replies, and pending acknowledgements.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-015",
+      "requirement": "Show due day, notice, late-request window, and permitted extension.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-016",
+      "requirement": "Show primary and optional secondary occupant identity status.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-017",
+      "requirement": "Connect maintenance, complaint, late-payment, room-change, move-out, and PDF actions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-018",
+      "requirement": "Reconcile dashboard totals with the same scoped list and ledger sources.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DASH-019",
+      "requirement": "Show dependency failures as errors, never false zero totals.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-001",
+      "requirement": "Implement maintenance, neighbor complaint, late payment, room change, move-out, key/lock, and general request forms.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-002",
+      "requirement": "Capture type, description, attachments, relevant contract, and authorized relationship.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-003",
+      "requirement": "Support configurable request categories and response deadlines.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-005",
+      "requirement": "Support Approved, Rejected, In Progress, Resolved, Accepted, Reopened, Deadlock, and Closed states.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-006",
+      "requirement": "Define valid transitions per request type and role.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-008",
+      "requirement": "Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-010",
+      "requirement": "Notify both parties of case updates.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-011",
+      "requirement": "Ask tenants to accept or dispute completion.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-013",
+      "requirement": "Allow authorized reopening without deletion of previous resolution.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-014",
+      "requirement": "Restrict sensitive complaint details to the relevant tenant, manager, and authorized support.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-015",
+      "requirement": "Allow the complainant to select an involved occupant when known.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-017",
+      "requirement": "Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CASE-018",
+      "requirement": "Keep general requests configurable without loss of event history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-001",
+      "requirement": "Encrypt transport and sensitive stored data.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-002",
+      "requirement": "Apply least privilege to users, administrators, storage, database, and deployment roles.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-003",
+      "requirement": "Keep private identities inaccessible across managers and unrelated tenants.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-004",
+      "requirement": "Audit authentication, document access, exports, impersonation, finance, contracts, and moderation.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-005",
+      "requirement": "Protect audit records from ordinary-user edits and deletion.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-006",
+      "requirement": "Mask Emirates ID numbers and private contact details unless necessary.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-007",
+      "requirement": "Keep versioned consent text hashes and declarations.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-008",
+      "requirement": "Enforce approved retention, anonymization, deletion, and protected-record exceptions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-009",
+      "requirement": "Verify account and data export permissions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-010",
+      "requirement": "Scan files and prevent unsafe execution.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-011",
+      "requirement": "Protect report, invitation, OTP, upload, and login endpoints against abuse.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-012",
+      "requirement": "Keep sensitive data out of provider messages, logs, errors, and CI artifacts.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "SEC-013",
+      "requirement": "Verify MFA, session expiry, token replay, CSRF, and unauthorized API calls.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-002",
+      "requirement": "Publish OpenAPI for actual methods, schemas, authorization, transitions, and errors.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-003",
+      "requirement": "Validate bodies, routes, query fields, and file metadata.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-004",
+      "requirement": "Derive manager ownership from authenticated context.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-005",
+      "requirement": "Verify all referenced parent and child ownership.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-006",
+      "requirement": "Enforce role and ownership on lists, detail, exports, uploads, downloads, and mutations.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-012",
+      "requirement": "Document pagination, allowed filters, sort fields, limits, and stable order.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-013",
+      "requirement": "Use idempotency for payments, request submission, transfer completion, and other retry-sensitive writes.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-014",
+      "requirement": "Reject key reuse with a different payload.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "API-019",
+      "requirement": "Verify all resource groups in the API inventory below.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-001",
+      "requirement": "Use real forms, tables, dialogs, and commands for each required screen below.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-002",
+      "requirement": "Connect every visible action to an authorized backend operation.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-003",
+      "requirement": "Persist edits and verify success before success messages.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-004",
+      "requirement": "Provide desktop and mobile layouts without overlap or clipped controls.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-005",
+      "requirement": "Provide labels, keyboard access, focus states, and accessible validation.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-006",
+      "requirement": "Provide load, empty, error, success, unauthorized, expired-session, and offline states.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-007",
+      "requirement": "Keep unsaved form values after recoverable failures.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-008",
+      "requirement": "Show field errors beside inputs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-009",
+      "requirement": "Show safe server messages with request identifiers.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-010",
+      "requirement": "Confirm destructive, financial, and final contract actions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-011",
+      "requirement": "Provide search, pagination, filters, and sort controls for operational lists.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-012",
+      "requirement": "Choose navigation from authenticated role and account status.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-013",
+      "requirement": "Hide unauthorized controls without reliance on client-only permission enforcement.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-014",
+      "requirement": "Display currency and relevant timezone alongside money and dates.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-015",
+      "requirement": "Keep English-first interface strings ready for localization.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-016",
+      "requirement": "Provide profile, security, session, language, timezone, and notification controls.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-017",
+      "requirement": "Remove placeholder values, inactive actions, and dead-end pages.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "UX-018",
+      "requirement": "Verify archived-record workflows only where domain rules permit archive and restore.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-001",
+      "requirement": "Implement `users`: Authentication identity, role, email/phone verification, status and preferred language.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-002",
+      "requirement": "Implement `leasing_manager_profiles`: Legal/profile data, Emirates ID, licence and declarations.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-003",
+      "requirement": "Implement `tenant_profiles`: Identity, Emirates ID, matching preferences and manager relationship.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-004",
+      "requirement": "Implement `landlords`: Reusable landlord/contact records owned by a Leasing Manager.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-005",
+      "requirement": "Implement `units`: Property, address/GPS, landlord, owner-rent terms, default deposit and status.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-006",
+      "requirement": "Implement `rental_spaces`: Unit subdivision, type, capacity, amenities, pricing guidance and availability.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-007",
+      "requirement": "Implement `occupants`: Primary or secondary identity records linked to a contract.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-008",
+      "requirement": "Implement `contracts`: Open-ended monthly agreement, space, primary tenant, rent, currency, due day and notice.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-009",
+      "requirement": "Implement `contract_amendments`: Effective-dated rent, space, deposit, due-day or notice changes.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-010",
+      "requirement": "Implement `rent_obligations / payments`: Monthly dues and external payment records, receipts and corrections.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-011",
+      "requirement": "Implement `deposits / deposit_ledger`: Received, held, proposed deductions, refunds and disputes.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-012",
+      "requirement": "Implement `requests / request_events`: Typed cases, status, deadlines, messages and immutable history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-013",
+      "requirement": "Implement `expenses`: Owner rent, utilities, maintenance and other bookkeeping costs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-014",
+      "requirement": "Implement `documents / media`: Versioned identity, property, consent, evidence, images and reports.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-015",
+      "requirement": "Implement `notifications`: Email, WhatsApp and in-app delivery history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-016",
+      "requirement": "Implement `audit_events`: Actor, action, old/new values, reason, time, IP/session and entity reference.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "MODEL-017",
+      "requirement": "Implement `contract_reviews`: Twelve-month reminders, decisions and proposed amendments.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-002",
+      "requirement": "Implement Verification: Email token verification/resend; WhatsApp OTP request/confirmation; contact reverification.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-004",
+      "requirement": "Implement Profiles: Own profile, manager profile, tenant profile, secondary occupant, preferences.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-005",
+      "requirement": "Implement Administration: Account review queue, moderation decisions, flags, taxonomies, templates, audit, support sessions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-006",
+      "requirement": "Implement Landlords: List, detail, create, edit, archive, and linked units.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-007",
+      "requirement": "Implement Units: CRUD subject to history rules; declarations, amenities, owner-rent schedules, documents, and status.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-008",
+      "requirement": "Implement Spaces: CRUD subject to history rules; capacity, availability, type restrictions, photos, and maintenance blocks.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-009",
+      "requirement": "Implement Contracts: Create, detail, amendments, acknowledgement, allocation history, reviews, closure.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-010",
+      "requirement": "Implement Obligations: Monthly schedule, period detail, balances, allocations, adjustments, original and revised dates.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-011",
+      "requirement": "Implement Payments: Record, evidence, receipt, acknowledgement, error report, correction/reversal.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-012",
+      "requirement": "Implement Deposits: Receipt, ledger, proposals, acceptance/dispute, settlement, refunds, acknowledgement.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-013",
+      "requirement": "Implement Cases: Type-specific submit, messages, evidence, transition, deadline, decision, completion, and dispute.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-014",
+      "requirement": "Implement Transfers: Eligibility, approval, negotiation, preview, destination, effective execution, and event history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-015",
+      "requirement": "Implement Move-out: Notice preview, acknowledgement, decision, waiver, effective exit, and settlement.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-016",
+      "requirement": "Implement Expenses: Categories, entries, allocations, evidence, recoveries, and audited adjustments.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-018",
+      "requirement": "Implement Notifications: List, read/unread state, preferences, internal delivery records, provider callbacks.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-019",
+      "requirement": "Implement Reports: Role-specific dashboards, filtered financial data, export jobs, PDF status, and downloads.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "RESOURCE-020",
+      "requirement": "Implement Operations: Liveness, readiness, protected metrics, job status, and deployment smoke probes.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-001",
+      "requirement": "Create durable workers and a scheduler with bounded retries.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-002",
+      "requirement": "Persist critical work independently of cache eviction.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-003",
+      "requirement": "Catch up overdue tasks after downtime.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-004",
+      "requirement": "Prevent duplicate effects across worker replicas.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-005",
+      "requirement": "Inject a test clock for deadline verification.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-006",
+      "requirement": "Store UTC timestamps and apply contract timezone calendar rules.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-007",
+      "requirement": "Default Dubai display and contract configuration to Asia/Dubai.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-008",
+      "requirement": "Use calendar days, not unapproved business-day interpretations.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-009",
+      "requirement": "Audit automatic decisions with rule, timestamp, and entity.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-010",
+      "requirement": "Implement every job in the job inventory below.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-011",
+      "requirement": "Keep notification intent transactionally tied to business events.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-012",
+      "requirement": "Expose job failures and authorized operational recovery.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "JOB-013",
+      "requirement": "Verify duplicate execution, worker interruption, scheduler restart, and delayed provider response.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-001",
+      "requirement": "Implement Monthly obligations: Generate applicable obligations once per contract and period.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-002",
+      "requirement": "Implement Due/overdue notifications: Respect expected dates, preferences, and duplicate prevention.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-003",
+      "requirement": "Implement Room-change expiry: Reject unapproved requests after five calendar days; record the required expiry reason.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-004",
+      "requirement": "Implement Negotiation deadline: Expose the seven-day deadline; apply only the confirmed expiry policy from section 29.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-005",
+      "requirement": "Implement Annual reviews: Create one review per same-space anniversary; preserve transfer history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-006",
+      "requirement": "Implement Document expiry: Notify affected users; show expired status without false legal certification.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-008",
+      "requirement": "Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-009",
+      "requirement": "Implement Reports: Generate authorized PDFs; expose queued, complete, and failed states.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "WORKER-011",
+      "requirement": "Implement Retention: Apply the confirmed policy without destruction of protected history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-001",
+      "requirement": "Implement open-ended monthly contracts without a mandatory annual end date.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-002",
+      "requirement": "Capture space, primary tenant, occupants, start date, monthly rent, currency, due day, notice, and deposit.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-003",
+      "requirement": "Default due day to 1 and notice to 30 days.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-004",
+      "requirement": "Support explicit per-contract notice exceptions such as 15 days.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-005",
+      "requirement": "Preserve original terms and all effective-dated amendments.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-006",
+      "requirement": "Implement tenant visibility and the approved acknowledgement policy.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-007",
+      "requirement": "Prevent automatic rent changes at annual review.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-008",
+      "requirement": "Create same-space reviews at 12, 24, 36, and subsequent continuous-month milestones.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-009",
+      "requirement": "Notify managers through configured channels.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-010",
+      "requirement": "Support Reviewed / No Change, next-month price proposal, and deferred review date.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-011",
+      "requirement": "Show proposed amendments and effective months to tenants.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-012",
+      "requirement": "Reset same-space anniversary after transfer without loss of history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-013",
+      "requirement": "Prevent duplicate annual reviews.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-014",
+      "requirement": "Apply approved reminder behavior for deferred and no-change reviews.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "CON-015",
+      "requirement": "Close contracts through confirmed move-out without silent record deletion.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-007",
+      "requirement": "Verify tenant WhatsApp OTP through Twilio.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-012",
+      "requirement": "Support one primary tenant and one contract for a single occupant.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-013",
+      "requirement": "Support one primary tenant and optional secondary occupant for a couple.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-014",
+      "requirement": "Capture secondary occupant identity and Emirates ID status without a separate account.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-015",
+      "requirement": "Keep primary tenant responsibility explicit.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-016",
+      "requirement": "Use separate accounts and contracts for unrelated occupants in the same room.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "TEN-019",
+      "requirement": "Show tenant completion, contacts, identity, occupancy, contract, finance, and request history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "AUTH-002",
+      "requirement": "Enforce verification and account-status restrictions on every protected request.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "AUTH-013",
+      "requirement": "Reverify changed email addresses and phone numbers.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "AUTH-014",
+      "requirement": "Require administrator MFA before privileged access.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "AUTH-015",
+      "requirement": "Offer manager MFA according to the approved security policy.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "AUTH-016",
+      "requirement": "Enforce rate limits for login, OTP, invitations, uploads, and reports.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "BASE-001",
+      "requirement": "Preserve Unit -> Rental Space -> Contract -> Primary Tenant / Secondary Occupant.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "BASE-007",
+      "requirement": "Preserve future inventory images, amenities, and availability without a public marketplace.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "BASE-015",
+      "requirement": "Use Redis with durable workers and a scheduler.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "BASE-017",
+      "requirement": "Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "BASE-018",
+      "requirement": "Select maintained PDF, job, upload-scan, and browser-test libraries.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "BASE-020",
+      "requirement": "Make all initial-release workflows accessible through real screens and APIs.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-001",
+      "requirement": "Create versioned Prisma migrations for all required entities listed in the entity inventory below.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-002",
+      "requirement": "Add manager ownership to each business record.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-003",
+      "requirement": "Add foreign keys for every domain relationship.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-004",
+      "requirement": "Add uniqueness constraints for identity and retry-sensitive operations.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-005",
+      "requirement": "Index ownership, relationship, status, deadline, period, and report query paths.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-008",
+      "requirement": "Persist primary and secondary occupants with effective allocation dates.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-009",
+      "requirement": "Persist original contract terms and effective-dated amendments.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-010",
+      "requirement": "Persist separate original due dates and approved expected dates.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-011",
+      "requirement": "Persist obligations, payments, allocations, credits, reversals, charges, deductions, and refunds.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-012",
+      "requirement": "Use decimal arithmetic or integer minor units for money.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-013",
+      "requirement": "Apply the approved currency-round policy; never use binary floating-point for posted balances.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-014",
+      "requirement": "Store original currency, original amount, AED value, rate, source, and source time.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-015",
+      "requirement": "Keep AED as default and support USD.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-017",
+      "requirement": "Persist append-only audit, case, payment correction, and deposit events.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-018",
+      "requirement": "Record real administrator and effective identity for impersonated actions.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-019",
+      "requirement": "Preserve historical relationship access under the approved retention policy.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    },
+    {
+      "id": "DATA-020",
+      "requirement": "Reject archive actions that invalidate active contracts or erase protected history.",
+      "status": "PENDING_VERIFICATION",
+      "code": [],
+      "tests": [],
+      "note": "Completion requires source review, applicable interface and persistence, authorization, and acceptance evidence."
+    }
+  ]
+}

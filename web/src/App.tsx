@@ -12,6 +12,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { Expenses, ExpenseDetail } from './pages/Expenses';
+import { Operations } from './pages/Operations';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Units } from './pages/Units';
@@ -41,6 +43,7 @@ const navigation = [
   { to: '/landlords', label: 'Landlords', icon: Building2 },
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
+  { to: '/expenses', label: 'Expenses', icon: FileText },
   { to: '/invitations', label: 'Invitations', icon: Inbox },
   { to: '/documents', label: 'My documents', icon: FileText },
   { to: '/security', label: 'Security', icon: Shield },
@@ -48,6 +51,7 @@ const navigation = [
   { to: '/tenants', label: 'Tenants', icon: Building2 },
   { to: '/notifications', label: 'Notifications', icon: Inbox },
   { to: '/admin/managers', label: 'Account review', icon: Shield },
+  { to: '/admin/operations', label: 'Job status', icon: Shield },
   { to: '/admin/audit', label: 'Audit history', icon: FileText },
 ];
 
@@ -202,9 +206,12 @@ export default function App() {
             <Route element={<Guard roles={['ADMIN']} />}>
               <Route path="admin/managers" element={<Managers />} />
               <Route path="admin/managers/:id" element={<ManagerDetail />} />
+              <Route path="admin/operations" element={<Operations />} />
               <Route path="admin/audit" element={<AdminAudit />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>
+              <Route path="expenses" element={<Expenses />} />
+              <Route path="expenses/:id" element={<ExpenseDetail />} />
               <Route path="invitations" element={<AccountInvitations />} />
               <Route path="tenants" element={<Tenants />} />
               <Route path="tenants/:id" element={<TenantDetail />} />

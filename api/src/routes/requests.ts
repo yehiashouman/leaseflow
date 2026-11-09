@@ -228,6 +228,85 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
     );
     return reply.code(201).send(caseDto(row, request.user));
   });
+  app.post('/:id/deadline', { preHandler: allowRoles('LEASING_MANAGER') }, async (request) => {
+    const { id } = idSchema.parse(request.params);
+    const body = z
+      .object({
+        clientId: z.uuid(),
+        expectedVersion: z.number().int().min(0).max(2147483646),
+        dueAt: z.iso.datetime().nullable(),
+        reason: z.string().trim().min(3).max(1000),
+      })
+      .strict()
+      .parse(request.body);
+    const dueAt = body.dueAt ? new Date(body.dueAt) : null;
+    return prisma.$transaction(
+      async (tx) => {
+        const actor = await caseActor(tx, request);
+        if (!actor) throw app.httpErrors.unauthorized('Session is no longer active');
+        if (!(await lockCase(tx, id, request.user)))
+          throw app.httpErrors.notFound('Request not found');
+        const current = await load(tx, id, request.user);
+        const duplicate = await tx.requestEvent.findUnique({
+          where: { requestId_clientId: { requestId: id, clientId: body.clientId } },
+        });
+        const intent = {
+          dueAt: dueAt?.toISOString() ?? null,
+          reason: body.reason,
+          expectedVersion: body.expectedVersion,
+        };
+        if (duplicate) {
+          if (
+            duplicate.actorUserId !== actor.actorUserId ||
+            duplicate.kind !== 'DEADLINE_CHANGED' ||
+            !z
+              .object({
+                dueAt: z.string().nullable(),
+                reason: z.string(),
+                expectedVersion: z.number(),
+              })
+              .refine(
+                (value) =>
+                  value.dueAt === intent.dueAt &&
+                  value.reason === intent.reason &&
+                  value.expectedVersion === intent.expectedVersion,
+              )
+              .safeParse(duplicate.metadata).success
+          )
+            throw app.httpErrors.conflict('Deadline key reused with different content');
+          return caseDto(current, request.user);
+        }
+        if (!supportsCaseType(current.type))
+          throw app.httpErrors.conflict('This request requires its dedicated deadline workflow');
+        if (['DRAFT', 'CLOSED', 'ACCEPTED', 'REJECTED', 'RESOLVED'].includes(current.status))
+          throw app.httpErrors.conflict('A deadline requires an open operational case');
+        if (current.version !== body.expectedVersion)
+          throw app.httpErrors.conflict('Case changed. Review the latest history');
+        if (dueAt && dueAt.getTime() <= Date.now())
+          throw app.httpErrors.unprocessableEntity('Choose a future deadline');
+        const sequence = current.version + 1;
+        const event = await tx.requestEvent.create({
+          data: {
+            requestId: id,
+            clientId: body.clientId,
+            ...actor,
+            kind: 'DEADLINE_CHANGED',
+            sequence,
+            metadata: intent,
+            message: `Response deadline: ${current.decisionDueAt?.toISOString() ?? 'none'} -> ${intent.dueAt ?? 'none'}. Reason: ${body.reason}`,
+          },
+        });
+        const updated = await tx.request.update({
+          where: { id },
+          data: { decisionDueAt: dueAt, version: sequence },
+          select: caseSelect,
+        });
+        await caseAudit(tx, request, updated, event.id, 'REQUEST_DEADLINE');
+        return caseDto(updated, request.user);
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
+  });
   app.post('/:id/respond', { preHandler: participants }, async (request) => {
     const { id } = idSchema.parse(request.params);
     const body = transitionSchema.parse(request.body);

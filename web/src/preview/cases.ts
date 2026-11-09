@@ -59,6 +59,7 @@ export function previewCase(record: RecordData, contracts: RecordData[], role: R
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
     resolvedAt: record.resolvedAt ?? null,
+    decisionDueAt: record.decisionDueAt ?? null,
     contract: contract ? previewCaseContract(contract) : null,
     events: (record.events ?? []).map((event: Record<string, unknown>) =>
       Object.fromEntries(

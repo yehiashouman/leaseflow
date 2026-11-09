@@ -88,6 +88,192 @@ describe('MySQL private operational case workflow', () => {
       },
     });
   });
+  it('stores a manager deadline, immutable reason, notices, and exact retry result', async () => {
+    const row = await send('GET', '/' + requestId);
+    const body = {
+      clientId: randomUUID(),
+      expectedVersion: row.json().version,
+      dueAt: new Date(Date.now() + 86400000).toISOString(),
+      reason: 'Confirm access tomorrow',
+    };
+    const first = await send('POST', '/' + requestId + '/deadline', body, manager);
+    expect(first.statusCode, first.body).toBe(200);
+    expect(first.json().decisionDueAt).toBe(body.dueAt);
+    const retry = await send('POST', '/' + requestId + '/deadline', body, manager);
+    expect(retry.statusCode, retry.body).toBe(200);
+    expect(retry.json().version).toBe(first.json().version);
+    const events = retry
+      .json()
+      .events.filter((event: { kind: string }) => event.kind === 'DEADLINE_CHANGED');
+    expect(events).toHaveLength(1);
+    expect(events[0].message).toContain(body.reason);
+    expect(await prisma.notification.count({ where: { eventId: events[0].id } })).toBe(2);
+    expect(
+      (
+        await send(
+          'POST',
+          '/' + requestId + '/deadline',
+          { ...body, reason: 'Changed content' },
+          manager,
+        )
+      ).statusCode,
+    ).toBe(409);
+  });
+  it('rejects tenant, administrator, roommate, and unrelated-manager deadline writes', async () => {
+    const body = {
+      clientId: randomUUID(),
+      expectedVersion: 1,
+      dueAt: null,
+      reason: 'Remove deadline',
+    };
+    for (const actor of [tenant, roommate, admin])
+      expect((await send('POST', '/' + requestId + '/deadline', body, actor)).statusCode).toBe(403);
+    expect((await send('POST', '/' + requestId + '/deadline', body, outsider)).statusCode).toBe(
+      404,
+    );
+  });
+  it('rejects stale, past-date, and terminal-case deadline writes without extra events', async () => {
+    const path = '/' + requestId + '/deadline';
+    const body = {
+      clientId: randomUUID(),
+      expectedVersion: 0,
+      dueAt: new Date(Date.now() + 86400000).toISOString(),
+      reason: 'Future response',
+    };
+    expect((await send('POST', path, body, manager)).statusCode).toBe(409);
+    expect(
+      (
+        await send(
+          'POST',
+          path,
+          { ...body, expectedVersion: 1, dueAt: '2020-01-01T00:00:00.000Z' },
+          manager,
+        )
+      ).statusCode,
+    ).toBe(422);
+    await prisma.request.update({ where: { id: requestId }, data: { status: 'CLOSED' } });
+    expect((await send('POST', path, { ...body, expectedVersion: 1 }, manager)).statusCode).toBe(
+      409,
+    );
+    expect(
+      await prisma.requestEvent.count({ where: { requestId, kind: 'DEADLINE_CHANGED' } }),
+    ).toBe(0);
+  });
+  it('serializes competing deadline changes and preserves the previous deadline in history', async () => {
+    const body = {
+      clientId: randomUUID(),
+      expectedVersion: 1,
+      dueAt: new Date(Date.now() + 86400000).toISOString(),
+      reason: 'First response',
+    };
+    const results = await Promise.all([
+      send('POST', '/' + requestId + '/deadline', body, manager),
+      send(
+        'POST',
+        '/' + requestId + '/deadline',
+        { ...body, clientId: randomUUID(), dueAt: new Date(Date.now() + 172800000).toISOString() },
+        manager,
+      ),
+    ]);
+    expect(results.map((r) => r.statusCode).sort()).toEqual([200, 409]);
+    const latest = results.find((r) => r.statusCode === 200)!.json();
+    const removed = await send(
+      'POST',
+      '/' + requestId + '/deadline',
+      {
+        clientId: randomUUID(),
+        expectedVersion: latest.version,
+        dueAt: null,
+        reason: 'Response received',
+      },
+      manager,
+    );
+    expect(removed.statusCode, removed.body).toBe(200);
+    expect(removed.json().decisionDueAt).toBeNull();
+    expect(removed.json().events.at(-1).message).toContain(latest.decisionDueAt);
+  });
+  it('separates manager currency totals and uses outstanding balances rather than original amounts', async () => {
+    const start = new Date('2026-01-01T00:00:00Z');
+    const created = await prisma.payment.createMany({
+      data: [
+        {
+          contractId,
+          periodStart: start,
+          dueDate: start,
+          amountDue: '3000.00',
+          amountPaid: '1000.00',
+          currency: 'AED',
+          status: 'LATE',
+        },
+        {
+          contractId,
+          periodStart: new Date('2026-02-01'),
+          dueDate: start,
+          amountDue: '80.00',
+          amountPaid: '30.00',
+          currency: 'USD',
+          status: 'PARTIALLY_PAID',
+        },
+      ],
+    });
+    expect(created.count).toBe(2);
+    try {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/api/v1/dashboard/manager',
+        headers: {
+          authorization:
+            'Bearer ' + app.jwt.sign({ sub: manager.id, role: manager.role, sid: manager.sid }),
+        },
+      });
+      expect(response.statusCode, response.body).toBe(200);
+      expect(response.headers['cache-control']).toBe('no-store');
+      expect(response.json().financialRecords).toEqual([
+        {
+          currency: 'AED',
+          outstanding: '2000.00',
+          overdue: '2000.00',
+          received: '1000.00',
+          expenses: '0.00',
+        },
+        {
+          currency: 'USD',
+          outstanding: '50.00',
+          overdue: '0.00',
+          received: '30.00',
+          expenses: '0.00',
+        },
+      ]);
+      expect(response.json().depositLiability).toBeNull();
+    } finally {
+      await prisma.payment.deleteMany({ where: { contractId } });
+    }
+  });
+  it('keeps manager deadlines private and tenant dashboard output free from raw identity and private keys', async () => {
+    await prisma.request.update({
+      where: { id: requestId },
+      data: { decisionDueAt: new Date(Date.now() + 86400000) },
+    });
+    const dashboard = async (actor: Actor) =>
+      app.inject({
+        method: 'GET',
+        url: '/api/v1/dashboard/' + (actor.role === 'TENANT' ? 'tenant' : 'manager'),
+        headers: {
+          authorization:
+            'Bearer ' + app.jwt.sign({ sub: actor.id, role: actor.role, sid: actor.sid }),
+        },
+      });
+    const owned = await dashboard(manager),
+      foreign = await dashboard(outsider),
+      own = await dashboard(tenant);
+    expect(owned.json().deadlines.some((item: { id: string }) => item.id === requestId)).toBe(true);
+    expect(foreign.json().deadlines).toEqual([]);
+    expect(own.json().contracts.every((item: { id: string }) => item.id === contractId)).toBe(true);
+    expect(own.body).not.toMatch(
+      /evidenceKey|secondaryOccupant|emiratesIdNumber|ownerMonthlyRent|passwordHash/,
+    );
+    expect(own.headers['cache-control']).toBe('no-store');
+  });
   beforeEach(async () => {
     clientIp += 1;
     const response = await send('POST', '', submission());

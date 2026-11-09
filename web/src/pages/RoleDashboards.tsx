@@ -41,6 +41,7 @@ type TenantContract = {
   currency: string;
   monthlyRent: number | string;
   depositAmount: number | string;
+  startDate: string;
   dueDay: number;
   noticeDays: number;
   rentalSpace: { name: string; unit: { name: string } };
@@ -51,7 +52,13 @@ type TenantContract = {
     amountPaid: number | string;
     status: string;
   }[];
-  requests: { id: string; title: string; status: string }[];
+  requests: {
+    id: string;
+    title: string;
+    status: string;
+    updatedAt?: string;
+    decisionDueAt?: string | null;
+  }[];
 };
 export function TenantDashboard() {
   const { data, isPending, error, refetch } = useQuery({
@@ -95,8 +102,40 @@ export function TenantDashboard() {
               </div>
             </dl>
           </section>
+          <section className="space-y-3 border-b pb-6">
+            <h2 className="font-semibold">Occupancy</h2>
+            <p>
+              Move-in:{' '}
+              {new Date(contract.startDate).toLocaleDateString('en-GB', { timeZone: 'Asia/Dubai' })}{' '}
+              (Asia/Dubai)
+            </p>
+            <p>
+              Recorded contract period:{' '}
+              {Math.max(
+                0,
+                Math.floor((Date.now() - new Date(contract.startDate).getTime()) / 86400000),
+              )}{' '}
+              days
+            </p>
+          </section>
           <section className="space-y-3">
-            <h2 className="font-semibold">Payment schedule</h2>
+            <h2 className="font-semibold">Unresolved requests</h2>
+            {(contract.requests ?? []).map((item) => (
+              <p key={item.id}>
+                <Link className="text-primary underline" to={'/requests/' + item.id}>
+                  {item.title}
+                </Link>{' '}
+                · {item.status.replaceAll('_', ' ')}
+                {item.status === 'RESOLVED' ? ' · Your acknowledgement is required' : ''}
+              </p>
+            ))}
+            {!contract.requests?.length && <p>No unresolved requests.</p>}
+          </section>
+          <section className="space-y-3">
+            <h2 className="font-semibold">Recent payment records</h2>
+            <p className="text-sm text-muted-foreground">
+              Latest 20 records. Open the contract for full history.
+            </p>
             {contract.payments.map((payment) => (
               <div key={payment.id} className="flex flex-wrap justify-between gap-3 border-b py-3">
                 <span>

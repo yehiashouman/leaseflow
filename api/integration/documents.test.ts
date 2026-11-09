@@ -231,6 +231,37 @@ describe('MySQL private documents, quarantine, immutable versions, and access gr
       'x-file-grant': grant.json().token,
     });
   }
+  it('keeps expense invoices private to their manager through upload, scan, and download', async () => {
+    const expense = await prisma.expense.create({
+      data: {
+        managerId: manager.profileId,
+        category: 'MAINTENANCE',
+        amount: '100.00',
+        currency: 'AED',
+        incurredAt: new Date('2026-11-09'),
+        vendor: 'Private Invoice Vendor',
+      },
+    });
+    try {
+      const metadata = meta({
+        purpose: 'EXPENSE_EVIDENCE',
+        targetId: expense.id,
+        title: 'Private expense invoice',
+      });
+      expect((await upload(metadata, tenant)).statusCode).toBe(404);
+      expect((await upload(metadata, foreign)).statusCode).toBe(404);
+      const row = await create(metadata, manager);
+      expect((await send('POST', '/' + row.id + '/grant', {}, manager)).statusCode).toBe(409);
+      await clean();
+      expect((await download(row.id, manager)).statusCode).toBe(200);
+      expect((await send('GET', '/' + row.id, undefined, tenant)).statusCode).toBe(404);
+      expect((await send('POST', '/' + row.id + '/grant', {}, foreign)).statusCode).toBe(404);
+    } finally {
+      await prisma.document.deleteMany({ where: { series: { expenseId: expense.id } } });
+      await prisma.documentSeries.deleteMany({ where: { expenseId: expense.id } });
+      await prisma.expense.delete({ where: { id: expense.id } });
+    }
+  });
   it('requires authentication, rejects admin access, and exposes no anonymous object path', async () => {
     expect((await app.inject('/api/v1/documents')).statusCode).toBe(401);
     expect((await send('GET', '/policy', undefined, admin)).statusCode).toBe(403);

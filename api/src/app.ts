@@ -1,3 +1,6 @@
+import { expenseRoutes } from './routes/expenses.js';
+import { operationRoutes } from './routes/operations.js';
+import { registerMetrics } from './metrics.js';
 import Fastify, { type FastifyError } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import cors from '@fastify/cors';
@@ -100,6 +103,9 @@ export async function buildApp() {
       return reply.serviceUnavailable('Database unavailable');
     }
   });
+  registerMetrics(app);
+  await app.register(expenseRoutes, { prefix: '/api/v1/expenses' });
+  await app.register(operationRoutes, { prefix: '/api/v1/operations' });
   await app.register(invitationRoutes, { prefix: '/api/v1/invitations' });
   await app.register(accountRoutes, { prefix: '/api/v1/auth' });
   await app.register(authRoutes, { prefix: '/api/v1/auth' });

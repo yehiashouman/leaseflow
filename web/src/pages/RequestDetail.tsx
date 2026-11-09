@@ -1,3 +1,4 @@
+import { CaseDeadline } from '@/components/case-deadline';
 import { Documents } from '@/components/documents';
 import { useRef, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -130,6 +131,7 @@ export function RequestDetail() {
         </p>
         {data.metadata?.category && <p className="text-sm">{data.metadata.category}</p>}
       </div>
+      <CaseDeadline data={data} />
       {!!data.allowedActions?.length && (
         <div className="flex flex-wrap gap-2">
           {data.allowedActions.map((action) => (
