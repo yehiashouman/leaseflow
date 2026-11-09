@@ -55,7 +55,42 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
       take: 20,
       orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
     });
+    const unresolvedScope = {
+      ...caseScope(request.user),
+      status: {
+        notIn: [
+          'DRAFT',
+          'ACCEPTED',
+          'CLOSED',
+          'REJECTED',
+        ] as import('@prisma/client').RequestStatus[],
+      },
+    };
+    const [unresolvedRequests, unresolvedCount, pendingAcknowledgements] = await Promise.all([
+      prisma.request.findMany({
+        where: unresolvedScope,
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          updatedAt: true,
+          events: {
+            where: { kind: 'MESSAGE' },
+            select: { id: true, actorName: true, actorRole: true, message: true, createdAt: true },
+            orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+            take: 1,
+          },
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: 20,
+      }),
+      prisma.request.count({ where: unresolvedScope }),
+      prisma.request.count({ where: { ...unresolvedScope, status: 'RESOLVED' } }),
+    ]);
     return {
+      unresolvedRequests,
+      unresolvedCount,
+      pendingAcknowledgements,
       contracts: contracts.map((row) => ({
         ...row,
         occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
@@ -87,7 +122,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             tx.unit.count({ where: unitScope }),
             tx.rentalSpace.groupBy({
               by: ['status'],
-              where: { unit: unitScope, enabled: true },
+              where: { unit: { ...unitScope, active: true }, enabled: true },
               _count: { _all: true },
             }),
             tx.request.groupBy({ by: ['type'], where: open, _count: { _all: true } }),

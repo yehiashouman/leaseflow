@@ -24,6 +24,7 @@ export type EditorField = {
   step?: string;
   maxLength?: number;
   onChange?: (value: string) => void;
+  errorPath?: string;
 };
 export function RecordEditor({
   open,
@@ -40,27 +41,33 @@ export function RecordEditor({
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setError('');
+    setFieldErrors({});
     setBusy(true);
     try {
       await onSave(data);
       onOpenChange(false);
     } catch (cause) {
-      setError(
-        isAxiosError(cause)
-          ? (cause.response?.data?.message ??
-              cause.response?.data?.details
-                ?.map(
-                  (item: { path: string[]; message: string }) =>
-                    item.path.join('.') + ': ' + item.message,
-                )
-                .join('; ') ??
-              'Unable to save. Please try again.')
-          : 'Unable to save. Please try again.',
-      );
+      const data = isAxiosError(cause) ? cause.response?.data : null;
+      const details: unknown = data?.details;
+      const next: Record<string, string> = {};
+      if (Array.isArray(details)) {
+        for (const item of details) {
+          if (!item || !Array.isArray(item.path) || typeof item.message !== 'string') continue;
+          const path = item.path.join('.');
+          const field = fields.find((entry) => (entry.errorPath ?? entry.name) === path);
+          if (field) next[field.name] = item.message;
+        }
+      }
+      setFieldErrors(next);
+      const message =
+        typeof data?.message === 'string' ? data.message : 'Unable to save. Please try again.';
+      const requestId = typeof data?.requestId === 'string' ? data.requestId.slice(0, 100) : '';
+      setError(message + (requestId ? ' · Request: ' + requestId : ''));
     } finally {
       setBusy(false);
     }
@@ -71,6 +78,7 @@ export function RecordEditor({
       onOpenChange={(next) => {
         if (!busy) {
           setError('');
+          setFieldErrors({});
           onOpenChange(next);
         }
       }}
@@ -96,6 +104,10 @@ export function RecordEditor({
                 <select
                   id={'editor-' + field.name}
                   name={field.name}
+                  aria-invalid={!!fieldErrors[field.name]}
+                  aria-describedby={
+                    fieldErrors[field.name] ? 'editor-error-' + field.name : undefined
+                  }
                   defaultValue={field.value ?? ''}
                   onChange={(event) => field.onChange?.(event.target.value)}
                   required={field.required}
@@ -112,6 +124,10 @@ export function RecordEditor({
                 <textarea
                   id={'editor-' + field.name}
                   name={field.name}
+                  aria-invalid={!!fieldErrors[field.name]}
+                  aria-describedby={
+                    fieldErrors[field.name] ? 'editor-error-' + field.name : undefined
+                  }
                   defaultValue={field.value ?? ''}
                   required={field.required}
                   maxLength={field.maxLength ?? 5000}
@@ -123,6 +139,10 @@ export function RecordEditor({
                 <input
                   id={'editor-' + field.name}
                   name={field.name}
+                  aria-invalid={!!fieldErrors[field.name]}
+                  aria-describedby={
+                    fieldErrors[field.name] ? 'editor-error-' + field.name : undefined
+                  }
                   type="checkbox"
                   disabled={busy}
                   defaultChecked={field.value === 'true' || field.value === 1}
@@ -133,6 +153,10 @@ export function RecordEditor({
                 <Input
                   id={'editor-' + field.name}
                   name={field.name}
+                  aria-invalid={!!fieldErrors[field.name]}
+                  aria-describedby={
+                    fieldErrors[field.name] ? 'editor-error-' + field.name : undefined
+                  }
                   type={field.type ?? 'text'}
                   disabled={busy}
                   defaultValue={field.value ?? ''}
@@ -142,6 +166,15 @@ export function RecordEditor({
                   step={field.step}
                   maxLength={field.maxLength ?? 500}
                 />
+              )}
+              {fieldErrors[field.name] && (
+                <p
+                  id={'editor-error-' + field.name}
+                  className="text-sm text-destructive"
+                  role="alert"
+                >
+                  {fieldErrors[field.name]}
+                </p>
               )}
             </div>
           ))}

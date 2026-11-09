@@ -66,7 +66,9 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
   const key = useRef(crypto.randomUUID());
   const client = useQueryClient();
   const options = useQuery({
-    queryKey: ['expense-options'],
+    queryKey: ['expense-options', key.current],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     queryFn: () => api.get<Options>('/expenses/options').then((response) => response.data),
   });
   if (options.isPending || options.error)
@@ -368,7 +370,9 @@ export function ExpenseDetail() {
       api.get<Expense>('/expenses/' + id, { signal }).then((response) => response.data),
   });
   const payers = useQuery({
-    queryKey: ['expense-options'],
+    queryKey: ['expense-options', key.current],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     enabled: action === 'recoveries',
     queryFn: () => api.get<Options>('/expenses/options').then((response) => response.data),
   });

@@ -12,6 +12,7 @@ const db = vi.hoisted(() => ({
   rentalSpace: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
   contract: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
   payment: { create: vi.fn() },
+  request: { findMany: vi.fn(), count: vi.fn() },
   auditEvent: { create: vi.fn() },
   authSession: { findFirst: vi.fn() },
   $transaction: vi.fn(),
@@ -45,6 +46,8 @@ describe('inventory writes and role dashboards', () => {
     db.authSession.findFirst.mockResolvedValue({ id: 'session-1' });
     db.$queryRaw.mockResolvedValue([{ id: 'space-1' }]);
     db.contract.findMany.mockResolvedValue([]);
+    db.request.findMany.mockResolvedValue([]);
+    db.request.count.mockResolvedValue(0);
     db.rentalSpace.update.mockResolvedValue({ status: 'PARTIAL' });
   });
   function send(
@@ -320,6 +323,8 @@ describe('inventory writes and role dashboards', () => {
   it('scopes tenant dashboards to the authenticated tenant', async () => {
     db.user.findUnique.mockResolvedValue({ status: 'ACTIVE', role: 'TENANT' });
     db.contract.findMany.mockResolvedValue([]);
+    db.request.findMany.mockResolvedValue([]);
+    db.request.count.mockResolvedValue(0);
     expect((await send('GET', '/api/v1/dashboard/tenant', undefined, 'TENANT')).statusCode).toBe(
       200,
     );

@@ -74,7 +74,23 @@ export function TenantDashboard() {
     queryKey: ['dashboard', 'TENANT'],
     queryFn: () =>
       api
-        .get<{ contracts: TenantContract[] }>('/dashboard/tenant')
+        .get<{
+          contracts: TenantContract[];
+          unresolvedRequests?: {
+            id: string;
+            title: string;
+            status: string;
+            events: {
+              id: string;
+              actorName: string | null;
+              actorRole: string | null;
+              message: string | null;
+              createdAt: string;
+            }[];
+          }[];
+          unresolvedCount?: number;
+          pendingAcknowledgements?: number;
+        }>('/dashboard/tenant')
         .then((response) => response.data),
   });
   if (isPending || error)
@@ -142,19 +158,6 @@ export function TenantDashboard() {
             ))}
           </section>
           <section className="space-y-3">
-            <h2 className="font-semibold">Unresolved requests</h2>
-            {(contract.requests ?? []).map((item) => (
-              <p key={item.id}>
-                <Link className="text-primary underline" to={'/requests/' + item.id}>
-                  {item.title}
-                </Link>{' '}
-                · {item.status.replaceAll('_', ' ')}
-                {item.status === 'RESOLVED' ? ' · Your acknowledgement is required' : ''}
-              </p>
-            ))}
-            {!contract.requests?.length && <p>No unresolved requests.</p>}
-          </section>
-          <section className="space-y-3">
             <h2 className="font-semibold">Recent payment records</h2>
             <p className="text-sm text-muted-foreground">
               Latest 20 records. Open the contract for full history.
@@ -178,6 +181,38 @@ export function TenantDashboard() {
       ) : (
         <p className="text-muted-foreground">No active accommodation contract.</p>
       )}
+      <section className="space-y-3" aria-labelledby="unresolved-requests">
+        <h2 id="unresolved-requests" className="font-semibold">
+          Unresolved requests
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {data?.unresolvedCount ?? 0} unresolved · {data?.pendingAcknowledgements ?? 0} await your
+          acknowledgement. Latest 20 requests across your contracts. Open My requests for full
+          history.
+        </p>
+        {(data?.unresolvedRequests ?? []).map((item) => (
+          <article key={item.id} className="space-y-2 rounded-md border p-3">
+            <Link className="text-primary underline" to={'/requests/' + item.id}>
+              {item.title}
+            </Link>
+            <p>
+              {item.status.replaceAll('_', ' ')}
+              {item.status === 'RESOLVED' ? ' · Your acknowledgement is required' : ''}
+            </p>
+            {item.events.map((event) => (
+              <div key={event.id} className="space-y-1 text-sm">
+                <p>
+                  Latest reply · {event.actorName ?? event.actorRole ?? 'Participant'} ·{' '}
+                  {new Date(event.createdAt).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' })}{' '}
+                  (Asia/Dubai)
+                </p>
+                <p className="whitespace-pre-wrap break-words">{event.message}</p>
+              </div>
+            ))}
+          </article>
+        ))}
+        {!data?.unresolvedRequests?.length && <p>No unresolved requests.</p>}
+      </section>
       <div className="flex gap-4 text-sm text-primary underline">
         <Link to="/contracts">My contracts</Link>
         <Link to="/requests">My requests</Link>

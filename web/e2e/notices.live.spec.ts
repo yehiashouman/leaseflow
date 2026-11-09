@@ -97,7 +97,12 @@ test('real case notices retain private delivery history and require acknowledgem
     });
     await page.goto('/delivery');
     await expect(page.getByRole('heading', { name: 'Delivery status', exact: true })).toBeVisible();
-    await expect(page.getByText('Send result uncertain', { exact: true }).first()).toBeVisible();
+    await expect(
+      page
+        .getByRole('article')
+        .filter({ has: page.getByText('Send result uncertain', { exact: true }) })
+        .first(),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Retry notice', exact: true }).click();
     dialog = page.getByRole('dialog');
     await dialog

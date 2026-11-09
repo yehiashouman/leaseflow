@@ -249,6 +249,60 @@ describe('MySQL private operational case workflow', () => {
       await prisma.payment.deleteMany({ where: { contractId } });
     }
   });
+  it('excludes inactive units from operational space totals', async () => {
+    const contract = await prisma.contract.findUniqueOrThrow({
+      where: { id: contractId },
+      include: { rentalSpace: true },
+    });
+    const path = '/api/v1/dashboard/manager';
+    const before = (await send('GET', path, undefined, manager)).json();
+    await prisma.unit.update({
+      where: { id: contract.rentalSpace.unitId },
+      data: { active: false },
+    });
+    try {
+      const inactive = (await send('GET', path, undefined, manager)).json();
+      expect(inactive.units).toBe(before.units);
+      expect(inactive.spaces).toBe(0);
+      expect(inactive.vacant).toBe(0);
+      expect(inactive.occupied).toBe(0);
+    } finally {
+      await prisma.unit.update({
+        where: { id: contract.rentalSpace.unitId },
+        data: { active: true },
+      });
+    }
+  });
+  it('shows own unresolved replies and acknowledgements across historical contracts without roommate cases', async () => {
+    await prisma.request.update({ where: { id: requestId }, data: { status: 'RESOLVED' } });
+    await prisma.contract.update({ where: { id: contractId }, data: { status: 'CLOSED' } });
+    await prisma.requestEvent.create({
+      data: {
+        requestId,
+        kind: 'MESSAGE',
+        actorUserId: manager.id,
+        actorName: 'Case Manager',
+        actorRole: 'LEASING_MANAGER',
+        message: 'Repair is complete.',
+      },
+    });
+    try {
+      const result = await send('GET', '/api/v1/dashboard/tenant');
+      expect(result.statusCode, result.body).toBe(200);
+      const request = result
+        .json()
+        .unresolvedRequests.find((item: { id: string }) => item.id === requestId);
+      expect(request.status).toBe('RESOLVED');
+      expect(request.events[0].message).toBe('Repair is complete.');
+      expect(result.json().pendingAcknowledgements).toBeGreaterThanOrEqual(1);
+      const other = await send('GET', '/api/v1/dashboard/tenant', undefined, roommate);
+      expect(other.json().unresolvedRequests).toEqual([]);
+      expect(other.json().pendingAcknowledgements).toBe(0);
+      expect(result.body).not.toMatch(/clientId|emiratesIdNumber|passwordHash/);
+    } finally {
+      await prisma.contract.update({ where: { id: contractId }, data: { status: 'ACTIVE' } });
+    }
+  });
   it('keeps manager deadlines private and tenant dashboard output free from raw identity and private keys', async () => {
     await prisma.request.update({
       where: { id: requestId },

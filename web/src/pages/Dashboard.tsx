@@ -10,6 +10,8 @@ import { AdminDashboard, TenantDashboard } from './RoleDashboards';
 
 const metrics = [
   { key: 'units', label: 'Units', icon: Building2 },
+  { key: 'spaces', label: 'Enabled spaces', icon: DoorOpen },
+  { key: 'partial', label: 'Partially occupied spaces', icon: Users },
   { key: 'occupied', label: 'Occupied', icon: Users },
   { key: 'vacant', label: 'Vacant spaces', icon: DoorOpen },
   { key: 'openRequests', label: 'Open requests', icon: Inbox },
@@ -40,6 +42,9 @@ function ManagerDashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Portfolio overview</h1>
+      <p className="text-sm text-muted-foreground">
+        Space totals include enabled spaces in active, unarchived units.
+      </p>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(({ key, label, icon: Icon }) => (
           <Card key={key}>

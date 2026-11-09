@@ -17,7 +17,9 @@ export function CaseEditor({
   const client = useQueryClient();
   const key = useRef(crypto.randomUUID());
   const options = useQuery({
-    queryKey: ['case-options'],
+    queryKey: ['case-options', key.current],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     queryFn: ({ signal }) =>
       api
         .get<{ types: string[]; contracts: CaseContract[] }>('/requests/options', { signal })

@@ -48,6 +48,38 @@ describe('role-specific dashboards', () => {
     expect(screen.queryByRole('link', { name: 'Units' })).toBeNull();
   });
 
+  it('shows historical-contract replies and pending acknowledgements without an active contract', async () => {
+    auth.user.role = 'TENANT';
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        contracts: [],
+        unresolvedCount: 1,
+        pendingAcknowledgements: 1,
+        unresolvedRequests: [
+          {
+            id: 'case-1',
+            title: 'Repair',
+            status: 'RESOLVED',
+            events: [
+              {
+                id: 'reply-1',
+                actorName: 'Manager',
+                message: 'Repair is complete.',
+                createdAt: '2026-11-09T10:00:00Z',
+              },
+            ],
+          },
+        ],
+      },
+    });
+    renderPage(<App />);
+    await screen.findByText('Repair is complete.');
+    expect(screen.getByText(/1 unresolved · 1 await your acknowledgement/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Repair' }).getAttribute('href')).toBe(
+      '/requests/case-1',
+    );
+    expect(screen.getByText(/Asia\/Dubai/)).toBeTruthy();
+  });
   it('loads the tenant dashboard and hides inventory links', async () => {
     auth.user.role = 'TENANT';
     const get = vi.spyOn(api, 'get').mockResolvedValue({ data: { contracts: [] } });

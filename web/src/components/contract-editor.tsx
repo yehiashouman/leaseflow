@@ -28,7 +28,9 @@ export function ContractEditor({
     client = useQueryClient();
   const [couple, setCouple] = useState(false);
   const query = useQuery({
-    queryKey: ['contract-options'],
+    queryKey: ['contract-options', key.current],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     queryFn: ({ signal }) =>
       api.get<Options>('/contracts/options', { signal }).then((response) => response.data),
   });
@@ -60,30 +62,35 @@ export function ContractEditor({
     ? [
         {
           name: 'secondaryName',
+          errorPath: 'secondaryOccupant.fullName',
           label: 'Secondary occupant full name',
           required: true,
           maxLength: 150,
         },
         {
           name: 'secondaryDob',
+          errorPath: 'secondaryOccupant.dateOfBirth',
           label: 'Secondary occupant date of birth',
           required: true,
           type: 'date',
         },
         {
           name: 'secondaryNationality',
+          errorPath: 'secondaryOccupant.nationality',
           label: 'Secondary occupant nationality',
           required: true,
           maxLength: 100,
         },
         {
           name: 'secondaryId',
+          errorPath: 'secondaryOccupant.emiratesIdNumber',
           label: 'Secondary occupant Emirates ID',
           required: true,
           maxLength: 20,
         },
         {
           name: 'secondaryExpiry',
+          errorPath: 'secondaryOccupant.emiratesIdExpiresAt',
           label: 'Secondary occupant Emirates ID expiry',
           required: true,
           type: 'date',
