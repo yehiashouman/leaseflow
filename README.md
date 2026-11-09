@@ -3,6 +3,13 @@
 Shared-accommodation operations platform for Leasing Managers and tenants, under implementation.
 The full application is not production-ready.
 
+## Current Checklist Continuation
+
+Verified checklist completion: 254/764 (33.25%).
+The requested 200-item continuation contains 92 verified, 80 partial, and 28 blocked items.
+See [the full continuation report](docs/OPERATIONS-EXPENSE-BATCH.md) and [the master checklist](checklist.md).
+Production operational use remains unapproved.
+
 ## Repository
 
 - `api/` — Fastify, TypeScript, Prisma and MySQL REST API
@@ -25,6 +32,9 @@ The full application is not production-ready.
 - `docs/STARTUP.md`: repeatable local startup, guarded reset, and exact verification limits
 - `docs/CONFIGURATION.md`: all configuration groups, proxy policy, and pending provider settings
 - `docs/ACCOUNT-DOCUMENT-BATCH.md`: 100-item account/document matrix, migrations, evidence, and remaining work
+- `docs/OPERATIONS-EXPENSE-BATCH.md`: current 200-item continuation, evidence, and exact remaining scope
+- `docs/NOTICE-DELIVERY.md`: private delivery history, preferences, retries, and signed callbacks
+- `docs/PAYMENT-RECEIPTS.md`: immutable external receipt records, decimal arithmetic, and retry protection
 - `docs/TECHNICAL-SELECTIONS.md`: implementation selections without implied owner approval
 - `docs/decisions.json`: owner and pending status for all twenty-six business decisions
 

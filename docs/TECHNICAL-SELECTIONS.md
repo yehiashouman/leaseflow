@@ -58,3 +58,14 @@ MinIO uses bucket policies; its ACL endpoint returns a dummy response.
 S3_PROVIDER=minio selects policy verification; S3_PROVIDER=s3 also requires an owner-only ACL.
 The real-service suite verifies anonymous object denial for quarantine and sanitized objects.
 Reference: https://github.com/minio/minio/blob/master/docs/minio-limits.md.
+
+## Operational Continuation Selections
+
+Expense and rent receipt records use Prisma Decimal arithmetic and transactional MySQL row locks.
+Private case notices use encrypted MySQL intent, leases, per-attempt history, and bounded owner retry records.
+SMTP acceptance remains distinct from inbox delivery.
+WhatsApp status uses Twilio-signed callbacks with duplicate fingerprints and monotonic state transitions.
+Notice templates support Arabic and English fallback without sensitive case content.
+`prom-client` exposes administrator-protected route-template metrics.
+Metrics never use arbitrary request paths, query strings, or private payloads as labels.
+The complete Redis-backed scheduler remains incomplete.

@@ -39,6 +39,9 @@ https://yehiashouman.github.io/leaseflow/
 - Inspect the disabled PDF export control; actual exports require the live API and report worker.
 - Open Security, inspect synthetic sessions, and revoke the synthetic second device.
 - Verify persisted synthetic session revocation after reload.
+- Record synthetic expenses, separate recoveries, reasoned voids, and CSV exports.
+- Save synthetic own language, timezone, and notice channel preferences per role.
+- Inspect explicit live-API boundaries for contract setup, private files, delivery history, and payment receipt writes.
 - Reset synthetic data through the preview banner.
 
 Unsupported workflows return errors instead of simulated success.
@@ -84,4 +87,5 @@ Automated adapter tests verify synthetic CRUD, reset behavior, restrictions, and
 Component tests verify forms, role navigation, and API-call contracts.
 Playwright suites cover normal API-fixture screens and the isolated preview on desktop and mobile.
 API tests verify real route validation and ownership with database mocks.
-Real MySQL, complete browser, provider, and production deployment acceptance remain separate release gates.
+Real API/MySQL and MinIO/ClamAV browser acceptance now pass for the documented operational workflows.
+Complete release journeys, real provider staging, and production deployment remain separate gates.

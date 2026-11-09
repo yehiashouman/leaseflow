@@ -45,16 +45,70 @@ test('the larger batch preserves one hundred stable requirements and honest comp
   assert.equal(batch.target, 100);
   assert.equal(batch.items.length, 100);
   assert.equal(new Set(batch.items.map((item) => item.id)).size, 100);
+  const continuation = JSON.parse(read('docs/batch-200.json'));
+  const additional = new Set(
+    continuation.items.filter((item) => item.status === 'VERIFIED').map((item) => item.id),
+  );
   for (const item of batch.items) {
     assert(['PENDING_VERIFICATION', 'VERIFIED', 'PARTIAL', 'BLOCKED'].includes(item.status));
     const line = checklist.split('\n').find((line) => line.includes('**' + item.id + '**'));
     assert(line, 'Unknown checklist identifier: ' + item.id);
-    assert.equal(line.startsWith('- [x]'), item.status === 'VERIFIED');
+    assert.equal(line.startsWith('- [x]'), item.status === 'VERIFIED' || additional.has(item.id));
     assert(item.code.length && item.tests.length);
   }
   const checked = [...checklist.matchAll(/^- \[x\] /gm)].length;
   assert.equal(
     checked,
-    batch.baselineCompleted + batch.items.filter((item) => item.status === 'VERIFIED').length,
+    batch.baselineCompleted +
+      batch.items.filter((item) => item.status === 'VERIFIED').length +
+      additional.size,
+  );
+});
+
+test('the continuation preserves two hundred existing requirements and evidence-based completion', () => {
+  const batch = JSON.parse(read('docs/batch-200.json'));
+  const checklist = read('checklist.md');
+  const rows = [...checklist.matchAll(/^- \[([ x])\] \*\*([^*]+)\*\*/gm)];
+  const allIds = rows.map((row) => row[2]);
+  const checkedIds = new Set(rows.filter((row) => row[1] === 'x').map((row) => row[2]));
+  assert.equal(allIds.length, 764);
+  assert.equal(new Set(allIds).size, 764);
+  assert.equal(
+    createHash('sha256').update(allIds.join('\n')).digest('hex'),
+    batch.checklistIdentifierSha256,
+  );
+  assert.equal(batch.target, 200);
+  assert.equal(batch.items.length, 200);
+  assert.equal(new Set(batch.items.map((item) => item.id)).size, 200);
+  assert.equal(batch.baselineCompleted, 162);
+  assert.equal(batch.baselineCompletedIds.length, 162);
+  assert.equal(new Set(batch.baselineCompletedIds).size, 162);
+  for (const id of batch.baselineCompletedIds)
+    assert(checkedIds.has(id), 'Lost baseline closure: ' + id);
+  for (const item of batch.items) {
+    assert(allIds.includes(item.id), 'Unknown identifier: ' + item.id);
+    assert(!batch.baselineCompletedIds.includes(item.id), 'Duplicate baseline credit: ' + item.id);
+    assert(['PENDING_VERIFICATION', 'VERIFIED', 'PARTIAL', 'BLOCKED'].includes(item.status));
+    assert.equal(checkedIds.has(item.id), item.status === 'VERIFIED');
+    assert(item.code.length && item.tests.length && item.note.length);
+    for (const path of [...item.code, ...item.tests]) read(path);
+    if (item.status === 'VERIFIED') {
+      assert.match(item.commit, /^[0-9a-f]{40}$/);
+      assert.match(
+        item.evidence,
+        /^https:\/\/github\.com\/yehiashouman\/leaseflow\/actions\/runs\/\d+$/,
+      );
+      assert.equal(item.verified, '2026-11-09');
+    }
+    if (item.status === 'BLOCKED') assert(item.decisions.length);
+  }
+  const progress = read('docs/PROGRESS.md');
+  const completion = /\| Completed tasks with evidence\s*\|\s*(\d+)/.exec(progress);
+  assert.equal(Number(completion?.[1]), checkedIds.size);
+  const tableTotal = /\| Total\s*\|\s*764\s*\|\s*(\d+)/.exec(progress);
+  assert.equal(Number(tableTotal?.[1]), checkedIds.size);
+  assert.equal(
+    checkedIds.size,
+    162 + batch.items.filter((item) => item.status === 'VERIFIED').length,
   );
 });

@@ -1,7 +1,7 @@
 # LeaseFlow Project Checklist
 
 Source: [requirements.md](requirements.md), blob `76eba54271889ebb4ec52dc61efeaf0b99386974`.
-Date: 8 November 2026.
+Date: 9 November 2026.
 Target repository: `yehiashouman/leaseflow`.
 Scope: complete initial release, not a scaffold or prototype.
 
@@ -62,13 +62,13 @@ Independent tasks can proceed while unrelated decisions remain open.
 
 Requirements: 1-3, 15, 18-21.
 
-- [ ] **BASE-001** Preserve Unit -> Rental Space -> Contract -> Primary Tenant / Secondary Occupant.
+- [x] **BASE-001** Preserve Unit -> Rental Space -> Contract -> Primary Tenant / Secondary Occupant. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **BASE-002** Keep landlords reusable records without initial-release login. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **BASE-003** Keep Leasing Managers responsible for legal sufficiency and authorization. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **BASE-004** Describe administrator approval as platform activation, never legal certification. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **BASE-005** Keep public manager registration and invitation-only tenant accounts. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **BASE-006** Keep payments external; record money without collection or escrow. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
-- [ ] **BASE-007** Preserve future inventory images, amenities, and availability without a public marketplace.
+- [x] **BASE-007** Preserve future inventory images, amenities, and availability without a public marketplace. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **BASE-008** Keep optional compatibility fields non-binding. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **BASE-009** Retain Fastify and TypeScript in the api workspace. [Evidence](docs/EVIDENCE.md#foundation).
 - [x] **BASE-010** Retain MySQL and Prisma migrations. [Evidence](docs/EVIDENCE.md#foundation).
@@ -78,7 +78,7 @@ Requirements: 1-3, 15, 18-21.
 - [x] **BASE-014** Keep REST API independent from web deployment. [Evidence](docs/EVIDENCE.md#foundation).
 - [ ] **BASE-015** Use Redis with durable workers and a scheduler.
 - [x] **BASE-016** Use private S3-compatible storage and development MinIO. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **BASE-017** Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline.
+- [x] **BASE-017** Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **BASE-018** Select maintained PDF, job, upload-scan, and browser-test libraries.
 - [x] **BASE-019** Record technical selections without claims of original user approval. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **BASE-020** Make all initial-release workflows accessible through real screens and APIs.
@@ -110,19 +110,19 @@ Requirements: 14, 24.
 - [ ] **DATA-005** Index ownership, relationship, status, deadline, period, and report query paths.
 - [x] **DATA-006** Persist verification states, role, account status, language, and timezone. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [x] **DATA-007** Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **DATA-008** Persist primary and secondary occupants with effective allocation dates.
+- [x] **DATA-008** Persist primary and secondary occupants with effective allocation dates. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DATA-009** Persist original contract terms and effective-dated amendments.
 - [ ] **DATA-010** Persist separate original due dates and approved expected dates.
 - [ ] **DATA-011** Persist obligations, payments, allocations, credits, reversals, charges, deductions, and refunds.
 - [ ] **DATA-012** Use decimal arithmetic or integer minor units for money.
 - [ ] **DATA-013** Apply the approved currency-round policy; never use binary floating-point for posted balances.
 - [ ] **DATA-014** Store original currency, original amount, AED value, rate, source, and source time.
-- [ ] **DATA-015** Keep AED as default and support USD.
+- [x] **DATA-015** Keep AED as default and support USD. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DATA-016** Persist file versions, private object keys, scan status, and expiry. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **DATA-017** Persist append-only audit, case, payment correction, and deposit events.
 - [ ] **DATA-018** Record real administrator and effective identity for impersonated actions.
 - [ ] **DATA-019** Preserve historical relationship access under the approved retention policy.
-- [ ] **DATA-020** Reject archive actions that invalidate active contracts or erase protected history.
+- [x] **DATA-020** Reject archive actions that invalidate active contracts or erase protected history. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DATA-021** Use transactions and locks for capacity, finance, allocation, and transfer invariants.
 - [ ] **DATA-022** Prevent payment and deposit over-allocation.
 - [ ] **DATA-023** Keep disputed proposals separate from accepted deductions.
@@ -287,11 +287,11 @@ Requirements: 5, 22.2, 22.4-22.5.
 - [x] **TEN-009** Link the tenant only to the inviting manager under the initial policy. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **TEN-010** Implement email, WhatsApp, or Both preferences for non-security notices. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [x] **TEN-011** Prevent complete removal of critical security notices. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **TEN-012** Support one primary tenant and one contract for a single occupant.
-- [ ] **TEN-013** Support one primary tenant and optional secondary occupant for a couple.
-- [ ] **TEN-014** Capture secondary occupant identity and Emirates ID status without a separate account.
-- [ ] **TEN-015** Keep primary tenant responsibility explicit.
-- [ ] **TEN-016** Use separate accounts and contracts for unrelated occupants in the same room.
+- [x] **TEN-012** Support one primary tenant and one contract for a single occupant. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEN-013** Support one primary tenant and optional secondary occupant for a couple. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEN-014** Capture secondary occupant identity and Emirates ID status without a separate account. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEN-015** Keep primary tenant responsibility explicit. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEN-016** Use separate accounts and contracts for unrelated occupants in the same room. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEN-017** Keep sex, nationality, language, culture, and lifestyle preferences optional. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [x] **TEN-018** Keep sleep schedule, smoking, noise, and shared-language compatibility non-binding. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [ ] **TEN-019** Show tenant completion, contacts, identity, occupancy, contract, finance, and request history.
@@ -303,10 +303,10 @@ See [contract record scope](docs/CONTRACT-RECORDS.md) and [verified evidence](do
 
 Requirements: 6, 14, 17, 22-24.
 
-- [ ] **CON-001** Implement open-ended monthly contracts without a mandatory annual end date.
-- [ ] **CON-002** Capture space, primary tenant, occupants, start date, monthly rent, currency, due day, notice, and deposit.
-- [ ] **CON-003** Default due day to 1 and notice to 30 days.
-- [ ] **CON-004** Support explicit per-contract notice exceptions such as 15 days.
+- [x] **CON-001** Implement open-ended monthly contracts without a mandatory annual end date. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **CON-002** Capture space, primary tenant, occupants, start date, monthly rent, currency, due day, notice, and deposit. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **CON-003** Default due day to 1 and notice to 30 days. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **CON-004** Support explicit per-contract notice exceptions such as 15 days. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **CON-005** Preserve original terms and all effective-dated amendments.
 - [ ] **CON-006** Implement tenant visibility and the approved acknowledgement policy.
 - [ ] **CON-007** Prevent automatic rent changes at annual review.
@@ -417,8 +417,8 @@ Requirements: 9.2-10.
 - [x] **MAINT-008** Allow tenant acceptance or dispute. [Evidence](docs/EVIDENCE.md#maintenance-responsibility-and-cost-proposals).
 - [ ] **MAINT-009** Create direct charge or proposed deposit deduction from accepted responsibility.
 - [ ] **MAINT-010** Prevent duplicate recovery through both charge and deposit routes.
-- [ ] **MAINT-011** Record vendor, category, unit, space, amount, currency, date, and invoice/evidence.
-- [ ] **MAINT-012** Record tenant recoveries separately from gross maintenance expense.
+- [x] **MAINT-011** Record vendor, category, unit, space, amount, currency, date, and invoice/evidence. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MAINT-012** Record tenant recoveries separately from gross maintenance expense. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 
 These six closures cover responsibility and explicit cost responses, not complete evidence or financial posting.
 Evidence notes exist; private file evidence, charges, deductions, double-recovery controls, and expense records remain incomplete.
@@ -485,10 +485,10 @@ Requirements: 8, 9, 17, 24, 29.
 Requirements: 10, 14, 24, 29.
 
 - [ ] **FIN-001** Record tenant rent receipts, accepted charges, and other unit income distinctly.
-- [ ] **FIN-002** Record owner rent, electricity, water, cooling, internet, maintenance, and cleaning costs.
-- [ ] **FIN-003** Record furnishings, licences/fees, and other categorized expenses.
-- [ ] **FIN-004** Capture vendor, date, amount, currency, scope, notes, and evidence.
-- [ ] **FIN-005** Allocate costs to portfolio, landlord, unit, space, or contract where meaningful.
+- [x] **FIN-002** Record owner rent, electricity, water, cooling, internet, maintenance, and cleaning costs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **FIN-003** Record furnishings, licences/fees, and other categorized expenses. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **FIN-004** Capture vendor, date, amount, currency, scope, notes, and evidence. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **FIN-005** Allocate costs to portfolio, landlord, unit, space, or contract where meaningful. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **FIN-006** Apply confirmed shared-cost allocation rules and effective dates.
 - [ ] **FIN-007** Calculate unit gross profit from unit income minus owner rent and attributed expenses.
 - [ ] **FIN-008** Calculate space contribution from attributed income minus direct space costs.
@@ -507,43 +507,43 @@ Requirements: 10, 14, 24, 29.
 
 Requirements: 11, 22-23.
 
-- [ ] **DASH-001** Build an administrator dashboard separate from business-role dashboards.
-- [ ] **DASH-002** Build a manager dashboard from owned operational data.
-- [ ] **DASH-003** Show units, enabled spaces, occupancy, vacancies, and maintenance blocks.
+- [x] **DASH-001** Build an administrator dashboard separate from business-role dashboards. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **DASH-002** Build a manager dashboard from owned operational data. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **DASH-003** Show units, enabled spaces, occupancy, vacancies, and maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-004** Show rent due today, within seven days, overdue, partially paid, and received this month.
 - [ ] **DASH-005** Show deposits held, projected refunds, refunds due, and disputed deductions.
-- [ ] **DASH-006** Show open maintenance, complaints, room changes, late requests, and move-outs.
-- [ ] **DASH-007** Show requests that await the manager and approaching deadlines.
+- [x] **DASH-006** Show open maintenance, complaints, room changes, late requests, and move-outs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **DASH-007** Show requests that await the manager and approaching deadlines. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-008** Show annual-review milestones and expiring identity, licence, unit, and consent documents.
 - [ ] **DASH-009** Show monthly income, owner rent, expenses, and estimated unit profit.
-- [ ] **DASH-010** Build a tenant dashboard scoped to the authenticated relationship.
-- [ ] **DASH-011** Show current unit/space, move-in date, and months/days of occupancy.
+- [x] **DASH-010** Build a tenant dashboard scoped to the authenticated relationship. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **DASH-011** Show current unit/space, move-in date, and months/days of occupancy. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-012** Show next payment date, rent, current balance, and payment history.
 - [ ] **DASH-013** Show held deposit, proposals, projected refund, and refund status.
-- [ ] **DASH-014** Show unresolved requests, recent replies, and pending acknowledgements.
+- [x] **DASH-014** Show unresolved requests, recent replies, and pending acknowledgements. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-015** Show due day, notice, late-request window, and permitted extension.
-- [ ] **DASH-016** Show primary and optional secondary occupant identity status.
+- [x] **DASH-016** Show primary and optional secondary occupant identity status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-017** Connect maintenance, complaint, late-payment, room-change, move-out, and PDF actions.
 - [ ] **DASH-018** Reconcile dashboard totals with the same scoped list and ledger sources.
-- [ ] **DASH-019** Show dependency failures as errors, never false zero totals.
+- [x] **DASH-019** Show dependency failures as errors, never false zero totals. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 
 ## 21. Notifications and Provider Delivery
 
 Requirements: 12, 25.
 
-- [ ] **MSG-001** Implement email, Twilio WhatsApp, and in-application notification channels.
-- [ ] **MSG-002** Honor Email, WhatsApp, and Both preferences for non-security messages.
+- [x] **MSG-001** Implement email, Twilio WhatsApp, and in-application notification channels. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MSG-002** Honor Email, WhatsApp, and Both preferences for non-security messages. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **MSG-003** Preserve a mandatory channel for critical security notices.
 - [ ] **MSG-004** Support user language and English template fallback.
 - [ ] **MSG-005** Store template, recipient, channel, language, related entity, attempt time, and provider/delivery status.
-- [ ] **MSG-006** Link notices to the correct authorized application record.
+- [x] **MSG-006** Link notices to the correct authorized application record. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **MSG-007** Provide unread state and notification history. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
-- [ ] **MSG-008** Persist transactional notification intent before provider delivery.
-- [ ] **MSG-009** Retry transient failures with bounded attempts.
-- [ ] **MSG-010** Expose terminal failures for operational recovery.
+- [x] **MSG-008** Persist transactional notification intent before provider delivery. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MSG-009** Retry transient failures with bounded attempts. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MSG-010** Expose terminal failures for operational recovery. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **MSG-011** Keep valid business transactions independent from provider success. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **MSG-012** Verify provider callback signatures.
-- [ ] **MSG-013** Reject duplicate and replayed callbacks.
+- [x] **MSG-012** Verify provider callback signatures. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MSG-013** Reject duplicate and replayed callbacks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **MSG-014** Use real Twilio credentials outside automated test adapters. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **MSG-015** Use approved WhatsApp templates where required.
 - [x] **MSG-016** Keep OTP plaintext and sensitive documents out of logs and messages. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
@@ -589,13 +589,13 @@ Requirements: 21-22.
 - [ ] **UX-009** Show safe server messages with request identifiers.
 - [ ] **UX-010** Confirm destructive, financial, and final contract actions.
 - [ ] **UX-011** Provide search, pagination, filters, and sort controls for operational lists.
-- [ ] **UX-012** Choose navigation from authenticated role and account status.
-- [ ] **UX-013** Hide unauthorized controls without reliance on client-only permission enforcement.
+- [x] **UX-012** Choose navigation from authenticated role and account status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **UX-013** Hide unauthorized controls without reliance on client-only permission enforcement. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **UX-014** Display currency and relevant timezone alongside money and dates.
 - [ ] **UX-015** Keep English-first interface strings ready for localization.
 - [ ] **UX-016** Provide profile, security, session, language, timezone, and notification controls.
 - [ ] **UX-017** Remove placeholder values, inactive actions, and dead-end pages.
-- [ ] **UX-018** Verify archived-record workflows only where domain rules permit archive and restore.
+- [x] **UX-018** Verify archived-record workflows only where domain rules permit archive and restore. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 
 ### shadcn/ui Foundation
 
@@ -617,9 +617,9 @@ Requirements: 15, 23-24.
 - [x] **API-001** Use /api/v1 for business resources. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **API-002** Publish OpenAPI for actual methods, schemas, authorization, transitions, and errors.
 - [ ] **API-003** Validate bodies, routes, query fields, and file metadata.
-- [ ] **API-004** Derive manager ownership from authenticated context.
-- [ ] **API-005** Verify all referenced parent and child ownership.
-- [ ] **API-006** Enforce role and ownership on lists, detail, exports, uploads, downloads, and mutations.
+- [x] **API-004** Derive manager ownership from authenticated context. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **API-005** Verify all referenced parent and child ownership. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **API-006** Enforce role and ownership on lists, detail, exports, uploads, downloads, and mutations. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **API-007** Return stable error codes, safe messages, and request IDs. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **API-008** Use 401 for absent or invalid authentication. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **API-009** Use 403 for authenticated forbidden actions. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
@@ -648,7 +648,7 @@ Requirements: 6, 9, 25.
 - [ ] **JOB-008** Use calendar days, not unapproved business-day interpretations.
 - [ ] **JOB-009** Audit automatic decisions with rule, timestamp, and entity.
 - [ ] **JOB-010** Implement every job in the job inventory below.
-- [ ] **JOB-011** Keep notification intent transactionally tied to business events.
+- [x] **JOB-011** Keep notification intent transactionally tied to business events. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **JOB-012** Expose job failures and authorized operational recovery.
 - [ ] **JOB-013** Verify duplicate execution, worker interruption, scheduler restart, and delayed provider response.
 
@@ -658,15 +658,15 @@ Requirements: 16, 24-26, 29.
 
 - [ ] **SEC-001** Encrypt transport and sensitive stored data.
 - [ ] **SEC-002** Apply least privilege to users, administrators, storage, database, and deployment roles.
-- [ ] **SEC-003** Keep private identities inaccessible across managers and unrelated tenants.
+- [x] **SEC-003** Keep private identities inaccessible across managers and unrelated tenants. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SEC-004** Audit authentication, document access, exports, impersonation, finance, contracts, and moderation.
-- [ ] **SEC-005** Protect audit records from ordinary-user edits and deletion.
-- [ ] **SEC-006** Mask Emirates ID numbers and private contact details unless necessary.
+- [x] **SEC-005** Protect audit records from ordinary-user edits and deletion. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **SEC-006** Mask Emirates ID numbers and private contact details unless necessary. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SEC-007** Keep versioned consent text hashes and declarations.
 - [ ] **SEC-008** Enforce approved retention, anonymization, deletion, and protected-record exceptions.
 - [ ] **SEC-009** Verify account and data export permissions.
-- [ ] **SEC-010** Scan files and prevent unsafe execution.
-- [ ] **SEC-011** Protect report, invitation, OTP, upload, and login endpoints against abuse.
+- [x] **SEC-010** Scan files and prevent unsafe execution. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **SEC-011** Protect report, invitation, OTP, upload, and login endpoints against abuse. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SEC-012** Keep sensitive data out of provider messages, logs, errors, and CI artifacts.
 - [ ] **SEC-013** Verify MFA, session expiry, token replay, CSRF, and unauthorized API calls.
 
@@ -724,21 +724,21 @@ Requirements: 26.3, 28-29.
 
 Requirements: 14, 24.
 
-- [ ] **MODEL-001** Implement `users`: Authentication identity, role, email/phone verification, status and preferred language.
-- [ ] **MODEL-002** Implement `leasing_manager_profiles`: Legal/profile data, Emirates ID, licence and declarations.
-- [ ] **MODEL-003** Implement `tenant_profiles`: Identity, Emirates ID, matching preferences and manager relationship.
-- [ ] **MODEL-004** Implement `landlords`: Reusable landlord/contact records owned by a Leasing Manager.
-- [ ] **MODEL-005** Implement `units`: Property, address/GPS, landlord, owner-rent terms, default deposit and status.
-- [ ] **MODEL-006** Implement `rental_spaces`: Unit subdivision, type, capacity, amenities, pricing guidance and availability.
-- [ ] **MODEL-007** Implement `occupants`: Primary or secondary identity records linked to a contract.
-- [ ] **MODEL-008** Implement `contracts`: Open-ended monthly agreement, space, primary tenant, rent, currency, due day and notice.
+- [x] **MODEL-001** Implement `users`: Authentication identity, role, email/phone verification, status and preferred language. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-002** Implement `leasing_manager_profiles`: Legal/profile data, Emirates ID, licence and declarations. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-003** Implement `tenant_profiles`: Identity, Emirates ID, matching preferences and manager relationship. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-004** Implement `landlords`: Reusable landlord/contact records owned by a Leasing Manager. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-005** Implement `units`: Property, address/GPS, landlord, owner-rent terms, default deposit and status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-006** Implement `rental_spaces`: Unit subdivision, type, capacity, amenities, pricing guidance and availability. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-007** Implement `occupants`: Primary or secondary identity records linked to a contract. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-008** Implement `contracts`: Open-ended monthly agreement, space, primary tenant, rent, currency, due day and notice. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **MODEL-009** Implement `contract_amendments`: Effective-dated rent, space, deposit, due-day or notice changes.
 - [ ] **MODEL-010** Implement `rent_obligations / payments`: Monthly dues and external payment records, receipts and corrections.
 - [ ] **MODEL-011** Implement `deposits / deposit_ledger`: Received, held, proposed deductions, refunds and disputes.
 - [ ] **MODEL-012** Implement `requests / request_events`: Typed cases, status, deadlines, messages and immutable history.
-- [ ] **MODEL-013** Implement `expenses`: Owner rent, utilities, maintenance and other bookkeeping costs.
-- [ ] **MODEL-014** Implement `documents / media`: Versioned identity, property, consent, evidence, images and reports.
-- [ ] **MODEL-015** Implement `notifications`: Email, WhatsApp and in-app delivery history.
+- [x] **MODEL-013** Implement `expenses`: Owner rent, utilities, maintenance and other bookkeeping costs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-014** Implement `documents / media`: Versioned identity, property, consent, evidence, images and reports. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **MODEL-015** Implement `notifications`: Email, WhatsApp and in-app delivery history. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **MODEL-016** Implement `audit_events`: Actor, action, old/new values, reason, time, IP/session and entity reference.
 - [ ] **MODEL-017** Implement `contract_reviews`: Twelve-month reminders, decisions and proposed amendments.
 
@@ -750,14 +750,14 @@ Each screen requires functional API access, forms, validation, permissions, pers
 
 ### Public and Account
 
-- [ ] **SCREEN-PUBLIC-001** Implement Login: Authenticate; show real validation errors; route by role and account status.
-- [ ] **SCREEN-PUBLIC-002** Implement Manager registration: Capture required profile fields; accept versioned declarations; prevent duplicate submissions.
-- [ ] **SCREEN-PUBLIC-003** Implement Email verification: Verify valid token; reject expired or reused token; provide controlled resend.
+- [x] **SCREEN-PUBLIC-001** Implement Login: Authenticate; show real validation errors; route by role and account status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **SCREEN-PUBLIC-002** Implement Manager registration: Capture required profile fields; accept versioned declarations; prevent duplicate submissions. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **SCREEN-PUBLIC-003** Implement Email verification: Verify valid token; reject expired or reused token; provide controlled resend. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SCREEN-PUBLIC-004** Implement WhatsApp verification: Capture own phone number; request OTP; verify OTP; enforce retry and resend limits.
-- [ ] **SCREEN-PUBLIC-005** Implement Identity and licence: Upload private documents; capture expiry and licence fields; show completion status.
+- [x] **SCREEN-PUBLIC-005** Implement Identity and licence: Upload private documents; capture expiry and licence fields; show completion status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SCREEN-PUBLIC-006** Implement Approval status: Show pending, rejected, suspended, or active state; display permitted next actions.
 - [ ] **SCREEN-PUBLIC-007** Implement Tenant invitation: Accept scoped invitation; complete email, WhatsApp, identity, and profile requirements.
-- [ ] **SCREEN-PUBLIC-008** Implement Password recovery: Issue expiring single-use reset token; set new password; revoke affected sessions.
+- [x] **SCREEN-PUBLIC-008** Implement Password recovery: Issue expiring single-use reset token; set new password; revoke affected sessions. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SCREEN-PUBLIC-009** Implement Profile and security: Edit authorized details; reverify changed contacts; change password; review and revoke sessions.
 
 ### Administrator
@@ -774,7 +774,7 @@ Each screen requires functional API access, forms, validation, permissions, pers
 ### Leasing Manager
 
 - [ ] **SCREEN-MANAGER-001** Implement Dashboard: Every metric, deadline, action, and alert from section 11.1.
-- [ ] **SCREEN-MANAGER-002** Implement Landlords: List, create, edit, archive, documents, and linked units.
+- [x] **SCREEN-MANAGER-002** Implement Landlords: List, create, edit, archive, documents, and linked units. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SCREEN-MANAGER-003** Implement Units: List, create, edit, declaration, owner-rent schedule, amenities, images, documents, and status.
 - [ ] **SCREEN-MANAGER-004** Implement Unit detail: Spaces, occupants, contracts, income, expenses, owner rent, maintenance, and deposit exposure.
 - [ ] **SCREEN-MANAGER-005** Implement Rental spaces: Type, capacity, availability, asking rent, deposit default, amenities, photos, and maintenance blocks.
@@ -788,9 +788,9 @@ Each screen requires functional API access, forms, validation, permissions, pers
 - [ ] **SCREEN-MANAGER-013** Implement Cases: Type-specific forms, messages, evidence, deadlines, decisions, completion, dispute, and event history.
 - [ ] **SCREEN-MANAGER-014** Implement Transfers: Approve or reject; negotiate; select destination; preview terms; confirm atomic effective transfer.
 - [ ] **SCREEN-MANAGER-015** Implement Move-out: Review notice preview, waivers, final allocation, deductions, deposit settlement, and closure.
-- [ ] **SCREEN-MANAGER-016** Implement Expenses: Category, owner rent, utilities, vendor, scope, currency, date, evidence, and recoveries.
+- [x] **SCREEN-MANAGER-016** Implement Expenses: Category, owner rent, utilities, vendor, scope, currency, date, evidence, and recoveries. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SCREEN-MANAGER-017** Implement Reports: Income, expenses, occupancy, arrears, profit, deposit liability, maintenance, and interaction PDF.
-- [ ] **SCREEN-MANAGER-018** Implement Notifications: Read state, relevant record links, preferences, and visible delivery failures where appropriate.
+- [x] **SCREEN-MANAGER-018** Implement Notifications: Read state, relevant record links, preferences, and visible delivery failures where appropriate. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **SCREEN-MANAGER-019** Implement Settings: Profile, security, defaults, permitted per-tenant limits, language, and timezone.
 
 ### Tenant
@@ -815,7 +815,7 @@ Requirements: 23.2.
 - [x] **RESOURCE-003** Implement Invitations: Create, inspect, accept, resend, expire, and revoke tenant invitation. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **RESOURCE-004** Implement Profiles: Own profile, manager profile, tenant profile, secondary occupant, preferences.
 - [ ] **RESOURCE-005** Implement Administration: Account review queue, moderation decisions, flags, taxonomies, templates, audit, support sessions.
-- [ ] **RESOURCE-006** Implement Landlords: List, detail, create, edit, archive, and linked units.
+- [x] **RESOURCE-006** Implement Landlords: List, detail, create, edit, archive, and linked units. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **RESOURCE-007** Implement Units: CRUD subject to history rules; declarations, amenities, owner-rent schedules, documents, and status.
 - [ ] **RESOURCE-008** Implement Spaces: CRUD subject to history rules; capacity, availability, type restrictions, photos, and maintenance blocks.
 - [ ] **RESOURCE-009** Implement Contracts: Create, detail, amendments, acknowledgement, allocation history, reviews, closure.
@@ -825,11 +825,11 @@ Requirements: 23.2.
 - [ ] **RESOURCE-013** Implement Cases: Type-specific submit, messages, evidence, transition, deadline, decision, completion, and dispute.
 - [ ] **RESOURCE-014** Implement Transfers: Eligibility, approval, negotiation, preview, destination, effective execution, and event history.
 - [ ] **RESOURCE-015** Implement Move-out: Notice preview, acknowledgement, decision, waiver, effective exit, and settlement.
-- [ ] **RESOURCE-016** Implement Expenses: Categories, entries, allocations, evidence, recoveries, and audited adjustments.
+- [x] **RESOURCE-016** Implement Expenses: Categories, entries, allocations, evidence, recoveries, and audited adjustments. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **RESOURCE-017** Implement Documents: Authorized upload, scan status, version, metadata, expiring private download, and access audit. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **RESOURCE-018** Implement Notifications: List, read/unread state, preferences, internal delivery records, provider callbacks.
+- [x] **RESOURCE-018** Implement Notifications: List, read/unread state, preferences, internal delivery records, provider callbacks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **RESOURCE-019** Implement Reports: Role-specific dashboards, filtered financial data, export jobs, PDF status, and downloads.
-- [ ] **RESOURCE-020** Implement Operations: Liveness, readiness, protected metrics, job status, and deployment smoke probes.
+- [x] **RESOURCE-020** Implement Operations: Liveness, readiness, protected metrics, job status, and deployment smoke probes. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 
 ## 32. Background Job Inventory
 
@@ -843,7 +843,7 @@ Requirements: 25.1.
 - [ ] **WORKER-006** Implement Document expiry: Notify affected users; show expired status without false legal certification.
 - [x] **WORKER-007** Implement Invitations and security tokens: Enforce expiry, resend limits, revocation, and single-use verification. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **WORKER-008** Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.
-- [ ] **WORKER-009** Implement Reports: Generate authorized PDFs; expose queued, complete, and failed states.
+- [x] **WORKER-009** Implement Reports: Generate authorized PDFs; expose queued, complete, and failed states. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **WORKER-010** Implement File scan: Quarantine uploads until accepted; reject unsafe content. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **WORKER-011** Implement Retention: Apply the confirmed policy without destruction of protected history.
 
@@ -904,29 +904,29 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [ ] **TEST-AUTH-01** Verify Manager completes public registration, email, WhatsApp, identity, declarations, and administrator activation.
 - [ ] **TEST-AUTH-02** Verify Unverified, pending, rejected, and suspended accounts cannot bypass their permitted access.
 - [x] **TEST-AUTH-03** Verify Tenant public self-registration fails; scoped invitation acceptance succeeds. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **TEST-AUTH-04** Verify Expired, reused, revoked, or mismatched verification tokens fail.
-- [ ] **TEST-AUTH-05** Verify Wrong OTP, resend abuse, login abuse, password reset, refresh replay, and logout enforce security controls.
-- [ ] **TEST-ROLE-01** Verify Admin, manager, and tenant reach distinct functional dashboards.
-- [ ] **TEST-ROLE-02** Verify Admin login through the web proxy never calls a manager-only dashboard.
+- [x] **TEST-AUTH-04** Verify Expired, reused, revoked, or mismatched verification tokens fail. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEST-AUTH-05** Verify Wrong OTP, resend abuse, login abuse, password reset, refresh replay, and logout enforce security controls. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEST-ROLE-01** Verify Admin, manager, and tenant reach distinct functional dashboards. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEST-ROLE-02** Verify Admin login through the web proxy never calls a manager-only dashboard. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-ROLE-03** Verify Every list, detail, export, upload, download, and mutation rejects cross-manager access.
-- [ ] **TEST-ROLE-04** Verify Tenant cannot read another tenant's unrelated evidence, requests, identity files, or contract.
+- [x] **TEST-ROLE-04** Verify Tenant cannot read another tenant's unrelated evidence, requests, identity files, or contract. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-ADMIN-01** Verify Account approval, rejection, suspension, restore, and support impersonation create audit events.
 - [ ] **TEST-ADMIN-02** Verify Impersonation records real actor, effective identity, reason, start, end, and restricted actions.
 - [ ] **TEST-ADMIN-03** Verify Admin screens never claim legal certification or binding dispute decisions.
 - [ ] **TEST-INV-01** Verify Manager creates reusable landlord, declared unit, enabled space, amenities, images, and private documents.
-- [ ] **TEST-INV-02** Verify Bed Space and Partition remain disabled in interface and direct API requests.
+- [x] **TEST-INV-02** Verify Bed Space and Partition remain disabled in interface and direct API requests. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-INV-03** Verify Missing required information prevents unit activation.
-- [ ] **TEST-OCC-01** Verify Single tenant, couple, and unrelated occupants use the required account and contract structure.
-- [ ] **TEST-OCC-02** Verify Concurrent allocation cannot exceed capacity or bypass maintenance blocks.
-- [ ] **TEST-CON-01** Verify Open-ended contract stores negotiated rent, due day, notice, deposit, currency, and occupancy dates.
+- [x] **TEST-OCC-01** Verify Single tenant, couple, and unrelated occupants use the required account and contract structure. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEST-OCC-02** Verify Concurrent allocation cannot exceed capacity or bypass maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEST-CON-01** Verify Open-ended contract stores negotiated rent, due day, notice, deposit, currency, and occupancy dates. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-CON-02** Verify Amendments preserve past terms and apply on the explicit effective date.
 - [ ] **TEST-RENT-01** Verify First-month proration passes every example in section 24.3.
 - [ ] **TEST-RENT-02** Verify Later months retain full rent across 28-, 29-, 30-, and 31-day months.
 - [ ] **TEST-RENT-03** Verify Multiple scheduler runs produce one obligation per contract period.
 - [ ] **TEST-RENT-04** Verify Same-space annual reviews recur without duplicate reviews or automatic price changes.
-- [ ] **TEST-PAY-01** Verify External payment without evidence succeeds and creates a durable tenant receipt.
+- [x] **TEST-PAY-01** Verify External payment without evidence succeeds and creates a durable tenant receipt. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-PAY-02** Verify Partial payment, multiple allocations, correction, reversal, and tenant error report preserve balances and audit.
-- [ ] **TEST-PAY-03** Verify Repeated idempotent payment request cannot duplicate money.
+- [x] **TEST-PAY-03** Verify Repeated idempotent payment request cannot duplicate money. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-LATE-01** Verify Request outside the configured final-ten-day window fails.
 - [ ] **TEST-LATE-02** Verify Extension beyond five calendar days or stricter tenant maximum fails.
 - [ ] **TEST-LATE-03** Verify Second approved request inside its six-month window fails.
@@ -937,8 +937,8 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [ ] **TEST-DEP-04** Verify Deduction acceptance, dispute, revisions, deadlock, refund, and acknowledgement preserve history.
 - [ ] **TEST-DEP-05** Verify Disputed proposal cannot silently become an accepted deduction.
 - [ ] **TEST-CASE-01** Verify Each case type supports required fields, evidence, messages, response, resolution, and tenant acknowledgement.
-- [ ] **TEST-CASE-02** Verify Complaint privacy, reopening, cost responsibility, and evidence permissions remain enforced.
-- [ ] **TEST-CASE-03** Verify No tenant response leaves completion unacknowledged, not automatically accepted.
+- [x] **TEST-CASE-02** Verify Complaint privacy, reopening, cost responsibility, and evidence permissions remain enforced. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
+- [x] **TEST-CASE-03** Verify No tenant response leaves completion unacknowledged, not automatically accepted. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-CASE-04** Verify Accepted damage cost cannot trigger duplicate direct and deposit charges.
 - [ ] **TEST-TRANS-01** Verify Unapproved room-change request expires after five calendar days with the specified reason.
 - [ ] **TEST-TRANS-02** Verify Approval exposes the seven-day negotiation period and independent six-month frequency limit.
@@ -948,15 +948,15 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [ ] **TEST-FIN-01** Verify Income, profit, occupancy, arrears, and deposit liability match authorized ledger data.
 - [ ] **TEST-FIN-02** Verify Currency conversion preserves original amount and saved rate; later rate changes do not rewrite history.
 - [ ] **TEST-MSG-01** Verify Preferences control non-security email and WhatsApp; critical security notices retain a required channel.
-- [ ] **TEST-MSG-02** Verify Delivery retry, provider rejection, duplicate callback, and bad signature retain correct business state.
+- [x] **TEST-MSG-02** Verify Delivery retry, provider rejection, duplicate callback, and bad signature retain correct business state. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-DOC-01** Verify Unsafe upload, oversized file, unauthorized download, expired URL, and unscanned file fail safely. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **TEST-PDF-01** Verify Both parties export the same factual event history with masked identities, authorship, timestamp, and integrity metadata.
-- [ ] **TEST-PDF-02** Verify Failed report job exposes a recoverable error; unauthorized report download fails.
+- [x] **TEST-PDF-02** Verify Failed report job exposes a recoverable error; unauthorized report download fails. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-UI-01** Verify Every initial-release screen has functional actions and load, empty, error, success, and validation states.
 - [ ] **TEST-UI-02** Verify Mobile and desktop layouts preserve forms, navigation, tables, dialogs, and readable controls.
-- [ ] **TEST-OPS-01** Verify Clean environment starts, migrates, seeds only permitted demo data, and passes browser smoke tests.
+- [x] **TEST-OPS-01** Verify Clean environment starts, migrates, seeds only permitted demo data, and passes browser smoke tests. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-OPS-02** Verify Restart preserves data; scheduler recovery catches missed deadlines without duplicate effects.
-- [ ] **TEST-OPS-03** Verify Production refuses demo mode and placeholder secrets.
+- [x] **TEST-OPS-03** Verify Production refuses demo mode and placeholder secrets. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-OPS-04** Verify Upgrade, rollback compatibility, database restore, and private-file restore pass documented procedures.
 
 ## 37. Full Browser Release Journey
