@@ -1,15 +1,16 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { randomUUID } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 
 const db = vi.hoisted(() => ({
-  user: { findUnique: vi.fn(), count: vi.fn() },
+  user: { findUnique: vi.fn(), findFirst: vi.fn(), count: vi.fn() },
   leasingManagerProfile: { findUnique: vi.fn(), findUniqueOrThrow: vi.fn() },
   tenantProfile: { findFirst: vi.fn() },
   landlord: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
   unit: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
   rentalSpace: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
-  contract: { findMany: vi.fn(), create: vi.fn() },
+  contract: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
   payment: { create: vi.fn() },
   auditEvent: { create: vi.fn() },
   authSession: { findFirst: vi.fn() },
@@ -36,6 +37,7 @@ describe('inventory writes and role dashboards', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     db.user.findUnique.mockResolvedValue({ status: 'ACTIVE', role: 'LEASING_MANAGER' });
+    db.user.findFirst.mockResolvedValue({ id: 'user-1' });
     db.leasingManagerProfile.findUnique.mockResolvedValue({ id: 'manager-1' });
     db.leasingManagerProfile.findUniqueOrThrow.mockResolvedValue({ id: 'manager-1' });
     db.$transaction.mockImplementation((callback) => callback(db));
@@ -53,7 +55,10 @@ describe('inventory writes and role dashboards', () => {
     return app.inject({
       method,
       url,
-      payload,
+      payload:
+        url === '/api/v1/contracts' && method === 'POST'
+          ? { clientId: randomUUID(), ...payload }
+          : payload,
       headers: {
         authorization: 'Bearer ' + app.jwt.sign({ sub: 'user-1', role, sid: 'session-1' }),
       },
@@ -383,7 +388,15 @@ describe('inventory writes and role dashboards', () => {
   it('counts secondary occupants and preserves committed capacity', async () => {
     db.rentalSpace.findFirst.mockResolvedValue({ id: 'space-1', type: 'ROOM', capacity: 2 });
     db.contract.findMany.mockResolvedValue([
-      { secondaryOccupant: { fullName: 'Second Occupant' } },
+      {
+        secondaryOccupant: {
+          fullName: 'Second Occupant',
+          dateOfBirth: '1990-01-01',
+          nationality: 'Egyptian',
+          emiratesIdNumber: '784-1990-1234567-1',
+          emiratesIdExpiry: '2030-01-01',
+        },
+      },
     ]);
     expect(
       (await send('PATCH', '/api/v1/inventory/spaces/space-1', { ...roomEdit, capacity: 1 }))
@@ -461,7 +474,13 @@ describe('inventory writes and role dashboards', () => {
           startDate: '2026-11-01',
           monthlyRent: 3000,
           depositAmount: 3000,
-          secondaryOccupant: { fullName: 'Second Occupant' },
+          secondaryOccupant: {
+            fullName: 'Second Occupant',
+            dateOfBirth: '1990-01-01',
+            nationality: 'Egyptian',
+            emiratesIdNumber: '784-1990-1234567-1',
+            emiratesIdExpiry: '2030-01-01',
+          },
         })
       ).statusCode,
     ).toBe(409);
@@ -483,7 +502,7 @@ describe('inventory writes and role dashboards', () => {
       ).statusCode,
     ).toBe(201);
     expect(db.$transaction).toHaveBeenCalledOnce();
-    expect(db.$queryRaw).toHaveBeenCalledOnce();
+    expect(db.$queryRaw).toHaveBeenCalledTimes(2);
     expect(db.payment.create).toHaveBeenCalledOnce();
     expect(db.rentalSpace.update).toHaveBeenCalledWith({
       where: { id: 'space-1' },

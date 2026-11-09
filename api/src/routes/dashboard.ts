@@ -1,3 +1,4 @@
+import { occupantDto, occupantSelect } from '../contract-policy.js';
 import { Prisma } from '@prisma/client';
 import type { FastifyPluginAsync } from 'fastify';
 import { allowRoles } from '../auth.js';
@@ -19,7 +20,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
   });
   app.get('/tenant', { preHandler: allowRoles('TENANT') }, async (request) => {
     const contracts = await prisma.contract.findMany({
-      where: caseContractScope(request.user),
+      where: { ...caseContractScope(request.user), status: { not: 'DRAFT' } },
       select: {
         id: true,
         status: true,
@@ -30,6 +31,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
         dueDay: true,
         noticeDays: true,
         depositAmount: true,
+        occupants: { select: occupantSelect, orderBy: { role: 'asc' } },
         rentalSpace: caseContractSelect.rentalSpace,
         payments: {
           select: { id: true, dueDate: true, amountDue: true, amountPaid: true, status: true },
@@ -53,7 +55,12 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
       take: 20,
       orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
     });
-    return { contracts };
+    return {
+      contracts: contracts.map((row) => ({
+        ...row,
+        occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
+      })),
+    };
   });
   app.get('/manager', { preHandler: allowRoles('LEASING_MANAGER') }, async (request) => {
     const manager = await prisma.leasingManagerProfile.findUniqueOrThrow({

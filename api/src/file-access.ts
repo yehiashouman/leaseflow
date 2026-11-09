@@ -16,6 +16,7 @@ export const purposeTargets = {
   CASE_EVIDENCE: 'requestId',
   PAYMENT_EVIDENCE: 'paymentId',
   EXPENSE_EVIDENCE: 'expenseId',
+  OCCUPANT_IDENTITY: 'occupantId',
 } as const;
 export function seriesScope(actor: Actor): Prisma.DocumentSeriesWhereInput {
   if (actor.role === 'ADMIN') return { id: { in: [] } };
@@ -44,6 +45,15 @@ export function seriesScope(actor: Actor): Prisma.DocumentSeriesWhereInput {
             { purpose: 'SPACE_PHOTO' as const, rentalSpace: { unit: manager } },
           ]
         : []),
+      {
+        purpose: 'OCCUPANT_IDENTITY',
+        occupant: {
+          contract: {
+            ...caseContractScope(actor),
+            ...(actor.role === 'TENANT' ? { status: { not: 'DRAFT' as const } } : {}),
+          },
+        },
+      },
       { purpose: 'CASE_EVIDENCE', request: caseScope(actor) },
       { purpose: 'PAYMENT_EVIDENCE', payment: { contract: caseContractScope(actor) } },
     ],
@@ -78,6 +88,7 @@ export const documentSelect = {
       requestId: true,
       paymentId: true,
       expenseId: true,
+      occupantId: true,
     },
   },
 } satisfies Prisma.DocumentSelect;
@@ -91,6 +102,19 @@ export async function lockFileTarget(
     return (
       meta.targetId === 'self' && (meta.purpose !== 'LICENSE' || actor.role === 'LEASING_MANAGER')
     );
+  if (meta.purpose === 'OCCUPANT_IDENTITY') {
+    const where = {
+      id: meta.targetId,
+      contract: {
+        ...caseContractScope(actor),
+        ...(actor.role === 'TENANT' ? { status: { not: 'DRAFT' as const } } : {}),
+      },
+    };
+    const row = await tx.contractOccupant.findFirst({ where, select: { id: true } });
+    if (!row) return false;
+    await tx.$queryRaw`SELECT id FROM ContractOccupant WHERE id = ${row.id} FOR UPDATE`;
+    return Boolean(await tx.contractOccupant.findFirst({ where, select: { id: true } }));
+  }
   if (meta.purpose === 'CASE_EVIDENCE') {
     const row = await tx.request.findFirst({
       where: { id: meta.targetId, ...caseScope(actor) },

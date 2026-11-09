@@ -262,6 +262,27 @@ describe('MySQL private documents, quarantine, immutable versions, and access gr
       await prisma.expense.delete({ where: { id: expense.id } });
     }
   });
+  it('scopes secondary identity files to their primary tenant and manager without a new login', async () => {
+    const occupant = await prisma.contractOccupant.create({
+      data: {
+        contractId,
+        role: 'SECONDARY',
+        fullName: 'Private Secondary',
+        effectiveFrom: new Date('2026-11-01'),
+      },
+    });
+    const metadata = meta({
+      purpose: 'OCCUPANT_IDENTITY',
+      targetId: occupant.id,
+      title: 'Secondary identity copy',
+    });
+    expect((await upload(metadata, foreign)).statusCode).toBe(404);
+    const row = await create(metadata, tenant);
+    await clean();
+    expect((await download(row.id, tenant)).statusCode).toBe(200);
+    expect((await download(row.id, manager)).statusCode).toBe(200);
+    expect((await send('POST', '/' + row.id + '/grant', {}, foreign)).statusCode).toBe(404);
+  });
   it('requires authentication, rejects admin access, and exposes no anonymous object path', async () => {
     expect((await app.inject('/api/v1/documents')).statusCode).toBe(401);
     expect((await send('GET', '/policy', undefined, admin)).statusCode).toBe(403);

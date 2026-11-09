@@ -263,6 +263,9 @@ model Contract {
   noticeDays Int @default(30)
   depositAmount Decimal @default(0) @db.Decimal(12, 2)
   secondaryOccupant Json?
+  clientId String? @db.VarChar(36)
+  payloadHash String? @db.VarChar(64)
+  occupants ContractOccupant[]
   tenant TenantProfile @relation(fields: [tenantId], references: [id])
   rentalSpace RentalSpace @relation(fields: [rentalSpaceId], references: [id])
   payments Payment[]
@@ -275,6 +278,28 @@ model Contract {
   updatedAt DateTime @updatedAt
   @@index([tenantId, status])
   @@index([rentalSpaceId, status])
+  @@unique([tenantId, clientId])
+}
+
+enum OccupantRole {
+  PRIMARY
+  SECONDARY
+}
+
+model ContractOccupant {
+  id String @id @default(cuid())
+  contractId String
+  role OccupantRole
+  fullName String @db.VarChar(191)
+  dateOfBirth DateTime?
+  nationality String? @db.VarChar(100)
+  identityCipher String? @db.Text
+  identityExpiry DateTime?
+  effectiveFrom DateTime
+  createdAt DateTime @default(now())
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  documentSeries DocumentSeries[]
+  @@unique([contractId, role])
 }
 
 model ContractAmendment {
@@ -568,6 +593,7 @@ enum DocumentPurpose {
   CASE_EVIDENCE
   PAYMENT_EVIDENCE
   EXPENSE_EVIDENCE
+  OCCUPANT_IDENTITY
 }
 
 enum ScanStatus {
@@ -588,6 +614,7 @@ model DocumentSeries {
   requestId String?
   paymentId String?
   expenseId String?
+  occupantId String?
   createdAt DateTime @default(now())
   owner User @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
   landlord Landlord? @relation(fields: [landlordId], references: [id], onDelete: Restrict)
@@ -596,6 +623,7 @@ model DocumentSeries {
   request Request? @relation(fields: [requestId], references: [id], onDelete: Restrict)
   payment Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   expense Expense? @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+  occupant ContractOccupant? @relation(fields: [occupantId], references: [id], onDelete: Restrict)
   versions Document[]
   @@index([ownerUserId, createdAt])
   @@index([landlordId])
@@ -604,6 +632,7 @@ model DocumentSeries {
   @@index([requestId])
   @@index([paymentId])
   @@index([expenseId])
+  @@index([occupantId])
 }
 
 model Document {

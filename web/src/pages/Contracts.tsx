@@ -1,5 +1,7 @@
+import { useState } from 'react';
+import { ContractEditor } from '@/components/contract-editor';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Plus } from 'lucide-react';
 import { api } from '../api';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +29,8 @@ type Contract = {
 
 export function Contracts() {
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
   const {
     data = [],
     isPending,
@@ -41,7 +45,7 @@ export function Contracts() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Contracts</h1>
         {user?.role === 'LEASING_MANAGER' && (
-          <Button disabled title="Contract creation is not implemented.">
+          <Button onClick={() => setOpen(true)}>
             <Plus aria-hidden="true" />
             Create contract
           </Button>
@@ -91,6 +95,15 @@ export function Contracts() {
             </div>
           )}
         </>
+      )}
+      {open && (
+        <ContractEditor
+          onClose={() => setOpen(false)}
+          onCreated={(id) => {
+            setOpen(false);
+            navigate('/contracts/' + id);
+          }}
+        />
       )}
     </div>
   );

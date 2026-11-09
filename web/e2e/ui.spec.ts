@@ -18,10 +18,10 @@ test.beforeEach(async ({ page }) => {
               occupied: 1,
               vacant: 0,
               openRequests: 1,
-              overdue: 0,
-              depositsHeld: 3000,
-              income: 6000,
-              expenses: 2000,
+              maintenance: 0,
+              awaitingManager: 1,
+              deadlines: [],
+              financialRecords: [],
             }
           : path.endsWith('/inventory/units')
             ? [
@@ -67,7 +67,11 @@ test('login, responsive routes, theme, tables, and sign out', async ({ page }, t
   await page.getByLabel('Password').fill('ExamplePass123!');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Portfolio overview' })).toBeVisible();
-  await expect(page.locator('[data-slot="card"]')).toHaveCount(8);
+  await expect(page.getByText('Maintenance blocks', { exact: true })).toBeVisible();
+  await expect(page.getByText('Await manager', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('Deposit liabilities require a verified deposit ledger.'),
+  ).toBeVisible();
   expect(
     await page.locator('body').evaluate((el) => getComputedStyle(el).backgroundColor),
   ).not.toBe('rgba(0, 0, 0, 0)');

@@ -1,3 +1,4 @@
+import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
@@ -18,6 +19,18 @@ type Contract = {
   dueDay: number;
   noticeDays: number;
   depositAmount: string;
+  occupants?: {
+    id: string;
+    role: string;
+    fullName: string;
+    nationality: string | null;
+    maskedIdentity: string | null;
+    identityExpiry: string | null;
+    recordComplete: boolean;
+    identityExpired: boolean;
+    documentAvailable: boolean;
+    responsibility: string;
+  }[];
   tenant: { fullName: string };
   rentalSpace: { name: string; type: string; unit: { name: string; area: string } };
 };
@@ -211,6 +224,43 @@ export function ContractDetail() {
           </div>
         ))}
       </dl>
+      <section className="space-y-4" aria-labelledby="contract-occupants">
+        <h2 id="contract-occupants" className="text-lg font-semibold">
+          Occupants
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          The primary tenant remains responsible for this monthly contract. Unrelated occupants
+          require separate accounts and contracts.
+        </p>
+        {data.occupants?.map((row) => (
+          <article key={row.id} className="space-y-3 rounded-md border p-4">
+            <h3 className="break-words font-semibold">
+              {row.fullName} · {row.role === 'PRIMARY' ? 'Primary tenant' : 'Secondary occupant'}
+            </h3>
+            <p>{row.responsibility}</p>
+            <p>
+              Identity record: {row.recordComplete ? 'Complete' : 'Incomplete'}
+              {row.identityExpired ? ' · Expired' : ''}
+            </p>
+            <p>
+              {row.maskedIdentity ?? 'ID not recorded'}
+              {row.identityExpiry ? ' · Expiry: ' + row.identityExpiry.slice(0, 10) + ' (UTC)' : ''}
+            </p>
+            <p>Contract identity copy: {row.documentAvailable ? 'Available' : 'Not available'}</p>
+            <Documents
+              purpose="OCCUPANT_IDENTITY"
+              targetId={row.id}
+              heading={row.role === 'PRIMARY' ? 'Primary identity copy' : 'Secondary identity copy'}
+            />
+          </article>
+        ))}
+        {!data.occupants?.length && (
+          <p>Occupant snapshots are absent from this older contract record.</p>
+        )}
+        <p className="text-sm text-muted-foreground">
+          Record completion is not legal certification.
+        </p>
+      </section>
       <Records key={data.id} id={data.id} currency={data.currency} />
     </div>
   );

@@ -605,6 +605,17 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       financialBasis: 'Synthetic preview. Financial records require the live API.',
     });
   }
+  if (path === '/contracts/options' && method === 'get')
+    return role === 'LEASING_MANAGER'
+      ? respond({
+          tenants: [],
+          spaces: [],
+          activationEnabled: false,
+          limit: 500,
+          policy:
+            'Contract setup requires the live API. This preview does not store personal identity documents or create backend contracts.',
+        })
+      : fail('Insufficient permissions', 403);
   if (path === '/contracts' && method === 'get')
     return role !== 'ADMIN' ? respond(store.contracts) : fail('Insufficient permissions', 403);
   if (/^\/contracts\/[^/]+(?:\/records)?$/.test(path) && method === 'get') {

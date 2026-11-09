@@ -51,6 +51,7 @@ export const documentPurposes = [
   'CASE_EVIDENCE',
   'PAYMENT_EVIDENCE',
   'EXPENSE_EVIDENCE',
+  'OCCUPANT_IDENTITY',
 ] as const;
 export const fileMetadataSchema = z
   .object({

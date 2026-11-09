@@ -109,6 +109,7 @@ describe('MySQL room persistence and concurrent contract admission', () => {
           'Bearer ' + app.jwt.sign({ sub: userId, role: 'LEASING_MANAGER', sid: sessionId }),
       },
       payload: {
+        clientId: randomUUID(),
         tenantId,
         rentalSpaceId: spaceId,
         startDate: '2026-11-01',
@@ -119,6 +120,108 @@ describe('MySQL room persistence and concurrent contract admission', () => {
     });
   }
 
+  it('copies unit deposit defaults and keeps the original snapshot after defaults change', async () => {
+    await prisma.unit.update({ where: { id: unitId }, data: { defaultDeposit: '850.25' } });
+    const created = await contract({ depositAmount: undefined });
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json()).toMatchObject({ dueDay: 1, noticeDays: 30, endDate: null });
+    expect(Number(created.json().depositAmount)).toBe(850.25);
+    await prisma.unit.update({ where: { id: unitId }, data: { defaultDeposit: '999.00' } });
+    const saved = await prisma.contract.findUniqueOrThrow({ where: { id: created.json().id } });
+    expect(saved.depositAmount.toFixed(2)).toBe('850.25');
+    expect(created.json().occupants).toHaveLength(1);
+    expect(created.json().occupants[0].role).toBe('PRIMARY');
+  });
+  it('preserves explicit zero deposits and negotiated notice exceptions', async () => {
+    const created = await contract({
+      depositAmount: '0.00',
+      noticeDays: 15,
+      monthlyRent: '3000.10',
+    });
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json().noticeDays).toBe(15);
+    expect(Number(created.json().depositAmount)).toBe(0);
+    expect(created.json().monthlyRent).toBe('3000.1');
+  });
+  it('captures a couple without a secondary account or plaintext identity in responses and audit records', async () => {
+    const usersBefore = await prisma.user.count();
+    const identity = '784-1990-1234567-1';
+    const created = await contract({
+      secondaryOccupant: {
+        fullName: 'Secondary Snapshot',
+        dateOfBirth: '1990-01-01',
+        nationality: 'Egyptian',
+        emiratesIdNumber: identity,
+        emiratesIdExpiry: '2030-01-01',
+      },
+    });
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json().occupants).toHaveLength(2);
+    const secondary = created
+      .json()
+      .occupants.find((row: { role: string }) => row.role === 'SECONDARY');
+    expect(secondary).toMatchObject({
+      fullName: 'Secondary Snapshot',
+      maskedIdentity: '****67-1',
+      recordComplete: true,
+    });
+    expect(created.body).not.toContain(identity);
+    expect(created.body).not.toContain('identityCipher');
+    expect(await prisma.user.count()).toBe(usersBefore);
+    const persisted = await prisma.contractOccupant.findFirstOrThrow({
+      where: { contractId: created.json().id, role: 'SECONDARY' },
+    });
+    expect(persisted.identityCipher).toMatch(/^sealed:/);
+    expect(persisted.identityCipher).not.toContain(identity);
+    const audit = await prisma.auditEvent.findMany({
+      where: { entityType: 'Contract', entityId: created.json().id },
+    });
+    expect(JSON.stringify(audit)).not.toContain(identity);
+  });
+  it('replays concurrent contract keys without duplicate allocations, obligations, or audits', async () => {
+    const key = randomUUID();
+    const results = await Promise.all([contract({ clientId: key }), contract({ clientId: key })]);
+    expect(results.map((row) => row.statusCode)).toEqual([201, 201]);
+    expect(results[0]!.json().id).toBe(results[1]!.json().id);
+    const id = results[0]!.json().id;
+    expect(await prisma.contract.count({ where: { rentalSpaceId: spaceId } })).toBe(1);
+    expect(await prisma.payment.count({ where: { contractId: id } })).toBe(1);
+    expect(await prisma.auditEvent.count({ where: { entityId: id, entityType: 'Contract' } })).toBe(
+      1,
+    );
+    expect((await contract({ clientId: key, monthlyRent: '3500.00' })).statusCode).toBe(409);
+  });
+  it('requires explicit deposits across currencies and rejects unknown monetary fields', async () => {
+    expect((await contract({ currency: 'USD', depositAmount: undefined })).statusCode).toBe(422);
+    expect((await contract({ monthlyRent: '1.001' })).statusCode).toBe(422);
+    expect((await contract({ futureApproved: true })).statusCode).toBe(422);
+    expect(await prisma.contract.count({ where: { rentalSpaceId: spaceId } })).toBe(0);
+  });
+  it('keeps manager draft terms private from their primary tenant', async () => {
+    const draft = await prisma.contract.create({
+      data: {
+        tenantId,
+        rentalSpaceId: spaceId,
+        monthlyRent: 1000,
+        startDate: new Date('2026-01-01'),
+        status: 'DRAFT',
+      },
+    });
+    const sid = (
+      await prisma.authSession.create({
+        data: { userId: userIds[1]!, expiresAt: new Date(Date.now() + 3600000) },
+      })
+    ).id;
+    const headers = {
+      authorization: 'Bearer ' + app.jwt.sign({ sub: userIds[1]!, role: 'TENANT', sid }),
+    };
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/v1/contracts/' + draft.id, headers }))
+        .statusCode,
+    ).toBe(404);
+    const list = await app.inject({ method: 'GET', url: '/api/v1/contracts', headers });
+    expect(list.json().some((row: { id: string }) => row.id === draft.id)).toBe(false);
+  });
   it('persists edits, holds, restoration, and audit history', async () => {
     expect((await edit({ availability: 'MAINTENANCE' })).statusCode).toBe(200);
     let saved = await prisma.rentalSpace.findUniqueOrThrow({ where: { id: spaceId } });
@@ -150,7 +253,15 @@ describe('MySQL room persistence and concurrent contract admission', () => {
     );
   });
   it('counts secondary occupants and protects rent history', async () => {
-    const response = await contract({ secondaryOccupant: { fullName: 'Secondary Occupant' } });
+    const response = await contract({
+      secondaryOccupant: {
+        fullName: 'Secondary Occupant',
+        dateOfBirth: '1990-01-01',
+        nationality: 'Egyptian',
+        emiratesIdNumber: '784-1990-1234567-1',
+        emiratesIdExpiry: '2030-01-01',
+      },
+    });
     expect(response.statusCode).toBe(201);
     expect(response.json().rentalSpace.status).toBe('OCCUPIED');
     expect((await contract()).statusCode).toBe(409);
@@ -163,7 +274,15 @@ describe('MySQL room persistence and concurrent contract admission', () => {
   it('serializes a capacity reduction against a new two-person contract', async () => {
     const results = await Promise.all([
       edit({ capacity: 1 }),
-      contract({ secondaryOccupant: { fullName: 'Secondary Occupant' } }),
+      contract({
+        secondaryOccupant: {
+          fullName: 'Secondary Occupant',
+          dateOfBirth: '1990-01-01',
+          nationality: 'Egyptian',
+          emiratesIdNumber: '784-1990-1234567-1',
+          emiratesIdExpiry: '2030-01-01',
+        },
+      }),
     ]);
     expect([200, 409]).toContain(results[0]!.statusCode);
     expect([201, 409]).toContain(results[1]!.statusCode);

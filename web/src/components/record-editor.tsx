@@ -23,6 +23,7 @@ export type EditorField = {
   max?: number;
   step?: string;
   maxLength?: number;
+  onChange?: (value: string) => void;
 };
 export function RecordEditor({
   open,
@@ -96,6 +97,7 @@ export function RecordEditor({
                   id={'editor-' + field.name}
                   name={field.name}
                   defaultValue={field.value ?? ''}
+                  onChange={(event) => field.onChange?.(event.target.value)}
                   required={field.required}
                   disabled={busy}
                   className="h-9 w-full rounded-md border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-ring"

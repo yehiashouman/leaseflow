@@ -20,8 +20,13 @@ export function registerMetrics(app: FastifyInstance) {
   });
   app.addHook('onResponse', async (request, reply) => {
     const route = request.routeOptions.url ?? 'unmatched';
-    requests.inc({ method: request.method, route, status: String(reply.statusCode) });
-    duration.observe({ method: request.method, route }, reply.elapsedTime / 1000);
+    const method = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].includes(
+      request.method,
+    )
+      ? request.method
+      : 'OTHER';
+    requests.inc({ method, route, status: String(reply.statusCode) });
+    duration.observe({ method, route }, reply.elapsedTime / 1000);
   });
   app.get(
     '/api/v1/operations/metrics',

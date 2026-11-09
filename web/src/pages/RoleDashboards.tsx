@@ -1,3 +1,4 @@
+import { occupancyElapsed } from '../calendar';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
@@ -42,6 +43,14 @@ type TenantContract = {
   monthlyRent: number | string;
   depositAmount: number | string;
   startDate: string;
+  occupants?: {
+    id: string;
+    role: string;
+    fullName: string;
+    recordComplete: boolean;
+    identityExpired: boolean;
+    documentAvailable: boolean;
+  }[];
   dueDay: number;
   noticeDays: number;
   rentalSpace: { name: string; unit: { name: string } };
@@ -110,13 +119,27 @@ export function TenantDashboard() {
               (Asia/Dubai)
             </p>
             <p>
-              Recorded contract period:{' '}
-              {Math.max(
-                0,
-                Math.floor((Date.now() - new Date(contract.startDate).getTime()) / 86400000),
-              )}{' '}
-              days
+              {(() => {
+                const elapsed = occupancyElapsed(contract.startDate);
+                return elapsed
+                  ? elapsed.started
+                    ? 'Elapsed occupancy: ' +
+                      elapsed.months +
+                      ' months and ' +
+                      elapsed.days +
+                      ' days (Asia/Dubai calendar)'
+                    : 'Move-in is scheduled; occupancy has not started.'
+                  : 'Occupancy duration is unavailable.';
+              })()}
             </p>
+            {contract.occupants?.map((row) => (
+              <p key={row.id}>
+                {row.role === 'PRIMARY' ? 'Primary tenant' : 'Secondary occupant'}: {row.fullName} ·
+                Identity record {row.recordComplete ? 'complete' : 'incomplete'}
+                {row.identityExpired ? ' · expired' : ''} · Contract document{' '}
+                {row.documentAvailable ? 'available' : 'absent'}
+              </p>
+            ))}
           </section>
           <section className="space-y-3">
             <h2 className="font-semibold">Unresolved requests</h2>
