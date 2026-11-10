@@ -42,8 +42,8 @@ ALTER TABLE `Notification`
   MODIFY `eventId` VARCHAR(191) NULL,
   ADD COLUMN `reviewEventId` VARCHAR(191) NULL,
   ADD UNIQUE INDEX `Notification_recipientUserId_reviewEventId_key` (`recipientUserId`, `reviewEventId`),
-  ADD CONSTRAINT `Notification_eventId_fkey` FOREIGN KEY (`eventId`) REFERENCES `RequestEvent` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  ADD CONSTRAINT `Notification_reviewEventId_fkey` FOREIGN KEY (`reviewEventId`) REFERENCES `ContractReviewEvent` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  ADD CONSTRAINT `Notification_eventId_fkey` FOREIGN KEY (`eventId`) REFERENCES `RequestEvent` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `Notification_reviewEventId_fkey` FOREIGN KEY (`reviewEventId`) REFERENCES `ContractReviewEvent` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `Notification_one_event_source_check` CHECK ((`eventId` IS NOT NULL AND `reviewEventId` IS NULL) OR (`eventId` IS NULL AND `reviewEventId` IS NOT NULL));
 
 CREATE TABLE `BusinessJob` (

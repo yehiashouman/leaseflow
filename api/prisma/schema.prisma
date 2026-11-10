@@ -452,12 +452,12 @@ model Notification {
   reviewEventId String?
   readAt DateTime?
   createdAt DateTime @default(now())
-  event RequestEvent? @relation(fields: [eventId], references: [id])
+  event RequestEvent? @relation(fields: [eventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   deliveries NoticeDelivery[]
   @@unique([recipientUserId, eventId])
   @@unique([id, recipientUserId])
   @@index([recipientUserId, readAt, createdAt])
-  reviewEvent ContractReviewEvent? @relation(fields: [reviewEventId], references: [id], onDelete: Restrict)
+  reviewEvent ContractReviewEvent? @relation(fields: [reviewEventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   @@unique([recipientUserId, reviewEventId])
 }
 
