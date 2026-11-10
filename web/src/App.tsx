@@ -132,15 +132,17 @@ function Layout() {
   const { logout, user, logoutPending, logoutError } = useAuth();
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="hidden flex-col gap-8 border-r bg-card px-4 py-6 lg:flex">
+      <aside className="hidden flex-col gap-8 border-r bg-card px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-svh">
         <NavLink to="/" className="flex items-center gap-2 px-3 text-lg font-semibold">
           <Building2 className="size-5 text-primary" aria-hidden="true" />
           LeaseFlow
         </NavLink>
-        <Navigation />
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <Navigation />
+        </div>
         <Button
           variant="ghost"
-          className="mt-auto justify-start"
+          className="mt-auto shrink-0 justify-start"
           disabled={logoutPending}
           onClick={() => void logout()}
         >
@@ -163,17 +165,17 @@ function Layout() {
                   <Menu />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72">
-                <SheetHeader>
+              <SheetContent side="left" className="w-72 overflow-hidden">
+                <SheetHeader className="shrink-0">
                   <SheetTitle>LeaseFlow</SheetTitle>
                   <SheetDescription className="sr-only">Main navigation</SheetDescription>
                 </SheetHeader>
-                <div className="px-4">
+                <div className="min-h-0 flex-1 overflow-y-auto px-4">
                   <Navigation mobile />
                 </div>
                 <Button
                   variant="ghost"
-                  className="mx-4 mt-auto mb-4 justify-start"
+                  className="mx-4 mt-auto mb-4 shrink-0 justify-start"
                   disabled={logoutPending}
                   onClick={() => void logout()}
                 >

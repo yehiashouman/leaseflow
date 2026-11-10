@@ -113,7 +113,13 @@ test('real annual review preserves a deferral, a visible next-month proposal, or
         2,
       ),
     ).toBe('3000.00');
-    await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+    const navigation = page.getByRole('button', { name: 'Open navigation', exact: true });
+    if (await navigation.isVisible()) {
+      await navigation.click();
+      await page.getByRole('dialog').getByRole('button', { name: 'Sign out', exact: true }).click();
+    } else {
+      await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+    }
     await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
     await login(tenant.email);
     await expect(
