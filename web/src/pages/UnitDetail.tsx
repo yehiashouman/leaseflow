@@ -1,3 +1,4 @@
+import { recoverableQueryError } from '../api-errors';
 import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -14,7 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RecordEditor } from '@/components/record-editor';
-import { QueryFeedback } from '@/components/query-feedback';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 import type { Unit } from './Units';
 import { unitAmenities } from '../unit-amenities';
 import { UnitLifecycle } from '@/components/unit-lifecycle';
@@ -27,10 +28,11 @@ export function UnitDetail() {
     queryKey: ['unit', id],
     queryFn: () => api.get<Unit>('/inventory/units/' + id).then((response) => response.data),
   });
-  if (isPending || error || !data)
-    return <QueryFeedback pending={isPending} onRetry={() => void refetch()} />;
+  if (isPending || (error && !recoverableQueryError(error)) || !data)
+    return <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />;
   return (
     <div className="space-y-6">
+      <CachedQueryNotice error={error} onRetry={() => void refetch()} />
       <Link to="/units" className="text-sm text-primary underline">
         Back to units
       </Link>
@@ -223,7 +225,12 @@ export function UnitDetail() {
               required: true,
             },
             { name: 'askingRent', label: 'Asking rent', type: 'number', min: 0, step: '0.01' },
-            { name: 'privateBathroom', label: 'Private bathroom', type: 'checkbox' },
+            {
+              name: 'privateBathroom',
+              errorPath: 'amenities.privateBathroom',
+              label: 'Private bathroom',
+              type: 'checkbox',
+            },
             ...(editor === 'new'
               ? []
               : [

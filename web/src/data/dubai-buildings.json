@@ -1,0 +1,38 @@
+{
+  "note": "Starter choices, supplemented by the manager's saved buildings; not a complete Dubai register.",
+  "sources": [
+    "https://www.ecm.ae/en/communities/dubai-marina/residences/marina-promenade/",
+    "https://www.ecm.ae/en/communities/dubai-marina/residences/marina-quays/",
+    "https://www.emaarmalls.ae/malls/marina/",
+    "https://www.select-group.ae/developments",
+    "https://www.ecm.ae/en/communities/downtown-dubai/discover/communities-downtown-dubai/"
+  ],
+  "buildings": [
+    { "name": "Aurora", "area": "Dubai Marina" },
+    { "name": "Shemara", "area": "Dubai Marina" },
+    { "name": "Delphine", "area": "Dubai Marina" },
+    { "name": "Beauport", "area": "Dubai Marina" },
+    { "name": "Attessa", "area": "Dubai Marina" },
+    { "name": "Paloma", "area": "Dubai Marina" },
+    { "name": "Marina Quays East", "area": "Dubai Marina" },
+    { "name": "Marina Quays West", "area": "Dubai Marina" },
+    { "name": "Marina Quays North", "area": "Dubai Marina" },
+    { "name": "Blakely", "area": "Dubai Marina" },
+    { "name": "Bonaire", "area": "Dubai Marina" },
+    { "name": "Fairfield", "area": "Dubai Marina" },
+    { "name": "Sanibel", "area": "Dubai Marina" },
+    { "name": "Botanica", "area": "Dubai Marina" },
+    { "name": "No.9", "area": "Dubai Marina" },
+    { "name": "Jumeirah Living Marina Gate", "area": "Dubai Marina" },
+    { "name": "Burj Khalifa", "area": "Downtown Dubai" },
+    { "name": "Burj Views", "area": "Downtown Dubai" },
+    { "name": "South Ridge", "area": "Downtown Dubai" },
+    { "name": "The Residences", "area": "Downtown Dubai" },
+    { "name": "Boulevard Point", "area": "Downtown Dubai" },
+    { "name": "Downtown Views II", "area": "Downtown Dubai" },
+    { "name": "Grande", "area": "Downtown Dubai" },
+    { "name": "Address Residences Sky View", "area": "Downtown Dubai" },
+    { "name": "Vida Residence Downtown", "area": "Downtown Dubai" },
+    { "name": "Address Residences Fountain Views", "area": "Downtown Dubai" }
+  ]
+}

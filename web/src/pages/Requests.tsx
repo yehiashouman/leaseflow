@@ -86,7 +86,7 @@ export function Requests() {
         </select>
       </div>
       {isPending || error ? (
-        <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
+        <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
       ) : (
         <div className="grid gap-3">
           {data.map((request) => (

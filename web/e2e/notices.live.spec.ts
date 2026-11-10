@@ -1,3 +1,4 @@
+import { choose } from './choice';
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { prisma } from '../../api/src/db.js';
@@ -70,7 +71,7 @@ test('real case notices retain private delivery history and require acknowledgem
     await page.goto('/preferences');
     await page.getByRole('button', { name: 'Edit preferences', exact: true }).click();
     const preferences = page.getByRole('dialog');
-    await preferences.getByLabel('Notice language tag *', { exact: true }).fill('ar');
+    await choose(page, 'Notice language tag *', 'Arabic');
     await preferences.getByLabel('Non-security notices *', { exact: true }).selectOption('BOTH');
     await preferences.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(preferences).not.toBeVisible();

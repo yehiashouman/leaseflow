@@ -1,9 +1,10 @@
+import { recoverableQueryError } from '../api-errors';
 import { useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { caseTypes, type CaseContract, type CaseRecord } from '../cases';
 import { RecordEditor } from './record-editor';
-import { QueryFeedback } from './query-feedback';
+import { QueryFeedback, CachedQueryNotice } from './query-feedback';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from './ui/sheet';
 
@@ -25,7 +26,11 @@ export function CaseEditor({
         .get<{ types: string[]; contracts: CaseContract[] }>('/requests/options', { signal })
         .then((response) => response.data),
   });
-  if (options.isPending || options.error || !options.data?.contracts.length)
+  if (
+    options.isPending ||
+    (options.error && !recoverableQueryError(options.error)) ||
+    !options.data?.contracts.length
+  )
     return (
       <Sheet
         open
@@ -40,7 +45,11 @@ export function CaseEditor({
           </SheetHeader>
           <div className="space-y-4 px-4">
             {options.isPending || options.error ? (
-              <QueryFeedback pending={options.isPending} onRetry={() => void options.refetch()} />
+              <QueryFeedback
+                pending={options.isPending}
+                error={options.error}
+                onRetry={() => void options.refetch()}
+              />
             ) : (
               <p className="text-sm text-muted-foreground">No open contracts</p>
             )}
@@ -53,6 +62,7 @@ export function CaseEditor({
     );
   return (
     <RecordEditor
+      notice={<CachedQueryNotice error={options.error} onRetry={() => void options.refetch()} />}
       open
       onOpenChange={(open) => {
         if (!open) onClose();
@@ -90,10 +100,11 @@ export function CaseEditor({
           required: true,
           maxLength: 5000,
         },
-        { name: 'category', label: 'Category', maxLength: 100 },
+        { name: 'category', errorPath: 'metadata.category', label: 'Category', maxLength: 100 },
         { name: 'draft', label: 'Save as private draft', type: 'checkbox' },
         {
           name: 'urgency',
+          errorPath: 'metadata.urgency',
           label: 'Urgency',
           value: 'NORMAL',
           options: [

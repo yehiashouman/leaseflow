@@ -38,7 +38,7 @@ describe('recoverable record validation', () => {
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(input.getAttribute('aria-describedby')).toBe('editor-error-secondaryName');
     expect((input as HTMLInputElement).value).toBe('Unchanged draft');
-    expect(screen.getByText(/Request: safe-request-id/)).toBeTruthy();
+    expect(screen.getByText(/Reference: safe-request-id/)).toBeTruthy();
   });
   it('retains the form after an offline save and clears field errors before the next attempt', async () => {
     let calls = 0;

@@ -1,8 +1,27 @@
 import { Reviews, ReviewDetail } from './pages/Reviews';
 import { BusinessJobs } from './pages/BusinessJobs';
 import { Preferences } from './pages/Preferences';
-import { Building2, FileText, Inbox, LayoutDashboard, LogOut, Menu, Shield } from 'lucide-react';
-import { Navigate, NavLink, Outlet, Route, Routes } from 'react-router-dom';
+import {
+  Building2,
+  FileText,
+  Inbox,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Shield,
+  Bell,
+  MapPin,
+  Users,
+  Wallet,
+  Settings2,
+  CalendarDays,
+  ChevronRight,
+  Send,
+  FolderOpen,
+  UserRound,
+  Activity,
+} from 'lucide-react';
+import { Navigate, NavLink, Outlet, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { useAuth } from './auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,22 +63,22 @@ import { Notifications } from './pages/Notifications';
 const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/units', label: 'Units', icon: Building2 },
-  { to: '/landlords', label: 'Landlords', icon: Building2 },
-  { to: '/reviews', label: 'Annual reviews', icon: FileText },
+  { to: '/landlords', label: 'Landlords', icon: Users },
+  { to: '/reviews', label: 'Annual reviews', icon: CalendarDays },
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
-  { to: '/expenses', label: 'Expenses', icon: FileText },
-  { to: '/invitations', label: 'Invitations', icon: Inbox },
-  { to: '/documents', label: 'My documents', icon: FileText },
+  { to: '/expenses', label: 'Expenses', icon: Wallet },
+  { to: '/invitations', label: 'Invitations', icon: Send },
+  { to: '/documents', label: 'My documents', icon: FolderOpen },
   { to: '/security', label: 'Security', icon: Shield },
-  { to: '/preferences', label: 'Preferences', icon: Shield },
-  { to: '/profile', label: 'My profile', icon: Shield },
-  { to: '/tenants', label: 'Tenants', icon: Building2 },
-  { to: '/delivery', label: 'Delivery status', icon: Inbox },
-  { to: '/notifications', label: 'Notifications', icon: Inbox },
+  { to: '/preferences', label: 'Preferences', icon: Settings2 },
+  { to: '/profile', label: 'My profile', icon: UserRound },
+  { to: '/tenants', label: 'Tenants', icon: Users },
+  { to: '/delivery', label: 'Delivery status', icon: Send },
+  { to: '/notifications', label: 'Notifications', icon: Bell },
   { to: '/admin/managers', label: 'Account review', icon: Shield },
   { to: '/admin/business-jobs', label: 'Scheduled jobs', icon: Shield },
-  { to: '/admin/operations', label: 'Job status', icon: Shield },
+  { to: '/admin/operations', label: 'Job status', icon: Activity },
   { to: '/admin/audit', label: 'Audit history', icon: FileText },
 ];
 
@@ -97,31 +116,60 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
           '/delivery',
         ].includes(item.to)),
   );
+  const groups = [
+    {
+      title: 'Workspace',
+      paths: ['/', '/units', '/landlords', '/tenants', '/contracts', '/expenses'],
+    },
+    {
+      title: 'Operations',
+      paths: ['/requests', '/reviews', '/invitations', '/documents', '/notifications', '/delivery'],
+    },
+    {
+      title: 'Administration',
+      paths: ['/admin/managers', '/admin/business-jobs', '/admin/operations', '/admin/audit'],
+    },
+    { title: 'Account', paths: ['/profile', '/preferences', '/security'] },
+  ];
   return (
-    <nav aria-label="Main navigation" className="grid gap-1">
-      {links.map(({ to, label, icon: Icon }) => {
-        const link = (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring',
-                isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground',
-              )
-            }
-          >
-            <Icon aria-hidden="true" className="size-4 shrink-0" />
-            {label}
-          </NavLink>
-        );
-        return mobile ? (
-          <SheetClose asChild key={to}>
-            {link}
-          </SheetClose>
-        ) : (
-          link
+    <nav aria-label="Main navigation" className="space-y-6 pb-3">
+      {groups.map((group) => {
+        const items = links.filter((item) => group.paths.includes(item.to));
+        if (!items.length) return null;
+        return (
+          <div key={group.title}>
+            <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+              {group.title}
+            </p>
+            <div className="grid gap-1">
+              {items.map(({ to, label, icon: Icon }) => {
+                const link = (
+                  <NavLink
+                    to={to}
+                    end={to === '/'}
+                    className={({ isActive }) =>
+                      cn(
+                        'group flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-teal-300',
+                        isActive
+                          ? 'bg-teal-400/15 text-teal-200 shadow-[inset_3px_0_0_#2dd4bf]'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white',
+                      )
+                    }
+                  >
+                    <Icon className="size-[17px] shrink-0" aria-hidden="true" />
+                    {label}
+                  </NavLink>
+                );
+                return mobile ? (
+                  <SheetClose asChild key={to}>
+                    {link}
+                  </SheetClose>
+                ) : (
+                  <div key={to}>{link}</div>
+                );
+              })}
+            </div>
+          </div>
         );
       })}
     </nav>
@@ -130,70 +178,142 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
 
 function Layout() {
   const { logout, user, logoutPending, logoutError } = useAuth();
+  const location = useLocation();
+  const title = navigation.find((item) => item.to === location.pathname)?.label ?? 'Record details';
+  const name = user?.leasingManager?.fullName ?? user?.tenant?.fullName ?? 'Administrator';
+  const role =
+    user?.role === 'ADMIN'
+      ? 'Administrator'
+      : user?.role === 'TENANT'
+        ? 'Tenant'
+        : 'Leasing Manager';
+  const initials = name
+    .split(' ')
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('');
+  const brand = (
+    <Link
+      to="/"
+      className="flex items-center gap-3 px-2 text-xl font-semibold tracking-tight text-white"
+    >
+      <span className="grid size-10 place-items-center rounded-xl bg-teal-400 text-slate-950">
+        <Building2 className="size-6" aria-hidden="true" />
+      </span>
+      LeaseFlow
+      <span className="self-start rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-medium tracking-wider text-slate-300">
+        DUBAI
+      </span>
+    </Link>
+  );
+  const account = (
+    <div className="shrink-0 border-t border-white/10 px-3 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="mb-3 flex min-w-0 items-center gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-semibold text-teal-200">
+          {initials}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-white">{name}</p>
+          <p className="text-[11px] text-slate-400">{role}</p>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        className="w-full justify-start text-slate-300 hover:bg-white/10 hover:text-white"
+        disabled={logoutPending}
+        onClick={() => void logout()}
+      >
+        <LogOut aria-hidden="true" />
+        Sign out
+      </Button>
+      {logoutError && (
+        <p role="alert" className="mt-2 text-xs text-rose-200">
+          {logoutError}
+        </p>
+      )}
+    </div>
+  );
   return (
-    <div className="min-h-svh lg:grid lg:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="hidden flex-col gap-8 border-r bg-card px-4 py-6 lg:sticky lg:top-0 lg:flex lg:h-svh">
-        <NavLink to="/" className="flex items-center gap-2 px-3 text-lg font-semibold">
-          <Building2 className="size-5 text-primary" aria-hidden="true" />
-          LeaseFlow
-        </NavLink>
-        <div className="min-h-0 flex-1 overflow-y-auto">
+    <div className="min-h-svh lg:grid lg:grid-cols-[244px_minmax(0,1fr)]">
+      <a
+        className="sr-only z-[100] rounded bg-white p-3 text-primary focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
+        href="#main-content"
+      >
+        Skip to content
+      </a>
+      <aside
+        style={{
+          height: previewMode ? 'calc(100dvh - 48px)' : '100dvh',
+          top: previewMode ? 48 : 0,
+        }}
+        className="hidden h-dvh flex-col bg-[#102727] px-4 pt-7 lg:sticky lg:top-0 lg:flex"
+      >
+        <div className="shrink-0 pb-7">{brand}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin] [scrollbar-color:#365252_transparent]">
           <Navigation />
         </div>
-        <Button
-          variant="ghost"
-          className="mt-auto shrink-0 justify-start"
-          disabled={logoutPending}
-          onClick={() => void logout()}
-        >
-          <LogOut aria-hidden="true" />
-          Sign out
-        </Button>
+        {account}
       </aside>
       <div className="min-w-0">
-        <header className="flex min-h-16 items-center justify-between gap-3 border-b bg-card px-4 sm:px-6 lg:px-8">
+        <header className="flex min-h-[76px] items-center justify-between gap-3 border-b border-border/70 bg-white/90 px-4 backdrop-blur sm:px-7 lg:px-9">
           <div className="flex min-w-0 items-center gap-3">
             <Sheet>
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="lg:hidden"
+                  className="shrink-0 lg:hidden"
                   aria-label="Open navigation"
                   title="Open navigation"
                 >
                   <Menu />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 overflow-hidden">
-                <SheetHeader className="shrink-0">
-                  <SheetTitle>LeaseFlow</SheetTitle>
+              <SheetContent
+                side="left"
+                className="top-0 bottom-auto h-dvh max-h-dvh w-[min(20rem,90vw)] gap-0 overflow-hidden border-0 bg-[#102727] text-white [&>button]:text-slate-300"
+              >
+                <SheetHeader className="shrink-0 px-6 pt-7 pb-6">
+                  <SheetTitle className="sr-only">LeaseFlow</SheetTitle>
+                  {brand}
                   <SheetDescription className="sr-only">Main navigation</SheetDescription>
                 </SheetHeader>
-                <div className="min-h-0 flex-1 overflow-y-auto px-4">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4">
                   <Navigation mobile />
                 </div>
-                <Button
-                  variant="ghost"
-                  className="mx-4 mt-auto mb-4 shrink-0 justify-start"
-                  disabled={logoutPending}
-                  onClick={() => void logout()}
-                >
-                  <LogOut aria-hidden="true" />
-                  Sign out
-                </Button>
+                <div className="shrink-0 px-4">{account}</div>
               </SheetContent>
             </Sheet>
-            <span className="truncate text-sm font-medium">
-              {user?.role === 'ADMIN'
-                ? 'Platform administration'
-                : user?.role === 'TENANT'
-                  ? 'Tenant portal'
-                  : 'Accommodation operations'}
+            <span className="hidden text-sm text-muted-foreground sm:inline">
+              {user?.role === 'TENANT' ? 'My home' : 'Workspace'}
             </span>
+            <ChevronRight className="hidden size-3.5 text-slate-300 sm:block" aria-hidden="true" />
+            <span className="truncate text-sm font-semibold">{title}</span>
+          </div>
+          <div className="flex shrink-0 items-center gap-3 sm:gap-5">
+            <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
+              <MapPin className="size-3.5" aria-hidden="true" />
+              Dubai, UAE
+            </span>
+            {user?.role !== 'ADMIN' && (
+              <Link
+                to="/notifications"
+                aria-label="Open notifications"
+                className="grid size-10 place-items-center rounded-full border bg-white text-muted-foreground hover:bg-accent"
+              >
+                <Bell className="size-[18px]" aria-hidden="true" />
+              </Link>
+            )}
+            <Link
+              to={user?.role === 'TENANT' ? '/profile' : '/preferences'}
+              aria-label="Open account preferences"
+              className="grid size-9 place-items-center rounded-full bg-teal-50 text-xs font-semibold text-teal-800 ring-4 ring-teal-50/50"
+            >
+              {initials}
+            </Link>
           </div>
         </header>
-        <main id="main-content" className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+        <main id="main-content" tabIndex={-1} className="mx-auto max-w-[1440px] p-4 sm:p-7 lg:p-9">
           {logoutError && (
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>{logoutError}</AlertDescription>

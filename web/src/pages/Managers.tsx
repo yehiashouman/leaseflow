@@ -131,7 +131,11 @@ export function Managers() {
         </select>
       </div>
       {query.isPending || query.error || !query.data ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <Table>
@@ -185,7 +189,13 @@ export function ManagerDetail() {
       api.get<Manager>('/admin/managers/' + id, { signal }).then((response) => response.data),
   });
   if (query.isPending || query.error || !query.data)
-    return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
+    return (
+      <QueryFeedback
+        pending={query.isPending}
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   const data = query.data;
   const profile = data.leasingManager;
   return (
@@ -296,7 +306,11 @@ export function AdminAudit() {
         />
       </div>
       {query.isPending || query.error || !query.data ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <Table>

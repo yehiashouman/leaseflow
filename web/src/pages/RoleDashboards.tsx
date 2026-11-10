@@ -13,7 +13,7 @@ export function AdminDashboard() {
       api.get<Record<string, number>>('/dashboard/admin').then((response) => response.data),
   });
   if (isPending || error)
-    return <QueryFeedback pending={isPending} onRetry={() => void refetch()} />;
+    return <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />;
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Platform overview</h1>
@@ -94,7 +94,7 @@ export function TenantDashboard() {
         .then((response) => response.data),
   });
   if (isPending || error)
-    return <QueryFeedback pending={isPending} onRetry={() => void refetch()} />;
+    return <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />;
   const contract = data?.contracts.find((item) =>
     ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(item.status),
   );

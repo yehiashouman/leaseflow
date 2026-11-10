@@ -1,3 +1,4 @@
+import { requestError } from './api-errors';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from './api';
@@ -93,8 +94,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           await api.post('/auth/logout');
           window.dispatchEvent(new Event('leaseflow:unauthorized'));
-        } catch {
-          setLogoutError('Sign out failed. Retry when the server is available.');
+        } catch (cause) {
+          setLogoutError(
+            requestError(cause, 'Sign out failed. Retry when the server is available.'),
+          );
         } finally {
           setLogoutPending(false);
         }

@@ -1,6 +1,8 @@
+import { FormFieldErrors } from '../components/field-errors';
+import { validationFields } from '../form-errors';
+import { requestError } from '../api-errors';
 import { useRef, useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { api } from '../api';
 import { previewMode } from '../session';
 import { Button } from '@/components/ui/button';
@@ -25,6 +27,8 @@ type Invitation = {
   resendCount: number;
 };
 export function AccountInvitations() {
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
   const client = useQueryClient(),
     key = useRef({ signature: '', id: crypto.randomUUID() });
   const revokeTrigger = useRef<HTMLButtonElement | null>(null);
@@ -48,16 +52,15 @@ export function AccountInvitations() {
   async function run(action: () => Promise<void>) {
     setBusy(true);
     setError('');
+    setFieldErrors({});
     setSuccess('');
     try {
       await action();
       await client.invalidateQueries({ queryKey: ['invitations'] });
     } catch (cause) {
-      setError(
-        isAxiosError(cause)
-          ? (cause.response?.data?.message ?? 'The request failed. Retry.')
-          : 'The request failed. Retry.',
-      );
+      setFieldErrors(validationFields(cause));
+
+      setError(requestError(cause, 'The request failed. Retry.'));
     } finally {
       setBusy(false);
     }
@@ -79,185 +82,196 @@ export function AccountInvitations() {
     });
   }
   return (
-    <div className="space-y-6">
-      <h1 id="invitation-heading" tabIndex={-1} className="text-2xl font-semibold">
-        Tenant invitations
-      </h1>
-      {previewMode ? (
-        <p>Invitations require the live API and configured email provider.</p>
-      ) : (
-        <>
-          <form
-            onSubmit={create}
-            className="grid gap-4 rounded-md border p-4 sm:grid-cols-2"
-            aria-label="Invite tenant"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="invite-name">Tenant name</Label>
-              <Input
-                id="invite-name"
-                name="fullName"
-                required
-                minLength={2}
-                maxLength={150}
-                disabled={busy}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="invite-email">Tenant email</Label>
-              <Input
-                id="invite-email"
-                name="email"
-                type="email"
-                required
-                maxLength={191}
-                disabled={busy}
-              />
-            </div>
-            <Button disabled={busy}>Invite tenant</Button>
-          </form>
-          {error && !revoke && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          {success && <p role="status">{success}</p>}
-          <div className="max-w-sm space-y-2">
-            <Label htmlFor="invitation-status">Invitation status</Label>
-            <select
-              id="invitation-status"
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value);
-                setPage(1);
-              }}
+    <FormFieldErrors value={fieldErrors}>
+      <div className="space-y-6">
+        <h1 id="invitation-heading" tabIndex={-1} className="text-2xl font-semibold">
+          Tenant invitations
+        </h1>
+        {previewMode ? (
+          <p>Invitations require the live API and configured email provider.</p>
+        ) : (
+          <>
+            <form
+              onSubmit={create}
+              className="grid gap-4 rounded-md border p-4 sm:grid-cols-2"
+              aria-label="Invite tenant"
             >
-              <option value="">All</option>
-              {['PENDING', 'ACCEPTED', 'EXPIRED', 'REVOKED'].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-          </div>
-          {query.isPending || query.error ? (
-            <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
-          ) : !query.data?.items.length ? (
-            <p>No invitations.</p>
-          ) : (
-            <>
-              <ul className="space-y-3">
-                {query.data.items.map((row) => (
-                  <li key={row.id} className="min-w-0 space-y-3 rounded-md border p-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <strong className="break-words">{row.fullName}</strong>
-                      <Badge variant="outline">{row.status}</Badge>
-                    </div>
-                    <p className="break-words">{row.email}</p>
-                    <p className="text-sm">
-                      Expiry:{' '}
-                      {new Date(row.expiresAt).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' })}{' '}
-                      Asia/Dubai
-                    </p>
-                    {['PENDING', 'EXPIRED'].includes(row.status) && (
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          variant="outline"
-                          disabled={busy || row.resendCount >= 5}
-                          onClick={() =>
-                            void run(async () => {
-                              await api.post('/invitations/' + row.id + '/resend', {});
-                              setSuccess('Invitation email queued. Previous links no longer work.');
-                            })
-                          }
-                        >
-                          Resend invitation
-                        </Button>
-                        <Button
-                          variant="outline"
-                          disabled={busy}
-                          onClick={(event) => {
-                            revokeTrigger.current = event.currentTarget;
-                            setError('');
-                            setRevoke(row);
-                          }}
-                        >
-                          Revoke invitation
-                        </Button>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="outline"
-                  disabled={page === 1 || busy}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Previous invitations
-                </Button>
-                <span className="text-sm">Page {page}</span>
-                <Button
-                  variant="outline"
-                  disabled={page * query.data.pageSize >= query.data.total || busy}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Next invitations
-                </Button>
+              <div className="space-y-2">
+                <Label htmlFor="invite-name">Tenant name</Label>
+                <Input
+                  id="invite-name"
+                  name="fullName"
+                  required
+                  minLength={2}
+                  maxLength={150}
+                  disabled={busy}
+                />
               </div>
-            </>
-          )}
-          <Sheet
-            open={Boolean(revoke)}
-            onOpenChange={(open) => {
-              if (!open && !busy) setRevoke(null);
-            }}
-          >
-            {revoke && (
-              <SheetContent
-                role="alertdialog"
-                onCloseAutoFocus={(event) => {
-                  event.preventDefault();
-                  if (revokeTrigger.current?.isConnected && !revokeTrigger.current.disabled)
-                    revokeTrigger.current.focus();
-                  else document.getElementById('invitation-heading')?.focus();
+              <div className="space-y-2">
+                <Label htmlFor="invite-email">Tenant email</Label>
+                <Input
+                  id="invite-email"
+                  name="email"
+                  type="email"
+                  required
+                  maxLength={191}
+                  disabled={busy}
+                />
+              </div>
+              <Button disabled={busy}>Invite tenant</Button>
+            </form>
+            {error && !revoke && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {success && <p role="status">{success}</p>}
+            <div className="max-w-sm space-y-2">
+              <Label htmlFor="invitation-status">Invitation status</Label>
+              <select
+                id="invitation-status"
+                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                value={status}
+                onChange={(event) => {
+                  setStatus(event.target.value);
+                  setPage(1);
                 }}
               >
-                <SheetHeader>
-                  <SheetTitle>Revoke invitation?</SheetTitle>
-                  <SheetDescription>Revoke the invitation for {revoke.email}?</SheetDescription>
-                </SheetHeader>
-                <div className="space-y-4 px-4">
-                  {error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )}
-                  <div className="flex gap-2">
-                    <Button
-                      disabled={busy}
-                      onClick={() =>
-                        void run(async () => {
-                          await api.post('/invitations/' + revoke.id + '/revoke', {});
-                          setRevoke(null);
-                          setSuccess('Invitation revoked.');
-                        })
-                      }
-                    >
-                      Confirm revocation
-                    </Button>
-                    <Button variant="outline" disabled={busy} onClick={() => setRevoke(null)}>
-                      Cancel
-                    </Button>
-                  </div>
+                <option value="">All</option>
+                {['PENDING', 'ACCEPTED', 'EXPIRED', 'REVOKED'].map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {query.isPending || query.error ? (
+              <QueryFeedback
+                pending={query.isPending}
+                error={query.error}
+                onRetry={() => void query.refetch()}
+              />
+            ) : !query.data?.items.length ? (
+              <p>No invitations.</p>
+            ) : (
+              <>
+                <ul className="space-y-3">
+                  {query.data.items.map((row) => (
+                    <li key={row.id} className="min-w-0 space-y-3 rounded-md border p-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <strong className="break-words">{row.fullName}</strong>
+                        <Badge variant="outline">{row.status}</Badge>
+                      </div>
+                      <p className="break-words">{row.email}</p>
+                      <p className="text-sm">
+                        Expiry:{' '}
+                        {new Date(row.expiresAt).toLocaleString('en-GB', {
+                          timeZone: 'Asia/Dubai',
+                        })}{' '}
+                        Asia/Dubai
+                      </p>
+                      {['PENDING', 'EXPIRED'].includes(row.status) && (
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            disabled={busy || row.resendCount >= 5}
+                            onClick={() =>
+                              void run(async () => {
+                                await api.post('/invitations/' + row.id + '/resend', {});
+                                setSuccess(
+                                  'Invitation email queued. Previous links no longer work.',
+                                );
+                              })
+                            }
+                          >
+                            Resend invitation
+                          </Button>
+                          <Button
+                            variant="outline"
+                            disabled={busy}
+                            onClick={(event) => {
+                              revokeTrigger.current = event.currentTarget;
+                              setError('');
+                              setFieldErrors({});
+                              setRevoke(row);
+                            }}
+                          >
+                            Revoke invitation
+                          </Button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    variant="outline"
+                    disabled={page === 1 || busy}
+                    onClick={() => setPage(page - 1)}
+                  >
+                    Previous invitations
+                  </Button>
+                  <span className="text-sm">Page {page}</span>
+                  <Button
+                    variant="outline"
+                    disabled={page * query.data.pageSize >= query.data.total || busy}
+                    onClick={() => setPage(page + 1)}
+                  >
+                    Next invitations
+                  </Button>
                 </div>
-              </SheetContent>
+              </>
             )}
-          </Sheet>
-        </>
-      )}
-    </div>
+            <Sheet
+              open={Boolean(revoke)}
+              onOpenChange={(open) => {
+                if (!open && !busy) setRevoke(null);
+              }}
+            >
+              {revoke && (
+                <SheetContent
+                  role="alertdialog"
+                  onCloseAutoFocus={(event) => {
+                    event.preventDefault();
+                    if (revokeTrigger.current?.isConnected && !revokeTrigger.current.disabled)
+                      revokeTrigger.current.focus();
+                    else document.getElementById('invitation-heading')?.focus();
+                  }}
+                >
+                  <SheetHeader>
+                    <SheetTitle>Revoke invitation?</SheetTitle>
+                    <SheetDescription>Revoke the invitation for {revoke.email}?</SheetDescription>
+                  </SheetHeader>
+                  <div className="space-y-4 px-4">
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        disabled={busy}
+                        onClick={() =>
+                          void run(async () => {
+                            await api.post('/invitations/' + revoke.id + '/revoke', {});
+                            setRevoke(null);
+                            setSuccess('Invitation revoked.');
+                          })
+                        }
+                      >
+                        Confirm revocation
+                      </Button>
+                      <Button variant="outline" disabled={busy} onClick={() => setRevoke(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              )}
+            </Sheet>
+          </>
+        )}
+      </div>
+    </FormFieldErrors>
   );
 }

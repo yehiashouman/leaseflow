@@ -1,6 +1,8 @@
+import { FormFieldErrors } from '../components/field-errors';
+import { validationFields } from '../form-errors';
+import { requestError } from '../api-errors';
 import { useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { api } from '../api';
 import { previewMode } from '../session';
 import { Button } from '@/components/ui/button';
@@ -36,6 +38,8 @@ type Session = {
 };
 type Command = { title: string; run: () => Promise<void> };
 export function Security() {
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
   const client = useQueryClient();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -54,15 +58,14 @@ export function Security() {
   async function execute(run: () => Promise<void>) {
     setBusy(true);
     setError('');
+    setFieldErrors({});
     try {
       await run();
       setCommand(null);
     } catch (cause) {
-      setError(
-        isAxiosError(cause)
-          ? (cause.response?.data?.message ?? 'Request failed. Retry.')
-          : 'Request failed. Retry.',
-      );
+      setFieldErrors(validationFields(cause));
+
+      setError(requestError(cause, 'Request failed. Retry.'));
     } finally {
       setBusy(false);
     }
@@ -73,6 +76,7 @@ export function Security() {
     const fields = new FormData(form);
     if (fields.get('newPassword') !== fields.get('confirmPassword')) {
       setError('New passwords do not match.');
+      setFieldErrors({ confirmPassword: 'New passwords do not match.' });
       return;
     }
     setCommand({
@@ -88,179 +92,187 @@ export function Security() {
     });
   }
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Security</h1>
-        <Button
-          variant="outline"
-          disabled={busy || !data.length}
-          onClick={() =>
-            setCommand({
-              title: 'Sign out all sessions?',
-              run: async () => {
-                await api.post('/auth/logout-all');
-                window.dispatchEvent(new Event('leaseflow:unauthorized'));
-              },
-            })
-          }
-        >
-          Sign out all sessions
-        </Button>
-      </div>
-      {error && !command && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      <Sheet
-        open={Boolean(command)}
-        onOpenChange={(open) => {
-          if (!open && !busy) {
-            setCommand(null);
-            setError('');
-          }
-        }}
-      >
-        <SheetContent role="alertdialog">
-          <SheetHeader>
-            <SheetTitle>{command?.title}</SheetTitle>
-            <SheetDescription className="sr-only">Confirm account security action</SheetDescription>
-          </SheetHeader>
-          <div className="space-y-4 px-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <div className="flex gap-2">
-              <Button
-                disabled={busy}
-                onClick={() => {
-                  if (command) void execute(command.run);
-                }}
-              >
-                Confirm
-              </Button>
-              <Button
-                variant="outline"
-                disabled={busy}
-                onClick={() => {
-                  setCommand(null);
-                  setError('');
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-      <section className="space-y-3" aria-labelledby="sessions-title">
-        <h2 id="sessions-title" className="text-lg font-semibold">
-          Active sessions
-        </h2>
-        <p className="text-sm text-muted-foreground">Times: Asia/Dubai</p>
-        {isPending || queryError ? (
-          <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Device</TableHead>
-                <TableHead>IP address</TableHead>
-                <TableHead>Last renewal</TableHead>
-                <TableHead>Expires</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((session) => (
-                <TableRow key={session.id}>
-                  <TableCell className="max-w-56 whitespace-normal break-words">
-                    {session.userAgent || 'Unknown device'}{' '}
-                    {session.current && <Badge variant="secondary">Current</Badge>}
-                  </TableCell>
-                  <TableCell>{session.ip || '-'}</TableCell>
-                  <TableCell>{date(session.lastUsedAt)}</TableCell>
-                  <TableCell>{date(session.expiresAt)}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={busy}
-                      aria-label={
-                        session.current ? 'Revoke current session' : 'Revoke session ' + session.id
-                      }
-                      onClick={() =>
-                        setCommand({
-                          title: session.current
-                            ? 'Revoke this session and sign out?'
-                            : 'Revoke the selected session?',
-                          run: async () => {
-                            await api.delete('/auth/sessions/' + session.id);
-                            if (session.current)
-                              window.dispatchEvent(new Event('leaseflow:unauthorized'));
-                            else await client.invalidateQueries({ queryKey: ['sessions'] });
-                          },
-                        })
-                      }
-                    >
-                      Revoke
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+    <FormFieldErrors value={fieldErrors}>
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold">Security</h1>
+          <Button
+            variant="outline"
+            disabled={busy || !data.length}
+            onClick={() =>
+              setCommand({
+                title: 'Sign out all sessions?',
+                run: async () => {
+                  await api.post('/auth/logout-all');
+                  window.dispatchEvent(new Event('leaseflow:unauthorized'));
+                },
+              })
+            }
+          >
+            Sign out all sessions
+          </Button>
+        </div>
+        {error && !command && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-      </section>
-      {!previewMode && (
-        <section className="max-w-lg space-y-4 border-t pt-6" aria-labelledby="password-title">
-          <h2 id="password-title" className="text-lg font-semibold">
-            Change password
+        <Sheet
+          open={Boolean(command)}
+          onOpenChange={(open) => {
+            if (!open && !busy) {
+              setCommand(null);
+              setError('');
+              setFieldErrors({});
+            }
+          }}
+        >
+          <SheetContent role="alertdialog">
+            <SheetHeader>
+              <SheetTitle>{command?.title}</SheetTitle>
+              <SheetDescription className="sr-only">
+                Confirm account security action
+              </SheetDescription>
+            </SheetHeader>
+            <div className="space-y-4 px-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  disabled={busy}
+                  onClick={() => {
+                    if (command) void execute(command.run);
+                  }}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => {
+                    setCommand(null);
+                    setError('');
+                    setFieldErrors({});
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+        <section className="space-y-3" aria-labelledby="sessions-title">
+          <h2 id="sessions-title" className="text-lg font-semibold">
+            Active sessions
           </h2>
-          <form onSubmit={password} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="current-password">Current password</Label>
-              <Input
-                id="current-password"
-                name="currentPassword"
-                type="password"
-                autoComplete="current-password"
-                required
-                maxLength={128}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-password">New password</Label>
-              <Input
-                id="new-password"
-                name="newPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={12}
-                maxLength={128}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm new password</Label>
-              <Input
-                id="confirm-password"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={12}
-                maxLength={128}
-              />
-            </div>
-            <Button type="submit" disabled={busy}>
-              Change password
-            </Button>
-          </form>
+          <p className="text-sm text-muted-foreground">Times: Asia/Dubai</p>
+          {isPending || queryError ? (
+            <QueryFeedback pending={isPending} error={queryError} onRetry={() => void refetch()} />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Device</TableHead>
+                  <TableHead>IP address</TableHead>
+                  <TableHead>Last renewal</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead>Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((session) => (
+                  <TableRow key={session.id}>
+                    <TableCell className="max-w-56 whitespace-normal break-words">
+                      {session.userAgent || 'Unknown device'}{' '}
+                      {session.current && <Badge variant="secondary">Current</Badge>}
+                    </TableCell>
+                    <TableCell>{session.ip || '-'}</TableCell>
+                    <TableCell>{date(session.lastUsedAt)}</TableCell>
+                    <TableCell>{date(session.expiresAt)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={busy}
+                        aria-label={
+                          session.current
+                            ? 'Revoke current session'
+                            : 'Revoke session ' + session.id
+                        }
+                        onClick={() =>
+                          setCommand({
+                            title: session.current
+                              ? 'Revoke this session and sign out?'
+                              : 'Revoke the selected session?',
+                            run: async () => {
+                              await api.delete('/auth/sessions/' + session.id);
+                              if (session.current)
+                                window.dispatchEvent(new Event('leaseflow:unauthorized'));
+                              else await client.invalidateQueries({ queryKey: ['sessions'] });
+                            },
+                          })
+                        }
+                      >
+                        Revoke
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </section>
-      )}
-    </div>
+        {!previewMode && (
+          <section className="max-w-lg space-y-4 border-t pt-6" aria-labelledby="password-title">
+            <h2 id="password-title" className="text-lg font-semibold">
+              Change password
+            </h2>
+            <form onSubmit={password} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Current password</Label>
+                <Input
+                  id="current-password"
+                  name="currentPassword"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  maxLength={128}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New password</Label>
+                <Input
+                  id="new-password"
+                  name="newPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={12}
+                  maxLength={128}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm new password</Label>
+                <Input
+                  id="confirm-password"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={12}
+                  maxLength={128}
+                />
+              </div>
+              <Button type="submit" disabled={busy}>
+                Change password
+              </Button>
+            </form>
+          </section>
+        )}
+      </div>
+    </FormFieldErrors>
   );
 }

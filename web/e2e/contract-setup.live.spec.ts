@@ -1,3 +1,4 @@
+import { choose } from './choice';
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { prisma } from '../../api/src/db.js';
@@ -72,7 +73,7 @@ test('real monthly contract captures a couple, defaults, exact initial rent, and
     await dialog
       .getByLabel('Secondary occupant date of birth *', { exact: true })
       .fill('1990-01-01');
-    await dialog.getByLabel('Secondary occupant nationality *', { exact: true }).fill('Egyptian');
+    await choose(page, 'Secondary occupant nationality *', 'Egypt');
     await dialog
       .getByLabel('Secondary occupant Emirates ID *', { exact: true })
       .fill('784-1990-1234567-1');

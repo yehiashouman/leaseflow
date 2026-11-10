@@ -1,13 +1,14 @@
+import { createQueryClient } from './query-client';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { AuthProvider } from './auth';
 import './styles.css';
 import { api } from './api';
 import { previewMode } from './session';
-const client = new QueryClient({ defaultOptions: { queries: { staleTime: 30000, retry: 1 } } });
+const client = createQueryClient();
 async function start() {
   if (previewMode) {
     const { previewAdapter } = await import('./preview/adapter');

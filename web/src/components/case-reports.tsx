@@ -1,6 +1,6 @@
+import { requestError } from '../api-errors';
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { Download, FileJson, RotateCcw } from 'lucide-react';
 import { api } from '../api';
 import { caseDate } from '../cases';
@@ -26,10 +26,9 @@ const failures: Record<string, string> = {
   RENDER_FAILED: 'Report generation failed. Retry the job or download its JSON source.',
 };
 function message(cause: unknown) {
-  return isAxiosError(cause) && !(cause.response?.data instanceof Blob)
-    ? (cause.response?.data?.message ?? 'Report request failed. Retry.')
-    : 'Report request failed. Retry.';
+  return requestError(cause, 'Report request failed. Retry.');
 }
+
 export function CaseReports({ requestId, version }: { requestId: string; version: number }) {
   const client = useQueryClient();
   const [page, setPage] = useState(1);
@@ -105,7 +104,11 @@ export function CaseReports({ requestId, version }: { requestId: string; version
             </Alert>
           )}
           {query.isPending || query.error ? (
-            <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+            <QueryFeedback
+              pending={query.isPending}
+              error={query.error}
+              onRetry={() => void query.refetch()}
+            />
           ) : (
             <>
               {!query.data?.items?.length && (

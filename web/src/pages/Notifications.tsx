@@ -1,7 +1,7 @@
+import { requestError } from '../api-errors';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { api } from '../api';
 import { caseDate, caseEventLabel } from '../cases';
 import { Button } from '@/components/ui/button';
@@ -38,11 +38,7 @@ export function Notifications() {
       await api.post(id ? '/notifications/' + id + '/read' : '/notifications/read-all');
       await client.invalidateQueries({ queryKey: ['notifications'] });
     } catch (cause) {
-      setError(
-        isAxiosError(cause)
-          ? (cause.response?.data?.message ?? 'Request failed. Retry.')
-          : 'Request failed. Retry.',
-      );
+      setError(requestError(cause, 'Request failed. Retry.'));
     } finally {
       setBusy(false);
     }
@@ -81,7 +77,11 @@ export function Notifications() {
         </Alert>
       )}
       {query.isPending || query.error || !query.data ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <ul className="divide-y">

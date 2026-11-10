@@ -32,7 +32,9 @@ describe('inventory forms', () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Add unit' }));
     await user.type(screen.getByLabelText(/Unit name/), 'Amenity Unit');
-    await user.type(screen.getByLabelText(/^Area/), 'Dubai');
+    await user.click(screen.getByLabelText(/^Area/));
+    await user.type(screen.getByRole('combobox', { name: 'Search choices' }), 'Dubai Marina');
+    await user.click(screen.getByRole('option', { name: 'Dubai Marina' }));
     await user.type(screen.getByLabelText('Owner payment schedule'), 'Four cheques');
     for (const label of ['Air conditioning', 'Furnished', 'Kitchen', 'Wi-Fi'])
       await user.click(screen.getByLabelText(label, { exact: true }));
@@ -277,7 +279,9 @@ describe('inventory forms', () => {
     await user.click(screen.getByRole('button', { name: 'Add unit' }));
     const form = within(screen.getByRole('dialog'));
     await user.type(form.getByLabelText(/Unit name/), 'New Demo Apartment');
-    await user.type(form.getByLabelText(/Area/), 'Dubai');
+    await user.click(form.getByLabelText(/Area/));
+    await user.type(screen.getByRole('combobox', { name: 'Search choices' }), 'Dubai Marina');
+    await user.click(screen.getByRole('option', { name: 'Dubai Marina' }));
     await user.click(form.getByRole('button', { name: 'Save' }));
     expect(post).not.toHaveBeenCalled();
     await user.click(form.getByRole('checkbox', { name: /I confirm the property/ }));

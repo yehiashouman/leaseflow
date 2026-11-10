@@ -20,7 +20,13 @@ export function Operations() {
     refetchInterval: 30000,
   });
   if (query.isPending || query.error)
-    return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
+    return (
+      <QueryFeedback
+        pending={query.isPending}
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   const data = query.data!;
   return (
     <div className="space-y-6">

@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { Button } from '@/components/ui/button';
-import { QueryFeedback } from '@/components/query-feedback';
+import { recoverableQueryError } from '../api-errors';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 import { RecordEditor } from '@/components/record-editor';
 type Job = {
   id: string;
@@ -64,10 +65,15 @@ export function BusinessJobs() {
           </option>
         ))}
       </select>
-      {query.isPending || query.error ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+      {query.isPending || !query.data || (query.error && !recoverableQueryError(query.error)) ? (
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
+          <CachedQueryNotice error={query.error} onRetry={() => void query.refetch()} />
           {query.data!.workers && (
             <p role="status">
               {query.data!.workers.recorded
@@ -134,7 +140,7 @@ export function BusinessJobs() {
           </div>
         </>
       )}
-      {selected && (
+      {selected && query.data && (!query.error || recoverableQueryError(query.error)) && (
         <RecordEditor
           open
           title="Retry scheduled job"

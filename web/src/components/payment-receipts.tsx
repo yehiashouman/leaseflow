@@ -48,7 +48,11 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
       {open && (
         <section aria-label="External payment receipts" className="space-y-3">
           {query.isPending || query.error ? (
-            <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+            <QueryFeedback
+              pending={query.isPending}
+              error={query.error}
+              onRetry={() => void query.refetch()}
+            />
           ) : (
             <>
               <p className="text-sm text-muted-foreground">{query.data!.basis}</p>

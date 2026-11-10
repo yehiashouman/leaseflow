@@ -1,3 +1,4 @@
+import { choose } from './choice';
 import { randomUUID } from 'node:crypto';
 import { expect, test, type Page } from '@playwright/test';
 import { prisma } from '../../api/src/db.js';
@@ -81,12 +82,12 @@ test('real landlord lifecycle and property fields persist through the browser', 
       await page.getByRole('button', { name: 'Add unit', exact: true }).click();
       editor = page.getByRole('dialog');
       await editor.getByLabel('Unit name *', { exact: true }).fill(unitName);
-      await editor.getByLabel('Area *', { exact: true }).fill('Al Reem Island');
+      await choose(page, 'Area *', 'Dubai Marina');
       await editor.getByLabel('Landlord', { exact: true }).selectOption(landlord.id);
       if (index === 0) {
-        await editor.getByLabel('Building', { exact: true }).fill('Browser Tower');
+        await choose(page, 'Building', 'Aurora · Dubai Marina');
         await editor.getByLabel('Street', { exact: true }).fill('Al Reem Road');
-        await editor.getByLabel('Emirate *', { exact: true }).fill('Abu Dhabi');
+        await choose(page, 'Emirate *', 'Dubai');
         await editor.getByLabel('Address notes', { exact: true }).fill('Gate 2\nFloor 3');
         await editor.getByLabel('Latitude', { exact: true }).fill('0');
         await editor.getByLabel('Longitude', { exact: true }).fill('55.2708');
@@ -171,10 +172,10 @@ test('real landlord lifecycle and property fields persist through the browser', 
     });
     const unit = await prisma.unit.findUniqueOrThrow({ where: { id: unitIds[0] } });
     expect(unit).toMatchObject({
-      building: 'Browser Tower',
+      building: 'Aurora',
       street: 'Al Reem Road',
-      area: 'Al Reem Island',
-      emirate: 'Abu Dhabi',
+      area: 'Dubai Marina',
+      emirate: 'Dubai',
       addressNotes: 'Gate 2\nFloor 3',
       landlordId: null,
     });

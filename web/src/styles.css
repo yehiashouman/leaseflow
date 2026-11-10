@@ -35,9 +35,9 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  --radius: 0.5rem;
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.205 0 0);
+  --radius: 0.75rem;
+  --background: #f5f7f8;
+  --foreground: #192e33;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.205 0 0);
   --popover: oklch(1 0 0);
@@ -51,8 +51,8 @@
   --accent: oklch(0.95 0.025 165);
   --accent-foreground: oklch(0.3 0.07 165);
   --destructive: oklch(0.55 0.21 25);
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.87 0 0);
+  --border: #e3e9eb;
+  --input: #d9e2e4;
   --ring: oklch(0.48 0.11 165);
 }
 
@@ -88,4 +88,58 @@
   a {
     cursor: pointer;
   }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+  @media (min-width: 640px) {
+    input,
+    select,
+    textarea {
+      font-size: 0.875rem;
+    }
+  }
+}
+[data-slot='table-container'] {
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: white;
+}
+[data-slot='table-header'] {
+  background: #f8fafb;
+}
+[data-slot='table-head'] {
+  height: 3rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+[data-slot='table-cell'] {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+[data-slot='sheet-header'] {
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem;
 }

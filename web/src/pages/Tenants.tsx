@@ -55,7 +55,11 @@ export function Tenants() {
         }}
       />
       {query.isPending || query.error || !query.data ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <Table>
@@ -118,7 +122,13 @@ export function TenantDetail() {
       api.get<Tenant>('/tenants/' + id, { signal }).then((response) => response.data),
   });
   if (query.isPending || query.error || !query.data)
-    return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
+    return (
+      <QueryFeedback
+        pending={query.isPending}
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   const data = query.data;
   return (
     <div className="space-y-6">

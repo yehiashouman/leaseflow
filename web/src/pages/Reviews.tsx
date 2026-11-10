@@ -1,3 +1,4 @@
+import { recoverableQueryError } from '../api-errors';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +7,7 @@ import { useAuth } from '../auth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { QueryFeedback } from '@/components/query-feedback';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 import { RecordEditor } from '@/components/record-editor';
 type Review = {
   id: string;
@@ -93,7 +94,11 @@ export function Reviews() {
         </select>
       </div>
       {query.isPending || query.error ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <ul className="space-y-3">
@@ -144,11 +149,18 @@ export function ReviewDetail() {
     queryFn: ({ signal }) =>
       api.get<Review>('/reviews/' + id, { signal }).then((response) => response.data),
   });
-  if (query.isPending || query.error || !query.data)
-    return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
+  if (query.isPending || (query.error && !recoverableQueryError(query.error)) || !query.data)
+    return (
+      <QueryFeedback
+        pending={query.isPending}
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   const row = query.data;
   return (
     <div className="space-y-5">
+      <CachedQueryNotice error={query.error} onRetry={() => void query.refetch()} />
       <h1 className="text-2xl font-semibold">Annual contract review</h1>
       <p>
         {(row.rentalSpace ?? row.contract.rentalSpace).unit.name} /{' '}
@@ -188,7 +200,7 @@ export function ReviewDetail() {
         </div>
       )}
       <section className="space-y-3" aria-label="Review history">
-        <h2 className="font-semibold">Immutable review history</h2>
+        <h2 className="font-semibold">Review history</h2>
         {row.events.map((event) => (
           <article key={event.id} className="space-y-2 rounded-md border p-4">
             <p>

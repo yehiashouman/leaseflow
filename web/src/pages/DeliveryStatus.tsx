@@ -102,7 +102,11 @@ export function DeliveryStatus() {
         ))}
       </select>
       {query.isPending || query.error ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <div className="space-y-4">

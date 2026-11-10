@@ -1,9 +1,18 @@
+import { requestError } from '../api-errors';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export function QueryFeedback({ pending, onRetry }: { pending: boolean; onRetry: () => void }) {
+export function QueryFeedback({
+  pending,
+  onRetry,
+  error,
+}: {
+  pending: boolean;
+  onRetry: () => void;
+  error?: unknown;
+}) {
   if (pending)
     return (
       <div role="status" aria-label="Load records" className="grid gap-3">
@@ -17,9 +26,25 @@ export function QueryFeedback({ pending, onRetry }: { pending: boolean; onRetry:
       <AlertCircle aria-hidden="true" />
       <AlertTitle>Unable to load records</AlertTitle>
       <AlertDescription>
-        <p>The request failed. Please try again.</p>
+        <p>{requestError(error, 'The request failed. Please try again.')}</p>
         <Button variant="outline" size="sm" onClick={onRetry}>
           Retry
+        </Button>
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+export function CachedQueryNotice({ error, onRetry }: { error?: unknown; onRetry: () => void }) {
+  if (!error) return null;
+  return (
+    <Alert variant="destructive">
+      <AlertTitle>Latest refresh failed</AlertTitle>
+      <AlertDescription>
+        <p>Your draft stays available.</p>
+        <p>{requestError(error)}</p>
+        <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+          Retry refresh
         </Button>
       </AlertDescription>
     </Alert>

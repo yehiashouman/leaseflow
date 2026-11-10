@@ -1,8 +1,9 @@
+import { requestError } from '../api-errors';
+import { recoverableQueryError } from '../api-errors';
 import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { api } from '../api';
 import type { Landlord } from './Landlords';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { QueryFeedback } from '@/components/query-feedback';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 import { LandlordEditor } from '@/components/landlord-editor';
 
 export function LandlordDetail() {
@@ -43,8 +44,8 @@ export function LandlordDetail() {
     queryFn: ({ signal }) =>
       api.get<Landlord>('/inventory/landlords/' + id, { signal }).then((response) => response.data),
   });
-  if (isPending || queryError || !data)
-    return <QueryFeedback pending={isPending} onRetry={() => void refetch()} />;
+  if (isPending || (queryError && !recoverableQueryError(queryError)) || !data)
+    return <QueryFeedback pending={isPending} error={queryError} onRetry={() => void refetch()} />;
   const units = data.units ?? [];
   async function execute() {
     setBusy(true);
@@ -55,17 +56,14 @@ export function LandlordDetail() {
       await client.invalidateQueries({ queryKey: ['landlords'] });
       setCommand(null);
     } catch (cause) {
-      setError(
-        isAxiosError(cause)
-          ? (cause.response?.data?.message ?? 'Request failed. Retry.')
-          : 'Request failed. Retry.',
-      );
+      setError(requestError(cause, 'Request failed. Retry.'));
     } finally {
       setBusy(false);
     }
   }
   return (
     <div className="space-y-6">
+      <CachedQueryNotice error={queryError} onRetry={() => void refetch()} />
       <Link to="/landlords" className="text-sm text-primary underline">
         Back to landlords
       </Link>

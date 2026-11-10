@@ -1,13 +1,14 @@
+import { requestError } from '../api-errors';
+import { recoverableQueryError } from '../api-errors';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { api } from '../api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RecordEditor, type EditorField } from '@/components/record-editor';
-import { QueryFeedback } from '@/components/query-feedback';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 import { Documents } from '@/components/documents';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -49,10 +50,7 @@ type Options = {
 };
 const today = () => new Date().toISOString().slice(0, 10);
 const date = (value: string) => value.slice(0, 10);
-const errorText = (cause: unknown) =>
-  isAxiosError(cause)
-    ? (cause.response?.data?.message ?? 'Request failed. Retry.')
-    : 'Request failed. Retry.';
+const errorText = (cause: unknown) => requestError(cause, 'Request failed. Retry.');
 const moneyField = (currency: string): EditorField => ({
   name: 'amount',
   label: 'Amount (' + currency + ')',
@@ -71,10 +69,18 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
     refetchOnWindowFocus: false,
     queryFn: () => api.get<Options>('/expenses/options').then((response) => response.data),
   });
-  if (options.isPending || options.error)
+  if (
+    options.isPending ||
+    (options.error && !recoverableQueryError(options.error)) ||
+    !options.data
+  )
     return (
       <div className="space-y-3 rounded-md border p-4">
-        <QueryFeedback pending={options.isPending} onRetry={() => void options.refetch()} />
+        <QueryFeedback
+          pending={options.isPending}
+          error={options.error}
+          onRetry={() => void options.refetch()}
+        />
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
@@ -99,6 +105,7 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
   ];
   return (
     <RecordEditor
+      notice={<CachedQueryNotice error={options.error} onRetry={() => void options.refetch()} />}
       open
       onOpenChange={(open) => {
         if (!open) onClose();
@@ -129,6 +136,7 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
         },
         {
           name: 'scope',
+          errorPaths: ['scopeKind', 'landlordId', 'unitId', 'rentalSpaceId', 'contractId'],
           label: 'Direct cost scope (first ' + data.limit + ' records per group)',
           value: 'PORTFOLIO',
           options: scopes,
@@ -299,7 +307,11 @@ export function Expenses() {
         </Alert>
       )}
       {query.isPending || query.error ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
           <div className="flex flex-wrap gap-3">
@@ -376,11 +388,18 @@ export function ExpenseDetail() {
     enabled: action === 'recoveries',
     queryFn: () => api.get<Options>('/expenses/options').then((response) => response.data),
   });
-  if (query.isPending || query.error)
-    return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
+  if (query.isPending || (query.error && !recoverableQueryError(query.error)) || !query.data)
+    return (
+      <QueryFeedback
+        pending={query.isPending}
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   const data = query.data!;
   return (
     <div className="space-y-6">
+      <CachedQueryNotice error={query.error} onRetry={() => void query.refetch()} />
       <Link className="text-primary underline" to="/expenses">
         Back to expenses
       </Link>

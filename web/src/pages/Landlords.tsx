@@ -79,7 +79,7 @@ export function Landlords() {
         </select>
       </div>
       {isPending || error ? (
-        <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
+        <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
       ) : (
         <Table>
           <TableHeader>

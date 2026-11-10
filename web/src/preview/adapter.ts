@@ -639,9 +639,24 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       : fail('Insufficient permissions', 403);
   if (path === '/dashboard/manager') {
     if (role !== 'LEASING_MANAGER') return fail('Insufficient permissions', 403);
-    const spaces = store.units.filter((unit) => !unit.archivedAt).flatMap((unit) => unit.spaces);
+    const spaces = store.units
+      .filter((unit) => !unit.archivedAt && unit.active)
+      .flatMap((unit) => unit.spaces)
+      .filter((space) => space.enabled !== false);
     return respond({
-      units: store.units.filter((unit) => !unit.archivedAt).length,
+      units: store.units.filter((unit) => !unit.archivedAt && unit.active).length,
+      spaces: spaces.length,
+      partial: spaces.filter((space) => space.status === 'PARTIALLY_OCCUPIED').length,
+      requestsByType: Object.fromEntries(
+        previewCaseTypes.map((type) => [
+          type,
+          store.requests.filter(
+            (item) =>
+              item.type === type &&
+              !['DRAFT', 'ACCEPTED', 'CLOSED', 'REJECTED'].includes(item.status),
+          ).length,
+        ]),
+      ),
       occupied: spaces.filter((space) => space.status === 'OCCUPIED').length,
       vacant: spaces.filter((space) => space.status === 'AVAILABLE').length,
       openRequests: store.requests.filter(

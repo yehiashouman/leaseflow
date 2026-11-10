@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { Button } from '@/components/ui/button';
 import { RecordEditor } from '@/components/record-editor';
-import { QueryFeedback } from '@/components/query-feedback';
+import { recoverableQueryError } from '../api-errors';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 type Data = {
   preferredLanguage: string;
   timezone: string;
@@ -22,10 +23,15 @@ export function Preferences() {
   return (
     <div className="space-y-5">
       <h1 className="text-2xl font-semibold">Preferences</h1>
-      {query.isPending || query.error ? (
-        <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+      {query.isPending || !query.data || (query.error && !recoverableQueryError(query.error)) ? (
+        <QueryFeedback
+          pending={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : (
         <>
+          <CachedQueryNotice error={query.error} onRetry={() => void query.refetch()} />
           <dl className="space-y-3">
             <div>
               <dt>Notice language</dt>
@@ -48,7 +54,7 @@ export function Preferences() {
           <Button onClick={() => setEditor(query.data!)}>Edit preferences</Button>
         </>
       )}
-      {editor && (
+      {editor && query.data && (!query.error || recoverableQueryError(query.error)) && (
         <RecordEditor
           open
           title="Edit preferences"

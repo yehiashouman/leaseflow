@@ -57,7 +57,12 @@ describe('account security', () => {
     await user.type(screen.getByLabelText('New password'), 'ReplacementPassword123!');
     await user.type(screen.getByLabelText('Confirm new password'), 'DifferentPassword123!');
     await user.click(screen.getByRole('button', { name: 'Change password' }));
-    expect((await screen.findByRole('alert')).textContent).toContain('do not match');
+    expect(
+      await screen.findByText('New passwords do not match.', {
+        selector: '#confirm-password-error',
+      }),
+    ).toBeTruthy();
+    expect(screen.getByLabelText('Confirm new password').getAttribute('aria-invalid')).toBe('true');
     expect(post).not.toHaveBeenCalled();
   });
   it('preserves password values and exposes a failed operation', async () => {

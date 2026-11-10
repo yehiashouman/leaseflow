@@ -1,6 +1,6 @@
+import { requestError } from '../api-errors';
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { api } from '../api';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
@@ -24,11 +24,7 @@ export function UnitLifecycle({ id, archived }: { id: string; archived: boolean 
       );
       setOpen(false);
     } catch (cause) {
-      setError(
-        isAxiosError(cause)
-          ? (cause.response?.data?.message ?? 'Request failed. Retry.')
-          : 'Request failed. Retry.',
-      );
+      setError(requestError(cause, 'Request failed. Retry.'));
     } finally {
       setBusy(false);
     }

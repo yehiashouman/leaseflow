@@ -1,9 +1,10 @@
+import { recoverableQueryError } from '../api-errors';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { Button } from '@/components/ui/button';
 import { RecordEditor, type EditorField } from '@/components/record-editor';
-import { QueryFeedback } from '@/components/query-feedback';
+import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 
 import { preferenceFields } from '../profile-fields';
 type ProfileData = {
@@ -32,8 +33,14 @@ export function Profile() {
     queryFn: ({ signal }) =>
       api.get<ProfileData>('/profile', { signal }).then((response) => response.data),
   });
-  if (query.isPending || query.error || !query.data)
-    return <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />;
+  if (query.isPending || (query.error && !recoverableQueryError(query.error)) || !query.data)
+    return (
+      <QueryFeedback
+        pending={query.isPending}
+        error={query.error}
+        onRetry={() => void query.refetch()}
+      />
+    );
   const data = query.data;
   const fields: EditorField[] = editor
     ? [
@@ -90,6 +97,7 @@ export function Profile() {
         },
         ...Object.entries(preferenceFields).map(([key, label]) => ({
           name: 'preference_' + key,
+          errorPath: 'matchingPreferences.' + key,
           label,
           value: editor.tenant.matchingPreferences?.[key] ?? '',
           maxLength:
@@ -101,6 +109,7 @@ export function Profile() {
         })),
         {
           name: 'smoking',
+          errorPath: 'matchingPreferences.smoking',
           label: 'Smoking preference',
           value: editor.tenant.matchingPreferences?.smoking ?? 'NO_PREFERENCE',
           options: [
@@ -113,6 +122,7 @@ export function Profile() {
     : [];
   return (
     <div className="space-y-6">
+      <CachedQueryNotice error={query.error} onRetry={() => void query.refetch()} />
       <div className="flex flex-wrap justify-between gap-3">
         <h1 className="text-2xl font-semibold">My profile</h1>
         <Button onClick={() => setEditor(data)}>Edit profile</Button>

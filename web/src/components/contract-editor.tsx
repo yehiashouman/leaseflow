@@ -1,8 +1,9 @@
+import { recoverableQueryError } from '../api-errors';
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { RecordEditor, type EditorField } from './record-editor';
-import { QueryFeedback } from './query-feedback';
+import { QueryFeedback, CachedQueryNotice } from './query-feedback';
 import { Button } from './ui/button';
 
 type Options = {
@@ -36,7 +37,7 @@ export function ContractEditor({
   });
   if (
     query.isPending ||
-    query.error ||
+    (query.error && !recoverableQueryError(query.error)) ||
     !query.data?.activationEnabled ||
     !query.data.tenants.length ||
     !query.data.spaces.length
@@ -44,7 +45,11 @@ export function ContractEditor({
     return (
       <section className="space-y-3 rounded-md border p-4">
         {query.isPending || query.error ? (
-          <QueryFeedback pending={query.isPending} onRetry={() => void query.refetch()} />
+          <QueryFeedback
+            pending={query.isPending}
+            error={query.error}
+            onRetry={() => void query.refetch()}
+          />
         ) : (
           <p>
             {!query.data?.activationEnabled
@@ -90,7 +95,7 @@ export function ContractEditor({
         },
         {
           name: 'secondaryExpiry',
-          errorPath: 'secondaryOccupant.emiratesIdExpiresAt',
+          errorPath: 'secondaryOccupant.emiratesIdExpiry',
           label: 'Secondary occupant Emirates ID expiry',
           required: true,
           type: 'date',
@@ -99,6 +104,7 @@ export function ContractEditor({
     : [];
   return (
     <RecordEditor
+      notice={<CachedQueryNotice error={query.error} onRetry={() => void query.refetch()} />}
       open
       title="Create monthly contract"
       onOpenChange={(open) => {

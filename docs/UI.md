@@ -7,21 +7,21 @@ The backend and product workflows remain unchanged.
 
 ## Components
 
-| Concern | Baseline |
-|---|---|
-| Application | React and TypeScript |
-| Build | Vite with `@tailwindcss/vite` |
-| Components | Editable shadcn/ui source in `web/src/components/ui` |
-| Accessible primitives | Radix |
-| Styles | Tailwind CSS 4 and semantic CSS variables |
-| Icons | Lucide React |
-| Variants | `class-variance-authority` |
-| Class composition | `clsx` and `tailwind-merge` through `cn` |
-| Routes | React Router |
-| Server state | TanStack React Query |
-| HTTP | Axios |
-| Component tests | Vitest, jsdom, React Testing Library |
-| Browser tests | Playwright, desktop Chromium and mobile Chromium |
+| Concern               | Baseline                                             |
+| --------------------- | ---------------------------------------------------- |
+| Application           | React and TypeScript                                 |
+| Build                 | Vite with `@tailwindcss/vite`                        |
+| Components            | Editable shadcn/ui source in `web/src/components/ui` |
+| Accessible primitives | Radix                                                |
+| Styles                | Tailwind CSS 4 and semantic CSS variables            |
+| Icons                 | Lucide React                                         |
+| Variants              | `class-variance-authority`                           |
+| Class composition     | `clsx` and `tailwind-merge` through `cn`             |
+| Routes                | React Router                                         |
+| Server state          | TanStack React Query                                 |
+| HTTP                  | Axios                                                |
+| Component tests       | Vitest, jsdom, React Testing Library                 |
+| Browser tests         | Playwright, desktop Chromium and mobile Chromium     |
 
 The root workspace provides jsdom 26 for the shared Vitest installation and Node.js 22.19 compatibility.
 
@@ -96,3 +96,29 @@ If a managed Chromium executable is required, set `PLAYWRIGHT_CHROMIUM_EXECUTABL
 Verify login, desktop navigation, mobile menu, tables, and keyboard focus in the browser.
 Verify the login request and existing list endpoints retain their API contracts.
 Use deterministic fixtures for UI tests; do not treat fixture data as production verification.
+
+## Dubai interface revision — 10 November 2026
+
+The owner selected Dubai-only operation for this interface revision.
+The interface retains React, shadcn/ui, Radix, and Tailwind.
+The shell now uses grouped dark navigation, a permanent account footer, and a scrollable navigation body.
+The mobile drawer uses the dynamic viewport height and safe-area padding.
+The desktop footer accounts for the public preview banner.
+Dashboard cards, request panels, property summaries, tables, and forms share a teal/slate theme.
+Form editors use two columns on wider screens and one column on phones.
+The save footer remains accessible during long forms.
+
+Searchable choices now cover Dubai areas, buildings, country-based nationality, language, and Dubai timezone.
+The country catalogue contains 249 ISO 3166-1 codes; language labels use browser Intl display names.
+The language catalogue contains ISO 639-1 codes, including Arabic and English.
+Dubai area/community choices combine a dated public DLD-derived snapshot and common neighbourhood labels.
+Sources: https://datadubai.ae/areas.json, https://datadubai.ae/communities.json, and https://www.visitdubai.com/en/explore-dubai/dubai-neighbourhoods.
+Building choices combine developer-sourced starter entries and the manager's saved property records.
+This catalogue does not represent every Dubai building.
+An explicit unlisted-building action preserves access for absent entries.
+Saved historical values remain available; the interface does not silently rewrite existing records.
+Search supports keyboard selection, screen-reader labels, native required validation, and server field errors.
+
+Recoverable refresh errors preserve form drafts and captured versions.
+Access denial or missing private records clears cached data before another refresh.
+Safe API messages include validated request references.

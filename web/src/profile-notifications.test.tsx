@@ -36,7 +36,8 @@ describe('tenant profile and notice interfaces', () => {
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Edit profile' }));
     await user.type(screen.getByLabelText('Phone awaiting verification'), '+971500000099');
-    await user.type(screen.getByLabelText('Sleep schedule'), 'Early');
+    await user.click(screen.getByLabelText('Sleep schedule'));
+    await user.click(screen.getByRole('option', { name: 'Early sleeper' }));
     await user.selectOptions(screen.getByLabelText('Non-security notices'), 'WHATSAPP');
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(patch).toHaveBeenCalledWith(
@@ -46,7 +47,7 @@ describe('tenant profile and notice interfaces', () => {
         pendingPhone: '+971500000099',
         deliveryPreference: 'WHATSAPP',
         matchingPreferences: expect.objectContaining({
-          sleepSchedule: 'Early',
+          sleepSchedule: 'Early sleeper',
           nationality: null,
           gender: null,
           smoking: 'NO_PREFERENCE',
@@ -58,12 +59,10 @@ describe('tenant profile and notice interfaces', () => {
   });
   it('preserves values and the original version after a stale profile conflict', async () => {
     vi.spyOn(api, 'get').mockResolvedValue({ data: profile() });
-    const patch = vi
-      .spyOn(api, 'patch')
-      .mockRejectedValue({
-        isAxiosError: true,
-        response: { status: 409, data: { message: 'Profile changed. Reload before another edit' } },
-      });
+    const patch = vi.spyOn(api, 'patch').mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 409, data: { message: 'Profile changed. Reload before another edit' } },
+    });
     page(<Profile />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Edit profile' }));
@@ -81,12 +80,10 @@ describe('tenant profile and notice interfaces', () => {
       event: { kind: 'RESOLVED', request: { id: 'r1', title: 'Private repair' } },
     };
     vi.spyOn(api, 'get').mockResolvedValue({ data: { items: [row], total: 1 } });
-    const post = vi
-      .spyOn(api, 'post')
-      .mockRejectedValue({
-        isAxiosError: true,
-        response: { data: { message: 'Temporary failure' } },
-      });
+    const post = vi.spyOn(api, 'post').mockRejectedValue({
+      isAxiosError: true,
+      response: { data: { message: 'Temporary failure' } },
+    });
     page(<Notifications />);
     const user = userEvent.setup();
     await user.click(await screen.findByRole('button', { name: 'Mark read Private repair' }));

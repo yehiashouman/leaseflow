@@ -1,3 +1,4 @@
+import { choose } from './choice';
 import { expect, test, type Page } from '@playwright/test';
 
 test('preview maintenance proposals preserve disputes and accepted responsibility across roles', async ({
@@ -170,7 +171,7 @@ test('preview unit amenities and archive persist without activation', async ({
   await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   const editor = page.getByRole('dialog');
   await editor.getByLabel('Unit name *', { exact: true }).fill('Preview Amenity Unit');
-  await editor.getByLabel('Area *', { exact: true }).fill('Dubai');
+  await choose(page, 'Area *', 'Dubai Marina');
   await editor.getByLabel('Owner payment schedule', { exact: true }).fill('Four cheques');
   await editor.getByLabel('Wi-Fi', { exact: true }).check();
   await editor.getByLabel('Additional amenities', { exact: true }).fill('Lift');
@@ -270,7 +271,7 @@ test('preview CRUD persists without backend requests and preserves role boundari
   await page.getByRole('button', { name: 'Add unit', exact: true }).click();
   const editor = page.getByRole('dialog');
   await editor.getByLabel('Unit name *', { exact: true }).fill('Preview Apartment Two');
-  await editor.getByLabel('Area *', { exact: true }).fill('Demo Area');
+  await choose(page, 'Area *', 'Al Karama');
   await editor.getByLabel('Landlord', { exact: true }).selectOption({ label: 'Preview Owner Two' });
   await editor.getByLabel('Address notes', { exact: true }).fill('Preview entrance\nThird floor');
   await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
@@ -398,4 +399,48 @@ test('preview cases preserve role decisions and history without backend requests
   );
   await page.screenshot({ path: testInfo.outputPath('case-preview.png'), fullPage: true });
   expect(backendRequests).toEqual([]);
+});
+
+test('compact mobile navigation keeps sign-out visible and exposes all account links', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 568 });
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  const drawer = page.getByRole('dialog');
+  const logoutButton = drawer.getByRole('button', { name: 'Sign out', exact: true });
+  await expect(logoutButton).toBeInViewport({ ratio: 1 });
+  await drawer.getByRole('link', { name: 'Preferences', exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Preferences', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Open navigation' }).click();
+  await expect(logoutButton).toBeInViewport({ ratio: 1 });
+  await logoutButton.click();
+  await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
+});
+
+test('Dubai reference choices persist through a preview reload', async ({ page }) => {
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await page.goto('./#/units');
+  await page.getByRole('button', { name: 'Add unit', exact: true }).click();
+  const editor = page.getByRole('dialog');
+  await editor.getByLabel('Unit name *', { exact: true }).fill('Choice catalogue apartment');
+  await choose(page, 'Area *', 'Dubai Marina');
+  await choose(page, 'Building', 'Aurora · Dubai Marina');
+  await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
+  await editor.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Edit Choice catalogue apartment', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: 'Area *', exact: true })).toContainText(
+    'Dubai Marina',
+  );
+  await expect(page.getByRole('combobox', { name: 'Building', exact: true })).toContainText(
+    'Aurora',
+  );
 });

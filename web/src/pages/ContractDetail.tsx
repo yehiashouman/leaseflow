@@ -98,7 +98,7 @@ function Records({ id, currency }: { id: string; currency: string }) {
         ))}
       </div>
       {isPending || error ? (
-        <QueryFeedback pending={isPending} onRetry={() => void refetch()} />
+        <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
       ) : (
         <>
           <h2 className="text-lg font-semibold">
@@ -195,7 +195,7 @@ export function ContractDetail() {
       </div>
     );
   if (isPending || error || !data)
-    return <QueryFeedback pending={isPending} onRetry={() => void refetch()} />;
+    return <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />;
   return (
     <div className="space-y-6">
       <Link className="text-sm text-primary underline" to="/contracts">
