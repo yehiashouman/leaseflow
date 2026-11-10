@@ -1,3 +1,5 @@
+import { businessOperationRoutes } from './routes/business-operations.js';
+import { reviewRoutes } from './routes/reviews.js';
 import { noticeDeliveryRoutes } from './routes/notice-delivery.js';
 import { providerStatusRoutes } from './routes/provider-status.js';
 import { noticeWorker } from './notice-worker.js';
@@ -109,7 +111,9 @@ export async function buildApp() {
   registerMetrics(app);
   await app.register(noticeDeliveryRoutes, { prefix: '/api/v1/notifications' });
   await app.register(providerStatusRoutes, { prefix: '/api/v1/providers/twilio' });
+  await app.register(reviewRoutes, { prefix: '/api/v1/reviews' });
   await app.register(expenseRoutes, { prefix: '/api/v1/expenses' });
+  await app.register(businessOperationRoutes, { prefix: '/api/v1/operations' });
   await app.register(operationRoutes, { prefix: '/api/v1/operations' });
   await app.register(invitationRoutes, { prefix: '/api/v1/invitations' });
   await app.register(accountRoutes, { prefix: '/api/v1/auth' });

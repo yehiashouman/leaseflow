@@ -2,13 +2,15 @@ import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '../db.js';
 import { allowRoles } from '../auth.js';
-import { caseScope } from '../case-data.js';
+import {
+  notificationScope,
+  notificationTargetSelect,
+  notificationTarget,
+} from '../notification-data.js';
 import { activeAccount } from '../account-data.js';
 
-const scope = (request: FastifyRequest) => ({
-  recipientUserId: request.user.sub,
-  event: { request: caseScope(request.user) },
-});
+const scope = (request: FastifyRequest) => notificationScope(request.user);
+
 export const notificationRoutes: FastifyPluginAsync = async (app) => {
   const participants = allowRoles('LEASING_MANAGER', 'TENANT');
   app.addHook('onSend', async (_request, reply) => {
@@ -40,7 +42,7 @@ export const notificationRoutes: FastifyPluginAsync = async (app) => {
           id: true,
           readAt: true,
           createdAt: true,
-          event: { select: { kind: true, request: { select: { id: true, title: true } } } },
+          ...notificationTargetSelect,
         },
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         skip: (page - 1) * 20,
@@ -48,7 +50,12 @@ export const notificationRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.notification.count({ where }),
     ]);
-    return { items, total, page, pageSize: 20 };
+    return {
+      items: items.map((row) => ({ ...row, subject: notificationTarget(row) })),
+      total,
+      page,
+      pageSize: 20,
+    };
   });
   for (const path of ['/read-all', '/:id/read']) {
     app.post(path, { preHandler: participants }, async (request) => {

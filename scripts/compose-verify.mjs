@@ -63,7 +63,7 @@ try {
   assert.equal(index.status, 200);
   assert((await index.text()).includes('id="root"'));
   const config = JSON.parse(compose(['config', '--format', 'json']));
-  for (const name of ['mysql', 'redis', 'minio', 'api'])
+  for (const name of ['mysql', 'redis', 'minio', 'api', 'worker'])
     assert(!config.services[name].ports?.length, name + ' ports must remain private');
   assert.equal(config.services.web.ports.length, 1);
   const denied = await request('/api/v1/auth/me');

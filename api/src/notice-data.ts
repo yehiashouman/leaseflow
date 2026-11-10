@@ -1,3 +1,4 @@
+import { notificationTargetSelect, notificationTarget } from './notification-data.js';
 import type { Prisma } from '@prisma/client';
 import { encryptMail } from './account-policy.js';
 import {
@@ -5,11 +6,18 @@ import {
   noticeLanguage,
   noticeTemplate,
   maskNoticeRecipient,
+  recordNoticeTemplate,
 } from './notice-policy.js';
 export async function queueCaseNotices(tx: Prisma.TransactionClient, eventId: string) {
+  return queueRecordNotices(tx, { eventId });
+}
+export async function queueRecordNotices(
+  tx: Prisma.TransactionClient,
+  where: { eventId?: string; reviewEventId?: string },
+) {
   const notices = await tx.notification.findMany({
-    where: { eventId },
-    select: { id: true, recipientUserId: true, event: { select: { requestId: true } } },
+    where,
+    select: { id: true, recipientUserId: true, ...notificationTargetSelect },
   });
   if (!notices.length) return;
   const recipients = await tx.user.findMany({
@@ -44,11 +52,15 @@ export async function queueCaseNotices(tx: Prisma.TransactionClient, eventId: st
         notificationId: notice.id,
         recipientUserId: user.id,
         channel,
-        template: 'CASE_UPDATED',
+        template: notice.event ? 'CASE_UPDATED' : notificationTarget(notice).kind,
         language,
         recipientCipher: eligible ? encryptMail({ address }) : null,
         recipientHint: maskNoticeRecipient(channel, address),
-        payloadCipher: encryptMail(noticeTemplate(language, notice.event.requestId)),
+        payloadCipher: encryptMail(
+          notice.event
+            ? noticeTemplate(language, notice.event.request.id)
+            : recordNoticeTemplate(language, notificationTarget(notice).path),
+        ),
         state: !eligible ? 'SUPPRESSED' : enabled ? 'QUEUED' : 'PAUSED',
         failureCode: !eligible ? 'RECIPIENT_UNVERIFIED_OR_INACTIVE' : null,
       });

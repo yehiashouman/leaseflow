@@ -71,6 +71,18 @@ export function noticeTemplate(language: string, requestId: string) {
         : 'An update is available. Open your authorized case record: ') + url,
   };
 }
+export function recordNoticeTemplate(language: string, path: string) {
+  const url = accountConfig.APP_URL.replace(/\/$/, '') + path;
+  return {
+    format: 'record-notice-v1' as const,
+    url,
+    subject: language === 'ar' ? 'تحديث المراجعة السنوية للعقد' : 'Annual contract review update',
+    text:
+      (language === 'ar'
+        ? 'يوجد تحديث على المراجعة السنوية. افتح السجل داخل التطبيق: '
+        : 'An annual contract review update is available. Open your authorized record: ') + url,
+  };
+}
 export function callbackUrl(deliveryId: string) {
   const url = new URL(noticeConfig.TWILIO_STATUS_CALLBACK_URL);
   url.searchParams.set('job', deliveryId);

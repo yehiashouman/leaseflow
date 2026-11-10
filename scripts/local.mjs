@@ -98,6 +98,7 @@ export async function startLocal(args = process.argv.slice(2), directory = root,
   await compose(['run', '--rm', '--build', '--no-deps', 'migrate']);
   await compose(['run', '--rm', '--build', '--no-deps', 'demo-seed']);
   await compose(['up', '-d', '--no-deps', '--build', '--wait', '--wait-timeout', '180', 'api']);
+  await compose(['up', '-d', '--no-deps', '--build', '--wait', '--wait-timeout', '120', 'worker']);
   await compose(['up', '-d', '--no-deps', '--build', '--wait', '--wait-timeout', '120', 'web']);
   if (!run) {
     const values = parseEnv(readFileSync(resolve(directory, '.env'), 'utf8'));

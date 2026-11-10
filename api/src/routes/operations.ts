@@ -7,7 +7,7 @@ export const operationRoutes: FastifyPluginAsync = async (app) => {
     reply.header('Cache-Control', 'no-store');
   });
   app.get('/jobs', { preHandler: allowRoles('ADMIN') }, async () => {
-    const [reports, files, emails, notices] = await prisma.$transaction(
+    const [reports, files, emails, notices, business] = await prisma.$transaction(
       async (tx) =>
         Promise.all([
           tx.caseReportJob.groupBy({ by: ['status', 'failureCode'], _count: { _all: true } }),
@@ -17,6 +17,7 @@ export const operationRoutes: FastifyPluginAsync = async (app) => {
             by: ['channel', 'state', 'failureCode'],
             _count: { _all: true },
           }),
+          tx.businessJob.groupBy({ by: ['kind', 'state', 'failureCode'], _count: { _all: true } }),
         ]),
       { isolationLevel: 'RepeatableRead' },
     );
@@ -33,6 +34,11 @@ export const operationRoutes: FastifyPluginAsync = async (app) => {
       reports: summarize(reports),
       files: summarize(files),
       emails: summarize(emails),
+      business: business.map((row) => ({
+        status: row.kind + '_' + row.state,
+        failureCode: row.failureCode,
+        count: row._count._all,
+      })),
       notices: notices.map((row) => ({
         status: row.channel + '_' + row.state,
         failureCode: row.failureCode,

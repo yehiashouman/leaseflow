@@ -4,7 +4,11 @@ import { NoticeState, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { activeAccount } from '../account-data.js';
-import { caseScope } from '../case-data.js';
+import {
+  notificationScope,
+  notificationTarget,
+  notificationTargetSelect,
+} from '../notification-data.js';
 import { prisma } from '../db.js';
 import { encryptMail } from '../account-policy.js';
 import {
@@ -12,6 +16,7 @@ import {
   noticeLanguage,
   noticeTemplate,
   maskNoticeRecipient,
+  recordNoticeTemplate,
 } from '../notice-policy.js';
 import { configuredNoticeChannels } from '../notice-worker.js';
 const select = {
@@ -31,7 +36,7 @@ const select = {
   readAt: true,
   createdAt: true,
   notification: {
-    select: { event: { select: { kind: true, request: { select: { id: true, title: true } } } } },
+    select: notificationTargetSelect,
   },
   attemptLog: {
     select: { number: true, state: true, failureCode: true, startedAt: true, finishedAt: true },
@@ -55,8 +60,7 @@ export const noticeDeliveryRoutes: FastifyPluginAsync = async (app) => {
     const scope: Prisma.NoticeDeliveryWhereInput = {
       recipientUserId: request.user.sub,
       notification: {
-        recipientUserId: request.user.sub,
-        event: { request: caseScope(request.user) },
+        ...notificationScope(request.user),
       },
     };
     const where = { ...scope, ...(query.state ? { state: query.state } : {}) };
@@ -82,6 +86,7 @@ export const noticeDeliveryRoutes: FastifyPluginAsync = async (app) => {
         return {
           items: items.map((row) => ({
             ...row,
+            subject: notificationTarget(row.notification),
             canRetry:
               ['FAILED', 'UNKNOWN', 'SUPPRESSED'].includes(row.state) &&
               row.retrySequence < 2 &&
@@ -119,7 +124,7 @@ export const noticeDeliveryRoutes: FastifyPluginAsync = async (app) => {
             throw app.httpErrors.unauthorized('Session is no longer active');
           const scope = {
             recipientUserId: request.user.sub,
-            notification: { event: { request: caseScope(request.user) } },
+            notification: notificationScope(request.user),
           };
           const previous = await tx.noticeDelivery.findUnique({
             where: {
@@ -147,7 +152,7 @@ export const noticeDeliveryRoutes: FastifyPluginAsync = async (app) => {
           await tx.$queryRaw`SELECT id FROM Notification WHERE id = ${initial.notificationId} AND recipientUserId = ${request.user.sub} FOR UPDATE`;
           const source = await tx.noticeDelivery.findFirst({
             where: { id, ...scope },
-            include: { notification: { include: { event: true } } },
+            include: { notification: { select: notificationTargetSelect } },
           });
           if (!source) throw app.httpErrors.notFound('Delivery not found');
           const latest = await tx.noticeDelivery.findFirst({
@@ -185,12 +190,14 @@ export const noticeDeliveryRoutes: FastifyPluginAsync = async (app) => {
               notificationId: source.notificationId,
               recipientUserId: user.id,
               channel: source.channel,
-              template: 'CASE_UPDATED',
+              template: source.template,
               language,
               recipientCipher: encryptMail({ address }),
               recipientHint: maskNoticeRecipient(source.channel, address),
               payloadCipher: encryptMail(
-                noticeTemplate(language, source.notification.event.requestId),
+                source.notification.event
+                  ? noticeTemplate(language, source.notification.event.request.id)
+                  : recordNoticeTemplate(language, notificationTarget(source.notification).path),
               ),
               state: enabled ? 'QUEUED' : 'PAUSED',
               retrySequence: source.retrySequence + 1,

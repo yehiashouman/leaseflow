@@ -1,3 +1,5 @@
+import { Reviews, ReviewDetail } from './pages/Reviews';
+import { BusinessJobs } from './pages/BusinessJobs';
 import { Preferences } from './pages/Preferences';
 import { Building2, FileText, Inbox, LayoutDashboard, LogOut, Menu, Shield } from 'lucide-react';
 import { Navigate, NavLink, Outlet, Route, Routes } from 'react-router-dom';
@@ -43,6 +45,7 @@ const navigation = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/units', label: 'Units', icon: Building2 },
   { to: '/landlords', label: 'Landlords', icon: Building2 },
+  { to: '/reviews', label: 'Annual reviews', icon: FileText },
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
   { to: '/expenses', label: 'Expenses', icon: FileText },
@@ -55,6 +58,7 @@ const navigation = [
   { to: '/delivery', label: 'Delivery status', icon: Inbox },
   { to: '/notifications', label: 'Notifications', icon: Inbox },
   { to: '/admin/managers', label: 'Account review', icon: Shield },
+  { to: '/admin/business-jobs', label: 'Scheduled jobs', icon: Shield },
   { to: '/admin/operations', label: 'Job status', icon: Shield },
   { to: '/admin/audit', label: 'Audit history', icon: FileText },
 ];
@@ -85,6 +89,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
       (user?.role === 'TENANT' &&
         [
           '/contracts',
+          '/reviews',
           '/requests',
           '/profile',
           '/notifications',
@@ -219,6 +224,7 @@ export default function App() {
             <Route element={<Guard roles={['ADMIN']} />}>
               <Route path="admin/managers" element={<Managers />} />
               <Route path="admin/managers/:id" element={<ManagerDetail />} />
+              <Route path="admin/business-jobs" element={<BusinessJobs />} />
               <Route path="admin/operations" element={<Operations />} />
               <Route path="admin/audit" element={<AdminAudit />} />
             </Route>
@@ -237,6 +243,8 @@ export default function App() {
               <Route path="documents" element={<MyDocuments />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="delivery" element={<DeliveryStatus />} />
+              <Route path="reviews" element={<Reviews />} />
+              <Route path="reviews/:id" element={<ReviewDetail />} />
               <Route path="contracts" element={<Contracts />} />
               <Route path="contracts/:id" element={<ContractDetail />} />
               <Route path="requests" element={<Requests />} />

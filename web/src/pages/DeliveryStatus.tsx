@@ -21,7 +21,8 @@ type Delivery = {
   acceptedAt: string | null;
   deliveredAt: string | null;
   readAt: string | null;
-  notification: { event: { kind: string; request: { id: string; title: string } } };
+  notification: { event: { kind: string; request: { id: string; title: string } } | null };
+  subject?: { path: string; title: string };
   attemptLog: {
     number: number;
     state: string;
@@ -110,9 +111,9 @@ export function DeliveryStatus() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <Link
                     className="min-w-0 flex-1 break-words text-primary underline"
-                    to={'/requests/' + row.notification.event.request.id}
+                    to={row.subject?.path ?? '/requests/' + row.notification.event!.request.id}
                   >
-                    {row.notification.event.request.title}
+                    {row.subject?.title ?? row.notification.event!.request.title}
                   </Link>
                   <Badge variant="outline">
                     {row.channel === 'EMAIL' && row.state === 'ACCEPTED'

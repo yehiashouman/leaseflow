@@ -75,6 +75,20 @@ services:
     healthcheck: {test: [CMD, wget, -q, -O-, http://127.0.0.1:3000/health/ready], interval: 10s, timeout: 3s, retries: 10, start_period: 20s}
     networks: [backend, frontend]
     security_opt: [no-new-privileges:true]
+  worker:
+    build: {context: ., dockerfile: api/Dockerfile}
+    command: [node, api/dist/src/worker.js]
+    healthcheck: {test: [CMD, node, api/dist/src/worker-health.js], interval: 10s, timeout: 5s, retries: 5, start_period: 20s}
+    restart: unless-stopped
+    env_file: [./api/.env]
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      BUSINESS_JOBS_ENABLED: "true"
+      DATABASE_URL: ${MYSQL_CONNECTION_URL:-mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis-local}@redis:6379
+    depends_on: {mysql: {condition: service_healthy}, redis: {condition: service_healthy}, migrate: {condition: service_completed_successfully}, demo-seed: {condition: service_completed_successfully}}
+    networks: [backend]
+    security_opt: [no-new-privileges:true]
   web:
     build: {context: ., dockerfile: web/Dockerfile, args: {VITE_API_URL: /api/v1}}
     restart: unless-stopped

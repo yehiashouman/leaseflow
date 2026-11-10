@@ -5,12 +5,12 @@ import twilio from 'twilio';
 import { prisma } from './db.js';
 import { env } from './config.js';
 import { decryptMail } from './account-policy.js';
-import { caseScope } from './case-data.js';
+import { notificationScope } from './notification-data.js';
 import { noticeConfig, callbackUrl, NoticeSendError } from './notice-policy.js';
 import { sendAccountMail } from './email-worker.js';
 const payloadSchema = z
   .object({
-    format: z.literal('case-notice-v1'),
+    format: z.enum(['case-notice-v1', 'record-notice-v1']),
     url: z.url(),
     subject: z.string().min(1).max(200),
     text: z.string().min(1).max(10000),
@@ -189,8 +189,7 @@ export async function runNoticeWorkerOnce(
       (await prisma.notification.findFirst({
         where: {
           id: row.notificationId,
-          recipientUserId: user.id,
-          event: { request: caseScope({ sub: user.id, role: user.role }) },
+          ...notificationScope({ sub: user.id, role: user.role }),
         },
         select: { id: true },
       }));

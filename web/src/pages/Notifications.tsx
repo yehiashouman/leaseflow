@@ -12,7 +12,8 @@ type Notice = {
   id: string;
   createdAt: string;
   readAt: string | null;
-  event: { kind: string; request: { id: string; title: string } };
+  event: { kind: string; request: { id: string; title: string } } | null;
+  subject?: { kind: string; path: string; title: string };
 };
 export function Notifications() {
   const client = useQueryClient();
@@ -89,11 +90,13 @@ export function Notifications() {
                 <div className="min-w-0 flex-1 basis-56 space-y-2">
                   <Link
                     className="break-words font-medium text-primary underline"
-                    to={'/requests/' + item.event.request.id}
+                    to={item.subject?.path ?? '/requests/' + item.event!.request.id}
                   >
-                    {item.event.request.title}
+                    {item.subject?.title ?? item.event!.request.title}
                   </Link>
-                  <p className="text-sm">{caseEventLabel(item.event.kind)}</p>
+                  <p className="text-sm">
+                    {caseEventLabel(item.subject?.kind ?? item.event!.kind)}
+                  </p>
                   <time className="text-xs text-muted-foreground">
                     {caseDate(item.createdAt)} / Asia/Dubai
                   </time>
@@ -107,7 +110,11 @@ export function Notifications() {
                     disabled={busy}
                     onClick={() => void read(item.id)}
                   >
-                    Mark read<span className="sr-only"> {item.event.request.title}</span>
+                    Mark read
+                    <span className="sr-only">
+                      {' '}
+                      {item.subject?.title ?? item.event!.request.title}
+                    </span>
                   </Button>
                 )}
               </li>

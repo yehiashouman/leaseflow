@@ -13,9 +13,14 @@ jobs:
         env: {MYSQL_DATABASE: leaseflow_test, MYSQL_USER: leaseflow, MYSQL_PASSWORD: leaseflow, MYSQL_ROOT_PASSWORD: root}
         ports: [3306:3306]
         options: --health-cmd="mysqladmin ping -h localhost -proot" --health-interval=10s --health-timeout=5s --health-retries=10
+      redis:
+        image: redis:8.2.1-alpine
+        ports: [6379:6379]
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-timeout=3s --health-retries=10
     env:
       DATABASE_URL: mysql://leaseflow:leaseflow@127.0.0.1:3306/leaseflow_test
       REDIS_URL: redis://localhost:6379
+      BUSINESS_REDIS_TESTS: 'true'
       JWT_ACCESS_SECRET: ci-only-access-secret-at-least-32-characters
       JWT_REFRESH_SECRET: ci-only-refresh-secret-at-least-32-characters
     steps:

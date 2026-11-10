@@ -221,6 +221,16 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         'Critical account notices retain the account email channel regardless of these preferences.',
     });
   }
+  if (path === '/reviews' && method === 'get')
+    return role === 'ADMIN'
+      ? fail('Insufficient permissions', 403)
+      : respond({ items: [], total: 0, page: 1, pageSize: 20 });
+  if (path.startsWith('/reviews/'))
+    return fail('Annual review records require the live API and business worker.', 409);
+  if (path === '/operations/business-jobs' && method === 'get')
+    return role === 'ADMIN'
+      ? respond({ items: [], total: 0, page: 1, pageSize: 20, recoveryEnabled: false })
+      : fail('Insufficient permissions', 403);
   const expenseResult = previewExpenses(config, store, role, respond, fail, () =>
     localStorage.setItem(storageKey, JSON.stringify(store)),
   );

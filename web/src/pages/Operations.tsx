@@ -8,6 +8,7 @@ type Status = {
   reports: Row[];
   files: Row[];
   emails: Row[];
+  business?: { status: string; failureCode: string | null; count: number }[];
   notices: Row[];
   recovery: string;
 };
@@ -29,12 +30,12 @@ export function Operations() {
         (Asia/Dubai). Refresh interval: 30 seconds.
       </p>
       <div className="grid gap-4 lg:grid-cols-4">
-        {(['reports', 'files', 'emails', 'notices'] as const).map((group) => (
+        {(['reports', 'files', 'emails', 'notices', 'business'] as const).map((group) => (
           <Card key={group}>
             <CardContent className="space-y-3">
               <h2 className="font-semibold capitalize">{group}</h2>
-              {data[group].length ? (
-                data[group].map((row) => (
+              {(data[group] ?? []).length ? (
+                (data[group] ?? []).map((row) => (
                   <div
                     key={row.status + ':' + row.failureCode}
                     className="flex flex-wrap justify-between gap-2 border-b pb-2"

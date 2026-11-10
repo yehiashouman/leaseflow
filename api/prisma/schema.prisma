@@ -132,6 +132,8 @@ model User {
   expenseVoids ExpenseVoid[]
   expenseRecoveries ExpenseRecovery[]
   paymentReceipts PaymentReceipt[]
+  reviewEvents ContractReviewEvent[]
+  businessJobRetries BusinessJobRetry[]
 }
 
 model LeasingManagerProfile {
@@ -250,6 +252,8 @@ model RentalSpace {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   @@index([unitId, status])
+  contractReviews ContractReview[]
+  businessJobs BusinessJob[]
 }
 
 model Contract {
@@ -273,6 +277,8 @@ model Contract {
   payments Payment[]
   requests Request[]
   depositEntries DepositEntry[]
+  businessJobs BusinessJob[]
+  timezone String @default("Asia/Dubai") @db.VarChar(80)
   amendments ContractAmendment[]
   reviews ContractReview[]
   expenses Expense[]
@@ -310,6 +316,9 @@ model ContractAmendment {
   effectiveDate DateTime
   changes Json
   reason String?
+  status String @default("LEGACY") @db.VarChar(30)
+  sourceReviewEventId String? @unique
+  sourceReviewEvent ContractReviewEvent? @relation(fields: [sourceReviewEventId], references: [id], onDelete: Restrict)
   contract Contract @relation(fields: [contractId], references: [id])
   createdAt DateTime @default(now())
 }
@@ -323,6 +332,17 @@ model ContractReview {
   notes String? @db.Text
   contract Contract @relation(fields: [contractId], references: [id])
   @@index([dueAt, reviewedAt])
+  rentalSpaceId String?
+  sameSpaceSince DateTime?
+  milestoneMonths Int?
+  deferredUntil DateTime?
+  version Int @default(0)
+  rentalSpace RentalSpace? @relation(fields: [rentalSpaceId], references: [id], onDelete: Restrict)
+  events ContractReviewEvent[]
+  @@unique([contractId, dueAt])
+
+  spaceNameSnapshot String? @db.VarChar(150)
+  unitNameSnapshot String? @db.VarChar(150)
 }
 
 model PaymentReceipt {
@@ -402,6 +422,7 @@ model Request {
   @@index([contractId, status])
   @@index([decisionDueAt, status])
   @@unique([contractId, clientId])
+  businessJobs BusinessJob[]
 }
 
 model RequestEvent {
@@ -427,14 +448,17 @@ model RequestEvent {
 model Notification {
   id String @id @default(cuid())
   recipientUserId String
-  eventId String
+  eventId String?
+  reviewEventId String?
   readAt DateTime?
   createdAt DateTime @default(now())
-  event RequestEvent @relation(fields: [eventId], references: [id])
+  event RequestEvent? @relation(fields: [eventId], references: [id])
   deliveries NoticeDelivery[]
   @@unique([recipientUserId, eventId])
   @@unique([id, recipientUserId])
   @@index([recipientUserId, readAt, createdAt])
+  reviewEvent ContractReviewEvent? @relation(fields: [reviewEventId], references: [id], onDelete: Restrict)
+  @@unique([recipientUserId, reviewEventId])
 }
 
 enum ReportStatus {
@@ -855,4 +879,88 @@ model NoticeCallback {
   state NoticeState
   receivedAt DateTime @default(now())
   delivery NoticeDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+}
+
+model ContractReviewEvent {
+  id String @id @default(cuid())
+  reviewId String
+  actorUserId String?
+  actorName String? @db.VarChar(150)
+  clientId String? @db.VarChar(36)
+  payloadHash String? @db.Char(64)
+  kind String @db.VarChar(40)
+  note String? @db.Text
+  proposedRent Decimal? @db.Decimal(12, 2)
+  currency String? @db.VarChar(3)
+  effectiveMonth DateTime?
+  deferredUntil DateTime?
+  createdAt DateTime @default(now())
+  review ContractReview @relation(fields: [reviewId], references: [id], onDelete: Restrict)
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  notifications Notification[]
+  amendment ContractAmendment?
+  @@unique([reviewId, clientId])
+  @@index([reviewId, createdAt, id])
+}
+
+enum BusinessJobKind {
+  MONTHLY_OBLIGATIONS
+  OBLIGATION_STATUS
+  ANNUAL_REVIEW
+  ROOM_CHANGE_EXPIRY
+}
+enum BusinessJobState {
+  QUEUED
+  RUNNING
+  PAUSED
+  FAILED
+  STOPPED
+}
+model BusinessJob {
+  id String @id @default(cuid())
+  contractId String
+  kind BusinessJobKind
+  jobKey String @unique @db.VarChar(191)
+  sourceRequestId String?
+  sourceRequest Request? @relation(fields: [sourceRequestId], references: [id], onDelete: Restrict)
+  sourceSpace RentalSpace @relation(fields: [sourceSpaceId], references: [id], onDelete: Restrict)
+  state BusinessJobState @default(QUEUED)
+  cursor DateTime
+  sourceSpaceId String
+  sourceStartDate DateTime
+  nextRunAt DateTime
+  attempts Int @default(0)
+  retryCount Int @default(0)
+  leaseToken String? @db.VarChar(36)
+  leaseExpiresAt DateTime?
+  failureCode String? @db.VarChar(80)
+  lastRunAt DateTime?
+  lastSuccessAt DateTime?
+  processed Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Restrict)
+  retries BusinessJobRetry[]
+  @@index([state, nextRunAt, createdAt])
+  @@index([state, leaseExpiresAt])
+}
+model BusinessJobRetry {
+  id String @id @default(cuid())
+  jobId String
+  actorUserId String
+  clientId String @db.VarChar(36)
+  payloadHash String @db.Char(64)
+  reason String @db.VarChar(1000)
+  createdAt DateTime @default(now())
+  job BusinessJob @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  @@unique([jobId, clientId])
+}
+
+model BusinessWorkerHeartbeat {
+  id String @id @db.VarChar(191)
+  state String @db.VarChar(30)
+  redisConnected Boolean @default(false)
+  lastSeenAt DateTime
+  @@index([lastSeenAt])
 }
