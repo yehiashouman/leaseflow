@@ -89,20 +89,23 @@ export function Units() {
       maxLength: 150,
       searchable: true,
       allowCustom: true,
+      dependsOn: 'area',
       options: [
         ...new Map(
           [
             ...dubaiBuildings.buildings.map((item) => ({
               value: item.name,
               label: item.name + ' · ' + item.area,
+              area: item.area,
             })),
             ...data
               .filter((item) => item.building)
               .map((item) => ({
                 value: item.building!,
                 label: item.building! + ' · ' + item.area,
+                area: item.area,
               })),
-          ].map((item) => [item.value, item]),
+          ].map((item) => [item.area + ':' + item.value, item]),
         ).values(),
       ].sort((a, b) => a.label.localeCompare(b.label)),
     },

@@ -1,3 +1,4 @@
+import { choose } from './choice';
 import { randomUUID } from 'node:crypto';
 import { test, expect, type Page } from '@playwright/test';
 import { prisma } from '../../api/src/db.js';
@@ -51,7 +52,7 @@ test('real manager registration, email verification, session restrictions, and o
     await page.goto('/register');
     await page.getByLabel('Full legal name', { exact: true }).fill('Account Browser Manager');
     await page.getByLabel('Date of birth', { exact: true }).fill('1990-01-02');
-    await page.getByLabel('Nationality', { exact: true }).fill('Egyptian');
+    await choose(page, 'Nationality', 'Egypt');
     await page.getByLabel('Email', { exact: true }).fill(email);
     await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByLabel('Mobile number', { exact: true }).fill('+971501111111');

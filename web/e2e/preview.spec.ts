@@ -128,7 +128,7 @@ test('preview tenant profiles, directory, and read notices persist without backe
   const editor = page.getByRole('dialog');
   await editor.getByLabel('Full name *', { exact: true }).fill('Updated Preview Tenant');
   await editor.getByLabel('Phone awaiting verification', { exact: true }).fill('+971500000099');
-  await editor.getByLabel('Sleep schedule', { exact: true }).fill('Early');
+  await choose(page, 'Sleep schedule', 'Early sleeper');
   await editor.getByLabel('Non-security notices', { exact: true }).selectOption('EMAIL');
   await editor.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(editor).not.toBeVisible();

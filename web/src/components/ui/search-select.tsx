@@ -4,7 +4,7 @@ import { Check, ChevronsUpDown, Search } from 'lucide-react';
 import { FieldErrorsContext } from '../../form-errors';
 import { cn } from '../../lib/utils';
 
-export type Choice = { value: string; label: string };
+export type Choice = { value: string; label: string; area?: string };
 export function SearchSelect({
   id,
   name,

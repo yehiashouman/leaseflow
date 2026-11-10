@@ -1,3 +1,4 @@
+import { choose } from './choice';
 import { randomUUID } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { expect, test, type Page } from '@playwright/test';
@@ -210,8 +211,8 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     await profileEditor
       .getByLabel('Phone awaiting verification', { exact: true })
       .fill('+971500000099');
-    await profileEditor.getByLabel('Nationality', { exact: true }).fill('Egyptian');
-    await profileEditor.getByLabel('Sleep schedule', { exact: true }).fill('Early');
+    await choose(page, 'Nationality', 'Egypt');
+    await choose(page, 'Sleep schedule', 'Early sleeper');
     await profileEditor
       .getByLabel('Non-security notices', { exact: true })
       .selectOption('WHATSAPP');

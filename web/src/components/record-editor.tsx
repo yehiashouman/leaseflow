@@ -21,7 +21,7 @@ export type EditorField = {
   type?: string;
   required?: boolean;
   value?: string | number;
-  options?: { value: string; label: string }[];
+  options?: { value: string; label: string; area?: string }[];
   min?: number;
   max?: number;
   step?: string;
@@ -32,6 +32,7 @@ export type EditorField = {
   searchable?: boolean;
   allowCustom?: boolean;
   section?: string;
+  dependsOn?: string;
 };
 export function RecordEditor({
   open,
@@ -48,6 +49,9 @@ export function RecordEditor({
   notice?: ReactNode;
   onSave: (data: FormData) => Promise<void>;
 }) {
+  const [draft, setDraft] = useState<Record<string, string>>(() =>
+    Object.fromEntries(fields.map((field) => [field.name, String(field.value ?? '')])),
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -111,7 +115,18 @@ export function RecordEditor({
           )}
           {fields.map((field) => {
             const choices =
-              referenceOptions(field.name) ?? (field.searchable ? field.options : undefined);
+              referenceOptions(field.name) ??
+              (field.searchable
+                ? field.options?.filter(
+                    (option) =>
+                      !field.dependsOn ||
+                      ('area' in option && option.area === draft[field.dependsOn]),
+                  )
+                : undefined);
+            const sourceUnchanged =
+              !field.dependsOn ||
+              draft[field.dependsOn] ===
+                String(fields.find((source) => source.name === field.dependsOn)?.value ?? '');
             return (
               <div
                 key={field.name}
@@ -137,10 +152,14 @@ export function RecordEditor({
                     id={'editor-' + field.name}
                     name={field.name}
                     options={choices}
-                    defaultValue={String(field.value ?? '')}
+                    key={field.name + (field.dependsOn ? draft[field.dependsOn] : '')}
+                    defaultValue={sourceUnchanged ? String(field.value ?? '') : ''}
                     required={field.required}
-                    disabled={busy}
-                    onChange={field.onChange}
+                    disabled={busy || (!!field.dependsOn && !draft[field.dependsOn])}
+                    onChange={(value) => {
+                      setDraft((current) => ({ ...current, [field.name]: value }));
+                      field.onChange?.(value);
+                    }}
                     invalid={!!fieldErrors[field.name]}
                     describedBy={fieldErrors[field.name] ? 'editor-error-' + field.name : undefined}
                     allowCustom={field.allowCustom}

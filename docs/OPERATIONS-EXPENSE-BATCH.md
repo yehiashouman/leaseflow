@@ -1,11 +1,11 @@
 # 200-Item Continuation Report
 
-Date: 9 November 2026, Asia/Dubai.
+Date: 10 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 92 additional verified requirements; 254 of 764 overall (33.25%).
-The target is not complete: 80 partial and 28 blocked requirements remain in this batch.
+Current result: 105 additional verified requirements; 267 of 764 overall (34.95%).
+The target is not complete: 67 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -49,7 +49,7 @@ The report does not treat provider adapters as real inbox or WhatsApp delivery p
 
 All 26 owner decisions remain pending.
 Production financial writes, contract activation, provider delivery, and destructive retention remain gated.
-Recurring obligations, annual reviews, financial case workflows, transfer execution, settlement, full ledgers, and complete financial reports remain incomplete.
+Monthly catch-up and annual decisions now work; due notices, transfer execution, settlement, full ledgers, and financial reports remain incomplete.
 Contact changes, MFA, moderation, impersonation, complete localization, and complete initial-release screen acceptance remain incomplete.
 Real SMTP and WhatsApp staging delivery remain unverified.
 Individual matrix notes identify implementation gaps separately from policy dependencies.
@@ -63,11 +63,13 @@ Deferred requirements retain their original identifiers and remain in the master
 These closures combine new implementation with verified existing behavior.
 The prior 100-item report remains a historical snapshot at its own evidence commit.
 
+Scheduler acceptance: https://github.com/yehiashouman/leaseflow/actions/runs/42739428937.
+The interface revision passes 119 local web tests; remote UI acceptance remains in progress.
+
 ## Complete 200-Item Matrix
 
-Code and test paths, commit identifiers, dates, environments, and remaining notes appear in [batch-200.json](batch-200.json).
-Only `VERIFIED` rows add completion credit.
-Paths on partial rows identify current source and tests; they do not prove absent functionality.
+Code paths, test paths, commits, dates, and evidence appear in [batch-200.json](batch-200.json).
+Only VERIFIED rows receive completion credit.
 
 | Identifier         | Status   | Verified scope or exact remaining work                                                                                                                                                                                |
 | ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,7 +88,7 @@ Paths on partial rows identify current source and tests; they do not prove absen
 | CON-002            | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | CON-003            | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | CON-004            | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
-| CON-005            | PARTIAL  | Original contract terms persist; effective-dated amendments, execution, and historical term projections remain incomplete.                                                                                            |
+| CON-005            | PARTIAL  | Original terms and immutable proposed amendments persist; approved acknowledgement, effective application, and historical applied-term projections remain incomplete.                                                 |
 | CON-006            | BLOCKED  | Tenant contract visibility exists; approved acknowledgement-before-effect workflow remains incomplete.                                                                                                                |
 | CASE-001           | PARTIAL  | Maintenance, complaint, key/lock, and general forms work; late-payment, room-change, and move-out forms remain incomplete.                                                                                            |
 | CASE-002           | PARTIAL  | Operational cases preserve type, description, private evidence, contract, and relationship; complete financial case forms remain incomplete.                                                                          |
@@ -156,9 +158,9 @@ Paths on partial rows identify current source and tests; they do not prove absen
 | UX-004             | PARTIAL  | Desktop and mobile operational journeys pass; complete initial-release screens and visual acceptance remain incomplete.                                                                                               |
 | UX-005             | PARTIAL  | Shared editors provide labels, focus, keyboard behavior, and linked field errors; full-screen accessibility acceptance remains incomplete.                                                                            |
 | UX-006             | PARTIAL  | Operational screens expose explicit query and save failures; complete initial-release offline/session/state acceptance remains incomplete.                                                                            |
-| UX-007             | PARTIAL  | Record editors preserve failed-save drafts and option snapshots; several background detail reloads can still replace an open form.                                                                                    |
-| UX-008             | PARTIAL  | Shared record editors map server field paths beside inputs; custom forms and the complete screen inventory remain incomplete.                                                                                         |
-| UX-009             | PARTIAL  | Shared record editors expose safe request identifiers; query feedback and several custom error paths lack complete identifier coverage.                                                                               |
+| UX-007             | PARTIAL  | Implemented editors preserve failed-save drafts and recoverable refresh values; access denial clears private cache; complete future release-form acceptance remains incomplete.                                       |
+| UX-008             | PARTIAL  | Custom account, document, request, deadline, security, and shared record forms expose linked field errors; complete future release-form acceptance remains incomplete.                                                |
+| UX-009             | PARTIAL  | Shared query and command errors now include safe server messages and validated request references; complete future release-screen acceptance remains incomplete.                                                      |
 | UX-010             | PARTIAL  | Receipt, expense, recovery, void, and contract forms require confirmations; final transfer, move-out, and settlement actions remain incomplete.                                                                       |
 | UX-011             | PARTIAL  | Operational lists offer selected filters and bounded pages; complete inventory, contracts, and financial sorting/filter controls remain incomplete.                                                                   |
 | UX-012             | VERIFIED | Verified role and account-state navigation with independent API permission enforcement.                                                                                                                               |
@@ -176,20 +178,20 @@ Paths on partial rows identify current source and tests; they do not prove absen
 | API-012            | PARTIAL  | Cases, receipts, expenses, documents, and notices use bounded stable pages; complete inventory/contract list pagination and documentation remain incomplete.                                                          |
 | API-013            | PARTIAL  | Receipts, contracts, expenses, cases, notices, invitations, documents, and reports use retry guards; transfer completion remains incomplete.                                                                          |
 | API-014            | PARTIAL  | Implemented retry-sensitive commands reject changed content; comprehensive key inventory and every future transfer/financial command remain incomplete.                                                               |
-| API-019            | PARTIAL  | Operational resource groups work; obligations, deposits, transfers, move-out, annual reviews, and complete reports remain incomplete.                                                                                 |
-| JOB-001            | PARTIAL  | Leased MySQL workers preserve notice, file, mail, and PDF jobs; complete standalone scheduler integration remains incomplete.                                                                                         |
-| JOB-002            | PARTIAL  | Current critical intents persist in MySQL; the complete job inventory and cache-eviction acceptance remain incomplete.                                                                                                |
-| JOB-003            | PARTIAL  | Current worker leases recover after interruption; recurring obligation and business-deadline catch-up remain incomplete.                                                                                              |
-| JOB-004            | PARTIAL  | File, notice, and PDF replica claims are verified; complete scheduler and financial effect deduplication remain incomplete.                                                                                           |
-| JOB-005            | PARTIAL  | Notice, mail, and file workers accept test clocks; complete business-deadline job clock injection remains incomplete.                                                                                                 |
-| JOB-006            | PARTIAL  | UTC records and Dubai occupancy calendars work; complete contract financial and deadline calendar execution remains incomplete.                                                                                       |
-| JOB-007            | PARTIAL  | User timezone defaults and new operational display use Asia/Dubai; complete contract-level calendar configuration remains incomplete.                                                                                 |
-| JOB-008            | PARTIAL  | Occupancy display uses calendar dates; complete notice, late-payment, negotiation, and transfer calendar rules remain incomplete.                                                                                     |
-| JOB-009            | PARTIAL  | Worker results preserve states and timestamps; complete auditable automatic business decisions with rule versions remain incomplete.                                                                                  |
-| JOB-010            | PARTIAL  | File, mail, notice, and PDF workers work; monthly obligations, annual reviews, expiry, deadline, and retention jobs remain incomplete.                                                                                |
+| API-019            | PARTIAL  | Annual-review routes now join operational resources; complete obligation, deposit, transfer, move-out, and financial report resources remain incomplete.                                                              |
+| JOB-001            | VERIFIED | The standalone worker persists schedules, leases, bounded retries, heartbeats, and atomic effects in MySQL; Compose starts it after migrations.                                                                       |
+| JOB-002            | VERIFIED | MySQL preserves critical schedules and intents; actual Redis checkpoint deletion and process restart preserve unique effects.                                                                                         |
+| JOB-003            | VERIFIED | Persistent cursors catch up missed monthly periods and annual anniversaries after downtime.                                                                                                                           |
+| JOB-004            | VERIFIED | MySQL locks, unique source keys, and lease fencing prevent duplicate effects across competing worker replicas.                                                                                                        |
+| JOB-005            | VERIFIED | Injected clocks verify exact due days, anniversaries, five-day expiry, retries, and stale leases without wall-clock waits.                                                                                            |
+| JOB-006            | VERIFIED | UTC execution timestamps apply explicit Asia/Dubai contract calendars; unsupported timezone policy pauses source-dependent jobs.                                                                                      |
+| JOB-007            | VERIFIED | Contract timezone defaults to Asia/Dubai; operational calendars and displayed review deadlines retain explicit Dubai timezone labels.                                                                                 |
+| JOB-008            | VERIFIED | Monthly periods, anniversaries, and five-day room-change expiry use calendar dates; no business-day substitution occurs.                                                                                              |
+| JOB-009            | VERIFIED | Automatic decisions preserve audit rule version, timestamp, source entity, job, and resulting immutable event in the effect transaction.                                                                              |
+| JOB-010            | PARTIAL  | Monthly obligations, daily status, annual reviews, and room expiry now execute; due notifications, negotiation policy, document notices, and retention remain incomplete.                                             |
 | JOB-011            | VERIFIED | Verified transactional case notices, preferences, bounded attempts, private history, signed callbacks, replay protection, and owner recovery. Real provider delivery and production templates remain unverified.      |
-| JOB-012            | PARTIAL  | Current failure summaries and owner file/notice/PDF recovery work; complete scheduler and business-job recovery remain incomplete.                                                                                    |
-| JOB-013            | PARTIAL  | Current replica, interrupted-send, lease, replay, and delayed-result tests pass; complete scheduler restart acceptance remains incomplete.                                                                            |
+| JOB-012            | PARTIAL  | Opaque business-job failures, heartbeat state, and bounded reasoned development retries now work; production recovery remains gated by administrator MFA.                                                             |
+| JOB-013            | VERIFIED | Real MySQL replicas, stale leases, restart, Redis loss, and delayed provider-result acceptance pass without duplicate effects.                                                                                        |
 | SEC-001            | BLOCKED  | Identity and notice payloads use authenticated encryption; production transport, key management, and full encryption acceptance remain incomplete.                                                                    |
 | SEC-002            | BLOCKED  | API and private-object permissions exist; deployed database, infrastructure, storage, and service identities lack complete least-privilege acceptance.                                                                |
 | SEC-003            | VERIFIED | Verified masked identity status, versioned declaration hashes, and denied private identity access across unrelated relationships.                                                                                     |
@@ -212,14 +214,14 @@ Paths on partial rows identify current source and tests; they do not prove absen
 | MODEL-007          | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | MODEL-008          | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | MODEL-009          | PARTIAL  | ContractAmendment schema exists; effective-dated amendment forms, acknowledgement, application, and history acceptance remain incomplete.                                                                             |
-| MODEL-010          | PARTIAL  | Initial obligations and immutable external receipts persist; recurring obligations, corrections, allocations, and reversals remain incomplete.                                                                        |
+| MODEL-010          | PARTIAL  | Recurring obligations, calendar status, and immutable receipts persist; complete corrections, allocations, and reversals remain incomplete.                                                                           |
 | MODEL-011          | PARTIAL  | Legacy deposit entries persist; complete liability ledger, deductions, refunds, and dispute settlement remain incomplete.                                                                                             |
 | MODEL-012          | PARTIAL  | Operational cases preserve typed immutable events; complete financial-case workflow fields and execution remain incomplete.                                                                                           |
 | MODEL-013          | VERIFIED | Direct scope allocations and separate external recoveries are verified. Shared-cost formulas, automatic charges, and deposit deductions remain separate requirements.                                                 |
 | MODEL-014          | VERIFIED | Verified versioned identity, property, consent, evidence and image records plus private report snapshots. Full financial report content remains separate.                                                             |
 | MODEL-015          | VERIFIED | Verified transactional case notices, preferences, bounded attempts, private history, signed callbacks, replay protection, and owner recovery. Real provider delivery and production templates remain unverified.      |
 | MODEL-016          | PARTIAL  | Audit actor, action, entity, time, IP, and selected old/new facts persist; universal reason/session and impersonation provenance remain incomplete.                                                                   |
-| MODEL-017          | PARTIAL  | ContractReview schema exists; milestone generation, decisions, amendments, and review interface remain incomplete.                                                                                                    |
+| MODEL-017          | VERIFIED | Contract reviews preserve unique twelve-month milestones, shared decision history, deferrals, and proposed amendments without automatic rent changes.                                                                 |
 | SCREEN-PUBLIC-001  | VERIFIED | Verified real login, registration, email verification, private identity/licence capture, and one-use password recovery screens. Production moderation and real staging delivery remain separate.                      |
 | SCREEN-PUBLIC-002  | VERIFIED | Verified real login, registration, email verification, private identity/licence capture, and one-use password recovery screens. Production moderation and real staging delivery remain separate.                      |
 | SCREEN-PUBLIC-003  | VERIFIED | Verified real login, registration, email verification, private identity/licence capture, and one-use password recovery screens. Production moderation and real staging delivery remain separate.                      |
@@ -245,11 +247,11 @@ Paths on partial rows identify current source and tests; they do not prove absen
 | RESOURCE-018       | VERIFIED | Verified transactional case notices, preferences, bounded attempts, private history, signed callbacks, replay protection, and owner recovery. Real provider delivery and production templates remain unverified.      |
 | RESOURCE-019       | BLOCKED  | Role dashboards, expense CSV, and private case PDFs work; approved full financial reports remain incomplete.                                                                                                          |
 | RESOURCE-020       | VERIFIED | Protected metrics, aggregate job status, liveness, migration-aware readiness, and fresh-stack smoke probes are verified. Production deployment remains separate.                                                      |
-| WORKER-001         | PARTIAL  | Initial obligations persist once during contract setup; recurring monthly generation and catch-up remain incomplete.                                                                                                  |
+| WORKER-001         | VERIFIED | Monthly obligations persist once per contract period, catch up missed months, preserve initial obligations, full subsequent rent, original currency, and due dates; production finance remains gated.                 |
 | WORKER-002         | PARTIAL  | Notice infrastructure honors preferences and durable attempts; actual due/overdue event generation remains incomplete.                                                                                                |
-| WORKER-003         | PARTIAL  | No automatic room-change expiry worker exists; five-calendar-day rejection and required reason remain incomplete.                                                                                                     |
+| WORKER-003         | VERIFIED | Unapproved room-change requests expire after five Dubai calendar days with the exact required reason, participant notices, audit, and no duplicate result.                                                            |
 | WORKER-004         | BLOCKED  | Seven-day negotiation execution and confirmed no-destination outcome remain incomplete.                                                                                                                               |
-| WORKER-005         | PARTIAL  | Review schema exists; same-space anniversary generation, uniqueness, and transfer-history handling remain incomplete.                                                                                                 |
+| WORKER-005         | PARTIAL  | Unique anniversary reviews preserve original space snapshots and history; source changes fail safely, while complete transfer execution and anniversary reset remain incomplete.                                      |
 | WORKER-006         | PARTIAL  | Identity/document expired status exists; complete expiry notification scheduler remains incomplete.                                                                                                                   |
 | WORKER-008         | PARTIAL  | Case notice delivery preserves per-attempt records and provider outcomes; account mail lacks equivalent individual attempt history.                                                                                   |
 | WORKER-009         | VERIFIED | Verified authorized private case PDF queues, actual generated content, explicit failures, bounded retries, recovery, and download checks. Full relationship report content remains separate.                          |

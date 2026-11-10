@@ -578,3 +578,31 @@ Real provider delivery, full financial workflows, MFA, moderation, and complete 
 | TEST-PDF-02        | `api/src/report-worker.ts`; `api/src/routes/reports.ts`; `web/src/components/case-reports.tsx`                                                                                                                                                                                                                | `api/integration/reports.test.ts`; `api/test/case-report.test.ts`; `web/e2e/cases.live.spec.ts`                                                                                                                                                                                                                                    |
 | TEST-OPS-01        | `scripts/local.mjs`; `scripts/compose-verify.mjs`; `api/src/config.ts`; `api/src/app.ts`                                                                                                                                                                                                                      | `scripts/local.test.mjs`; `api/test/platform-contract.test.ts`                                                                                                                                                                                                                                                                     |
 | TEST-OPS-03        | `scripts/local.mjs`; `scripts/compose-verify.mjs`; `api/src/config.ts`; `api/src/app.ts`                                                                                                                                                                                                                      | `scripts/local.test.mjs`; `api/test/platform-contract.test.ts`                                                                                                                                                                                                                                                                     |
+
+## Durable Business Jobs and Annual Reviews
+
+Date: 10 November 2026, Asia/Dubai.
+Code commit: `bf3f809c0e0707fa7a755bd681d0d763f0865ffa`.
+[All five CI jobs pass](https://github.com/yehiashouman/leaseflow/actions/runs/42739428937).
+The run verifies 149 API tests, 109 web tests, 201 actual MySQL tests, two actual private-file service tests, and twenty-six live browser journeys.
+Actual Redis checkpoint deletion, competing replicas, stale leases, calendar catch-up, and scheduler restart preserve unique effects.
+Both container images and fresh Compose startup pass, including worker heartbeat and preserved volumes.
+
+| Requirement | Verified behavior                                                                                                                                                                                     |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JOB-001     | The standalone worker persists schedules, leases, bounded retries, heartbeats, and atomic effects in MySQL; Compose starts it after migrations.                                                       |
+| JOB-002     | MySQL preserves critical schedules and intents; actual Redis checkpoint deletion and process restart preserve unique effects.                                                                         |
+| JOB-003     | Persistent cursors catch up missed monthly periods and annual anniversaries after downtime.                                                                                                           |
+| JOB-004     | MySQL locks, unique source keys, and lease fencing prevent duplicate effects across competing worker replicas.                                                                                        |
+| JOB-005     | Injected clocks verify exact due days, anniversaries, five-day expiry, retries, and stale leases without wall-clock waits.                                                                            |
+| JOB-006     | UTC execution timestamps apply explicit Asia/Dubai contract calendars; unsupported timezone policy pauses source-dependent jobs.                                                                      |
+| JOB-007     | Contract timezone defaults to Asia/Dubai; operational calendars and displayed review deadlines retain explicit Dubai timezone labels.                                                                 |
+| JOB-008     | Monthly periods, anniversaries, and five-day room-change expiry use calendar dates; no business-day substitution occurs.                                                                              |
+| JOB-009     | Automatic decisions preserve audit rule version, timestamp, source entity, job, and resulting immutable event in the effect transaction.                                                              |
+| JOB-013     | Real MySQL replicas, stale leases, restart, Redis loss, and delayed provider-result acceptance pass without duplicate effects.                                                                        |
+| MODEL-017   | Contract reviews preserve unique twelve-month milestones, shared decision history, deferrals, and proposed amendments without automatic rent changes.                                                 |
+| WORKER-001  | Monthly obligations persist once per contract period, catch up missed months, preserve initial obligations, full subsequent rent, original currency, and due dates; production finance remains gated. |
+| WORKER-003  | Unapproved room-change requests expire after five Dubai calendar days with the exact required reason, participant notices, audit, and no duplicate result.                                            |
+
+The new Dubai interface is a later commit; its UI acceptance remains separate from these scheduler closures.
+All 26 owner decisions remain pending; production finance, amendment application, retention, and complete transfer execution remain gated.

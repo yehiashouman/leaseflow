@@ -2,7 +2,7 @@
   "target": 200,
   "baselineCompleted": 162,
   "baselineTotal": 764,
-  "date": "2026-11-09",
+  "date": "2026-11-10",
   "timezone": "Asia/Dubai",
   "baselineCommit": "9d7282848dee1ee2bcf42cb4f372964df5c9e8b5",
   "baselineCompletedIds": [
@@ -722,7 +722,7 @@
       "code": ["api/src/routes/contracts.ts", "api/prisma/schema.prisma"],
       "tests": ["api/integration/space.test.ts"],
       "decisions": [],
-      "note": "Original contract terms persist; effective-dated amendments, execution, and historical term projections remain incomplete."
+      "note": "Original terms and immutable proposed amendments persist; approved acknowledgement, effective application, and historical applied-term projections remain incomplete."
     },
     {
       "id": "CON-006",
@@ -1876,11 +1876,19 @@
       "code": [
         "web/src/App.tsx",
         "web/src/components/record-editor.tsx",
-        "web/src/components/query-feedback.tsx"
+        "web/src/components/query-feedback.tsx",
+        "web/src/api-errors.ts",
+        "web/src/query-client.ts",
+        "web/src/components/field-errors.tsx"
       ],
-      "tests": ["web/src/ui.test.tsx", "web/src/record-editor.test.tsx"],
+      "tests": [
+        "web/src/ui.test.tsx",
+        "web/src/record-editor.test.tsx",
+        "web/src/query-recovery.test.tsx",
+        "web/src/search-select.test.tsx"
+      ],
       "decisions": [],
-      "note": "Record editors preserve failed-save drafts and option snapshots; several background detail reloads can still replace an open form."
+      "note": "Implemented editors preserve failed-save drafts and recoverable refresh values; access denial clears private cache; complete future release-form acceptance remains incomplete."
     },
     {
       "id": "UX-008",
@@ -1889,11 +1897,19 @@
       "code": [
         "web/src/App.tsx",
         "web/src/components/record-editor.tsx",
-        "web/src/components/query-feedback.tsx"
+        "web/src/components/query-feedback.tsx",
+        "web/src/api-errors.ts",
+        "web/src/query-client.ts",
+        "web/src/components/field-errors.tsx"
       ],
-      "tests": ["web/src/ui.test.tsx", "web/src/record-editor.test.tsx"],
+      "tests": [
+        "web/src/ui.test.tsx",
+        "web/src/record-editor.test.tsx",
+        "web/src/query-recovery.test.tsx",
+        "web/src/search-select.test.tsx"
+      ],
       "decisions": [],
-      "note": "Shared record editors map server field paths beside inputs; custom forms and the complete screen inventory remain incomplete."
+      "note": "Custom account, document, request, deadline, security, and shared record forms expose linked field errors; complete future release-form acceptance remains incomplete."
     },
     {
       "id": "UX-009",
@@ -1902,11 +1918,19 @@
       "code": [
         "web/src/App.tsx",
         "web/src/components/record-editor.tsx",
-        "web/src/components/query-feedback.tsx"
+        "web/src/components/query-feedback.tsx",
+        "web/src/api-errors.ts",
+        "web/src/query-client.ts",
+        "web/src/components/field-errors.tsx"
       ],
-      "tests": ["web/src/ui.test.tsx", "web/src/record-editor.test.tsx"],
+      "tests": [
+        "web/src/ui.test.tsx",
+        "web/src/record-editor.test.tsx",
+        "web/src/query-recovery.test.tsx",
+        "web/src/search-select.test.tsx"
+      ],
       "decisions": [],
-      "note": "Shared record editors expose safe request identifiers; query feedback and several custom error paths lack complete identifier coverage."
+      "note": "Shared query and command errors now include safe server messages and validated request references; complete future release-screen acceptance remains incomplete."
     },
     {
       "id": "UX-010",
@@ -2189,169 +2213,214 @@
       "code": ["api/src/app.ts", "api/prisma/schema.prisma", "docs/IMPLEMENTATION.md"],
       "tests": ["api/test/platform-contract.test.ts", "api/integration/cases.test.ts"],
       "decisions": [],
-      "note": "Operational resource groups work; obligations, deposits, transfers, move-out, annual reviews, and complete reports remain incomplete."
+      "note": "Annual-review routes now join operational resources; complete obligation, deposit, transfer, move-out, and financial report resources remain incomplete."
     },
     {
       "id": "JOB-001",
       "requirement": "Create durable workers and a scheduler with bounded retries.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Leased MySQL workers preserve notice, file, mail, and PDF jobs; complete standalone scheduler integration remains incomplete."
+      "note": "The standalone worker persists schedules, leases, bounded retries, heartbeats, and atomic effects in MySQL; Compose starts it after migrations.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-002",
       "requirement": "Persist critical work independently of cache eviction.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Current critical intents persist in MySQL; the complete job inventory and cache-eviction acceptance remain incomplete."
+      "note": "MySQL preserves critical schedules and intents; actual Redis checkpoint deletion and process restart preserve unique effects.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-003",
       "requirement": "Catch up overdue tasks after downtime.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Current worker leases recover after interruption; recurring obligation and business-deadline catch-up remain incomplete."
+      "note": "Persistent cursors catch up missed monthly periods and annual anniversaries after downtime.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-004",
       "requirement": "Prevent duplicate effects across worker replicas.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "File, notice, and PDF replica claims are verified; complete scheduler and financial effect deduplication remain incomplete."
+      "note": "MySQL locks, unique source keys, and lease fencing prevent duplicate effects across competing worker replicas.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-005",
       "requirement": "Inject a test clock for deadline verification.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Notice, mail, and file workers accept test clocks; complete business-deadline job clock injection remains incomplete."
+      "note": "Injected clocks verify exact due days, anniversaries, five-day expiry, retries, and stale leases without wall-clock waits.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-006",
       "requirement": "Store UTC timestamps and apply contract timezone calendar rules.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "UTC records and Dubai occupancy calendars work; complete contract financial and deadline calendar execution remains incomplete."
+      "note": "UTC execution timestamps apply explicit Asia/Dubai contract calendars; unsupported timezone policy pauses source-dependent jobs.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-007",
       "requirement": "Default Dubai display and contract configuration to Asia/Dubai.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "User timezone defaults and new operational display use Asia/Dubai; complete contract-level calendar configuration remains incomplete."
+      "note": "Contract timezone defaults to Asia/Dubai; operational calendars and displayed review deadlines retain explicit Dubai timezone labels.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-008",
       "requirement": "Use calendar days, not unapproved business-day interpretations.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Occupancy display uses calendar dates; complete notice, late-payment, negotiation, and transfer calendar rules remain incomplete."
+      "note": "Monthly periods, anniversaries, and five-day room-change expiry use calendar dates; no business-day substitution occurs.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-009",
       "requirement": "Audit automatic decisions with rule, timestamp, and entity.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Worker results preserve states and timestamps; complete auditable automatic business decisions with rule versions remain incomplete."
+      "note": "Automatic decisions preserve audit rule version, timestamp, source entity, job, and resulting immutable event in the effect transaction.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "JOB-010",
@@ -2369,7 +2438,7 @@
         "api/integration/documents.test.ts"
       ],
       "decisions": [],
-      "note": "File, mail, notice, and PDF workers work; monthly obligations, annual reviews, expiry, deadline, and retention jobs remain incomplete."
+      "note": "Monthly obligations, daily status, annual reviews, and room expiry now execute; due notifications, negotiation policy, document notices, and retention remain incomplete."
     },
     {
       "id": "JOB-011",
@@ -2414,25 +2483,31 @@
         "api/integration/documents.test.ts"
       ],
       "decisions": [],
-      "note": "Current failure summaries and owner file/notice/PDF recovery work; complete scheduler and business-job recovery remain incomplete."
+      "note": "Opaque business-job failures, heartbeat state, and bounded reasoned development retries now work; production recovery remains gated by administrator MFA."
     },
     {
       "id": "JOB-013",
       "requirement": "Verify duplicate execution, worker interruption, scheduler restart, and delayed provider response.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs",
+        "api/integration/notices.test.ts"
       ],
       "decisions": [],
-      "note": "Current replica, interrupted-send, lease, replay, and delayed-result tests pass; complete scheduler restart acceptance remains incomplete."
+      "note": "Real MySQL replicas, stale leases, restart, Redis loss, and delayed provider-result acceptance pass without duplicate effects.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "SEC-001",
@@ -2912,7 +2987,7 @@
       ],
       "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
       "decisions": [],
-      "note": "Initial obligations and immutable external receipts persist; recurring obligations, corrections, allocations, and reversals remain incomplete."
+      "note": "Recurring obligations, calendar status, and immutable receipts persist; complete corrections, allocations, and reversals remain incomplete."
     },
     {
       "id": "MODEL-011",
@@ -3027,15 +3102,28 @@
     {
       "id": "MODEL-017",
       "requirement": "Implement `contract_reviews`: Twelve-month reminders, decisions and proposed amendments.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
         "api/prisma/schema.prisma",
-        "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "docker-compose.yml",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs",
+        "web/e2e/reviews.live.spec.ts"
+      ],
       "decisions": [],
-      "note": "ContractReview schema exists; milestone generation, decisions, amendments, and review interface remain incomplete."
+      "note": "Contract reviews preserve unique twelve-month milestones, shared decision history, deferrals, and proposed amendments without automatic rent changes.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "SCREEN-PUBLIC-001",
@@ -3448,20 +3536,25 @@
     {
       "id": "WORKER-001",
       "requirement": "Implement Monthly obligations: Generate applicable obligations once per contract and period.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "Initial obligations persist once during contract setup; recurring monthly generation and catch-up remain incomplete."
+      "note": "Monthly obligations persist once per contract period, catch up missed months, preserve initial obligations, full subsequent rent, original currency, and due dates; production finance remains gated.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "WORKER-002",
@@ -3484,20 +3577,25 @@
     {
       "id": "WORKER-003",
       "requirement": "Implement Room-change expiry: Reject unapproved requests after five calendar days; record the required expiry reason.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
-        "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/src/business-jobs.ts",
+        "api/src/business-runtime.ts",
+        "api/src/business-calendar.ts",
+        "api/src/worker.ts",
+        "api/prisma/schema.prisma",
+        "docker-compose.yml"
       ],
       "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "scripts/compose-verify.mjs"
       ],
       "decisions": [],
-      "note": "No automatic room-change expiry worker exists; five-calendar-day rejection and required reason remain incomplete."
+      "note": "Unapproved room-change requests expire after five Dubai calendar days with the exact required reason, participant notices, audit, and no duplicate result.",
+      "commit": "bf3f809c0e0707fa7a755bd681d0d763f0865ffa",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/42739428937",
+      "verified": "2026-11-10"
     },
     {
       "id": "WORKER-004",
@@ -3533,7 +3631,7 @@
         "api/integration/documents.test.ts"
       ],
       "decisions": [],
-      "note": "Review schema exists; same-space anniversary generation, uniqueness, and transfer-history handling remain incomplete."
+      "note": "Unique anniversary reviews preserve original space snapshots and history; source changes fail safely, while complete transfer execution and anniversary reset remain incomplete."
     },
     {
       "id": "WORKER-006",

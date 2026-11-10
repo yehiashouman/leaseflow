@@ -1,7 +1,7 @@
 # LeaseFlow Project Checklist
 
 Source: [requirements.md](requirements.md), blob `76eba54271889ebb4ec52dc61efeaf0b99386974`.
-Date: 9 November 2026.
+Date: 10 November 2026.
 Target repository: `yehiashouman/leaseflow`.
 Scope: complete initial release, not a scaffold or prototype.
 
@@ -638,19 +638,19 @@ Requirements: 15, 23-24.
 
 Requirements: 6, 9, 25.
 
-- [ ] **JOB-001** Create durable workers and a scheduler with bounded retries.
-- [ ] **JOB-002** Persist critical work independently of cache eviction.
-- [ ] **JOB-003** Catch up overdue tasks after downtime.
-- [ ] **JOB-004** Prevent duplicate effects across worker replicas.
-- [ ] **JOB-005** Inject a test clock for deadline verification.
-- [ ] **JOB-006** Store UTC timestamps and apply contract timezone calendar rules.
-- [ ] **JOB-007** Default Dubai display and contract configuration to Asia/Dubai.
-- [ ] **JOB-008** Use calendar days, not unapproved business-day interpretations.
-- [ ] **JOB-009** Audit automatic decisions with rule, timestamp, and entity.
+- [x] **JOB-001** Create durable workers and a scheduler with bounded retries. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-002** Persist critical work independently of cache eviction. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-003** Catch up overdue tasks after downtime. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-004** Prevent duplicate effects across worker replicas. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-005** Inject a test clock for deadline verification. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-006** Store UTC timestamps and apply contract timezone calendar rules. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-007** Default Dubai display and contract configuration to Asia/Dubai. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-008** Use calendar days, not unapproved business-day interpretations. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
+- [x] **JOB-009** Audit automatic decisions with rule, timestamp, and entity. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
 - [ ] **JOB-010** Implement every job in the job inventory below.
 - [x] **JOB-011** Keep notification intent transactionally tied to business events. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **JOB-012** Expose job failures and authorized operational recovery.
-- [ ] **JOB-013** Verify duplicate execution, worker interruption, scheduler restart, and delayed provider response.
+- [x] **JOB-013** Verify duplicate execution, worker interruption, scheduler restart, and delayed provider response. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
 
 ## 26. Security and Privacy
 
@@ -740,7 +740,7 @@ Requirements: 14, 24.
 - [x] **MODEL-014** Implement `documents / media`: Versioned identity, property, consent, evidence, images and reports. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **MODEL-015** Implement `notifications`: Email, WhatsApp and in-app delivery history. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **MODEL-016** Implement `audit_events`: Actor, action, old/new values, reason, time, IP/session and entity reference.
-- [ ] **MODEL-017** Implement `contract_reviews`: Twelve-month reminders, decisions and proposed amendments.
+- [x] **MODEL-017** Implement `contract_reviews`: Twelve-month reminders, decisions and proposed amendments. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
 
 ## 30. Required Screen Inventory
 
@@ -835,9 +835,9 @@ Requirements: 23.2.
 
 Requirements: 25.1.
 
-- [ ] **WORKER-001** Implement Monthly obligations: Generate applicable obligations once per contract and period.
+- [x] **WORKER-001** Implement Monthly obligations: Generate applicable obligations once per contract and period. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
 - [ ] **WORKER-002** Implement Due/overdue notifications: Respect expected dates, preferences, and duplicate prevention.
-- [ ] **WORKER-003** Implement Room-change expiry: Reject unapproved requests after five calendar days; record the required expiry reason.
+- [x] **WORKER-003** Implement Room-change expiry: Reject unapproved requests after five calendar days; record the required expiry reason. [Evidence](docs/EVIDENCE.md#durable-business-jobs-and-annual-reviews).
 - [ ] **WORKER-004** Implement Negotiation deadline: Expose the seven-day deadline; apply only the confirmed expiry policy from section 29.
 - [ ] **WORKER-005** Implement Annual reviews: Create one review per same-space anniversary; preserve transfer history.
 - [ ] **WORKER-006** Implement Document expiry: Notify affected users; show expired status without false legal certification.

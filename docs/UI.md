@@ -113,7 +113,8 @@ The country catalogue contains 249 ISO 3166-1 codes; language labels use browser
 The language catalogue contains ISO 639-1 codes, including Arabic and English.
 Dubai area/community choices combine a dated public DLD-derived snapshot and common neighbourhood labels.
 Sources: https://datadubai.ae/areas.json, https://datadubai.ae/communities.json, and https://www.visitdubai.com/en/explore-dubai/dubai-neighbourhoods.
-Building choices combine developer-sourced starter entries and the manager's saved property records.
+Building choices now depend on the selected Dubai area and combine developer-sourced starter entries with the manager's saved property records.
+An area change clears the prior building selection.
 This catalogue does not represent every Dubai building.
 An explicit unlisted-building action preserves access for absent entries.
 Saved historical values remain available; the interface does not silently rewrite existing records.
