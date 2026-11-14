@@ -29,7 +29,7 @@ jobs:
       - run: npm run test:e2e:preview -w web
       - name: Retain browser verification evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-verification
           path: web/test-results
