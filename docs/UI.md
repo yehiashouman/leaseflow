@@ -121,6 +121,19 @@ The map extract covers named footprints and has gaps. The official citywide regi
 
 The index credits [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) and uses the Open Database License.
 To refresh it, run `scripts/import-dubai-buildings.py` with a [Geofabrik GCC extract](https://download.geofabrik.de/asia/gcc-states.html) and the WGS84 community GeoJSON linked in the index metadata.
+To merge an authorized registry CSV, use a fresh map-only index as the base.
+Pass the exact area and building name headers from the export.
+
+```bash
+python3 scripts/merge-dubai-building-registry.py buildings.csv \
+  --area-column 'Area' --name-column 'Building Name' \
+  --source 'Dubai Land Department' --output /tmp/dubai-building-index.json
+```
+
+Review the generated index before replacing `web/src/data/dubai-building-index.json`.
+The importer keeps only the area and building name.
+It does not infer a building name from a project name or building number.
+
 An explicit unlisted-building action preserves access for absent entries.
 Saved historical values remain available; the interface does not silently rewrite existing records.
 Search supports keyboard selection, screen-reader labels, native required validation, and server field errors.

@@ -41,6 +41,10 @@ async function setupLogin(page: Page, email: string, pass = password) {
   await page.getByLabel('Password', { exact: true }).fill(pass);
   await page.getByRole('button', { name: 'Open account setup', exact: true }).click();
 }
+async function endSetupSession(page: Page) {
+  await page.getByRole('button', { name: 'End account setup session', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Open account setup', exact: true })).toBeEnabled();
+}
 test('real manager registration, email verification, session restrictions, and one-time password recovery', async ({
   page,
 }, testInfo) => {
@@ -74,7 +78,7 @@ test('real manager registration, email verification, session restrictions, and o
     ).toBeVisible();
     const user = await prisma.user.findUniqueOrThrow({ where: { email } });
     expect(user.status).toBe('PENDING_PHONE');
-    await page.getByRole('button', { name: 'End account setup session', exact: true }).click();
+    await endSetupSession(page);
     await page.goto('/forgot-password');
     await page.getByLabel('Email', { exact: true }).fill(email);
     await page.getByRole('button', { name: 'Request reset email', exact: true }).click();
@@ -88,7 +92,7 @@ test('real manager registration, email verification, session restrictions, and o
     await expect(page.getByText('Password reset. Sign in again.')).toBeVisible();
     await setupLogin(page, email, 'ChangedBrowser123!');
     await expect(page.getByRole('heading', { name: 'Account status', exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'End account setup session', exact: true }).click();
+    await endSetupSession(page);
     await page.goto('/reset-password#token=' + reset);
     await page.getByLabel('New password', { exact: true }).fill('ReplayBrowser123!');
     await page.getByRole('button', { name: 'Reset password', exact: true }).click();
