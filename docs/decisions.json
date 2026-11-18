@@ -57,9 +57,9 @@
       "id": "DEC-10",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
-      "resolution": "Mark the portion of a rent payment that exceeds the amount owed as a refund due to the tenant. Show the amount and refund status to both the tenant and the manager. The manager returns the excess and records the refund after it happens.",
-      "remaining": "Confirm the rules for advance rent and the allocation order across multiple rent obligations.",
-      "requirements": ["DEC-10", "PAY-006"]
+      "resolution": "If the tenant does not specify a rent month, allocate the payment to the oldest outstanding rent first. Apply any remainder to the next outstanding rent. Mark any excess as a refund due to the tenant. Show the amount and refund status to both parties. The manager returns the excess and records the refund.",
+      "remaining": "Confirm the rules for advance rent and payments that name a specific month when older rent remains unpaid.",
+      "requirements": ["DEC-10", "PAY-003", "PAY-004", "PAY-006"]
     }
   ],
   "items": [
