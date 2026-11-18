@@ -98,7 +98,9 @@ test('the continuation preserves two hundred existing requirements and evidence-
         item.evidence,
         /^https:\/\/github\.com\/yehiashouman\/leaseflow\/actions\/runs\/\d+$/,
       );
-      assert(['2026-11-09', '2026-11-10'].includes(item.verified));
+      assert.match(item.verified, /^\d{4}-\d{2}-\d{2}$/);
+      assert.equal(new Date(item.verified).toISOString().slice(0, 10), item.verified);
+      assert(item.verified <= batch.date);
     }
     if (item.status === 'BLOCKED') assert(item.decisions.length);
   }

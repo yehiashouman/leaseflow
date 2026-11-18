@@ -47,8 +47,34 @@ type PortfolioDashboard = Record<string, unknown> & {
     partiallyPaid: string;
     receivedThisMonth: string;
   }[];
+  activity?: {
+    annualReviews: {
+      id: string;
+      dueAt: string;
+      milestoneMonths: number;
+      space: string;
+      unit: string;
+    }[];
+    expiringDocuments: {
+      id: string;
+      title: string;
+      purpose: string;
+      expiresAt: string;
+      unitId: string | null;
+      contractId: string | null;
+    }[];
+    expiringDocumentsTotal: number;
+  };
   financialBasis?: string;
   deadlineSummary?: { overdue: number; approaching: number };
+};
+const dubaiDate = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dubai', dateStyle: 'medium' });
+const documentLabels: Record<string, string> = {
+  IDENTITY: 'Identity',
+  OCCUPANT_IDENTITY: 'Occupant identity',
+  LICENSE: 'Licence',
+  PROPERTY_DOCUMENT: 'Unit document',
+  CONSENT: 'Consent',
 };
 function ManagerDashboard() {
   const { data, isPending, error, refetch } = useQuery({
@@ -194,6 +220,72 @@ function ManagerDashboard() {
           </dl>
         </section>
       </div>
+      {data?.activity && (
+        <div className="grid items-start gap-5 lg:grid-cols-2">
+          <section
+            className="space-y-3 rounded-2xl border bg-white p-5"
+            aria-labelledby="annual-review-activity"
+          >
+            <h2 id="annual-review-activity" className="font-semibold">
+              Reviews due within 30 days
+            </h2>
+            <Link className="text-sm text-primary underline" to="/reviews">
+              View annual reviews
+            </Link>
+            {!data.activity.annualReviews.length && (
+              <p className="text-sm text-muted-foreground">No reviews due or overdue.</p>
+            )}
+            <ul className="divide-y">
+              {data.activity.annualReviews.map((review) => (
+                <li key={review.id} className="grid gap-1 py-2 text-sm">
+                  <Link className="text-primary underline" to={'/reviews/' + review.id}>
+                    {review.unit} · {review.space}
+                  </Link>
+                  <span>
+                    {review.milestoneMonths}-month review ·{' '}
+                    {dubaiDate.format(new Date(review.dueAt))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <section
+            className="space-y-3 rounded-2xl border bg-white p-5"
+            aria-labelledby="document-expiry-activity"
+          >
+            <h2 id="document-expiry-activity" className="font-semibold">
+              Documents expiring within 30 days
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {data.activity.expiringDocumentsTotal
+                ? `Showing ${data.activity.expiringDocuments.length} of ${data.activity.expiringDocumentsTotal}`
+                : 'No current documents expire in this period.'}
+            </p>
+            <ul className="divide-y">
+              {data.activity.expiringDocuments.map((document) => (
+                <li key={document.id} className="grid gap-1 py-2 text-sm">
+                  <Link
+                    className="break-words text-primary underline"
+                    to={
+                      document.unitId
+                        ? '/units/' + document.unitId
+                        : document.contractId
+                          ? '/contracts/' + document.contractId
+                          : '/documents'
+                    }
+                  >
+                    {document.title}
+                  </Link>
+                  <span>
+                    {documentLabels[document.purpose] ?? document.purpose} ·{' '}
+                    {dubaiDate.format(new Date(document.expiresAt))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
       <section
         className="space-y-4 rounded-2xl border border-border/70 bg-white p-5 sm:p-6"
         aria-labelledby="rent-summary"

@@ -510,7 +510,7 @@ Requirements: 11, 22-23.
 - [x] **DASH-001** Build an administrator dashboard separate from business-role dashboards. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-002** Build a manager dashboard from owned operational data. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-003** Show units, enabled spaces, occupancy, vacancies, and maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **DASH-004** Show rent due today, within seven days, overdue, partially paid, and received this month.
+- [x] **DASH-004** Show rent due today, within seven days, overdue, partially paid, and received this month. [Evidence](docs/EVIDENCE.md#rent-dashboard-balances).
 - [ ] **DASH-005** Show deposits held, projected refunds, refunds due, and disputed deductions.
 - [x] **DASH-006** Show open maintenance, complaints, room changes, late requests, and move-outs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-007** Show requests that await the manager and approaching deadlines. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
@@ -518,7 +518,7 @@ Requirements: 11, 22-23.
 - [ ] **DASH-009** Show monthly income, owner rent, expenses, and estimated unit profit.
 - [x] **DASH-010** Build a tenant dashboard scoped to the authenticated relationship. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-011** Show current unit/space, move-in date, and months/days of occupancy. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **DASH-012** Show next payment date, rent, current balance, and payment history.
+- [x] **DASH-012** Show next payment date, rent, current balance, and payment history. [Evidence](docs/EVIDENCE.md#rent-dashboard-balances).
 - [ ] **DASH-013** Show held deposit, proposals, projected refund, and refund status.
 - [x] **DASH-014** Show unresolved requests, recent replies, and pending acknowledgements. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-015** Show due day, notice, late-request window, and permitted extension.

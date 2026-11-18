@@ -606,3 +606,12 @@ Both container images and fresh Compose startup pass, including worker heartbeat
 
 The new Dubai interface is a later commit; its UI acceptance remains separate from these scheduler closures.
 All 26 owner decisions remain pending; production finance, amendment application, retention, and complete transfer execution remain gated.
+
+## Rent Dashboard Balances
+
+Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.com/yehiashouman/leaseflow/commit/e4999209e00765bdcca065d505f5b7fd1545b889) · [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
+
+- **DASH-004:** Manager totals reconcile exact balances and dated receipt records. Controlled-clock and MySQL tests cover Dubai midnight, month boundaries, paid rows, partial balances, and currency separation. Desktop and mobile verify the dashboard against a real receipt.
+- **DASH-012:** The tenant view joins the current contract to its outstanding obligations. MySQL verifies the balance through today, the next scheduled payment, and denial of another tenant’s records.
+
+Code and test paths are recorded in [the verification matrix](batch-200.json). The dashboard reads recorded obligations and receipts. It does not calculate pending late-payment, transfer, or refund policy.

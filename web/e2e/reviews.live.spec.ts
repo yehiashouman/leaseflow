@@ -77,7 +77,12 @@ test('real annual review preserves a deferral, a visible next-month proposal, or
     await expect(
       page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
     ).toBeVisible();
-    await page.goto('/reviews/' + review.id);
+    const milestones = page.getByRole('region', { name: 'Reviews due within 30 days' });
+    const milestone = milestones.getByRole('link', {
+      name: 'Review Browser Unit · Review Browser Room',
+    });
+    await expect(milestone).toHaveAttribute('href', '/reviews/' + review.id);
+    await milestone.click();
     await page.getByRole('button', { name: 'Defer review', exact: true }).click();
     let dialog = page.getByRole('dialog');
     const deferred = new Date();

@@ -2,7 +2,7 @@
   "target": 200,
   "baselineCompleted": 162,
   "baselineTotal": 764,
-  "date": "2026-11-10",
+  "date": "2026-11-19",
   "timezone": "Asia/Dubai",
   "baselineCommit": "9d7282848dee1ee2bcf42cb4f372964df5c9e8b5",
   "baselineCompletedIds": [
@@ -1300,15 +1300,22 @@
     {
       "id": "DASH-004",
       "requirement": "Show rent due today, within seven days, overdue, partially paid, and received this month.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
         "api/src/routes/dashboard.ts",
-        "web/src/pages/Dashboard.tsx",
-        "web/src/pages/RoleDashboards.tsx"
+        "api/src/rent-dashboard.ts",
+        "web/src/pages/Dashboard.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "web/src/ui.test.tsx"],
+      "tests": [
+        "api/test/rent-dashboard.test.ts",
+        "api/integration/payments.test.ts",
+        "web/e2e/payments.live.spec.ts"
+      ],
       "decisions": [],
-      "note": "Original-currency all-date balances exist; today, seven-day, monthly receipts, and partial-payment dashboard buckets remain incomplete."
+      "note": "Shows exact outstanding rent today, over the next seven Dubai dates, overdue and partially paid. Monthly receipts use immutable payment records and retain their original currency.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44393970365",
+      "commit": "e4999209e00765bdcca065d505f5b7fd1545b889",
+      "verified": "2026-11-19"
     },
     {
       "id": "DASH-005",
@@ -1444,15 +1451,18 @@
     {
       "id": "DASH-012",
       "requirement": "Show next payment date, rent, current balance, and payment history.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
         "api/src/routes/dashboard.ts",
-        "web/src/pages/Dashboard.tsx",
+        "api/src/rent-dashboard.ts",
         "web/src/pages/RoleDashboards.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "web/src/ui.test.tsx"],
+      "tests": ["api/test/rent-dashboard.test.ts", "api/integration/payments.test.ts"],
       "decisions": [],
-      "note": "Tenant rent and recent payment history exist; authoritative next-payment and current-balance projections remain incomplete."
+      "note": "Shows rent, scheduled payment date and unpaid balance through today with recent payment history, scoped to the tenant’s current contract.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44393970365",
+      "commit": "e4999209e00765bdcca065d505f5b7fd1545b889",
+      "verified": "2026-11-19"
     },
     {
       "id": "DASH-013",

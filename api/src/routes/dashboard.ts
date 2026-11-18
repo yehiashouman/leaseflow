@@ -9,6 +9,7 @@ import {
   rentDashboardTotals,
   rentWindows,
 } from '../rent-dashboard.js';
+import { managerDashboardActivity } from '../dashboard-activity.js';
 import { caseContractScope, caseContractSelect, caseScope } from '../case-data.js';
 
 export const dashboardRoutes: FastifyPluginAsync = async (app) => {
@@ -182,6 +183,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           payments,
           expenses,
           monthlyReceipts,
+          activity,
         ] = await Promise.all([
           tx.unit.count({ where: unitScope }),
           tx.rentalSpace.groupBy({
@@ -228,6 +230,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             },
             _sum: { amount: true },
           }),
+          managerDashboardActivity(tx, request.user, now),
         ]);
         const count = (status: string) =>
           spaceGroups.find((g) => g.status === status)?._count._all ?? 0;
@@ -280,6 +283,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           requestsByType: Object.fromEntries(requestGroups.map((g) => [g.type, g._count._all])),
           awaitingManager,
           deadlines,
+          activity,
           rentSummary: rentDashboardTotals(
             payments.filter(
               (payment) =>

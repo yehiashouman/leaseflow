@@ -1,6 +1,6 @@
 # Full Project Progress Report
 
-Date: 10 November 2026, Asia/Dubai.
+Date: 19 November 2026, Asia/Dubai.
 Source: [checklist.md](../checklist.md).
 Evidence: [EVIDENCE.md](EVIDENCE.md).
 Target: the complete initial release in requirements.md.
@@ -10,17 +10,17 @@ Target: the complete initial release in requirements.md.
 | Measure                                | Verified status                                                                                                                              |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total checklist tasks                  | 764                                                                                                                                          |
-| Completed tasks with evidence          | 267                                                                                                                                          |
-| Tasks without full completion evidence | 497                                                                                                                                          |
-| Strict checklist completion            | 34.95%                                                                                                                                       |
+| Completed tasks with evidence          | 269                                                                                                                                          |
+| Tasks without full completion evidence | 495                                                                                                                                          |
+| Strict checklist completion            | 35.21%                                                                                                                                       |
 | UI foundation tasks                    | 10 of 10 verified                                                                                                                            |
 | Open owner decisions                   | 26                                                                                                                                           |
-| Local API unit/route tests             | 149 pass; database mocks where required                                                                                                      |
+| Local API unit/route tests             | 150 pass; database mocks where required                                                                                                      |
 | Web/component/preview-adapter tests    | 119 pass on GitHub Actions                                                                                                                   |
 | Setup and governance tests             | 12 pass locally and in scheduler CI                                                                                                          |
 | GitHub browser suites                  | 50 pass on the interface revision: four interface fixtures, eighteen preview tests, twenty-six real API journeys, and two real-file journeys |
 | Current verified browser coverage      | Accounts, invitations, private files, occupants, expenses, receipts, preferences, notices, role boundaries, and operational cases            |
-| MySQL suites                           | 201 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
+| MySQL suites                           | 202 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
 | Fresh-stack Docker acceptance          | Pass: zero-user startup, explicit demo, proxy login, password and volume persistence after restart.                                          |
 | Local builds                           | API, web production, and isolated preview pass                                                                                               |
 | Local lint                             | API, integration sources, and web pass                                                                                                       |
@@ -29,19 +29,19 @@ Target: the complete initial release in requirements.md.
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial work exists beyond the 267 completed tasks; the 200-item target remains incomplete.
+Additional partial work exists beyond the 269 completed tasks; the 200-item target remains incomplete.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Current 200-Item Continuation
 
-We verified 105 additional existing checklist tasks.
-The batch contains 105 verified, 67 partial, and 28 blocked requirements.
-Global completion is 267 of 764 (34.95%); 497 requirements remain without full evidence.
+We verified 107 additional existing checklist tasks.
+The batch contains 107 verified, 65 partial, and 28 blocked requirements.
+Global completion is 269 of 764 (35.21%); 495 requirements remain without full evidence.
 The requested 200 additional completions are not complete.
 See [OPERATIONS-EXPENSE-BATCH.md](OPERATIONS-EXPENSE-BATCH.md) for every identifier, exact gap, and evidence link.
 New work covers private expenses/recoveries, contract and occupant setup, operational dashboards, reliable case notices, own preferences, and immutable external receipts, durable business schedules, monthly obligation catch-up, and annual-review decisions.
 The scheduler commit passes 149 API, 109 web, 201 MySQL, two real-file tests, and 46 browser tests. The interface revision passes 119 web tests, 18 preview browser tests, and live application CI.
-Twelve setup/governance tests pass locally after the evidence update.
+Twelve setup/governance tests pass locally after the evidence update. Rent dashboard acceptance passes 202 MySQL tests and 26 live browser tests. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
 Production activation, finance, provider delivery, retention, MFA, moderation, and full initial-release acceptance remain incomplete.
 
 ## Account and Private Document Continuation
@@ -174,7 +174,7 @@ It does not mean that no code exists.
 | 17. Room changes and transfers          |    18 |                 0 | Atomic dated transfer and negotiation workflow remains                                                                                                                |
 | 18. Deposits, move-out, disputes        |    29 |                 0 | Complete liabilities, notice, deduction, refund, and dispute workflow remains                                                                                         |
 | 19. Expenses, currency, reports         |    18 |                 4 | Private direct-scope expenses, evidence, recoveries, and voids verified; allocation policy and complete financial reports remain                                      |
-| 20. Dashboards                          |    19 |                10 | Scoped operational metrics, deadlines, replies, and occupancy verified; full financial and deposit dashboards remain                                                  |
+| 20. Dashboards                          |    19 |                12 | Scoped operational metrics, rent dates and balances, and occupancy verified; profitability and deposit dashboards remain                                              |
 | 21. Notifications and providers         |    18 |                13 | Case channel preferences, durable history, signatures, replay protection, and owner recovery verified; full event coverage and real staging delivery remain           |
 | 22. PDF reports                         |    16 |                 6 | Private case jobs, hashes, retries, status, and actual PDF content verified; full relationship reports remain                                                         |
 | 23. Shared interface and accessibility  |    28 |                13 | shadcn/ui foundation verified; complete business screens remain                                                                                                       |
@@ -196,7 +196,7 @@ It does not mean that no code exists.
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                                                                 |
 | 40. Source coverage map                 |     7 |                 0 | Reference table; no tasks                                                                                                                                             |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                                                             |
-| Total                                   |   764 |               267 | 497 tasks without full completion evidence                                                                                                                            |
+| Total                                   |   764 |               269 | 495 tasks without full completion evidence                                                                                                                            |
 
 ## Implemented in This Continuation
 

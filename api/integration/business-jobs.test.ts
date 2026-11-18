@@ -172,6 +172,88 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       orderBy: { dueAt: 'asc' },
     });
   }
+  it('shows only owned review milestones and the latest clean expiring documents', async () => {
+    const expiry = new Date(Date.now() + 5 * 86_400_000);
+    const seriesIds: string[] = [];
+    const addSeries = async (
+      owner: Actor,
+      purpose: 'IDENTITY' | 'LICENSE' | 'PROPERTY_DOCUMENT' | 'CONSENT',
+      unitId?: string,
+    ) => {
+      const created = await prisma.documentSeries.create({
+        data: { ownerUserId: owner.id, purpose, unitId },
+      });
+      seriesIds.push(created.id);
+      return created.id;
+    };
+    const addVersion = (
+      seriesId: string,
+      uploader: Actor,
+      title: string,
+      version = 1,
+      expiresAt: Date | null = expiry,
+    ) =>
+      prisma.document.create({
+        data: {
+          seriesId,
+          version,
+          uploaderUserId: uploader.id,
+          clientId: randomUUID(),
+          payloadHash: 'a'.repeat(64),
+          title,
+          originalName: 'private-original.png',
+          mimeType: 'image/png',
+          originalSize: 1,
+          sourceHash: 'b'.repeat(64),
+          quarantineKey: randomUUID(),
+          status: 'CLEAN',
+          expiresAt,
+        },
+      });
+    try {
+      const review = await prisma.contractReview.create({
+        data: { contractId, dueAt: expiry, milestoneMonths: 12 },
+      });
+      const identity = await addSeries(manager, 'IDENTITY');
+      const licence = await addSeries(manager, 'LICENSE');
+      const property = await addSeries(manager, 'PROPERTY_DOCUMENT', unitId);
+      const consent = await addSeries(manager, 'CONSENT', unitId);
+      const other = await addSeries(foreign, 'IDENTITY');
+      await addVersion(identity, manager, 'Expiring manager identity');
+      await addVersion(licence, manager, 'Expiring manager licence');
+      await addVersion(property, manager, 'Old unit document');
+      await addVersion(property, manager, 'Current undated unit document', 2, null);
+      await addVersion(consent, manager, 'Expiring unit consent');
+      await addVersion(other, foreign, 'Foreign identity');
+      const response = await send('GET', '/dashboard/manager');
+      expect(response.statusCode, response.body).toBe(200);
+      const activity = response.json().activity;
+      expect(activity.annualReviews).toEqual([
+        {
+          id: review.id,
+          dueAt: expiry.toISOString(),
+          milestoneMonths: 12,
+          space: 'Job Space',
+          unit: 'Job Unit',
+        },
+      ]);
+      expect(activity.expiringDocuments.map((row: { title: string }) => row.title).sort()).toEqual([
+        'Expiring manager identity',
+        'Expiring manager licence',
+        'Expiring unit consent',
+      ]);
+      expect(activity.expiringDocumentsTotal).toBe(3);
+      expect(JSON.stringify(activity)).not.toContain('private-original.png');
+      const outside = (await send('GET', '/dashboard/manager', undefined, foreign)).json();
+      expect(outside.activity.annualReviews).toEqual([]);
+      expect(outside.activity.expiringDocuments).toHaveLength(1);
+      expect(outside.activity.expiringDocuments[0].title).toBe('Foreign identity');
+    } finally {
+      await prisma.document.deleteMany({ where: { seriesId: { in: seriesIds } } });
+      await prisma.documentSeries.deleteMany({ where: { id: { in: seriesIds } } });
+      await cleanup();
+    }
+  });
   it('materializes one durable job per source and kind across scheduler restarts', async () => {
     try {
       await jobs();

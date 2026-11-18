@@ -1,11 +1,11 @@
 # 200-Item Continuation Report
 
-Date: 10 November 2026, Asia/Dubai.
+Date: 19 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 105 additional verified requirements; 267 of 764 overall (34.95%).
-The target is not complete: 67 partial and 28 blocked requirements remain in this batch.
+Current result: 107 additional verified requirements; 269 of 764 overall (35.21%).
+The target is not complete: 65 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -65,6 +65,8 @@ The prior 100-item report remains a historical snapshot at its own evidence comm
 
 Scheduler acceptance: https://github.com/yehiashouman/leaseflow/actions/runs/42739428937.
 The interface revision passes 119 web tests, 18 preview browser tests, and live application CI. [Preview acceptance](https://github.com/yehiashouman/leaseflow/actions/runs/42743957097).
+
+Rent dashboard acceptance: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
 
 ## Complete 200-Item Matrix
 
@@ -128,7 +130,7 @@ Only VERIFIED rows receive completion credit.
 | DASH-001           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-002           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-003           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
-| DASH-004           | PARTIAL  | Original-currency all-date balances exist; today, seven-day, monthly receipts, and partial-payment dashboard buckets remain incomplete.                                                                               |
+| DASH-004           | VERIFIED | Shows exact outstanding rent today, over the next seven Dubai dates, overdue and partially paid. Monthly receipts use immutable payment records and retain their original currency.                                   |
 | DASH-005           | BLOCKED  | The dashboard states that verified deposit liability is unavailable; refund projections, disputes, and liabilities remain incomplete.                                                                                 |
 | DASH-006           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-007           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
@@ -136,7 +138,7 @@ Only VERIFIED rows receive completion credit.
 | DASH-009           | BLOCKED  | Recorded expenses preserve currency; monthly income, owner-rent attribution, and approved estimated profit remain incomplete.                                                                                         |
 | DASH-010           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-011           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
-| DASH-012           | PARTIAL  | Tenant rent and recent payment history exist; authoritative next-payment and current-balance projections remain incomplete.                                                                                           |
+| DASH-012           | VERIFIED | Shows rent, scheduled payment date and unpaid balance through today with recent payment history, scoped to the tenant’s current contract.                                                                             |
 | DASH-013           | BLOCKED  | Deposit contract terms exist; held liability, refund projections, proposals, and refund status require a complete settlement ledger.                                                                                  |
 | DASH-014           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-015           | PARTIAL  | Due day and notice appear; late-request eligibility window and permitted extension controls remain incomplete.                                                                                                        |
