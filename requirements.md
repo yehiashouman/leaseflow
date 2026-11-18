@@ -1171,12 +1171,12 @@ Preserve unaffected implementation work while decisions remain open.
 
 - **DEC-01, approved 19 November 2026.** Keep full precision until each charge or credit posts. Round to the nearest minor unit, with ties away from zero. Sum posted amounts at full precision.
 - **DEC-02, approved 19 November 2026.** If the configured due day is absent, use the last calendar day in Dubai. Keep the configured day for later months.
-- **DEC-07, late-payment rule approved 19 November 2026.** The six-month wait starts on the manager’s approval date in Dubai. An approval on January 15 allows the next approval from July 15.
-- **DEC-08, late-payment rule approved 19 November 2026.** An approved extension counts for the full six months even if the manager cancels or reverses it.
+- **DEC-07, approved 19 November 2026.** Late-payment extensions and room changes have separate six-month limits. Each starts on the manager’s approval date in Dubai. If the sixth month lacks that day, the next approval is allowed from the last day of that month.
+- **DEC-08, partial approval on 19 November 2026.** A late-payment extension or room change counts for the full six months after approval, even if the manager cancels or reverses it.
 - **DEC-09, approved 19 November 2026.** Tenants must submit late-payment requests before the due date starts in Dubai. Rent must be paid before that date starts. Managers can record late payments. The due date counts as the first late day.
 - **DEC-11, approved 19 November 2026.** Financial reports use cash basis only. Count income when received and expenses when paid. Show unpaid obligations and arrears separately.
 
-DEC-07 and DEC-08 remain open for the short-month boundary, withdrawals, and room-change rules described in the decision register.
+DEC-08 remains open for tenant withdrawals after manager approval.
 
 - Use half-open allocation intervals to avoid double occupancy on a transfer boundary, only after date-policy approval.
 - Use role-specific routes without inferred fallback to manager permissions.
