@@ -57,8 +57,8 @@
       "id": "DEC-10",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
-      "resolution": "Record the portion of a rent payment that exceeds the amount owed as tenant credit. The manager can apply that credit to future rent.",
-      "remaining": "Confirm the rules for advance rent, the allocation order across multiple rent obligations, and how to handle unused credit when the tenancy ends.",
+      "resolution": "Mark the portion of a rent payment that exceeds the amount owed as a refund due to the tenant. Show the amount and refund status to both the tenant and the manager. The manager returns the excess and records the refund after it happens.",
+      "remaining": "Confirm the rules for advance rent and the allocation order across multiple rent obligations.",
       "requirements": ["DEC-10", "PAY-006"]
     }
   ],
