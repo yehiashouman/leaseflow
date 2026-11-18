@@ -1171,6 +1171,7 @@ Preserve unaffected implementation work while decisions remain open.
 
 - **DEC-01, approved 19 November 2026.** Keep full precision until each charge or credit posts. Round to the nearest minor unit, with ties away from zero. Sum posted amounts at full precision.
 - **DEC-02, approved 19 November 2026.** If the configured due day is absent, use the last calendar day in Dubai. Keep the configured day for later months.
+- **DEC-06, approved 19 November 2026.** The manager can extend the seven-day room-change deadline once by seven calendar days. If the applicable deadline passes without an agreement or extension, close the request. The tenant stays in their current room.
 - **DEC-07, approved 19 November 2026.** Late-payment extensions and room changes have separate six-month limits. Each starts on the manager’s approval date in Dubai. If the sixth month lacks that day, the next approval is allowed from the last day of that month.
 - **DEC-08, approved 19 November 2026.** A late-payment extension or room change counts for the full six months after approval, even if the tenant withdraws it or the manager cancels or reverses it.
 - **DEC-09, approved 19 November 2026.** Tenants must submit late-payment requests before the due date starts in Dubai. Rent must be paid before that date starts. Managers can record late payments. The due date counts as the first late day.

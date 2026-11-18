@@ -53,7 +53,7 @@ The immutable reason is `Approval period expired.`
 An approval history prevents automatic expiry during negotiation.
 The state change, immutable event, participant notices, audit rule, and job result share one transaction.
 This worker does not enable the incomplete room-change submission, transfer, or negotiation workflows.
-The seven-day negotiation outcome remains gated by DEC-06.
+DEC-06 allows one seven-day extension and closure if the final deadline passes without an agreement. The negotiation workflow still needs implementation.
 
 ## Operational Recovery
 

@@ -17,6 +17,13 @@
       "requirements": ["DEC-02", "TEST-RENT-02"]
     },
     {
+      "id": "DEC-06",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "If no destination is agreed within seven calendar days, the manager can extend the room-change deadline once by seven calendar days. Close the request if no agreement exists at the applicable deadline and the manager grants no extension. The tenant stays in their current room when the request closes without an agreement.",
+      "requirements": ["DEC-06", "TRANS-007", "TRANS-009", "WORKER-004"]
+    },
+    {
       "id": "DEC-07",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
