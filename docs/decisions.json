@@ -31,6 +31,24 @@
       "requirements": ["DEC-11", "DASH-009"]
     }
   ],
+  "partialDecisions": [
+    {
+      "id": "DEC-07",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "The six-month wait for another late-payment extension starts on the manager’s approval date in Dubai. An approval on January 15 allows the next approval from July 15.",
+      "remaining": "The short-month boundary and the separate room-change eligibility rule remain open.",
+      "requirements": ["DEC-07", "LATE-006", "LATE-007"]
+    },
+    {
+      "id": "DEC-08",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "A cancelled or reversed late-payment extension still counts for the full six months if a manager approved it.",
+      "remaining": "Withdrawals and the separate room-change allowance remain open.",
+      "requirements": ["DEC-08", "LATE-006"]
+    }
+  ],
   "items": [
     { "id": "DEC-01", "question": "Currency rounding and decimal policy" },
     { "id": "DEC-02", "question": "Due days in shorter months" },

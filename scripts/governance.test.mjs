@@ -17,9 +17,10 @@ test('every owner decision has an explicit status and owner evidence for approva
   assert.equal(decisions.itemDefaults.status, 'PENDING');
   assert.equal(decisions.itemDefaults.resolution, null);
   const approvals = decisions.approvedDecisions;
-  assert.equal(new Set(approvals.map(({ id }) => id)).size, approvals.length);
+  const recorded = [...approvals, ...decisions.partialDecisions];
+  assert.equal(new Set(recorded.map(({ id }) => id)).size, recorded.length);
   const checklist = read('checklist.md');
-  for (const approval of approvals) {
+  for (const approval of recorded) {
     assert(expected.includes(approval.id));
     assert.equal(approval.approvedBy, decisions.itemDefaults.owner);
     assert.match(approval.approvedAt, /^\d{4}-\d{2}-\d{2}$/);
@@ -28,6 +29,7 @@ test('every owner decision has an explicit status and owner evidence for approva
     assert(approval.requirements.includes(approval.id));
     for (const id of approval.requirements) assert(checklist.includes('**' + id + '**'));
   }
+  for (const approval of decisions.partialDecisions) assert(approval.remaining.trim());
   for (const id of expected) {
     assert.equal(
       checklist.includes('- [x] **' + id + '**'),
