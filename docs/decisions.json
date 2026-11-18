@@ -17,6 +17,20 @@
       "requirements": ["DEC-02", "TEST-RENT-02"]
     },
     {
+      "id": "DEC-03",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Count the Dubai notice submission date as day one. With a 30-day notice received on June 1, June 30 is the earliest move-out date without a notice deduction.",
+      "requirements": ["DEC-03", "DEP-008", "DEP-009"]
+    },
+    {
+      "id": "DEC-05",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "For each room transfer, the manager records the rent difference, deposit treatment, and cancellation terms. Both parties confirm the terms before the transfer takes effect.",
+      "requirements": ["DEC-05", "TRANS-010", "TRANS-011", "TRANS-012"]
+    },
+    {
       "id": "DEC-06",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
@@ -45,21 +59,130 @@
       "requirements": ["DEC-09", "LATE-003", "PAY-001"]
     },
     {
+      "id": "DEC-10",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Allow advance rent when the tenant names the future month. Apply a payment to the named month first. For any amount without a month designation, apply it to the oldest outstanding rent first and then to the next outstanding rent. Mark any excess as a refund due. Show the refund amount and status to both parties. The manager returns the excess and records the refund.",
+      "requirements": ["DEC-10", "PAY-003", "PAY-004", "PAY-006"]
+    },
+    {
       "id": "DEC-11",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
       "resolution": "Use cash basis only for financial reports. Count income when received and expenses when paid, regardless of payment method. Keep unpaid obligations and arrears visible as operational records.",
       "requirements": ["DEC-11", "DASH-009"]
+    },
+    {
+      "id": "DEC-12",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Split shared costs equally across occupied rental spaces. Apply a new split from the start of the next calendar month.",
+      "requirements": ["DEC-12", "FIN-006"]
+    },
+    {
+      "id": "DEC-14",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Require the manager declaration, proof of ownership or tenancy, and written landlord consent where applicable before unit activation.",
+      "requirements": ["DEC-14", "UNIT-013", "TEST-INV-03"]
+    },
+    {
+      "id": "DEC-15",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Warn users about expired required identity, licence, or property documents. Block new contracts that rely on an expired document. Existing contracts and normal account access remain available.",
+      "requirements": ["DEC-15", "UNIT-013"]
+    },
+    {
+      "id": "DEC-16",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Let rejected applicants resubmit after correction. Let suspended tenants read their own contract and payment history. Use support for closed-relationship reports and documents if the account is suspended, per DEC-26.",
+      "requirements": ["DEC-16", "MGR-016", "PDF-015"]
+    },
+    {
+      "id": "DEC-18",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Accept PDF, JPG, and PNG up to 10 MB. Verification codes expire after 10 minutes and allow five attempts. Invitations expire after seven days. Send one reminder two days before expiry.",
+      "requirements": ["DEC-18", "PLAN-004"]
+    },
+    {
+      "id": "DEC-20",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Support 500 units, 100 concurrent users, and 10,000 rows per report. Target the 95th percentile at or below two seconds for normal pages and 60 seconds for reports.",
+      "requirements": ["DEC-20", "PLAN-004"]
+    },
+    {
+      "id": "DEC-21",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "After a no-change review, wait until the next same-space anniversary. After a deferral, send one reminder on the new date.",
+      "requirements": ["DEC-21", "CON-009", "CON-014"]
+    },
+    {
+      "id": "DEC-22",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Require authenticator-app MFA before privileged administrator access. Allow read-only support impersonation with a required reason and audit entry.",
+      "requirements": ["DEC-22", "AUTH-014", "ADMIN-014", "ADMIN-017"]
+    },
+    {
+      "id": "DEC-23",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Require tenant confirmation in the app before an initial contract or a later rent change takes effect.",
+      "requirements": ["DEC-23", "CON-005", "CON-006"]
+    },
+    {
+      "id": "DEC-26",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Give former tenants read-only access to their own past reports and documents. For a suspended account, route requests for closed-relationship reports and documents through support.",
+      "requirements": ["DEC-26", "PDF-015"]
     }
   ],
   "partialDecisions": [
     {
-      "id": "DEC-10",
+      "id": "DEC-13",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
-      "resolution": "If the tenant does not specify a rent month, allocate the payment to the oldest outstanding rent first. Apply any remainder to the next outstanding rent. Mark any excess as a refund due to the tenant. Show the amount and refund status to both parties. The manager returns the excess and records the refund.",
-      "remaining": "Confirm the rules for advance rent and payments that name a specific month when older rent remains unpaid.",
-      "requirements": ["DEC-10", "PAY-003", "PAY-004", "PAY-006"]
+      "resolution": "Use a named exchange-rate provider and refresh daily. If the provider fails, use the last saved rate and show its date.",
+      "remaining": "Name the provider and the role authorized to approve a manual rate.",
+      "requirements": ["DEC-13", "PLAN-004"]
+    },
+    {
+      "id": "DEC-17",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Use an owner-approved written retention policy.",
+      "remaining": "Provide retention periods by record type, backup duration and jurisdiction. Specify when deletion or anonymization applies and who can release a dispute hold.",
+      "requirements": ["DEC-17", "PLAN-004"]
+    },
+    {
+      "id": "DEC-19",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Use the AWS UAE region for production.",
+      "remaining": "Provide app and API domains, the sender email, approved Twilio template names, maximum downtime, and maximum acceptable data loss.",
+      "requirements": ["DEC-19", "OPS-018"]
+    },
+    {
+      "id": "DEC-24",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Target refunds within seven calendar days. Alert both parties when overdue. Return any undisputed amount by the deadline. Keep the case open for disputed amounts.",
+      "remaining": "Confirm which event starts the seven-day period.",
+      "requirements": ["DEC-24", "DEP-029"]
+    },
+    {
+      "id": "DEC-25",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Hold a room only after both parties confirm the destination and move date.",
+      "remaining": "Confirm when to release a reservation if the confirmed move does not happen.",
+      "requirements": ["DEC-25", "TRANS-013", "TRANS-018"]
     }
   ],
   "items": [

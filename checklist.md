@@ -995,30 +995,30 @@ Proposed defaults are not accepted business rules.
 
 - [x] **DEC-01** Confirm Exact currency-round policy and the stage that rounds proration, notice deductions, conversions, and totals. [Owner approval](docs/decisions.json).
 - [x] **DEC-02** Confirm Due-day behavior for day 29, 30, or 31 in shorter months. [Owner approval](docs/decisions.json).
-- [ ] **DEC-03** Confirm Exact inclusive date boundaries for notice submission, effective exit, and earliest penalty-free move-out.
+- [x] **DEC-03** Confirm Exact inclusive date boundaries for notice submission, effective exit, and earliest penalty-free move-out. [Owner approval](docs/decisions.json).
 - [ ] **DEC-04** Confirm Final-month rent after confirmed move-out and its interaction with notice deductions.
-- [ ] **DEC-05** Confirm Transfer-month proration, rent differences, deposit movement/top-up/refund, and transfer cancellation.
+- [x] **DEC-05** Confirm Transfer-month proration, rent differences, deposit movement/top-up/refund, and transfer cancellation. [Owner approval](docs/decisions.json).
 - [x] **DEC-06** Confirm Outcome after seven negotiation days without an accepted destination. [Owner approval](docs/decisions.json).
 - [x] **DEC-07** Confirm Rolling-six-month boundary arithmetic and whether eligibility keys use approval date or another recorded date. [Owner approval](docs/decisions.json).
 - [x] **DEC-08** Confirm Whether withdrawn, cancelled, or reversed approvals consume late-payment and room-change frequency allowances. [Owner approval](docs/decisions.json).
 - [x] **DEC-09** Confirm Whether due-day requests can be submitted on the due date or after it. [Owner approval](docs/decisions.json).
-- [ ] **DEC-10** Confirm Payment overpayment, advance rent, credit balances, and allocation order. [Partial approval](docs/decisions.json).
+- [x] **DEC-10** Confirm Payment overpayment, advance rent, credit balances, and allocation order. [Owner approval](docs/decisions.json).
 - [x] **DEC-11** Confirm Report basis: cash, accrual, or separate explicitly labeled views. [Owner approval](docs/decisions.json).
-- [ ] **DEC-12** Confirm Shared-cost allocation method and effective-date changes.
-- [ ] **DEC-13** Confirm Exchange-rate provider, refresh cadence, failure fallback, and manual rate authority.
-- [ ] **DEC-14** Confirm Required unit evidence categories and activation completeness policy.
-- [ ] **DEC-15** Confirm Expired identity/licence/document effect on access, existing contracts, and new contracts.
-- [ ] **DEC-16** Confirm Account rejection resubmission and suspension effect on tenant historical access.
-- [ ] **DEC-17** Confirm Document retention, deletion/anonymization, dispute holds, backup retention, and jurisdiction policy.
-- [ ] **DEC-18** Confirm Upload size/type limits, OTP lifetime/attempt limits, invitation expiry, and reminder cadence.
-- [ ] **DEC-19** Confirm Production hostnames, email sender, Twilio templates, deployment region, and recovery objectives.
-- [ ] **DEC-20** Confirm Measurable performance targets, portfolio scale, concurrent users, and report size limits.
-- [ ] **DEC-21** Confirm Whether no-change or deferred annual review repeats reminders before the next anniversary.
-- [ ] **DEC-22** Confirm Administrator MFA method and permitted impersonation actions.
-- [ ] **DEC-23** Confirm Tenant acknowledgement requirements before a contract or rent amendment takes effect.
-- [ ] **DEC-24** Confirm Refund target date, overdue refund alerts, and final closure with unresolved disputes.
-- [ ] **DEC-25** Confirm Capacity reservations during invitation/negotiation and reservation expiry.
-- [ ] **DEC-26** Confirm Availability of closed-relationship reports and documents after account suspension or closure.
+- [x] **DEC-12** Confirm Shared-cost allocation method and effective-date changes. [Owner approval](docs/decisions.json).
+- [ ] **DEC-13** Confirm Exchange-rate provider, refresh cadence, failure fallback, and manual rate authority. [Partial approval](docs/decisions.json).
+- [x] **DEC-14** Confirm Required unit evidence categories and activation completeness policy. [Owner approval](docs/decisions.json).
+- [x] **DEC-15** Confirm Expired identity/licence/document effect on access, existing contracts, and new contracts. [Owner approval](docs/decisions.json).
+- [x] **DEC-16** Confirm Account rejection resubmission and suspension effect on tenant historical access. [Owner approval](docs/decisions.json).
+- [ ] **DEC-17** Confirm Document retention, deletion/anonymization, dispute holds, backup retention, and jurisdiction policy. [Partial approval](docs/decisions.json).
+- [x] **DEC-18** Confirm Upload size/type limits, OTP lifetime/attempt limits, invitation expiry, and reminder cadence. [Owner approval](docs/decisions.json).
+- [ ] **DEC-19** Confirm Production hostnames, email sender, Twilio templates, deployment region, and recovery objectives. [Partial approval](docs/decisions.json).
+- [x] **DEC-20** Confirm Measurable performance targets, portfolio scale, concurrent users, and report size limits. [Owner approval](docs/decisions.json).
+- [x] **DEC-21** Confirm Whether no-change or deferred annual review repeats reminders before the next anniversary. [Owner approval](docs/decisions.json).
+- [x] **DEC-22** Confirm Administrator MFA method and permitted impersonation actions. [Owner approval](docs/decisions.json).
+- [x] **DEC-23** Confirm Tenant acknowledgement requirements before a contract or rent amendment takes effect. [Owner approval](docs/decisions.json).
+- [ ] **DEC-24** Confirm Refund target date, overdue refund alerts, and final closure with unresolved disputes. [Partial approval](docs/decisions.json).
+- [ ] **DEC-25** Confirm Capacity reservations during invitation/negotiation and reservation expiry. [Partial approval](docs/decisions.json).
+- [x] **DEC-26** Confirm Availability of closed-relationship reports and documents after account suspension or closure. [Owner approval](docs/decisions.json).
 
 ## 39. Final Release Gates
 

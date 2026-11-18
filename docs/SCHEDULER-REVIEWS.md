@@ -42,7 +42,7 @@ The manager can record no change, a next-month price proposal, or a deferred dat
 A tenant can inspect the shared history and any proposed rent and effective month.
 Every price proposal remains `PROPOSED`; the original contract rent remains unchanged.
 The platform does not apply amendments before the acknowledgement policy receives approval.
-Deferred/no-change reminder repetition remains unresolved under DEC-21.
+DEC-21 requires one reminder on the deferred date and the next anniversary after a no-change review. The reminder schedule still needs implementation.
 A changed allocation stops source-dependent work instead of silently resetting history.
 The complete transfer workflow and anniversary reset remain separate incomplete requirements.
 

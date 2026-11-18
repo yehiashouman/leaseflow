@@ -1171,12 +1171,29 @@ Preserve unaffected implementation work while decisions remain open.
 
 - **DEC-01, approved 19 November 2026.** Keep full precision until each charge or credit posts. Round to the nearest minor unit, with ties away from zero. Sum posted amounts at full precision.
 - **DEC-02, approved 19 November 2026.** If the configured due day is absent, use the last calendar day in Dubai. Keep the configured day for later months.
+- **DEC-03, approved 19 November 2026.** Count the Dubai notice submission date as day one. With a 30-day notice received on June 1, June 30 is the earliest move-out date without a notice deduction.
+- **DEC-05, approved 19 November 2026.** For each room transfer, the manager records the rent difference, deposit treatment, and cancellation terms. Both parties confirm the terms before the transfer takes effect.
 - **DEC-06, approved 19 November 2026.** The manager can extend the seven-day room-change deadline once by seven calendar days. If the applicable deadline passes without an agreement or extension, close the request. The tenant stays in their current room.
 - **DEC-07, approved 19 November 2026.** Late-payment extensions and room changes have separate six-month limits. Each starts on the manager’s approval date in Dubai. If the sixth month lacks that day, the next approval is allowed from the last day of that month.
 - **DEC-08, approved 19 November 2026.** A late-payment extension or room change counts for the full six months after approval, even if the tenant withdraws it or the manager cancels or reverses it.
 - **DEC-09, approved 19 November 2026.** Tenants must submit late-payment requests before the due date starts in Dubai. Rent must be paid before that date starts. Managers can record late payments. The due date counts as the first late day.
-- **DEC-10, partial approval on 19 November 2026.** If the tenant does not specify a month, apply the payment to the oldest outstanding rent first. Mark rent overpayments as refunds due. Show the amount and status to both parties. The manager returns the excess and records the refund.
+- **DEC-10, approved 19 November 2026.** Allow advance rent when the tenant names the future month. Apply a payment to the named month first. For any amount without a month designation, apply it to the oldest outstanding rent first and then to the next outstanding rent. Mark any excess as a refund due. Show the refund amount and status to both parties. The manager returns the excess and records the refund.
 - **DEC-11, approved 19 November 2026.** Financial reports use cash basis only. Count income when received and expenses when paid. Show unpaid obligations and arrears separately.
+- **DEC-12, approved 19 November 2026.** Split shared costs equally across occupied rental spaces. Apply a new split from the start of the next calendar month.
+- **DEC-13, partial approval on 19 November 2026.** Use a named exchange-rate provider and refresh daily. If the provider fails, use the last saved rate and show its date.
+- **DEC-14, approved 19 November 2026.** Require the manager declaration, proof of ownership or tenancy, and written landlord consent where applicable before unit activation.
+- **DEC-15, approved 19 November 2026.** Warn users about expired required identity, licence, or property documents. Block new contracts that rely on an expired document. Existing contracts and normal account access remain available.
+- **DEC-16, approved 19 November 2026.** Let rejected applicants resubmit after correction. Let suspended tenants read their own contract and payment history. Use support for closed-relationship reports and documents if the account is suspended, per DEC-26.
+- **DEC-17, partial approval on 19 November 2026.** Use an owner-approved written retention policy.
+- **DEC-18, approved 19 November 2026.** Accept PDF, JPG, and PNG up to 10 MB. Verification codes expire after 10 minutes and allow five attempts. Invitations expire after seven days. Send one reminder two days before expiry.
+- **DEC-19, partial approval on 19 November 2026.** Use the AWS UAE region for production.
+- **DEC-20, approved 19 November 2026.** Support 500 units, 100 concurrent users, and 10,000 rows per report. Target the 95th percentile at or below two seconds for normal pages and 60 seconds for reports.
+- **DEC-21, approved 19 November 2026.** After a no-change review, wait until the next same-space anniversary. After a deferral, send one reminder on the new date.
+- **DEC-22, approved 19 November 2026.** Require authenticator-app MFA before privileged administrator access. Allow read-only support impersonation with a required reason and audit entry.
+- **DEC-23, approved 19 November 2026.** Require tenant confirmation in the app before an initial contract or a later rent change takes effect.
+- **DEC-24, partial approval on 19 November 2026.** Target refunds within seven calendar days. Alert both parties when overdue. Return any undisputed amount by the deadline. Keep the case open for disputed amounts.
+- **DEC-25, partial approval on 19 November 2026.** Hold a room only after both parties confirm the destination and move date.
+- **DEC-26, approved 19 November 2026.** Give former tenants read-only access to their own past reports and documents. For a suspended account, route requests for closed-relationship reports and documents through support.
 - Use half-open allocation intervals to avoid double occupancy on a transfer boundary, only after date-policy approval.
 - Use role-specific routes without inferred fallback to manager permissions.
 - Use mandatory administrator MFA before privileged access.
