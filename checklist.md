@@ -514,7 +514,7 @@ Requirements: 11, 22-23.
 - [ ] **DASH-005** Show deposits held, projected refunds, refunds due, and disputed deductions.
 - [x] **DASH-006** Show open maintenance, complaints, room changes, late requests, and move-outs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-007** Show requests that await the manager and approaching deadlines. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **DASH-008** Show annual-review milestones and expiring identity, licence, unit, and consent documents.
+- [x] **DASH-008** Show annual-review milestones and expiring identity, licence, unit, and consent documents. [Evidence](docs/EVIDENCE.md#dashboard-reviews-and-document-expiry).
 - [ ] **DASH-009** Show monthly income, owner rent, expenses, and estimated unit profit.
 - [x] **DASH-010** Build a tenant dashboard scoped to the authenticated relationship. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-011** Show current unit/space, move-in date, and months/days of occupancy. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).

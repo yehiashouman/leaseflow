@@ -34,7 +34,16 @@ describe('MySQL private operational case workflow', () => {
             ? { leasingManager: { create: { fullName: 'Case Manager' } } }
             : {}),
           ...(role === 'TENANT'
-            ? { tenant: { create: { fullName: 'Case Tenant', managerId: managerId! } } }
+            ? {
+                tenant: {
+                  create: {
+                    fullName: 'Case Tenant',
+                    managerId: managerId!,
+                    lateRequestWindowDays: 7,
+                    maxLateExtensionDays: 3,
+                  },
+                },
+              }
             : {}),
         },
         include: { leasingManager: true, tenant: true },
@@ -324,7 +333,9 @@ describe('MySQL private operational case workflow', () => {
     expect(foreign.json().deadlineSummary).toEqual({ overdue: 0, approaching: 0 });
     expect(owned.json().deadlines.some((item: { id: string }) => item.id === requestId)).toBe(true);
     expect(foreign.json().deadlines).toEqual([]);
-    expect(own.json().contracts.every((item: { id: string }) => item.id === contractId)).toBe(true);
+    expect(own.json().contracts).toMatchObject([
+      { id: contractId, lateRequestLimits: { lateRequestWindowDays: 7, maxLateExtensionDays: 3 } },
+    ]);
     expect(own.body).not.toMatch(
       /evidenceKey|secondaryOccupant|emiratesIdNumber|ownerMonthlyRent|passwordHash/,
     );

@@ -80,7 +80,7 @@ describe('role-specific dashboards', () => {
     );
     expect(screen.getByText(/Asia\/Dubai/)).toBeTruthy();
   });
-  it('shows the tenant’s due balance and the next scheduled date in Dubai time', async () => {
+  it('shows the tenant’s rent dates, due balance, and configured contract limits', async () => {
     auth.user.role = 'TENANT';
     vi.spyOn(api, 'get').mockResolvedValue({
       data: {
@@ -92,6 +92,7 @@ describe('role-specific dashboards', () => {
             monthlyRent: '100.00',
             dueDay: 2,
             noticeDays: 30,
+            lateRequestLimits: { lateRequestWindowDays: 7, maxLateExtensionDays: 3 },
             startDate: '2026-11-01T00:00:00Z',
             rentalSpace: { name: 'Room 1', unit: { name: 'Dubai Unit' } },
             payments: [],
@@ -108,6 +109,8 @@ describe('role-specific dashboards', () => {
     renderPage(<App />);
     expect(await screen.findByText('AED 12.50', { exact: true })).toBeTruthy();
     expect(screen.getByText('02/12/2026', { exact: true })).toBeTruthy();
+    expect(screen.getByText('7 days before due date', { exact: true })).toBeTruthy();
+    expect(screen.getByText('3 days', { exact: true })).toBeTruthy();
     expect(screen.getByText(/Due dates use Dubai time/)).toBeTruthy();
   });
   it('loads the tenant dashboard and hides inventory links', async () => {

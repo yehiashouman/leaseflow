@@ -41,6 +41,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             currency: true,
             dueDay: true,
             noticeDays: true,
+            tenant: { select: { lateRequestWindowDays: true, maxLateExtensionDays: true } },
             depositAmount: true,
             occupants: { select: occupantSelect, orderBy: { role: 'asc' } },
             rentalSpace: caseContractSelect.rentalSpace,
@@ -145,8 +146,9 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
       rentSummary,
       unresolvedCount,
       pendingAcknowledgements,
-      contracts: contracts.map((row) => ({
+      contracts: contracts.map(({ tenant, ...row }) => ({
         ...row,
+        lateRequestLimits: tenant,
         occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
       })),
     };

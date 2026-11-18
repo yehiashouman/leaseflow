@@ -615,3 +615,11 @@ Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.co
 - **DASH-012:** The tenant view joins the current contract to its outstanding obligations. MySQL verifies the balance through today, the next scheduled payment, and denial of another tenant’s records.
 
 Code and test paths are recorded in [the verification matrix](batch-200.json). The dashboard reads recorded obligations and receipts. It does not calculate pending late-payment, transfer, or refund policy.
+
+## Dashboard Reviews and Document Expiry
+
+Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.com/yehiashouman/leaseflow/commit/acf1eafd6ed62a19074325a07da3d9cf925c233f) · [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
+
+- **DASH-008:** Manager alerts show upcoming and overdue reviews, respect recorded deferrals, and link to scoped review pages. Private-document alerts use the latest clean version for each series. MySQL verifies relationship scope, foreign record exclusion, and replacement behavior. Live desktop and mobile verify the manager can open a milestone from the dashboard.
+
+Code and test paths are recorded in [the verification matrix](batch-200.json). Alerts display dates without changing any document or account access rule.

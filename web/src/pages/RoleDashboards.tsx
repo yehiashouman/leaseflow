@@ -53,6 +53,7 @@ type TenantContract = {
   }[];
   dueDay: number;
   noticeDays: number;
+  lateRequestLimits?: { lateRequestWindowDays: number; maxLateExtensionDays: number };
   rentalSpace: { name: string; unit: { name: string } };
   payments: {
     id: string;
@@ -117,7 +118,7 @@ export function TenantDashboard() {
               </Link>
             </h2>
             <Badge variant="secondary">{contract.status.replaceAll('_', ' ')}</Badge>
-            <dl className="grid gap-4 sm:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
               <div>
                 <dt className="text-sm text-muted-foreground">Monthly rent</dt>
                 <dd>
@@ -132,6 +133,18 @@ export function TenantDashboard() {
                 <dt className="text-sm text-muted-foreground">Notice period</dt>
                 <dd>{contract.noticeDays} days</dd>
               </div>
+              {contract.lateRequestLimits && (
+                <>
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Late-request window</dt>
+                    <dd>{contract.lateRequestLimits.lateRequestWindowDays} days before due date</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm text-muted-foreground">Maximum late extension</dt>
+                    <dd>{contract.lateRequestLimits.maxLateExtensionDays} days</dd>
+                  </div>
+                </>
+              )}
             </dl>
           </section>
           {rent && (

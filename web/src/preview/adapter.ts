@@ -629,6 +629,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       ? respond({
           contracts: store.contracts.map((contract) => ({
             ...contract,
+            lateRequestLimits: { lateRequestWindowDays: 10, maxLateExtensionDays: 5 },
             requests: store.requests.filter(
               (item) =>
                 (item.contractId ?? 'contract-1') === contract.id &&

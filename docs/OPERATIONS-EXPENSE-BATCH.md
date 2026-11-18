@@ -4,8 +4,8 @@ Date: 19 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 107 additional verified requirements; 269 of 764 overall (35.21%).
-The target is not complete: 65 partial and 28 blocked requirements remain in this batch.
+Current result: 108 additional verified requirements; 270 of 764 overall (35.34%).
+The target is not complete: 64 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -67,6 +67,8 @@ Scheduler acceptance: https://github.com/yehiashouman/leaseflow/actions/runs/427
 The interface revision passes 119 web tests, 18 preview browser tests, and live application CI. [Preview acceptance](https://github.com/yehiashouman/leaseflow/actions/runs/42743957097).
 
 Rent dashboard acceptance: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
+
+Review and document expiry alerts: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
 
 ## Complete 200-Item Matrix
 
@@ -134,7 +136,7 @@ Only VERIFIED rows receive completion credit.
 | DASH-005           | BLOCKED  | The dashboard states that verified deposit liability is unavailable; refund projections, disputes, and liabilities remain incomplete.                                                                                 |
 | DASH-006           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-007           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
-| DASH-008           | PARTIAL  | Occupant expiry status exists; annual milestones and a complete identity, licence, property, and consent expiry summary remain incomplete.                                                                            |
+| DASH-008           | VERIFIED | Shows owned annual-review milestones and current clean identity, licence, property, and consent documents that expire within 30 days. Replaced clean versions and other managers’ records are excluded.               |
 | DASH-009           | BLOCKED  | Recorded expenses preserve currency; monthly income, owner-rent attribution, and approved estimated profit remain incomplete.                                                                                         |
 | DASH-010           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-011           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |

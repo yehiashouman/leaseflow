@@ -1379,15 +1379,18 @@
     {
       "id": "DASH-008",
       "requirement": "Show annual-review milestones and expiring identity, licence, unit, and consent documents.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
+        "api/src/dashboard-activity.ts",
         "api/src/routes/dashboard.ts",
-        "web/src/pages/Dashboard.tsx",
-        "web/src/pages/RoleDashboards.tsx"
+        "web/src/pages/Dashboard.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "web/src/ui.test.tsx"],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
       "decisions": [],
-      "note": "Occupant expiry status exists; annual milestones and a complete identity, licence, property, and consent expiry summary remain incomplete."
+      "note": "Shows owned annual-review milestones and current clean identity, licence, property, and consent documents that expire within 30 days. Replaced clean versions and other managers’ records are excluded.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44395199905",
+      "commit": "acf1eafd6ed62a19074325a07da3d9cf925c233f",
+      "verified": "2026-11-19"
     },
     {
       "id": "DASH-009",
