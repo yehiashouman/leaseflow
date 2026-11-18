@@ -10,6 +10,12 @@ it('uses actual first-month calendar days and includes move-in in the supplied e
   expect(proratedRentDecimal('2800', new Date('2025-02-15')).toFixed(2)).toBe('1400.00');
   expect(proratedRentDecimal('3100', new Date('2026-01-01')).toFixed(2)).toBe('3100.00');
 });
+it('rounds the prorated total once and sends ties away from zero', () => {
+  const start = new Date('2025-02-28');
+  expect(proratedRentDecimal('0.14', start).toFixed(2)).toBe('0.01');
+  expect(proratedRentDecimal('-0.14', start).toFixed(2)).toBe('-0.01');
+  expect(proratedRentDecimal('10', new Date('2025-02-27')).toFixed(2)).toBe('0.71');
+});
 it('preserves explicit cents, monthly defaults, and optional negotiated deposits', () => {
   const body = contractCreateSchema.parse({
     clientId: crypto.randomUUID(),

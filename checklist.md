@@ -521,7 +521,7 @@ Requirements: 11, 22-23.
 - [x] **DASH-012** Show next payment date, rent, current balance, and payment history. [Evidence](docs/EVIDENCE.md#rent-dashboard-balances).
 - [ ] **DASH-013** Show held deposit, proposals, projected refund, and refund status.
 - [x] **DASH-014** Show unresolved requests, recent replies, and pending acknowledgements. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **DASH-015** Show due day, notice, late-request window, and permitted extension.
+- [x] **DASH-015** Show due day, notice, late-request window, and permitted extension. [Evidence](docs/EVIDENCE.md#tenant-rental-terms).
 - [x] **DASH-016** Show primary and optional secondary occupant identity status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DASH-017** Connect maintenance, complaint, late-payment, room-change, move-out, and PDF actions.
 - [ ] **DASH-018** Reconcile dashboard totals with the same scoped list and ledger sources.
@@ -993,8 +993,8 @@ All decisions below remain open in the source baseline.
 Record the confirmed answer and dependent task identifiers before the affected workflow receives production approval.
 Proposed defaults are not accepted business rules.
 
-- [ ] **DEC-01** Confirm Exact currency-round policy and the stage that rounds proration, notice deductions, conversions, and totals.
-- [ ] **DEC-02** Confirm Due-day behavior for day 29, 30, or 31 in shorter months.
+- [x] **DEC-01** Confirm Exact currency-round policy and the stage that rounds proration, notice deductions, conversions, and totals. [Owner approval](docs/decisions.json).
+- [x] **DEC-02** Confirm Due-day behavior for day 29, 30, or 31 in shorter months. [Owner approval](docs/decisions.json).
 - [ ] **DEC-03** Confirm Exact inclusive date boundaries for notice submission, effective exit, and earliest penalty-free move-out.
 - [ ] **DEC-04** Confirm Final-month rent after confirmed move-out and its interaction with notice deductions.
 - [ ] **DEC-05** Confirm Transfer-month proration, rent differences, deposit movement/top-up/refund, and transfer cancellation.

@@ -156,7 +156,7 @@ export function ContractEditor({
           type: 'number',
           value: 1,
           min: 1,
-          max: 28,
+          max: 31,
         },
         {
           name: 'noticeDays',

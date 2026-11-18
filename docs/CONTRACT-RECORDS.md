@@ -65,9 +65,10 @@ All twenty-six owner decisions remain unresolved.
 Exact retries preserve one contract, initial obligation, occupant set, occupancy update, and audit effect.
 Changed content under the same key returns 409.
 The contract editor supports single/couple setup and explicit primary responsibility.
-Due day defaults to 1; notice defaults to 30 days and permits explicit exceptions.
+Due day defaults to 1 and accepts days 1 through 31. Short months use the final calendar day.
+Notice defaults to 30 days and permits explicit exceptions.
 The server copies a matching-currency unit deposit once, unless the manager supplies an explicit deposit.
 Cross-currency setup requires an explicit deposit.
 Tenant views exclude manager draft contracts, private owner costs, raw identity numbers, and storage keys.
-Development proration uses exact decimal arithmetic with an explicit provisional round policy.
+Proration uses decimal arithmetic and rounds the final amount once to the nearest cent, with ties away from zero.
 Production activation remains gated by the unresolved financial and acknowledgement decisions.

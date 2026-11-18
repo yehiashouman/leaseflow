@@ -1506,15 +1506,19 @@
     {
       "id": "DASH-015",
       "requirement": "Show due day, notice, late-request window, and permitted extension.",
-      "status": "PARTIAL",
-      "code": [
-        "api/src/routes/dashboard.ts",
-        "web/src/pages/Dashboard.tsx",
-        "web/src/pages/RoleDashboards.tsx"
+      "status": "VERIFIED",
+      "code": ["api/src/routes/dashboard.ts", "web/src/pages/RoleDashboards.tsx"],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "web/src/ui.test.tsx",
+        "web/e2e/contracts.live.spec.ts"
       ],
-      "tests": ["api/integration/cases.test.ts", "web/src/ui.test.tsx"],
       "decisions": [],
-      "note": "Due day and notice appear; late-request eligibility window and permitted extension controls remain incomplete."
+      "note": "Displays the contract due day and notice period plus the tenant profile’s saved late-request window and maximum extension.",
+      "commit": "3b51f274d1b7cff4d5589a9ac6959390e21a8ab2",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44396995514",
+      "environment": "GitHub Actions; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-19"
     },
     {
       "id": "DASH-016",

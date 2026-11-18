@@ -65,6 +65,7 @@ test('real monthly contract captures a couple, defaults, exact initial rent, and
       .getByLabel('Move-in calendar date (Asia/Dubai) *', { exact: true })
       .fill('2026-01-17');
     await dialog.getByLabel('Negotiated monthly rent *', { exact: true }).fill('3100');
+    await dialog.getByLabel('Monthly due day *', { exact: true }).fill('31');
     await dialog.getByLabel('Notice period (calendar days) *', { exact: true }).fill('15');
     await dialog.getByLabel('Occupancy arrangement', { exact: true }).selectOption('COUPLE');
     await dialog
@@ -114,6 +115,7 @@ test('real monthly contract captures a couple, defaults, exact initial rent, and
     expect(contract.payments).toHaveLength(1);
     expect(contract.payments[0]!.amountDue.toFixed(2)).toBe('1500.00');
     expect(contract.occupants).toHaveLength(2);
+    expect(contract.dueDay).toBe(31);
     expect(contract.noticeDays).toBe(15);
     expect(await prisma.user.count({ where: { email: { startsWith: suffix } } })).toBe(2);
     await page.screenshot({

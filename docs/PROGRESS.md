@@ -10,11 +10,11 @@ Target: the complete initial release in requirements.md.
 | Measure                                | Verified status                                                                                                                              |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total checklist tasks                  | 764                                                                                                                                          |
-| Completed tasks with evidence          | 270                                                                                                                                          |
-| Tasks without full completion evidence | 494                                                                                                                                          |
-| Strict checklist completion            | 35.34%                                                                                                                                       |
+| Completed tasks with evidence          | 273                                                                                                                                          |
+| Tasks without full completion evidence | 491                                                                                                                                          |
+| Strict checklist completion            | 35.73%                                                                                                                                       |
 | UI foundation tasks                    | 10 of 10 verified                                                                                                                            |
-| Open owner decisions                   | 26                                                                                                                                           |
+| Open owner decisions                   | 24                                                                                                                                           |
 | Local API unit/route tests             | 150 pass; database mocks where required                                                                                                      |
 | Web/component/preview-adapter tests    | 120 pass on GitHub Actions                                                                                                                   |
 | Setup and governance tests             | 12 pass locally and in scheduler CI                                                                                                          |
@@ -29,20 +29,21 @@ Target: the complete initial release in requirements.md.
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial work exists beyond the 270 completed tasks; the 200-item target remains incomplete.
+Additional partial work exists beyond the 273 completed tasks; the 200-item target remains incomplete.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Current 200-Item Continuation
 
-We verified 108 additional existing checklist tasks.
-The batch contains 108 verified, 64 partial, and 28 blocked requirements.
-Global completion is 270 of 764 (35.34%); 494 requirements remain without full evidence.
+We verified 109 additional existing checklist tasks.
+The batch contains 109 verified, 63 partial, and 28 blocked requirements. Two owner approvals count separately.
+Global completion is 273 of 764 (35.73%); 491 requirements remain without full evidence.
 The requested 200 additional completions are not complete.
 See [OPERATIONS-EXPENSE-BATCH.md](OPERATIONS-EXPENSE-BATCH.md) for every identifier, exact gap, and evidence link.
 New work covers private expenses/recoveries, contract and occupant setup, operational dashboards, reliable case notices, own preferences, and immutable external receipts, durable business schedules, monthly obligation catch-up, and annual-review decisions.
 The scheduler commit passes 149 API, 109 web, 201 MySQL, two real-file tests, and 46 browser tests. The interface revision passes 119 web tests, 18 preview browser tests, and live application CI.
 Twelve setup/governance tests pass locally after the evidence update. Rent dashboard acceptance passes 202 MySQL tests and 26 live browser tests. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
 Manager reviews and expiry alerts pass MySQL and live browser verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
+Tenant rental terms pass MySQL and live browser verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
 Production activation, finance, provider delivery, retention, MFA, moderation, and full initial-release acceptance remain incomplete.
 
 ## Account and Private Document Continuation
@@ -67,7 +68,7 @@ Current API, web, MySQL, and operations suites pass 267 automated tests.
 Desktop/mobile browser suites retain thirty cases; no synthetic case substitutes for real database acceptance.
 Fresh Compose acceptance passes on the final code commit, including preserved changed passwords and database/file volumes after teardown and restart.
 See [PLATFORM-BATCH.md](PLATFORM-BATCH.md) for the thirty-item evidence matrix and exact limits.
-All twenty-six owner decisions remain PENDING.
+At that milestone, all twenty-six owner decisions remained pending.
 Production contract activation and payment writes now fail closed until approved policy receives verified implementation.
 The development MinIO service now builds from pinned official source; production storage approval remains separate.
 The exact public Codespaces journey remains unverified.
@@ -175,7 +176,7 @@ It does not mean that no code exists.
 | 17. Room changes and transfers          |    18 |                 0 | Atomic dated transfer and negotiation workflow remains                                                                                                                |
 | 18. Deposits, move-out, disputes        |    29 |                 0 | Complete liabilities, notice, deduction, refund, and dispute workflow remains                                                                                         |
 | 19. Expenses, currency, reports         |    18 |                 4 | Private direct-scope expenses, evidence, recoveries, and voids verified; allocation policy and complete financial reports remain                                      |
-| 20. Dashboards                          |    19 |                13 | Operational metrics, rent dates and balances, review milestones, and document expiry verified; profitability and deposit workflows remain                             |
+| 20. Dashboards                          |    19 |                14 | Operational metrics, rent totals, rental terms, review milestones, and document expiry verified; deposit and profit screens remain                                    |
 | 21. Notifications and providers         |    18 |                13 | Case channel preferences, durable history, signatures, replay protection, and owner recovery verified; full event coverage and real staging delivery remain           |
 | 22. PDF reports                         |    16 |                 6 | Private case jobs, hashes, retries, status, and actual PDF content verified; full relationship reports remain                                                         |
 | 23. Shared interface and accessibility  |    28 |                13 | shadcn/ui foundation verified; complete business screens remain                                                                                                       |
@@ -193,11 +194,11 @@ It does not mean that no code exists.
 | 35. Calculation and ledger examples     |     9 |                 0 | Complete approved financial examples remain                                                                                                                           |
 | 36. Acceptance tests                    |    57 |                19 | Token/session, role privacy, occupants, contract fields, receipts, operational cases, callbacks, PDFs, startup, and file tests verified; full release remains         |
 | 37. Full browser journey                |    17 |                 0 | Preview tests pass; real end-to-end release journey remains                                                                                                           |
-| 38. Owner decisions                     |    26 |                 0 | DEC-01 through DEC-26 await explicit approval                                                                                                                         |
+| 38. Owner decisions                     |    26 |                 2 | Owner approved currency rounding and short-month due dates; 24 decisions remain open                                                                                  |
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                                                                 |
 | 40. Source coverage map                 |     7 |                 0 | Reference table; no tasks                                                                                                                                             |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                                                             |
-| Total                                   |   764 |               270 | 494 tasks without full completion evidence                                                                                                                            |
+| Total                                   |   764 |               273 | 491 tasks without full completion evidence                                                                                                                            |
 
 ## Implemented in This Continuation
 

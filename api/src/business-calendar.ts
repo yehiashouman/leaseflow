@@ -23,8 +23,11 @@ export function dubaiMidnight(date: Date) {
   return new Date(date.getTime() - 4 * 3600000);
 }
 export function dueDate(period: Date, day: number) {
-  if (!Number.isInteger(day) || day < 1 || day > 28) throw new Error('DUE_DAY_POLICY_REQUIRED');
-  return dubaiMidnight(new Date(Date.UTC(period.getUTCFullYear(), period.getUTCMonth(), day)));
+  if (!Number.isInteger(day) || day < 1 || day > 31) throw new Error('SOURCE_TERMS_INVALID');
+  const year = period.getUTCFullYear();
+  const month = period.getUTCMonth();
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return dubaiMidnight(new Date(Date.UTC(year, month, Math.min(day, lastDay))));
 }
 export function nextReviewMonth(start: Date, cursor: Date) {
   return (

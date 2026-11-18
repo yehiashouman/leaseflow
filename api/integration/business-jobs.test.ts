@@ -287,11 +287,11 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       await cleanup();
     }
   });
-  it('posts the same full rent in a leap February without a daily-rate adjustment', async () => {
+  it('posts full rent with a day-31 schedule across leap February and March', async () => {
     try {
       await prisma.contract.update({
         where: { id: contractId },
-        data: { startDate: new Date('2024-01-01'), dueDay: 1 },
+        data: { startDate: new Date('2024-01-01'), dueDay: 31 },
       });
       const clock = new Date('2024-03-31T12:00:00Z');
       await jobs(clock);
@@ -304,6 +304,10 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
         '3100.00',
         '3100.00',
         '3100.00',
+      ]);
+      expect(payments.slice(1).map((row) => row.dueDate.toISOString())).toEqual([
+        '2024-02-28T20:00:00.000Z',
+        '2024-03-30T20:00:00.000Z',
       ]);
     } finally {
       await cleanup();
@@ -389,7 +393,7 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
   });
   it('pauses unsupported legacy terms and production financial generation without money effects', async () => {
     try {
-      await prisma.contract.update({ where: { id: contractId }, data: { dueDay: 31 } });
+      await prisma.contract.update({ where: { id: contractId }, data: { dueDay: 32 } });
       await jobs();
       await drain('MONTHLY_OBLIGATIONS');
       expect(await prisma.payment.count({ where: { contractId } })).toBe(0);

@@ -345,7 +345,7 @@ export async function runBusinessJobOnce(
             !contract.monthlyRent.gt(0) ||
             !['AED', 'USD'].includes(contract.currency) ||
             contract.dueDay < 1 ||
-            contract.dueDay > 28
+            contract.dueDay > 31
           )
             throw new Error('SOURCE_TERMS_INVALID');
           if (contract.endDate && job.cursor >= monthStart(contract.endDate)) {
@@ -460,7 +460,6 @@ export async function runBusinessJobOnce(
     );
   } catch (cause) {
     const allowed = [
-      'DUE_DAY_POLICY_REQUIRED',
       'TIMEZONE_POLICY_REQUIRED',
       'SOURCE_ALLOCATION_CHANGED',
       'OWNERSHIP_MISMATCH',

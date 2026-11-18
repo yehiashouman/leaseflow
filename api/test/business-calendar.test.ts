@@ -27,9 +27,13 @@ describe('Dubai business calendar', () => {
       '2027-01-03T22:14:05.000Z',
     );
   });
-  it('rejects due days with unresolved short-month policy', () => {
-    for (const day of [0, 29, 30, 31, 1.5])
-      expect(() => dueDate(new Date('2026-02-01'), day)).toThrow('DUE_DAY_POLICY_REQUIRED');
+  it('uses the last Dubai calendar day if the configured day does not exist', () => {
+    expect(dueDate(new Date('2026-02-01'), 29).toISOString()).toBe('2026-02-27T20:00:00.000Z');
+    expect(dueDate(new Date('2024-02-01'), 30).toISOString()).toBe('2024-02-28T20:00:00.000Z');
+    expect(dueDate(new Date('2026-04-01'), 31).toISOString()).toBe('2026-04-29T20:00:00.000Z');
+    expect(dueDate(new Date('2026-05-01'), 31).toISOString()).toBe('2026-05-30T20:00:00.000Z');
+    for (const day of [0, 32, 1.5])
+      expect(() => dueDate(new Date('2026-02-01'), day)).toThrow('SOURCE_TERMS_INVALID');
   });
   it('advances month markers without day overflow', () => {
     expect(monthStart(new Date('2026-01-31'), 1).toISOString()).toBe('2026-02-01T00:00:00.000Z');

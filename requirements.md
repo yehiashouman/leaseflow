@@ -1135,8 +1135,8 @@ Neither route alone proves both integration and repeatable regression coverage.
 # 29. Open Decisions and Proposed Clarifications
 
 The source does not settle the decisions below.
-These are confirmation items, not permission to invent financial or contractual rules.
-Preserve unaffected implementation work while these decisions remain open.
+See [the decision register](docs/decisions.json) for approvals and the owner record.
+Preserve unaffected implementation work while decisions remain open.
 
 | ID | Decision that requires confirmation |
 |---|---|
@@ -1167,10 +1167,10 @@ Preserve unaffected implementation work while these decisions remain open.
 | DEC-25 | Capacity reservations during invitation/negotiation and reservation expiry |
 | DEC-26 | Availability of closed-relationship reports and documents after account suspension or closure |
 
-## 29.1 Proposed technical defaults
+## 29.1 Approved decisions and proposed technical defaults
 
-- Use last calendar day when a configured due day does not exist, only after DEC-02 approval.
-- Use decimal calculations and explicit minor-unit round policy after DEC-01 approval.
+- **DEC-01, approved 19 November 2026.** Keep full precision until each charge or credit posts. Round to the nearest minor unit, with ties away from zero. Sum posted amounts at full precision.
+- **DEC-02, approved 19 November 2026.** If the configured due day is absent, use the last calendar day in Dubai. Keep the configured day for later months.
 - Use half-open allocation intervals to avoid double occupancy on a transfer boundary, only after date-policy approval.
 - Use role-specific routes without inferred fallback to manager permissions.
 - Use mandatory administrator MFA before privileged access.

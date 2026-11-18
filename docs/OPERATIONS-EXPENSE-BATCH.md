@@ -4,8 +4,8 @@ Date: 19 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 108 additional verified requirements; 270 of 764 overall (35.34%).
-The target is not complete: 64 partial and 28 blocked requirements remain in this batch.
+Current result: 109 additional verified requirements; 273 of 764 overall (35.73%).
+The target is not complete: 63 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -69,6 +69,8 @@ The interface revision passes 119 web tests, 18 preview browser tests, and live 
 Rent dashboard acceptance: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
 
 Review and document expiry alerts: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
+
+Tenant rental terms: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
 
 ## Complete 200-Item Matrix
 
@@ -143,7 +145,7 @@ Only VERIFIED rows receive completion credit.
 | DASH-012           | VERIFIED | Shows rent, scheduled payment date and unpaid balance through today with recent payment history, scoped to the tenant’s current contract.                                                                             |
 | DASH-013           | BLOCKED  | Deposit contract terms exist; held liability, refund projections, proposals, and refund status require a complete settlement ledger.                                                                                  |
 | DASH-014           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
-| DASH-015           | PARTIAL  | Due day and notice appear; late-request eligibility window and permitted extension controls remain incomplete.                                                                                                        |
+| DASH-015           | VERIFIED | Displays the contract due day and notice period plus the tenant profile’s saved late-request window and maximum extension.                                                                                            |
 | DASH-016           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-017           | PARTIAL  | Operational requests and private case PDF actions work; late payment, transfer, and move-out actions remain incomplete.                                                                                               |
 | DASH-018           | PARTIAL  | Dashboard counts use shared owner scopes; complete obligation, deposit, and financial-ledger reconciliation remains incomplete.                                                                                       |

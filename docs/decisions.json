@@ -1,7 +1,22 @@
 {
   "owner": "PROJECT_OWNER",
   "status": "PENDING",
-  "approvedDecisions": [],
+  "approvedDecisions": [
+    {
+      "id": "DEC-01",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Keep full decimal precision until each charge or credit posts. Round each posted amount to the nearest currency minor unit, with ties away from zero. Sum posted amounts at full precision.",
+      "requirements": ["DEC-01", "TEST-RENT-01"]
+    },
+    {
+      "id": "DEC-02",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "If the configured due day does not exist in a month, use the last calendar day in Asia/Dubai. Preserve the configured due day for later months.",
+      "requirements": ["DEC-02", "TEST-RENT-02"]
+    }
+  ],
   "items": [
     { "id": "DEC-01", "question": "Currency rounding and decimal policy" },
     { "id": "DEC-02", "question": "Due days in shorter months" },

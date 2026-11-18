@@ -31,7 +31,7 @@ export const contractCreateSchema = z
       'Rent must exceed zero',
     ),
     currency: z.enum(['AED', 'USD']).default('AED'),
-    dueDay: z.number().int().min(1).max(28).default(1),
+    dueDay: z.number().int().min(1).max(31).default(1),
     noticeDays: z.number().int().min(0).max(90).default(30),
     depositAmount: decimalInput.optional(),
     secondaryOccupant: secondaryOccupantSchema.optional(),
@@ -41,7 +41,7 @@ export function proratedRentDecimal(monthlyRent: Prisma.Decimal.Value, startDate
   const days = new Date(
     Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0),
   ).getUTCDate();
-  // Development half-up default; production activation remains blocked by the owner policy gate.
+  // DEC-01: Round only the final posted amount; half-up sends ties away from zero.
   return new Prisma.Decimal(monthlyRent)
     .times(days - startDate.getUTCDate() + 1)
     .div(days)

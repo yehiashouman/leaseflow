@@ -21,14 +21,15 @@ Each contract has a persistent monthly cursor.
 The worker catches up one period per transaction.
 Later months use the full stored monthly rent across every calendar month length.
 Initial obligations already created during contract admission remain unchanged.
-A missing initial development record uses the existing explicit provisional proration rule.
+A missing initial development record uses the approved rule to round the final prorated amount once.
+If the monthly due day does not exist, the worker uses the last calendar day in Dubai.
 The database unique period constraint, locked job, and lease token prevent duplicate effects.
 A payment, its audit event, and cursor movement share one transaction.
 The worker preserves original due dates and original currency.
 A separate daily status job derives due/late state without a new charge or amount change.
 
 Production financial generation remains paused.
-Unsupported due days, unknown applied amendments, final-month policy, ownership inconsistency, and changed source allocation require explicit resolution.
+Invalid stored due days, unknown applied amendments, final-month policy, ownership inconsistency, and changed source allocation require explicit resolution.
 No automatic conversion, deduction, credit, fee, or refund occurs.
 
 ## Annual Reviews

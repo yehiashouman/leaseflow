@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 const read = (name) => readFileSync(new URL('../' + name, import.meta.url), 'utf8');
 const decisions = JSON.parse(read('docs/decisions.json'));
-test('every owner decision has an explicit pending owner and no implied approval', () => {
+test('every owner decision has an explicit status and owner evidence for approval', () => {
   const expected = [...read('requirements.md').matchAll(/^\| DEC-(\d{2})\s*\|/gm)].map(
     (match) => 'DEC-' + match[1],
   );
@@ -16,7 +16,24 @@ test('every owner decision has an explicit pending owner and no implied approval
   assert.equal(decisions.itemDefaults.owner, 'PROJECT_OWNER');
   assert.equal(decisions.itemDefaults.status, 'PENDING');
   assert.equal(decisions.itemDefaults.resolution, null);
-  assert.deepEqual(decisions.approvedDecisions, []);
+  const approvals = decisions.approvedDecisions;
+  assert.equal(new Set(approvals.map(({ id }) => id)).size, approvals.length);
+  const checklist = read('checklist.md');
+  for (const approval of approvals) {
+    assert(expected.includes(approval.id));
+    assert.equal(approval.approvedBy, decisions.itemDefaults.owner);
+    assert.match(approval.approvedAt, /^\d{4}-\d{2}-\d{2}$/);
+    assert.equal(new Date(approval.approvedAt).toISOString().slice(0, 10), approval.approvedAt);
+    assert(approval.resolution.trim());
+    assert(approval.requirements.includes(approval.id));
+    for (const id of approval.requirements) assert(checklist.includes('**' + id + '**'));
+  }
+  for (const id of expected) {
+    assert.equal(
+      checklist.includes('- [x] **' + id + '**'),
+      approvals.some((row) => row.id === id),
+    );
+  }
 });
 test('the original product specification remains byte-for-byte unchanged', () => {
   assert.equal(
@@ -61,7 +78,8 @@ test('the larger batch preserves one hundred stable requirements and honest comp
     checked,
     batch.baselineCompleted +
       batch.items.filter((item) => item.status === 'VERIFIED').length +
-      additional.size,
+      additional.size +
+      decisions.approvedDecisions.length,
   );
 });
 
@@ -111,6 +129,8 @@ test('the continuation preserves two hundred existing requirements and evidence-
   assert.equal(Number(tableTotal?.[1]), checkedIds.size);
   assert.equal(
     checkedIds.size,
-    162 + batch.items.filter((item) => item.status === 'VERIFIED').length,
+    162 +
+      batch.items.filter((item) => item.status === 'VERIFIED').length +
+      decisions.approvedDecisions.length,
   );
 });

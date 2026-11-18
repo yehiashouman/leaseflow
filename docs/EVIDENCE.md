@@ -623,3 +623,9 @@ Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.co
 - **DASH-008:** Manager alerts show upcoming and overdue reviews, respect recorded deferrals, and link to scoped review pages. Private-document alerts use the latest clean version for each series. MySQL verifies relationship scope, foreign record exclusion, and replacement behavior. Live desktop and mobile verify the manager can open a milestone from the dashboard.
 
 Code and test paths are recorded in [the verification matrix](batch-200.json). Alerts display dates without changing any document or account access rule.
+
+## Tenant Rental Terms
+
+Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.com/yehiashouman/leaseflow/commit/3b51f274d1b7cff4d5589a9ac6959390e21a8ab2) · [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
+
+- **DASH-015:** Displays the contract due day and notice period plus the tenant profile’s saved late-request window and maximum extension. MySQL and live Chromium desktop and mobile verify the saved limits with a seven-day window and a three-day maximum.
