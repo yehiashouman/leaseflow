@@ -94,6 +94,10 @@ test('real external rent receipt preserves exact cents and immutable history aft
       path: testInfo.outputPath('immutable-external-rent-receipt.png'),
       fullPage: true,
     });
+    await page.goto('/');
+    const rent = page.getByRole('region', { name: 'Rent overview' });
+    await expect(rent.getByText('Partially paid balance', { exact: true })).toBeVisible();
+    await expect(rent.getByText('AED 89.90', { exact: true })).toHaveCount(2);
   } finally {
     await prisma.paymentReceipt.deleteMany({ where: { paymentId: payment.id } });
     await prisma.payment.delete({ where: { id: payment.id } });

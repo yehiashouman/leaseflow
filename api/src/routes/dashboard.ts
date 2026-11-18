@@ -3,6 +3,12 @@ import { Prisma } from '@prisma/client';
 import type { FastifyPluginAsync } from 'fastify';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import {
+  openRentContractStatuses,
+  rentBalance,
+  rentDashboardTotals,
+  rentWindows,
+} from '../rent-dashboard.js';
 import { caseContractScope, caseContractSelect, caseScope } from '../case-data.js';
 
 export const dashboardRoutes: FastifyPluginAsync = async (app) => {
@@ -19,42 +25,88 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
     return { managers, pendingApproval, suspended, tenants };
   });
   app.get('/tenant', { preHandler: allowRoles('TENANT') }, async (request) => {
-    const contracts = await prisma.contract.findMany({
-      where: { ...caseContractScope(request.user), status: { not: 'DRAFT' } },
-      select: {
-        id: true,
-        status: true,
-        startDate: true,
-        endDate: true,
-        monthlyRent: true,
-        currency: true,
-        dueDay: true,
-        noticeDays: true,
-        depositAmount: true,
-        occupants: { select: occupantSelect, orderBy: { role: 'asc' } },
-        rentalSpace: caseContractSelect.rentalSpace,
-        payments: {
-          select: { id: true, dueDate: true, amountDue: true, amountPaid: true, status: true },
-          orderBy: [{ dueDate: 'desc' }, { id: 'desc' }],
-          take: 20,
-        },
-        requests: {
-          where: { status: { notIn: ['DRAFT', 'ACCEPTED', 'CLOSED', 'REJECTED'] } },
+    const windows = rentWindows(new Date());
+    const paymentScope = caseContractScope(request.user);
+    const { contracts, rentSummary } = await prisma.$transaction(
+      async (tx) => {
+        const contracts = await tx.contract.findMany({
+          where: { ...paymentScope, status: { not: 'DRAFT' } },
           select: {
             id: true,
-            type: true,
-            title: true,
             status: true,
-            decisionDueAt: true,
-            updatedAt: true,
+            startDate: true,
+            endDate: true,
+            monthlyRent: true,
+            currency: true,
+            dueDay: true,
+            noticeDays: true,
+            depositAmount: true,
+            occupants: { select: occupantSelect, orderBy: { role: 'asc' } },
+            rentalSpace: caseContractSelect.rentalSpace,
+            payments: {
+              select: { id: true, dueDate: true, amountDue: true, amountPaid: true, status: true },
+              orderBy: [{ dueDate: 'desc' }, { id: 'desc' }],
+              take: 20,
+            },
+            requests: {
+              where: { status: { notIn: ['DRAFT', 'ACCEPTED', 'CLOSED', 'REJECTED'] } },
+              select: {
+                id: true,
+                type: true,
+                title: true,
+                status: true,
+                decisionDueAt: true,
+                updatedAt: true,
+              },
+              orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+              take: 20,
+            },
           },
-          orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
           take: 20,
-        },
+          orderBy: [{ status: 'asc' }, { startDate: 'desc' }, { id: 'desc' }],
+        });
+        const contract = contracts.find((row) =>
+          openRentContractStatuses.some((status) => status === row.status),
+        );
+        if (!contract) return { contracts, rentSummary: null };
+        const unpaid = {
+          contractId: contract.id,
+          contract: { ...paymentScope, status: { in: [...openRentContractStatuses] } },
+          amountPaid: { lt: tx.payment.fields.amountDue },
+          currency: contract.currency,
+        };
+        const [due, next] = await Promise.all([
+          tx.payment.aggregate({
+            where: { ...unpaid, dueDate: { lt: windows.tomorrow } },
+            _sum: { amountDue: true, amountPaid: true },
+          }),
+          tx.payment.findFirst({
+            where: { ...unpaid, dueDate: { gte: windows.today } },
+            orderBy: [{ dueDate: 'asc' }, { id: 'asc' }],
+            select: { dueDate: true, amountDue: true, amountPaid: true },
+          }),
+        ]);
+        const zero = new Prisma.Decimal(0);
+        return {
+          contracts,
+          rentSummary: {
+            contractId: contract.id,
+            currency: contract.currency,
+            balanceDue: rentBalance(
+              due._sum.amountDue ?? zero,
+              due._sum.amountPaid ?? zero,
+            ).toFixed(2),
+            nextDue: next
+              ? {
+                  date: next.dueDate,
+                  amount: rentBalance(next.amountDue, next.amountPaid).toFixed(2),
+                }
+              : null,
+          },
+        };
       },
-      take: 20,
-      orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
-    });
+      { isolationLevel: 'RepeatableRead' },
+    );
     const unresolvedScope = {
       ...caseScope(request.user),
       status: {
@@ -89,6 +141,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
     ]);
     return {
       unresolvedRequests,
+      rentSummary,
       unresolvedCount,
       pendingAcknowledgements,
       contracts: contracts.map((row) => ({
@@ -117,39 +170,65 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
     };
     const now = new Date();
     const horizon = new Date(now.getTime() + 7 * 86400000);
+    const windows = rentWindows(now);
     const result = await prisma.$transaction(
       async (tx) => {
-        const [units, spaceGroups, requestGroups, awaitingManager, deadlines, payments, expenses] =
-          await Promise.all([
-            tx.unit.count({ where: unitScope }),
-            tx.rentalSpace.groupBy({
-              by: ['status'],
-              where: { unit: { ...unitScope, active: true }, enabled: true },
-              _count: { _all: true },
-            }),
-            tx.request.groupBy({ by: ['type'], where: open, _count: { _all: true } }),
-            tx.request.count({
-              where: {
-                ...requestScope,
-                status: { in: ['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'REOPENED'] },
+        const [
+          units,
+          spaceGroups,
+          requestGroups,
+          awaitingManager,
+          deadlines,
+          payments,
+          expenses,
+          monthlyReceipts,
+        ] = await Promise.all([
+          tx.unit.count({ where: unitScope }),
+          tx.rentalSpace.groupBy({
+            by: ['status'],
+            where: { unit: { ...unitScope, active: true }, enabled: true },
+            _count: { _all: true },
+          }),
+          tx.request.groupBy({ by: ['type'], where: open, _count: { _all: true } }),
+          tx.request.count({
+            where: {
+              ...requestScope,
+              status: { in: ['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'REOPENED'] },
+            },
+          }),
+          tx.request.findMany({
+            where: { ...open, decisionDueAt: { not: null } },
+            select: { id: true, title: true, type: true, status: true, decisionDueAt: true },
+            orderBy: [{ decisionDueAt: 'asc' }, { id: 'asc' }],
+            take: 10,
+          }),
+          tx.payment.findMany({
+            where: { contract: contractScope },
+            select: {
+              currency: true,
+              amountDue: true,
+              amountPaid: true,
+              status: true,
+              dueDate: true,
+              contract: { select: { status: true } },
+            },
+          }),
+          tx.expense.groupBy({
+            by: ['currency'],
+            where: { managerId: manager.id, void: { is: null } },
+            _sum: { amount: true },
+          }),
+          tx.paymentReceipt.groupBy({
+            by: ['currency'],
+            where: {
+              payment: {
+                contract: { ...contractScope, status: { notIn: ['DRAFT', 'CANCELLED'] } },
               },
-            }),
-            tx.request.findMany({
-              where: { ...open, decisionDueAt: { not: null } },
-              select: { id: true, title: true, type: true, status: true, decisionDueAt: true },
-              orderBy: [{ decisionDueAt: 'asc' }, { id: 'asc' }],
-              take: 10,
-            }),
-            tx.payment.findMany({
-              where: { contract: contractScope },
-              select: { currency: true, amountDue: true, amountPaid: true, status: true },
-            }),
-            tx.expense.groupBy({
-              by: ['currency'],
-              where: { managerId: manager.id, void: { is: null } },
-              _sum: { amount: true },
-            }),
-          ]);
+              paidAt: { gte: windows.monthStart, lte: windows.now },
+            },
+            _sum: { amount: true },
+          }),
+        ]);
         const count = (status: string) =>
           spaceGroups.find((g) => g.status === status)?._count._all ?? 0;
         const totals = new Map<
@@ -201,6 +280,15 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           requestsByType: Object.fromEntries(requestGroups.map((g) => [g.type, g._count._all])),
           awaitingManager,
           deadlines,
+          rentSummary: rentDashboardTotals(
+            payments.filter(
+              (payment) =>
+                openRentContractStatuses.some((status) => status === payment.contract.status) &&
+                payment.amountPaid.lt(payment.amountDue),
+            ),
+            monthlyReceipts,
+            windows,
+          ),
           financialRecords: [...totals.entries()]
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([currency, row]) => ({

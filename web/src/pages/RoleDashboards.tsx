@@ -76,6 +76,12 @@ export function TenantDashboard() {
       api
         .get<{
           contracts: TenantContract[];
+          rentSummary?: {
+            contractId: string;
+            currency: string;
+            balanceDue: string;
+            nextDue: { date: string; amount: string } | null;
+          } | null;
           unresolvedRequests?: {
             id: string;
             title: string;
@@ -98,6 +104,7 @@ export function TenantDashboard() {
   const contract = data?.contracts.find((item) =>
     ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(item.status),
   );
+  const rent = data?.rentSummary?.contractId === contract?.id ? data?.rentSummary : null;
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">My accommodation</h1>
@@ -127,6 +134,43 @@ export function TenantDashboard() {
               </div>
             </dl>
           </section>
+          {rent && (
+            <section
+              className="space-y-3 rounded-xl border bg-white p-4"
+              aria-labelledby="tenant-rent"
+            >
+              <h2 id="tenant-rent" className="font-semibold">
+                Rent due
+              </h2>
+              <dl className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <dt className="text-sm text-muted-foreground">Balance through today</dt>
+                  <dd className="font-semibold tabular-nums">
+                    {rent.currency} {rent.balanceDue}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Next scheduled payment</dt>
+                  <dd>
+                    {rent.nextDue ? (
+                      <>
+                        <time dateTime={rent.nextDue.date}>
+                          {new Date(rent.nextDue.date).toLocaleDateString('en-GB', {
+                            timeZone: 'Asia/Dubai',
+                          })}
+                        </time>
+                        {' · '}
+                        {rent.currency} {rent.nextDue.amount}
+                      </>
+                    ) : (
+                      'No upcoming payment recorded'
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              <p className="text-sm text-muted-foreground">Due dates use Dubai time.</p>
+            </section>
+          )}
           <section className="space-y-3 border-b pb-6">
             <h2 className="font-semibold">Occupancy</h2>
             <p>

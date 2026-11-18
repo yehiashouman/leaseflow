@@ -39,6 +39,14 @@ type PortfolioDashboard = Record<string, unknown> & {
     received: string;
     expenses: string;
   }[];
+  rentSummary?: {
+    currency: string;
+    dueToday: string;
+    dueNextSevenDays: string;
+    overdue: string;
+    partiallyPaid: string;
+    receivedThisMonth: string;
+  }[];
   financialBasis?: string;
   deadlineSummary?: { overdue: number; approaching: number };
 };
@@ -186,6 +194,58 @@ function ManagerDashboard() {
           </dl>
         </section>
       </div>
+      <section
+        className="space-y-4 rounded-2xl border border-border/70 bg-white p-5 sm:p-6"
+        aria-labelledby="rent-summary"
+      >
+        <h2 id="rent-summary" className="font-semibold">
+          Rent overview
+        </h2>
+        {data?.rentSummary === undefined ? (
+          <p className="text-sm text-muted-foreground">Rent totals require the live API.</p>
+        ) : data.rentSummary.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No open rent balances or receipts this month.
+          </p>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Dubai dates. The next seven days exclude today. Partial balances can also appear in a
+              due-date total.
+            </p>
+            {data.rentSummary.map(
+              ({
+                currency,
+                dueToday,
+                dueNextSevenDays,
+                overdue,
+                partiallyPaid,
+                receivedThisMonth,
+              }) => (
+                <dl
+                  key={currency}
+                  className="grid gap-4 rounded-xl bg-slate-50 p-4 sm:grid-cols-2 xl:grid-cols-5"
+                >
+                  {[
+                    ['Due today', dueToday],
+                    ['Due next seven days', dueNextSevenDays],
+                    ['Overdue', overdue],
+                    ['Partially paid balance', partiallyPaid],
+                    ['Receipts this month', receivedThisMonth],
+                  ].map(([label, amount]) => (
+                    <div key={label}>
+                      <dt className="text-sm text-muted-foreground">{label}</dt>
+                      <dd className="font-semibold tabular-nums">
+                        {currency} {amount}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ),
+            )}
+          </>
+        )}
+      </section>
       <section
         className="space-y-4 rounded-2xl border border-border/70 bg-white p-5 sm:p-6"
         aria-labelledby="recorded-amounts"

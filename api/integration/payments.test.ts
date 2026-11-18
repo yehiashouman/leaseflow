@@ -5,6 +5,7 @@ import type { Role } from '@prisma/client';
 import { prisma } from '../src/db.js';
 import { buildApp } from '../src/app.js';
 import { env } from '../src/config.js';
+import { rentWindows } from '../src/rent-dashboard.js';
 type Actor = { id: string; profileId: string; role: Role; sid: string };
 describe('MySQL immutable external rent payment receipts', () => {
   let app: FastifyInstance,
@@ -135,6 +136,78 @@ describe('MySQL immutable external rent payment receipts', () => {
     await prisma.leasingManagerProfile.deleteMany({ where: { userId: { in: ids } } });
     await prisma.user.deleteMany({ where: { id: { in: ids } } });
     await app.close();
+  });
+  it('reconciles Dubai rent windows and tenant balances to scoped obligations and dated receipts', async () => {
+    const now = new Date();
+    const windows = rentWindows(now);
+    const day = 86_400_000;
+    await prisma.payment.update({
+      where: { id: paymentId },
+      data: { dueDate: new Date(windows.today.getTime() - day), amountPaid: '10.10' },
+    });
+    await prisma.payment.createMany({
+      data: [
+        { dueDate: windows.today, amountDue: '12.50' },
+        { dueDate: windows.tomorrow, amountDue: '30.00', amountPaid: '1.10', currency: 'USD' },
+        { dueDate: new Date(windows.afterNextWeek.getTime() - 1), amountDue: '5.21' },
+        { dueDate: windows.afterNextWeek, amountDue: '99.00' },
+        { dueDate: windows.today, amountDue: '95.00', amountPaid: '95.00' },
+      ].map((row, i) => ({ ...row, contractId, periodStart: new Date(Date.UTC(2032, i, 1)) })),
+    });
+    await prisma.paymentReceipt.createMany({
+      data: [
+        { amount: '3.15', paidAt: windows.monthStart },
+        { amount: '1.50', paidAt: now },
+        { amount: '5.45', paidAt: new Date(windows.monthStart.getTime() - 1) },
+      ].map((row) => ({
+        ...row,
+        paymentId,
+        actorUserId: manager.id,
+        clientId: randomUUID(),
+        payloadHash: 'a'.repeat(64),
+        currency: 'AED',
+        method: 'Bank transfer',
+        recordedBalance: '10.10',
+      })),
+    });
+    const getDashboard = (role: 'manager' | 'tenant', actor: Actor) =>
+      app.inject({
+        url: '/api/v1/dashboard/' + role,
+        headers: {
+          authorization:
+            'Bearer ' + app.jwt.sign({ sub: actor.id, role: actor.role, sid: actor.sid }),
+        },
+      });
+    const managerDashboard = await getDashboard('manager', manager);
+    expect(managerDashboard.statusCode, managerDashboard.body).toBe(200);
+    expect(managerDashboard.json().rentSummary).toEqual([
+      {
+        currency: 'AED',
+        dueToday: '12.50',
+        dueNextSevenDays: '5.21',
+        overdue: '89.90',
+        partiallyPaid: '89.90',
+        receivedThisMonth: '4.65',
+      },
+      {
+        currency: 'USD',
+        dueToday: '0.00',
+        dueNextSevenDays: '28.90',
+        overdue: '0.00',
+        partiallyPaid: '28.90',
+        receivedThisMonth: '0.00',
+      },
+    ]);
+    const tenantDashboard = await getDashboard('tenant', tenant);
+    expect(tenantDashboard.statusCode, tenantDashboard.body).toBe(200);
+    expect(tenantDashboard.json().rentSummary).toEqual({
+      contractId,
+      currency: 'AED',
+      balanceDue: '102.40',
+      nextDue: { date: windows.today.toISOString(), amount: '12.50' },
+    });
+    expect((await getDashboard('manager', foreign)).json().rentSummary).toEqual([]);
+    expect((await getDashboard('tenant', roommate)).json().rentSummary).toBeNull();
   });
   it('posts decimal cents, preserves the original due, and stores one audited receipt', async () => {
     const response = await send('POST', '/record', body());
