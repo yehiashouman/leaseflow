@@ -85,6 +85,11 @@ describe('reference choices', () => {
     await user.click(screen.getByLabelText('Building'));
     expect(screen.getByRole('option', { name: 'Grande' })).toBeTruthy();
     expect(screen.queryByRole('option', { name: 'Aurora' })).toBeNull();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByLabelText('Area'));
+    await user.type(screen.getByRole('combobox', { name: 'Search choices' }), 'Dubai Marina');
+    await user.click(screen.getByRole('option', { name: 'Dubai Marina' }));
+    expect(screen.getByLabelText('Building').textContent).toContain('Select an option');
   });
   it('provides country, language, and Dubai catalogues without duplicate values', () => {
     expect(countries.length).toBe(249);

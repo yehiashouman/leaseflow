@@ -1,4 +1,5 @@
 import dubaiBuildings from '../data/dubai-buildings.json';
+import dubaiBuildingIndex from '../data/dubai-building-index.json';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -19,6 +20,16 @@ import { RecordEditor, formValues, type EditorField } from '@/components/record-
 import type { Landlord } from './Landlords';
 import { unitAmenities } from '../unit-amenities';
 import { Input } from '@/components/ui/input';
+
+const buildingsByArea: Record<string, string[]> = dubaiBuildingIndex.areas;
+const mappedBuildings = [
+  ...Object.entries(buildingsByArea),
+  ...Object.entries(dubaiBuildingIndex.aliases).map(([alias, area]): [string, string[]] => [
+    alias,
+    buildingsByArea[area] ?? [],
+  ]),
+].flatMap(([area, names]) => names.map((name) => ({ name, area })));
+const catalogBuildings = [...mappedBuildings, ...dubaiBuildings.buildings];
 
 export type Unit = {
   id: string;
@@ -93,19 +104,14 @@ export function Units() {
       options: [
         ...new Map(
           [
-            ...dubaiBuildings.buildings.map((item) => ({
-              value: item.name,
-              label: item.name + ' · ' + item.area,
-              area: item.area,
-            })),
+            ...catalogBuildings,
             ...data
               .filter((item) => item.building)
-              .map((item) => ({
-                value: item.building!,
-                label: item.building! + ' · ' + item.area,
-                area: item.area,
-              })),
-          ].map((item) => [item.area + ':' + item.value, item]),
+              .map((item) => ({ name: item.building!, area: item.area })),
+          ].map(({ name, area }) => [
+            area + ':' + name.toLocaleLowerCase(),
+            { value: name, label: name + ' · ' + area, area },
+          ]),
         ).values(),
       ].sort((a, b) => a.label.localeCompare(b.label)),
     },
@@ -272,6 +278,12 @@ export function Units() {
           </TableBody>
         </Table>
       )}
+      <p className="text-xs text-muted-foreground">
+        Building data ©{' '}
+        <a href={dubaiBuildingIndex.license} target="_blank" rel="noreferrer" className="underline">
+          OpenStreetMap contributors
+        </a>
+      </p>
       {editor && (
         <RecordEditor
           key={editor === 'new' ? 'new' : editor.id}

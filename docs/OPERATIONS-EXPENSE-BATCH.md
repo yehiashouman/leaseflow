@@ -64,7 +64,7 @@ These closures combine new implementation with verified existing behavior.
 The prior 100-item report remains a historical snapshot at its own evidence commit.
 
 Scheduler acceptance: https://github.com/yehiashouman/leaseflow/actions/runs/42739428937.
-The interface revision passes 119 local web tests; remote UI acceptance remains in progress.
+The interface revision passes 119 web tests, 18 preview browser tests, and live application CI. [Preview acceptance](https://github.com/yehiashouman/leaseflow/actions/runs/42743957097).
 
 ## Complete 200-Item Matrix
 

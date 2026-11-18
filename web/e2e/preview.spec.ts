@@ -431,7 +431,7 @@ test('Dubai reference choices persist through a preview reload', async ({ page }
   const editor = page.getByRole('dialog');
   await editor.getByLabel('Unit name *', { exact: true }).fill('Choice catalogue apartment');
   await choose(page, 'Area *', 'Dubai Marina');
-  await choose(page, 'Building', 'Aurora · Dubai Marina');
+  await choose(page, 'Building', 'Cayan Tower · Dubai Marina');
   await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
   await editor.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(editor).not.toBeVisible();
@@ -441,6 +441,11 @@ test('Dubai reference choices persist through a preview reload', async ({ page }
     'Dubai Marina',
   );
   await expect(page.getByRole('combobox', { name: 'Building', exact: true })).toContainText(
-    'Aurora',
+    'Cayan Tower',
   );
+  await choose(page, 'Area *', 'Jumeirah Lakes Towers');
+  await expect(page.getByRole('combobox', { name: 'Building', exact: true })).toHaveText(
+    'Select an option',
+  );
+  await choose(page, 'Building', 'Almas Tower · Jumeirah Lakes Towers');
 });

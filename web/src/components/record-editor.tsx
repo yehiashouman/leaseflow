@@ -123,10 +123,6 @@ export function RecordEditor({
                       ('area' in option && option.area === draft[field.dependsOn]),
                   )
                 : undefined);
-            const sourceUnchanged =
-              !field.dependsOn ||
-              draft[field.dependsOn] ===
-                String(fields.find((source) => source.name === field.dependsOn)?.value ?? '');
             return (
               <div
                 key={field.name}
@@ -153,11 +149,19 @@ export function RecordEditor({
                     name={field.name}
                     options={choices}
                     key={field.name + (field.dependsOn ? draft[field.dependsOn] : '')}
-                    defaultValue={sourceUnchanged ? String(field.value ?? '') : ''}
+                    defaultValue={draft[field.name] ?? String(field.value ?? '')}
                     required={field.required}
                     disabled={busy || (!!field.dependsOn && !draft[field.dependsOn])}
                     onChange={(value) => {
-                      setDraft((current) => ({ ...current, [field.name]: value }));
+                      setDraft((current) => {
+                        const next = { ...current, [field.name]: value };
+                        if (value !== current[field.name]) {
+                          for (const dependent of fields) {
+                            if (dependent.dependsOn === field.name) next[dependent.name] = '';
+                          }
+                        }
+                        return next;
+                      });
                       field.onChange?.(value);
                     }}
                     invalid={!!fieldErrors[field.name]}

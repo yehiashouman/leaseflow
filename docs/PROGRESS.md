@@ -7,25 +7,25 @@ Target: the complete initial release in requirements.md.
 
 ## Summary
 
-| Measure                                   | Verified status                                                                                                                           |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Total checklist tasks                     | 764                                                                                                                                       |
-| Completed tasks with evidence             | 267                                                                                                                                       |
-| Tasks without full completion evidence    | 497                                                                                                                                       |
-| Strict checklist completion               | 34.95%                                                                                                                                    |
-| UI foundation tasks                       | 10 of 10 verified                                                                                                                         |
-| Open owner decisions                      | 26                                                                                                                                        |
-| Local API unit/route tests                | 149 pass; database mocks where required                                                                                                   |
-| Local web/component/preview-adapter tests | 119 pass locally; final UI CI remains in progress                                                                                         |
-| Setup and governance tests                | 12 pass locally and in scheduler CI                                                                                                       |
-| GitHub browser suites                     | 46 pass on scheduler code: four interface fixtures, fourteen synthetic previews, twenty-six real API journeys, and two real-file journeys |
-| Current verified browser coverage         | Accounts, invitations, private files, occupants, expenses, receipts, preferences, notices, role boundaries, and operational cases         |
-| MySQL suites                              | 201 pass on MySQL 8.4 in GitHub Actions                                                                                                   |
-| Fresh-stack Docker acceptance             | Pass: zero-user startup, explicit demo, proxy login, password and volume persistence after restart.                                       |
-| Local builds                              | API, web production, and isolated preview pass                                                                                            |
-| Local lint                                | API, integration sources, and web pass                                                                                                    |
-| Public preview                            | Live at https://yehiashouman.github.io/leaseflow/                                                                                         |
-| Production application                    | Incomplete; not approved for real operational use                                                                                         |
+| Measure                                | Verified status                                                                                                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Total checklist tasks                  | 764                                                                                                                                          |
+| Completed tasks with evidence          | 267                                                                                                                                          |
+| Tasks without full completion evidence | 497                                                                                                                                          |
+| Strict checklist completion            | 34.95%                                                                                                                                       |
+| UI foundation tasks                    | 10 of 10 verified                                                                                                                            |
+| Open owner decisions                   | 26                                                                                                                                           |
+| Local API unit/route tests             | 149 pass; database mocks where required                                                                                                      |
+| Web/component/preview-adapter tests    | 119 pass on GitHub Actions                                                                                                                   |
+| Setup and governance tests             | 12 pass locally and in scheduler CI                                                                                                          |
+| GitHub browser suites                  | 50 pass on the interface revision: four interface fixtures, eighteen preview tests, twenty-six real API journeys, and two real-file journeys |
+| Current verified browser coverage      | Accounts, invitations, private files, occupants, expenses, receipts, preferences, notices, role boundaries, and operational cases            |
+| MySQL suites                           | 201 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
+| Fresh-stack Docker acceptance          | Pass: zero-user startup, explicit demo, proxy login, password and volume persistence after restart.                                          |
+| Local builds                           | API, web production, and isolated preview pass                                                                                               |
+| Local lint                             | API, integration sources, and web pass                                                                                                       |
+| Public preview                         | Live at https://yehiashouman.github.io/leaseflow/                                                                                            |
+| Production application                 | Incomplete; not approved for real operational use                                                                                            |
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
@@ -40,7 +40,7 @@ Global completion is 267 of 764 (34.95%); 497 requirements remain without full e
 The requested 200 additional completions are not complete.
 See [OPERATIONS-EXPENSE-BATCH.md](OPERATIONS-EXPENSE-BATCH.md) for every identifier, exact gap, and evidence link.
 New work covers private expenses/recoveries, contract and occupant setup, operational dashboards, reliable case notices, own preferences, and immutable external receipts, durable business schedules, monthly obligation catch-up, and annual-review decisions.
-The scheduler commit passes 149 API, 109 web, 201 MySQL, two real-file tests, and 46 browser tests. The new interface passes 119 web tests locally; remote UI acceptance remains in progress.
+The scheduler commit passes 149 API, 109 web, 201 MySQL, two real-file tests, and 46 browser tests. The interface revision passes 119 web tests, 18 preview browser tests, and live application CI.
 Twelve setup/governance tests pass locally after the evidence update.
 Production activation, finance, provider delivery, retention, MFA, moderation, and full initial-release acceptance remain incomplete.
 

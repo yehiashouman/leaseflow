@@ -113,9 +113,14 @@ The country catalogue contains 249 ISO 3166-1 codes; language labels use browser
 The language catalogue contains ISO 639-1 codes, including Arabic and English.
 Dubai area/community choices combine a dated public DLD-derived snapshot and common neighbourhood labels.
 Sources: https://datadubai.ae/areas.json, https://datadubai.ae/communities.json, and https://www.visitdubai.com/en/explore-dubai/dubai-neighbourhoods.
-Building choices now depend on the selected Dubai area and combine developer-sourced starter entries with the manager's saved property records.
+Building choices include 7,716 building choices across 189 mapped Dubai areas from the 17 November 2026 OpenStreetMap extract.
+The picker also includes developer-sourced entries and the manager's saved buildings.
 An area change clears the prior building selection.
-This catalogue does not represent every Dubai building.
+Popular names such as Dubai Marina also use the mapped community index.
+The map extract covers named footprints and has gaps. The official citywide registry export remains unavailable.
+
+The index credits [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) and uses the Open Database License.
+To refresh it, run `scripts/import-dubai-buildings.py` with a [Geofabrik GCC extract](https://download.geofabrik.de/asia/gcc-states.html) and the WGS84 community GeoJSON linked in the index metadata.
 An explicit unlisted-building action preserves access for absent entries.
 Saved historical values remain available; the interface does not silently rewrite existing records.
 Search supports keyboard selection, screen-reader labels, native required validation, and server field errors.

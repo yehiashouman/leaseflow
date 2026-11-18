@@ -1,5 +1,6 @@
 import codes from './data/locale-codes.json';
 import dubai from './data/dubai-areas.json';
+import buildings from './data/dubai-building-index.json';
 import type { Choice } from './components/ui/search-select';
 
 const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
@@ -11,7 +12,11 @@ export const countries: Choice[] = codes.countries
 export const languages: Choice[] = codes.languages
   .map((code) => ({ value: code, label: languageNames.of(code) ?? code }))
   .sort(alphabetic);
-export const dubaiAreas: Choice[] = dubai.areas.map((name) => ({ value: name, label: name }));
+export const dubaiAreas: Choice[] = [
+  ...new Set([...dubai.areas, ...Object.keys(buildings.areas), ...Object.keys(buildings.aliases)]),
+]
+  .map((name) => ({ value: name, label: name }))
+  .sort(alphabetic);
 export const dubaiTimezone: Choice[] = [{ value: 'Asia/Dubai', label: 'Dubai (UTC+04:00)' }];
 export function referenceOptions(name: string): Choice[] | undefined {
   if (/nationality$/i.test(name)) return countries;

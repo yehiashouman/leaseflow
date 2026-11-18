@@ -42,9 +42,11 @@ export function SearchSelect({
     value && !options.some((item) => item.value === value)
       ? [{ value, label: value }, ...options]
       : options;
-  const filtered = choices.filter((item) =>
-    (item.label + ' ' + item.value).toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+  const query = search.trim().toLocaleLowerCase();
+  const matches = choices.filter((item) =>
+    (item.label + ' ' + item.value).toLocaleLowerCase().includes(query),
   );
+  const filtered = matches.slice(0, 100);
   const select = (next: string) => {
     setValue(next);
     setMissing(false);
@@ -72,13 +74,7 @@ export function SearchSelect({
         }}
       >
         <option value="">Select an option</option>
-        {choices
-          .filter((item) => item.value)
-          .map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
+        {value && <option value={value}>{value}</option>}
       </select>
       <Popover.Root
         open={open}
@@ -196,6 +192,11 @@ export function SearchSelect({
                 <p className="px-3 py-4 text-sm text-muted-foreground">No choices match.</p>
               )}
             </div>
+            {matches.length > filtered.length && (
+              <p className="border-t px-3 py-2 text-xs text-muted-foreground">
+                Search to find more options.
+              </p>
+            )}
             {allowCustom &&
               search.trim() &&
               !choices.some((item) => item.value.toLowerCase() === search.trim().toLowerCase()) && (
