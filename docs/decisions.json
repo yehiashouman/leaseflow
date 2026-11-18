@@ -24,6 +24,13 @@
       "requirements": ["DEC-07", "LATE-006", "LATE-007", "LATE-008"]
     },
     {
+      "id": "DEC-08",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Once approved by a manager, a late-payment extension or room change counts toward its own six-month limit even if the tenant withdraws it or the manager cancels or reverses it.",
+      "requirements": ["DEC-08", "LATE-006", "LATE-008"]
+    },
+    {
       "id": "DEC-09",
       "approvedBy": "PROJECT_OWNER",
       "approvedAt": "2026-11-19",
@@ -38,16 +45,7 @@
       "requirements": ["DEC-11", "DASH-009"]
     }
   ],
-  "partialDecisions": [
-    {
-      "id": "DEC-08",
-      "approvedBy": "PROJECT_OWNER",
-      "approvedAt": "2026-11-19",
-      "resolution": "A cancelled or reversed late-payment extension or room change still counts toward its own six-month limit if a manager approved it.",
-      "remaining": "Decide whether the approval counts if the tenant withdraws the request after the manager approves it.",
-      "requirements": ["DEC-08", "LATE-006", "LATE-008"]
-    }
-  ],
+  "partialDecisions": [],
   "items": [
     { "id": "DEC-01", "question": "Currency rounding and decimal policy" },
     { "id": "DEC-02", "question": "Due days in shorter months" },

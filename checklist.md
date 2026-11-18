@@ -1000,7 +1000,7 @@ Proposed defaults are not accepted business rules.
 - [ ] **DEC-05** Confirm Transfer-month proration, rent differences, deposit movement/top-up/refund, and transfer cancellation.
 - [ ] **DEC-06** Confirm Outcome after seven negotiation days without an accepted destination.
 - [x] **DEC-07** Confirm Rolling-six-month boundary arithmetic and whether eligibility keys use approval date or another recorded date. [Owner approval](docs/decisions.json).
-- [ ] **DEC-08** Confirm Whether withdrawn, cancelled, or reversed approvals consume late-payment and room-change frequency allowances. [Partial approval](docs/decisions.json).
+- [x] **DEC-08** Confirm Whether withdrawn, cancelled, or reversed approvals consume late-payment and room-change frequency allowances. [Owner approval](docs/decisions.json).
 - [x] **DEC-09** Confirm Whether due-day requests can be submitted on the due date or after it. [Owner approval](docs/decisions.json).
 - [ ] **DEC-10** Confirm Payment overpayment, advance rent, credit balances, and allocation order.
 - [x] **DEC-11** Confirm Report basis: cash, accrual, or separate explicitly labeled views. [Owner approval](docs/decisions.json).
