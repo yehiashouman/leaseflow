@@ -52,7 +52,16 @@
       "requirements": ["DEC-11", "DASH-009"]
     }
   ],
-  "partialDecisions": [],
+  "partialDecisions": [
+    {
+      "id": "DEC-10",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Record the portion of a rent payment that exceeds the amount owed as tenant credit. The manager can apply that credit to future rent.",
+      "remaining": "Confirm the rules for advance rent, the allocation order across multiple rent obligations, and how to handle unused credit when the tenancy ends.",
+      "requirements": ["DEC-10", "PAY-006"]
+    }
+  ],
   "items": [
     { "id": "DEC-01", "question": "Currency rounding and decimal policy" },
     { "id": "DEC-02", "question": "Due days in shorter months" },

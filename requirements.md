@@ -1175,6 +1175,7 @@ Preserve unaffected implementation work while decisions remain open.
 - **DEC-07, approved 19 November 2026.** Late-payment extensions and room changes have separate six-month limits. Each starts on the manager’s approval date in Dubai. If the sixth month lacks that day, the next approval is allowed from the last day of that month.
 - **DEC-08, approved 19 November 2026.** A late-payment extension or room change counts for the full six months after approval, even if the tenant withdraws it or the manager cancels or reverses it.
 - **DEC-09, approved 19 November 2026.** Tenants must submit late-payment requests before the due date starts in Dubai. Rent must be paid before that date starts. Managers can record late payments. The due date counts as the first late day.
+- **DEC-10, partial approval on 19 November 2026.** Record rent overpayments as tenant credit. The manager can apply the credit to future rent.
 - **DEC-11, approved 19 November 2026.** Financial reports use cash basis only. Count income when received and expenses when paid. Show unpaid obligations and arrears separately.
 - Use half-open allocation intervals to avoid double occupancy on a transfer boundary, only after date-policy approval.
 - Use role-specific routes without inferred fallback to manager permissions.
