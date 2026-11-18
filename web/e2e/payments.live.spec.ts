@@ -86,6 +86,10 @@ test('real external rent receipt preserves exact cents and immutable history aft
     await page.getByRole('button', { name: 'View payment receipts', exact: true }).click();
     const receipts = page.getByRole('region', { name: 'External payment receipts' });
     await expect(receipts.getByText('Receipt browser reference', { exact: true })).toBeVisible();
+    await expect(receipts.getByText('3 days late', { exact: true })).toHaveAttribute(
+      'data-variant',
+      'destructive',
+    );
     const saved = await prisma.payment.findUniqueOrThrow({ where: { id: payment.id } });
     expect(saved.amountDue.toFixed(2)).toBe('100.00');
     expect(saved.amountPaid.toFixed(2)).toBe('10.10');

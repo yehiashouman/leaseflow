@@ -1171,6 +1171,8 @@ Preserve unaffected implementation work while decisions remain open.
 
 - **DEC-01, approved 19 November 2026.** Keep full precision until each charge or credit posts. Round to the nearest minor unit, with ties away from zero. Sum posted amounts at full precision.
 - **DEC-02, approved 19 November 2026.** If the configured due day is absent, use the last calendar day in Dubai. Keep the configured day for later months.
+- **DEC-09, approved 19 November 2026.** Tenants must submit late-payment requests before the due date starts in Dubai. Rent must be paid before that date starts. Managers can record late payments. The due date counts as the first late day.
+- **DEC-11, approved 19 November 2026.** Financial reports use cash basis only. Count income when received and expenses when paid. Show unpaid obligations and arrears separately.
 - Use half-open allocation intervals to avoid double occupancy on a transfer boundary, only after date-policy approval.
 - Use role-specific routes without inferred fallback to manager permissions.
 - Use mandatory administrator MFA before privileged access.

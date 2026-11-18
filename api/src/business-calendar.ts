@@ -22,6 +22,12 @@ export function anniversary(start: Date, months: number) {
 export function dubaiMidnight(date: Date) {
   return new Date(date.getTime() - 4 * 3600000);
 }
+export function daysLate(paidAt: Date, dueDate: Date) {
+  return Math.max(
+    0,
+    (calendarDate(paidAt).getTime() - calendarDate(dueDate).getTime()) / 86400000 + 1,
+  );
+}
 export function dueDate(period: Date, day: number) {
   if (!Number.isInteger(day) || day < 1 || day > 31) throw new Error('SOURCE_TERMS_INVALID');
   const year = period.getUTCFullYear();

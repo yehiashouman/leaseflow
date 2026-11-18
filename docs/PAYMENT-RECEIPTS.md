@@ -12,6 +12,9 @@ The manager and primary tenant can inspect authorized receipt history.
 Other tenants, unrelated managers, and administrators cannot inspect business receipts through these routes.
 The interface requires explicit confirmation that the external payment already happened.
 The application does not collect funds or imply tenant acknowledgement.
+The payment window ends at the start of the due date in Dubai.
+Managers can record late payments. The receipt shows a red label with the number of days late.
+The due date counts as day one. The calculation uses the actual payment date on the receipt.
 
 ## Limits
 

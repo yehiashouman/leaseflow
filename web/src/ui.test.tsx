@@ -109,7 +109,7 @@ describe('role-specific dashboards', () => {
     renderPage(<App />);
     expect(await screen.findByText('AED 12.50', { exact: true })).toBeTruthy();
     expect(screen.getByText('02/12/2026', { exact: true })).toBeTruthy();
-    expect(screen.getByText('7 days before due date', { exact: true })).toBeTruthy();
+    expect(screen.getByText(/Opens 7 days before due date/)).toBeTruthy();
     expect(screen.getByText('3 days', { exact: true })).toBeTruthy();
     expect(screen.getByText(/Due dates use Dubai time/)).toBeTruthy();
   });

@@ -2,12 +2,19 @@ import { describe, expect, it } from 'vitest';
 import {
   anniversary,
   calendarDate,
+  daysLate,
   dueDate,
   dubaiMidnight,
   monthStart,
 } from '../src/business-calendar.js';
 import { roomExpiry } from '../src/business-jobs.js';
 describe('Dubai business calendar', () => {
+  it('counts the due date as the first late day in Dubai', () => {
+    const due = new Date('2026-01-01T00:00:00Z');
+    expect(daysLate(new Date('2025-12-31T19:59:59Z'), due)).toBe(0);
+    expect(daysLate(new Date('2025-12-31T20:00:00Z'), due)).toBe(1);
+    expect(daysLate(new Date('2026-01-03T10:00:00Z'), due)).toBe(3);
+  });
   it('uses Dubai dates across the UTC month boundary', () => {
     expect(calendarDate(new Date('2026-11-30T20:00:00Z')).toISOString()).toBe(
       '2026-12-01T00:00:00.000Z',

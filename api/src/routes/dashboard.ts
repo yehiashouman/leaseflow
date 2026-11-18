@@ -304,7 +304,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
               ),
             })),
           financialBasis:
-            'Recorded amounts across all dates; currencies remain separate; no conversion or profit calculation.',
+            'Operational totals across all dates. Recorded expenses can include unpaid costs. Each currency appears separately.',
           depositLiability: null,
         };
       },

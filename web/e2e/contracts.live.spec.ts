@@ -114,7 +114,7 @@ test('real contract records preserve terms, payment amounts, deposit disputes, a
     await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
-    await expect(page.getByText('7 days before due date', { exact: true })).toBeVisible();
+    await expect(page.getByText(/Opens 7 days before due date/)).toBeVisible();
     await expect(page.getByText('3 days', { exact: true })).toBeVisible();
     await page.getByRole('link', { name: 'My contracts', exact: true }).click();
     await page.getByRole('link', { name: 'Contract Browser Room', exact: true }).click();

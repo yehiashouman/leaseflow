@@ -7,6 +7,7 @@ import { prisma } from '../db.js';
 import { env } from '../config.js';
 import { activeAccount } from '../account-data.js';
 import { caseContractScope } from '../case-data.js';
+import { daysLate } from '../business-calendar.js';
 
 const select = {
   id: true,
@@ -48,7 +49,7 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
         async (tx) => {
           const payment = await tx.payment.findFirst({
             where: { id, contract: scope(request.user) },
-            select: { id: true, amountPaid: true, currency: true },
+            select: { id: true, amountPaid: true, currency: true, dueDate: true },
           });
           if (!payment) throw app.httpErrors.notFound('Payment not found');
           const where = { paymentId: id, payment: { contract: scope(request.user) } };
@@ -63,7 +64,10 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
             tx.paymentReceipt.count({ where }),
           ]);
           return {
-            items,
+            items: items.map((item) => ({
+              ...item,
+              daysLate: daysLate(item.paidAt, payment.dueDate),
+            })),
             total,
             page,
             pageSize: 20,
@@ -126,13 +130,11 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
             select: { ...select, payloadHash: true },
           });
           if (previous) {
-            if (previous.payloadHash !== hash)
+            const { payloadHash, ...receipt } = previous;
+            if (payloadHash !== hash)
               throw app.httpErrors.conflict('Payment key reused with different content');
             return {
-              receipt: await tx.paymentReceipt.findUniqueOrThrow({
-                where: { id: previous.id },
-                select,
-              }),
+              receipt: { ...receipt, daysLate: daysLate(receipt.paidAt, payment.dueDate) },
               repeated: true,
             };
           }
@@ -189,7 +191,10 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
               },
             },
           });
-          return { receipt, repeated: false };
+          return {
+            receipt: { ...receipt, daysLate: daysLate(receipt.paidAt, payment.dueDate) },
+            repeated: false,
+          };
         },
         { isolationLevel: 'ReadCommitted' },
       );

@@ -323,7 +323,7 @@ function ManagerDashboard() {
                     ['Due next seven days', dueNextSevenDays],
                     ['Overdue', overdue],
                     ['Partially paid balance', partiallyPaid],
-                    ['Receipts this month', receivedThisMonth],
+                    ['Rent received this month', receivedThisMonth],
                   ].map(([label, amount]) => (
                     <div key={label}>
                       <dt className="text-sm text-muted-foreground">{label}</dt>

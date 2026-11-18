@@ -137,7 +137,10 @@ export function TenantDashboard() {
                 <>
                   <div>
                     <dt className="text-sm text-muted-foreground">Late-request window</dt>
-                    <dd>{contract.lateRequestLimits.lateRequestWindowDays} days before due date</dd>
+                    <dd>
+                      Opens {contract.lateRequestLimits.lateRequestWindowDays} days before due date.
+                      Submit before the due date starts in Dubai.
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-muted-foreground">Maximum late extension</dt>

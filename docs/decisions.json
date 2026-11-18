@@ -15,6 +15,20 @@
       "approvedAt": "2026-11-19",
       "resolution": "If the configured due day does not exist in a month, use the last calendar day in Asia/Dubai. Preserve the configured due day for later months.",
       "requirements": ["DEC-02", "TEST-RENT-02"]
+    },
+    {
+      "id": "DEC-09",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Tenants must submit late-payment requests before the due date starts in Dubai. Rent must be paid before the due date starts. Managers can record late external payments. The due date counts as the first late day.",
+      "requirements": ["DEC-09", "LATE-003", "PAY-001"]
+    },
+    {
+      "id": "DEC-11",
+      "approvedBy": "PROJECT_OWNER",
+      "approvedAt": "2026-11-19",
+      "resolution": "Use cash basis only for financial reports. Count income when received and expenses when paid, regardless of payment method. Keep unpaid obligations and arrears visible as operational records.",
+      "requirements": ["DEC-11", "DASH-009"]
     }
   ],
   "items": [

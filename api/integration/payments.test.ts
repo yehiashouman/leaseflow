@@ -214,6 +214,7 @@ describe('MySQL immutable external rent payment receipts', () => {
     expect(response.statusCode, response.body).toBe(201);
     expect(response.json().amount).toBe('10.1');
     expect(response.json().recordedBalance).toBe('10.1');
+    expect(response.json().daysLate).toBe(3);
     const payment = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
     expect(payment.amountDue.toFixed(2)).toBe('100.00');
     expect(payment.amountPaid.toFixed(2)).toBe('10.10');
@@ -231,7 +232,7 @@ describe('MySQL immutable external rent payment receipts', () => {
       send('POST', '/record', payload),
     ]);
     expect(responses.map((r) => r.statusCode).sort()).toEqual([200, 201]);
-    expect(responses[0].json().id).toBe(responses[1].json().id);
+    expect(responses[0].json()).toEqual(responses[1].json());
     expect((await send('POST', '/record', { ...payload, amountPaid: '20.00' })).statusCode).toBe(
       409,
     );
@@ -318,6 +319,7 @@ describe('MySQL immutable external rent payment receipts', () => {
     const response = await send('GET', '/receipts', undefined, tenant);
     expect(response.statusCode).toBe(200);
     expect(response.json().items).toHaveLength(1);
+    expect(response.json().items[0].daysLate).toBe(3);
     expect(response.headers['cache-control']).toBe('no-store');
     expect(response.body).not.toMatch(/clientId|payloadHash|actorUserId|evidenceKey/);
     for (const method of ['PATCH', 'DELETE'] as const)

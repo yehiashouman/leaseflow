@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { RecordEditor } from './record-editor';
 import { QueryFeedback } from './query-feedback';
 import { Documents } from './documents';
@@ -12,6 +13,7 @@ type Receipt = {
   amount: string;
   currency: string;
   paidAt: string;
+  daysLate?: number;
   method: string;
   reference: string | null;
   recordedBalance: string;
@@ -62,7 +64,14 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
                     {receipt.currency} {receipt.amount} · {receipt.method}
                   </p>
                   {receipt.reference && <p className="break-words">{receipt.reference}</p>}
-                  <p>External payment date: {date(receipt.paidAt)}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p>External payment date: {date(receipt.paidAt)}</p>
+                    {typeof receipt.daysLate === 'number' && receipt.daysLate > 0 && (
+                      <Badge variant="destructive">
+                        {receipt.daysLate} {receipt.daysLate === 1 ? 'day' : 'days'} late
+                      </Badge>
+                    )}
+                  </div>
                   <p>Recorded: {date(receipt.createdAt)}</p>
                   <p>
                     Recorded paid total after this receipt: {receipt.currency}{' '}

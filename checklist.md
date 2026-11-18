@@ -1001,9 +1001,9 @@ Proposed defaults are not accepted business rules.
 - [ ] **DEC-06** Confirm Outcome after seven negotiation days without an accepted destination.
 - [ ] **DEC-07** Confirm Rolling-six-month boundary arithmetic and whether eligibility keys use approval date or another recorded date.
 - [ ] **DEC-08** Confirm Whether withdrawn, cancelled, or reversed approvals consume late-payment and room-change frequency allowances.
-- [ ] **DEC-09** Confirm Whether due-day requests can be submitted on the due date or after it.
+- [x] **DEC-09** Confirm Whether due-day requests can be submitted on the due date or after it. [Owner approval](docs/decisions.json).
 - [ ] **DEC-10** Confirm Payment overpayment, advance rent, credit balances, and allocation order.
-- [ ] **DEC-11** Confirm Report basis: cash, accrual, or separate explicitly labeled views.
+- [x] **DEC-11** Confirm Report basis: cash, accrual, or separate explicitly labeled views. [Owner approval](docs/decisions.json).
 - [ ] **DEC-12** Confirm Shared-cost allocation method and effective-date changes.
 - [ ] **DEC-13** Confirm Exchange-rate provider, refresh cadence, failure fallback, and manual rate authority.
 - [ ] **DEC-14** Confirm Required unit evidence categories and activation completeness policy.
