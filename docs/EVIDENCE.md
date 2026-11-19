@@ -647,3 +647,12 @@ Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leasefl
 Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44589053844).
 
 - **DEC-15 implementation:** The manager dashboard flags expired documents from the latest clean versions within the manager’s scope. MySQL verifies that expired proof blocks new contract admission, current replacements permit it, and an existing contract stays accessible after expiry. The component test verifies the red badge and unit link.
+
+## Unit Activation with Private Evidence
+
+Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44590412644).
+
+- **UNIT-012:** Managers select a current ownership or tenancy record and applicable written consent from the unit’s private evidence.
+- **UNIT-013:** The unit stays a draft without the declaration, current proof, or required consent. Concurrent retries produce one audited activation.
+- **UNIT-014:** The declaring manager states whether consent applies. The activation audit stores evidence version IDs and the declared proof type.
+- **TEST-INV-03:** MySQL verifies refusal for a missing declaration, superseded proof, and missing required written consent. Desktop and mobile verify the successful flow.

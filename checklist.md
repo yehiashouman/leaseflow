@@ -241,9 +241,9 @@ Requirements: 4.1-4.2, 22.4.
 - [x] **UNIT-009** Capture the default unit security deposit. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-010** Support unit and common-area images. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **UNIT-011** Support property documents and manager declarations. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **UNIT-012** Capture tenancy contract, consent/delegation, title-deed copy, or approved evidence categories.
-- [ ] **UNIT-013** Prevent unit activation without required data, declarations, and documents.
-- [ ] **UNIT-014** Apply the confirmed evidence policy rather than infer legal sufficiency.
+- [x] **UNIT-012** Capture tenancy contract, consent/delegation, title-deed copy, or approved evidence categories. [Evidence](docs/EVIDENCE.md#unit-activation-with-private-evidence).
+- [x] **UNIT-013** Prevent unit activation without required data, declarations, and documents. [Evidence](docs/EVIDENCE.md#unit-activation-with-private-evidence).
+- [x] **UNIT-014** Apply the confirmed evidence policy rather than infer legal sufficiency. [Evidence](docs/EVIDENCE.md#unit-activation-with-private-evidence).
 - [x] **UNIT-015** Support air conditioning, furnished, bed, television, refrigerator, and bathroom amenities. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **UNIT-016** Support kitchen, laundry, balcony, parking, Wi-Fi, and cleaning amenities. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **UNIT-017** Support configurable additional amenities. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
@@ -915,7 +915,7 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [ ] **TEST-ADMIN-03** Verify Admin screens never claim legal certification or binding dispute decisions.
 - [ ] **TEST-INV-01** Verify Manager creates reusable landlord, declared unit, enabled space, amenities, images, and private documents.
 - [x] **TEST-INV-02** Verify Bed Space and Partition remain disabled in interface and direct API requests. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **TEST-INV-03** Verify Missing required information prevents unit activation.
+- [x] **TEST-INV-03** Verify Missing required information prevents unit activation. [Evidence](docs/EVIDENCE.md#unit-activation-with-private-evidence).
 - [x] **TEST-OCC-01** Verify Single tenant, couple, and unrelated occupants use the required account and contract structure. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-OCC-02** Verify Concurrent allocation cannot exceed capacity or bypass maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-CON-01** Verify Open-ended contract stores negotiated rent, due day, notice, deposit, currency, and occupancy dates. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).

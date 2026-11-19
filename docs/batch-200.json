@@ -185,6 +185,46 @@
       "commit": "79659b54910aac7fc3759232d53ff549807e286f",
       "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44586380402",
       "verified": "2026-11-19"
+    },
+    {
+      "id": "UNIT-012",
+      "status": "VERIFIED",
+      "code": ["api/src/routes/inventory.ts", "web/src/components/unit-activation.tsx"],
+      "tests": ["api/integration/unit-lifecycle.test.ts", "web/e2e/contract-setup.live.spec.ts"],
+      "note": "Managers select a current ownership or tenancy record and applicable written consent from the unit’s private evidence.",
+      "commit": "e3f7f07afc818886447e8db0af07baf68d25f0f8",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44590412644",
+      "verified": "2026-11-19"
+    },
+    {
+      "id": "UNIT-013",
+      "status": "VERIFIED",
+      "code": ["api/src/routes/inventory.ts", "web/src/components/unit-activation.tsx"],
+      "tests": ["api/integration/unit-lifecycle.test.ts", "web/e2e/contract-setup.live.spec.ts"],
+      "note": "The unit stays a draft without the declaration, current proof, or required consent. Concurrent retries produce one audited activation.",
+      "commit": "e3f7f07afc818886447e8db0af07baf68d25f0f8",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44590412644",
+      "verified": "2026-11-19"
+    },
+    {
+      "id": "UNIT-014",
+      "status": "VERIFIED",
+      "code": ["api/src/routes/inventory.ts", "web/src/components/unit-activation.tsx"],
+      "tests": ["api/integration/unit-lifecycle.test.ts", "web/e2e/contract-setup.live.spec.ts"],
+      "note": "The declaring manager states whether consent applies. The activation audit stores evidence version IDs and the declared proof type.",
+      "commit": "e3f7f07afc818886447e8db0af07baf68d25f0f8",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44590412644",
+      "verified": "2026-11-19"
+    },
+    {
+      "id": "TEST-INV-03",
+      "status": "VERIFIED",
+      "code": ["api/src/routes/inventory.ts", "web/src/components/unit-activation.tsx"],
+      "tests": ["api/integration/unit-lifecycle.test.ts", "web/e2e/contract-setup.live.spec.ts"],
+      "note": "MySQL verifies refusal for a missing declaration, superseded proof, and missing required written consent. Desktop and mobile verify the successful flow.",
+      "commit": "e3f7f07afc818886447e8db0af07baf68d25f0f8",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44590412644",
+      "verified": "2026-11-19"
     }
   ],
   "initialSelectionIds": [
