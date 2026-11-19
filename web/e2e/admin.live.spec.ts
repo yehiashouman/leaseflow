@@ -53,6 +53,7 @@ test('real administrator review and audit screens preserve role and identity bou
     'X-Forwarded-For': testInfo.project.name === 'mobile' ? '198.51.100.91' : '198.51.100.90',
   });
   const apiResponses: string[] = [];
+  let categoryId: string | undefined;
   page.on('response', async (response) => {
     if (response.url().includes('/api/v1/admin/'))
       apiResponses.push(await response.text().catch(() => ''));
@@ -82,6 +83,26 @@ test('real administrator review and audit screens preserve role and identity bou
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
     await page.screenshot({ path: testInfo.outputPath('manager-review.png'), fullPage: true });
+    await page.goto('/admin/request-categories');
+    await page.getByRole('button', { name: 'Add category', exact: true }).click();
+    const categoryForm = page.getByRole('dialog');
+    const categoryName = 'Access ' + suffix;
+    await categoryForm.getByLabel('Category name *', { exact: true }).fill(categoryName);
+    await categoryForm.getByLabel('Question for the tenant', { exact: true }).fill('Which entry?');
+    await categoryForm.getByLabel('Require an answer', { exact: true }).check();
+    const added = page.waitForResponse(
+      (reply) => reply.url().endsWith('/request-categories') && reply.request().method() === 'POST',
+    );
+    await categoryForm.getByRole('button', { name: 'Save', exact: true }).click();
+    const created = await added;
+    expect(created.status(), await created.text()).toBe(201);
+    categoryId = (await created.json()).id;
+    const category = page.getByRole('listitem').filter({ hasText: categoryName });
+    await expect(category.getByText('Active', { exact: true })).toBeVisible();
+    await category.getByRole('button', { name: 'Edit', exact: true }).click();
+    await categoryForm.getByLabel('Show on new requests', { exact: true }).uncheck();
+    await categoryForm.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(category.getByText('Inactive', { exact: true })).toBeVisible();
     await page.goto('/admin/audit');
     await page.getByLabel('Audit action', { exact: true }).fill('MANAGER_REVIEW');
     await expect(
@@ -95,6 +116,7 @@ test('real administrator review and audit screens preserve role and identity bou
       page.getByRole('heading', { name: 'Platform overview', exact: true }),
     ).toBeVisible();
   } finally {
+    if (categoryId) await prisma.requestCategory.delete({ where: { id: categoryId } });
     await prisma.auditEvent.deleteMany({ where: { actorUserId: admin.id } });
     await prisma.leasingManagerProfile.delete({ where: { id: manager.leasingManager!.id } });
     await prisma.refreshToken.deleteMany({ where: { userId: admin.id } });

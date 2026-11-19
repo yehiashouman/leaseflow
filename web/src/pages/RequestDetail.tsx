@@ -2,6 +2,7 @@ import { FormFieldErrors, ValidatedTextarea } from '../components/field-errors';
 import { validationFields } from '../form-errors';
 import { requestError } from '../api-errors';
 import { recoverableQueryError } from '../api-errors';
+import { CaseAssignment } from '@/components/case-assignment';
 import { CaseDeadline } from '@/components/case-deadline';
 import { Documents } from '@/components/documents';
 import { useRef, useState, type FormEvent } from 'react';
@@ -166,7 +167,10 @@ export function RequestDetail() {
             <p className="text-sm">Involved occupant: {data.metadata.involvedOccupant.label}</p>
           )}
         </div>
-        <CaseDeadline data={data} />
+        <div className="grid gap-4 md:grid-cols-2">
+          <CaseDeadline data={data} />
+          <CaseAssignment key={data.id} data={data} />
+        </div>
         {!!data.allowedActions?.length && (
           <div className="flex flex-wrap gap-2">
             {data.allowedActions.map((action) => (

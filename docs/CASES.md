@@ -102,3 +102,7 @@ The reason and security urgency are part of the original submission. An approval
 ## Request categories
 
 Administrators in development and preview can add, edit, or deactivate request categories at `/admin/request-categories`. Each category belongs to one operational request type and can include one optional or required tenant question. Tenants see active categories for the selected type. The request stores the selected category version, name, question, and answer. Changing or deactivating a category applies to future selections. Existing requests and exact submission retries retain their original facts. Production category edits require administrator MFA.
+
+## Case assignment
+
+The responsible leasing manager can assign an open case to themselves or clear the assignment. Each action stores the actor, reason, and time as a new case event. Authorized participants see the current assignment and earlier assignments in the case history. Assignment changes preserve case status and access scope.

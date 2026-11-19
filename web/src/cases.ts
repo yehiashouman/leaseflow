@@ -60,6 +60,8 @@ export type CaseRecord = {
   events?: CaseEvent[];
   allowedActions?: CaseAction[];
   canMessage?: boolean;
+  canManageAssignment?: boolean;
+  assignment?: { managerName: string | null; isMine: boolean } | null;
   canAssessMaintenance?: boolean;
   canRespondMaintenance?: boolean;
   maintenanceAssessments?: MaintenanceAssessment[];
@@ -126,6 +128,8 @@ export function caseEventLabel(kind: string) {
   if (kind === 'MAINTENANCE_DISPUTED') return 'Proposed cost disputed';
   if (kind === 'EVIDENCE_ADDED') return 'Private evidence added';
   if (kind === 'DEADLINE_CHANGED') return 'Response deadline changed';
+  if (kind === 'ASSIGNED') return 'Manager accepted assignment';
+  if (kind === 'UNASSIGNED') return 'Assignment cleared';
   if (kind === 'DRAFT_CREATED') return 'Draft saved';
   return kind === 'MESSAGE'
     ? 'Message'

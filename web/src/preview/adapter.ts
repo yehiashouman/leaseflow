@@ -2,6 +2,7 @@ import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from '
 import type { Role, SessionUser } from '../session';
 import {
   mutatePreviewCase,
+  mutatePreviewAssignment,
   mutatePreviewMaintenance,
   previewCase,
   previewCaseContract,
@@ -1005,7 +1006,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       localStorage.setItem(storageKey, JSON.stringify(store));
       return respond(previewCase(record, store.contracts, role), maintenance[2] ? 200 : 201);
     }
-    const match = path.match(/^\/requests\/([^/]+)(?:\/(messages|respond))?$/);
+    const match = path.match(/^\/requests\/([^/]+)(?:\/(messages|respond|assignment))?$/);
     if (match) {
       const record = store.requests.find(
         (item) => item.id === match[1] && (role !== 'LEASING_MANAGER' || item.status !== 'DRAFT'),
@@ -1023,6 +1024,11 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           )
         )
           return fail('Submission requires an open contract', 409);
+        if (match[2] === 'assignment') {
+          mutatePreviewAssignment(record, data, role, fail, 'Demo Manager');
+          localStorage.setItem(storageKey, JSON.stringify(store));
+          return respond(previewCase(record, store.contracts, role));
+        }
         mutatePreviewCase(
           record,
           match[2],

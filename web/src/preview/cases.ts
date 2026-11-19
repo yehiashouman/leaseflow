@@ -44,9 +44,23 @@ export function previewCaseContract(contract: RecordData) {
     },
   };
 }
+function previewCanAssign(record: RecordData, role: Role) {
+  return (
+    role === 'LEASING_MANAGER' &&
+    previewCaseTypes.includes(record.type) &&
+    !['DRAFT', 'CLOSED', 'ACCEPTED', 'REJECTED', 'RESOLVED'].includes(record.status)
+  );
+}
+function previewAssignment(record: RecordData) {
+  const last = (record.events ?? [])
+    .filter(({ kind }: RecordData) => kind === 'ASSIGNED' || kind === 'UNASSIGNED')
+    .at(-1);
+  return last?.kind === 'ASSIGNED' ? last : null;
+}
 export function previewCase(record: RecordData, contracts: RecordData[], role: Role) {
   const contractId = record.contractId ?? 'contract-1';
   const contract = contracts.find((item) => item.id === contractId);
+  const assignment = previewAssignment(record);
   return {
     id: record.id,
     contractId,
@@ -74,6 +88,10 @@ export function previewCase(record: RecordData, contracts: RecordData[], role: R
       : []
     ).map((status) => ({ status, requiresMessage: requiresMessage(status) })),
     canMessage: !['DRAFT', 'CLOSED'].includes(record.status),
+    canManageAssignment: previewCanAssign(record, role),
+    assignment: assignment
+      ? { managerName: assignment.actorName, isMine: assignment.actorUserId === 'preview-' + role }
+      : null,
     maintenanceAssessments: record.maintenanceAssessments ?? [],
     canAssessMaintenance:
       record.type === 'MAINTENANCE' &&
@@ -219,6 +237,60 @@ export function mutatePreviewMaintenance(
       actorName,
       actorRole: role,
       sequence: record.version,
+      createdAt: now,
+    },
+  ];
+}
+export function mutatePreviewAssignment(
+  record: RecordData,
+  data: Record<string, any>,
+  role: Role,
+  fail: (message: string, status: number) => never,
+  actorName: string,
+) {
+  if (role !== 'LEASING_MANAGER') fail('Insufficient permissions', 403);
+  const reason = typeof data.reason === 'string' ? data.reason.trim() : '';
+  if (
+    !/^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/i.test(data.clientId ?? '') ||
+    !Number.isInteger(data.expectedVersion) ||
+    data.expectedVersion < 0 ||
+    typeof data.assigned !== 'boolean' ||
+    reason.length < 3 ||
+    reason.length > 1000
+  )
+    fail('Verify the assignment fields.', 422);
+  const kind = data.assigned ? 'ASSIGNED' : 'UNASSIGNED';
+  const events: RecordData[] = record.events ?? [];
+  const duplicate = events.find((event) => event.clientId === data.clientId);
+  if (duplicate) {
+    if (
+      duplicate.kind !== kind ||
+      duplicate.actorRole !== role ||
+      duplicate.message !== reason ||
+      duplicate.sequence !== data.expectedVersion + 1
+    )
+      fail('Assignment key reused with different content', 409);
+    return;
+  }
+  if (!previewCanAssign(record, role)) fail('Assignment requires an open operational case.', 409);
+  if (record.version !== data.expectedVersion)
+    fail('Case changed. Review the latest history.', 409);
+  if (data.assigned === Boolean(previewAssignment(record)))
+    fail('The requested assignment is already in effect.', 409);
+  const now = new Date().toISOString();
+  record.version += 1;
+  record.updatedAt = now;
+  record.events = [
+    ...events,
+    {
+      id: crypto.randomUUID(),
+      actorUserId: 'preview-' + role,
+      actorRole: role,
+      actorName,
+      clientId: data.clientId,
+      sequence: record.version,
+      kind,
+      message: reason,
       createdAt: now,
     },
   ];

@@ -73,6 +73,12 @@ export function allowedCaseActions(
 export function roleCanRequestStatus(role: Role, status: RequestStatus) {
   return roleTargets[role]?.includes(status) ?? false;
 }
+export function caseAllowsAssignment(type: RequestType, status: RequestStatus) {
+  return (
+    supportsCaseType(type) &&
+    !['DRAFT', 'CLOSED', 'ACCEPTED', 'REJECTED', 'RESOLVED'].includes(status)
+  );
+}
 export function caseAllowsMessages(status: RequestStatus) {
   return !['DRAFT', 'CLOSED'].includes(status);
 }

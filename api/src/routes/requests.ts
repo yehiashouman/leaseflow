@@ -11,6 +11,7 @@ import {
   basicCaseTypes,
   caseActionNeedsMessage,
   caseAllowsMessages,
+  caseAllowsAssignment,
   keyLockDecisionMetadata,
   keyLockDecisionSchema,
   roleCanRequestStatus,
@@ -26,6 +27,7 @@ import {
   caseSelect,
   lockCase,
   lockCaseContract,
+  latestCaseAssignment,
 } from '../case-data.js';
 
 const idSchema = z.object({ id: z.string().min(1).max(191) });
@@ -320,6 +322,68 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
       { isolationLevel: 'ReadCommitted' },
     );
     return reply.code(201).send(caseDto(row, request.user));
+  });
+  app.post('/:id/assignment', { preHandler: allowRoles('LEASING_MANAGER') }, async (request) => {
+    const { id } = idSchema.parse(request.params);
+    const body = z
+      .object({
+        clientId: z.uuid(),
+        expectedVersion: z.number().int().min(0).max(2147483646),
+        assigned: z.boolean(),
+        reason: z.string().trim().min(3).max(1000),
+      })
+      .strict()
+      .parse(request.body);
+    const kind = body.assigned ? 'ASSIGNED' : 'UNASSIGNED';
+    const row = await prisma.$transaction(
+      async (tx) => {
+        const actor = await caseActor(tx, request);
+        if (!actor) throw app.httpErrors.unauthorized('Session is no longer active');
+        if (!(await lockCase(tx, id, request.user)))
+          throw app.httpErrors.notFound('Request not found');
+        const current = await load(tx, id, request.user);
+        const duplicate = await tx.requestEvent.findUnique({
+          where: { requestId_clientId: { requestId: id, clientId: body.clientId } },
+        });
+        if (duplicate) {
+          if (
+            duplicate.actorUserId !== actor.actorUserId ||
+            duplicate.kind !== kind ||
+            duplicate.message !== body.reason ||
+            duplicate.sequence !== body.expectedVersion + 1
+          )
+            throw app.httpErrors.conflict('Assignment key reused with different content');
+          return current;
+        }
+        if (!caseAllowsAssignment(current.type, current.status))
+          throw app.httpErrors.conflict('Assignment requires an open operational case.');
+        if (current.version !== body.expectedVersion)
+          throw app.httpErrors.conflict('Case changed. Review the latest history.');
+        const assigned = latestCaseAssignment(current.events);
+        if (body.assigned ? assigned?.actorUserId === actor.actorUserId : !assigned)
+          throw app.httpErrors.conflict('The requested assignment is already in effect.');
+        const sequence = current.version + 1;
+        const event = await tx.requestEvent.create({
+          data: {
+            requestId: id,
+            clientId: body.clientId,
+            ...actor,
+            kind,
+            message: body.reason,
+            sequence,
+          },
+        });
+        const updated = await tx.request.update({
+          where: { id },
+          data: { version: sequence },
+          select: caseSelect,
+        });
+        await caseAudit(tx, request, updated, event.id, 'REQUEST_' + kind);
+        return updated;
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
+    return caseDto(row, request.user);
   });
   app.post('/:id/deadline', { preHandler: allowRoles('LEASING_MANAGER') }, async (request) => {
     const { id } = idSchema.parse(request.params);

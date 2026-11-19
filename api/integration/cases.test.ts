@@ -99,6 +99,41 @@ describe('MySQL private operational case workflow', () => {
       },
     });
   });
+  it('preserves manager assignment and clearance as immutable scoped case events', async () => {
+    const path = '/' + requestId + '/assignment';
+    const take = {
+      clientId: randomUUID(),
+      expectedVersion: 1,
+      assigned: true,
+      reason: 'Handle the response today',
+    };
+    expect((await send('POST', path, take, tenant)).statusCode).toBe(403);
+    expect((await send('POST', path, take, outsider)).statusCode).toBe(404);
+    const assigned = await send('POST', path, take, manager);
+    expect(assigned.statusCode, assigned.body).toBe(200);
+    expect(assigned.json().assignment).toEqual({ managerName: 'Case Manager', isMine: true });
+    const tenantView = (await send('GET', '/' + requestId)).json();
+    expect(tenantView.assignment).toEqual({ managerName: 'Case Manager', isMine: false });
+    expect(tenantView.canManageAssignment).toBe(false);
+    expect((await send('POST', path, take, manager)).json().version).toBe(2);
+    expect((await send('POST', path, { ...take, reason: 'Changed' }, manager)).statusCode).toBe(
+      409,
+    );
+    const release = {
+      clientId: randomUUID(),
+      expectedVersion: 2,
+      assigned: false,
+      reason: 'Return to the work queue',
+    };
+    const cleared = await send('POST', path, release, manager);
+    expect(cleared.statusCode, cleared.body).toBe(200);
+    expect(cleared.json().assignment).toBeNull();
+    expect(cleared.json().events.slice(-2)).toMatchObject([
+      { kind: 'ASSIGNED', message: take.reason, sequence: 2 },
+      { kind: 'UNASSIGNED', message: release.reason, sequence: 3 },
+    ]);
+  });
+
   it('lets only admins configure case categories and preserves tenant answers after category changes', async () => {
     const settings = '/api/v1/admin/request-categories';
     const input = {

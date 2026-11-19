@@ -7,6 +7,7 @@ import {
   allowedCaseActions,
   caseActionNeedsMessage,
   caseAllowsMessages,
+  caseAllowsAssignment,
   keyLockDecisionMetadata,
 } from './case-rules.js';
 import { canAssessMaintenance } from './maintenance-rules.js';
@@ -104,7 +105,12 @@ const safeMetadata = z.object({
     .optional(),
 });
 export type CaseRecord = Prisma.RequestGetPayload<{ select: typeof caseSelect }>;
+export function latestCaseAssignment(events: CaseRecord['events']) {
+  const last = events.filter(({ kind }) => kind === 'ASSIGNED' || kind === 'UNASSIGNED').at(-1);
+  return last?.kind === 'ASSIGNED' ? last : null;
+}
 export function caseDto(row: CaseRecord, actor: Identity) {
+  const assigned = latestCaseAssignment(row.events);
   const metadata = safeMetadata.safeParse(row.metadata ?? {});
   const latest = row.maintenanceAssessments?.at(-1);
   return {
@@ -120,6 +126,11 @@ export function caseDto(row: CaseRecord, actor: Identity) {
       requiresMessage: caseActionNeedsMessage(status),
     })),
     canMessage: caseAllowsMessages(row.status),
+    canManageAssignment:
+      actor.role === 'LEASING_MANAGER' && caseAllowsAssignment(row.type, row.status),
+    assignment: assigned
+      ? { managerName: assigned.actorName, isMine: assigned.actorUserId === actor.sub }
+      : null,
     canAssessMaintenance:
       row.type === 'MAINTENANCE' &&
       actor.role === 'LEASING_MANAGER' &&

@@ -56,6 +56,33 @@ function page(element: React.ReactNode, path = '/requests/r1') {
   );
 }
 describe('private case interfaces', () => {
+  it('lets the responsible manager record an assignment with a reason', async () => {
+    auth.role = 'LEASING_MANAGER';
+    const row = { ...sample(), status: 'IN_PROGRESS', canManageAssignment: true };
+    vi.spyOn(api, 'get').mockResolvedValue({ data: row });
+    const post = vi.spyOn(api, 'post').mockResolvedValue({
+      data: {
+        ...row,
+        version: 5,
+        assignment: { managerName: 'Responsible Manager', isMine: true },
+      },
+    });
+    page(<RequestDetail />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Assign to me' }));
+    await user.type(await screen.findByLabelText('Reason *'), 'Coordinate the tenant response');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(post).toHaveBeenCalledWith(
+      '/requests/r1/assignment',
+      expect.objectContaining({
+        assigned: true,
+        expectedVersion: 4,
+        reason: 'Coordinate the tenant response',
+      }),
+    );
+    expect(await screen.findByText('Responsible Manager')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Clear assignment' })).toBeTruthy();
+  });
   it('lets a tenant select a configured category and answer its required question', async () => {
     const category = {
       id: 'category-1',

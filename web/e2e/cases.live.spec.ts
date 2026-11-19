@@ -77,6 +77,14 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
       monthlyRent: 3000,
     },
   });
+  const category = await prisma.requestCategory.create({
+    data: {
+      type: 'MAINTENANCE',
+      name: 'Plumbing ' + suffix,
+      prompt: 'Which fixture needs repair?',
+      answerRequired: true,
+    },
+  });
   const mobile = testInfo.project.name === 'mobile';
   await page.setExtraHTTPHeaders({ 'X-Forwarded-For': mobile ? '198.51.100.31' : '198.51.100.30' });
   const context = await browser.newContext({
@@ -94,7 +102,8 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     const editor = page.getByRole('dialog');
     await editor.getByLabel('Title *', { exact: true }).fill('Browser tap repair ' + suffix);
     await editor.getByLabel('Description *', { exact: true }).fill('Private browser report');
-    await editor.getByLabel('Category', { exact: true }).fill('Plumbing');
+    await editor.getByLabel('Category', { exact: true }).selectOption(category.id);
+    await editor.getByLabel('Which fixture needs repair? *', { exact: true }).fill('Kitchen tap');
     await editor.getByLabel('Save as private draft', { exact: true }).check();
     const submission = page.waitForResponse(
       (reply) => reply.url().endsWith('/requests') && reply.request().method() === 'POST',
@@ -102,7 +111,13 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     await editor.getByRole('button', { name: 'Save', exact: true }).click();
     const created = await submission;
     expect(created.status()).toBe(201);
-    const caseId = (await created.json()).id;
+    const response = await created.json();
+    const caseId = response.id;
+    expect(response.metadata.categorySnapshot).toMatchObject({
+      id: category.id,
+      name: category.name,
+      answer: 'Kitchen tap',
+    });
     await expect(editor).not.toBeVisible();
     await expect(
       page.getByRole('heading', { name: 'Browser tap repair ' + suffix, exact: true }),
@@ -114,6 +129,23 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     await expect(
       managerPage.getByRole('button', { name: 'Accept completion', exact: true }),
     ).not.toBeVisible();
+    await expect(managerPage.getByText('Kitchen tap', { exact: true })).toBeVisible();
+    const assignment = managerPage.getByRole('region', { name: 'Case assignment' });
+    for (const [button, reason, result] of [
+      ['Assign to me', 'Coordinate the repair', 'Browser Case Manager'],
+      ['Clear assignment', 'Return to the queue', 'Unassigned'],
+    ] as const) {
+      await assignment.getByRole('button', { name: button, exact: true }).click();
+      const dialog = managerPage.getByRole('dialog');
+      await dialog.getByLabel('Reason *', { exact: true }).fill(reason);
+      const updated = managerPage.waitForResponse(
+        (reply) => reply.url().endsWith('/assignment') && reply.request().method() === 'POST',
+      );
+      await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+      expect((await updated).status()).toBe(200);
+      await expect(assignment.getByText(result, { exact: true })).toBeVisible();
+      await expect(dialog).not.toBeVisible();
+    }
     await managerPage.getByLabel('Message', { exact: true }).fill('A plumber will visit');
     const message = managerPage.waitForResponse(
       (reply) => reply.url().endsWith('/messages') && reply.request().method() === 'POST',
@@ -148,8 +180,10 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
       include: { events: { orderBy: { sequence: 'asc' } } },
     });
     expect(saved.status).toBe('CLOSED');
-    expect(saved.version).toBe(10);
-    expect(saved.events.map((event) => event.sequence)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(saved.version).toBe(12);
+    expect(saved.events.map((event) => event.sequence)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+    ]);
     expect(saved.events[0].actorName).toBe('Browser Case Tenant');
     expect(saved.events[2].actorName).toBe('Browser Case Manager');
     expect(await prisma.payment.count({ where: { contractId: contract.id } })).toBe(0);
@@ -164,6 +198,7 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     for (const expected of [
       'Browser Case Tenant',
       'Browser Case Manager',
+      'Coordinate the repair',
       'The leak remains',
       'The tap was replaced',
       'Not legal findings or certification',
@@ -248,6 +283,7 @@ test('real tenant and manager exchange private case messages, disputes, and ackn
     ).toBe('Browser Case Tenant');
   } finally {
     await context.close();
+    await prisma.requestCategory.delete({ where: { id: category.id } });
     await prisma.caseReportJob.deleteMany({ where: { request: { contractId: contract.id } } });
     await prisma.notification.deleteMany({
       where: { event: { request: { contractId: contract.id } } },
