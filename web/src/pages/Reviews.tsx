@@ -46,6 +46,7 @@ const decisionLabel = (value: string | null) =>
     NO_CHANGE: 'Reviewed / No Change',
     PROPOSED_PRICE: 'Price proposal recorded',
     DEFERRED: 'Deferred review',
+    DEFERRED_REMINDER: 'Deferred review reminder',
   })[value ?? ''] ?? 'Review due';
 export function Reviews() {
   const [page, setPage] = useState(1),

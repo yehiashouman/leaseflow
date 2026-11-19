@@ -13,6 +13,7 @@ import {
   runBusinessJobOnce,
 } from '../src/business-jobs.js';
 import { businessRuntime } from '../src/business-runtime.js';
+import { sendDeferredReviewReminder } from '../src/review-reminders.js';
 import { businessConfig } from '../src/business-config.js';
 import { env } from '../src/config.js';
 type Actor = { id: string; role: Role; profileId: string; sid: string };
@@ -558,6 +559,47 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       expect(final.json().events.map((event: { kind: string }) => event.kind)).toContain(
         'DEFERRED',
       );
+      expect(await sendDeferredReviewReminder(next)).toBe(false);
+    } finally {
+      await cleanup();
+    }
+  });
+  it('reminds the manager once at the current deferral date across concurrent workers', async () => {
+    try {
+      const row = await review();
+      const first = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+      const latest = new Date(Date.now() + 9 * 86400000).toISOString().slice(0, 10);
+      const decide = (version: number, deferredUntil: string) =>
+        send(
+          'POST',
+          '/reviews/' + row.id + '/decision',
+          decision({
+            expectedVersion: version,
+            decision: 'DEFERRED',
+            deferredUntil,
+          }),
+        );
+      const firstResponse = await decide(0, first);
+      expect(firstResponse.statusCode, firstResponse.body).toBe(200);
+      const latestResponse = await decide(1, latest);
+      expect(latestResponse.statusCode, latestResponse.body).toBe(200);
+      const boundary = new Date(latest + 'T00:00:00+04:00');
+      expect(await sendDeferredReviewReminder(new Date(boundary.getTime() - 1))).toBe(false);
+      const results = await Promise.all([
+        sendDeferredReviewReminder(boundary),
+        sendDeferredReviewReminder(boundary),
+      ]);
+      expect(results.filter(Boolean)).toHaveLength(1);
+      expect(await sendDeferredReviewReminder(new Date(boundary.getTime() + 86400000))).toBe(false);
+      const event = await prisma.contractReviewEvent.findFirstOrThrow({
+        where: { reviewId: row.id, kind: 'DEFERRED_REMINDER' },
+        include: { notifications: { select: { recipientUserId: true } } },
+      });
+      expect(event.notifications).toEqual([{ recipientUserId: manager.id }]);
+      expect(event.createdAt).toEqual(boundary);
+      expect(
+        await prisma.noticeDelivery.count({ where: { notification: { reviewEventId: event.id } } }),
+      ).toBeGreaterThan(0);
     } finally {
       await cleanup();
     }

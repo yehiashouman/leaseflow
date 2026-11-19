@@ -3,6 +3,7 @@ import { prisma } from './db.js';
 import { Redis } from 'ioredis';
 import { env } from './config.js';
 import { businessConfig } from './business-config.js';
+import { sendDeferredReviewReminder } from './review-reminders.js';
 import {
   materializeBusinessJobs,
   materializeRoomExpiryJobs,
@@ -30,13 +31,20 @@ export function businessRuntime(onError: () => void, instanceId: string = random
     stopped = false;
   function drain() {
     if (work || stopped) return;
-    work = (async () => {
-      for (let count = 0; count < 20 && !stopped; count++) if (!(await runBusinessJobOnce())) break;
-    })()
+    work = Promise.allSettled([
+      drainQueue(runBusinessJobOnce),
+      drainQueue(sendDeferredReviewReminder),
+    ])
+      .then((results) => {
+        for (const result of results) if (result.status === 'rejected') onError();
+      })
       .catch(onError)
       .finally(() => {
         work = undefined;
       });
+  }
+  async function drainQueue(runOnce: () => Promise<boolean>) {
+    for (let count = 0; count < 20 && !stopped; count++) if (!(await runOnce())) break;
   }
   function scan() {
     if (sweep || stopped) return;

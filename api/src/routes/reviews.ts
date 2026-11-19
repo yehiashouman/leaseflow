@@ -258,6 +258,7 @@ export const reviewRoutes: FastifyPluginAsync = async (app) => {
                 decision: body.decision,
                 notes: body.note,
                 deferredUntil,
+                deferredReminderSentAt: null,
                 reviewedAt: body.decision === 'DEFERRED' ? null : now,
               },
             });

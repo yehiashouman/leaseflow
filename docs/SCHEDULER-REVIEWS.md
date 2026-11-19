@@ -41,8 +41,10 @@ A manager receives an in-app notice and configured external intent.
 The manager can record no change, a next-month price proposal, or a deferred date.
 A tenant can inspect the shared history and any proposed rent and effective month.
 Every price proposal remains `PROPOSED`; the original contract rent remains unchanged.
-The platform does not apply amendments before the acknowledgement policy receives approval.
-DEC-21 requires one reminder on the deferred date and the next anniversary after a no-change review. The reminder schedule still needs implementation.
+Rent amendments require tenant confirmation under DEC-23. The confirmation workflow still needs implementation.
+For DEC-21, the worker queues one manager reminder on the deferred Dubai date. A later decision replaces or cancels the pending reminder.
+After a no-change review, the next reminder comes from the normal anniversary schedule.
+Existing open deferrals are eligible after migration. The worker also catches up on reminders due during downtime.
 A changed allocation stops source-dependent work instead of silently resetting history.
 The complete transfer workflow and anniversary reset remain separate incomplete requirements.
 

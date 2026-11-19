@@ -336,10 +336,12 @@ model ContractReview {
   sameSpaceSince DateTime?
   milestoneMonths Int?
   deferredUntil DateTime?
+  deferredReminderSentAt DateTime?
   version Int @default(0)
   rentalSpace RentalSpace? @relation(fields: [rentalSpaceId], references: [id], onDelete: Restrict)
   events ContractReviewEvent[]
   @@unique([contractId, dueAt])
+  @@index([reviewedAt, deferredReminderSentAt, deferredUntil], map: "ContractReview_deferred_reminder_idx")
 
   spaceNameSnapshot String? @db.VarChar(150)
   unitNameSnapshot String? @db.VarChar(150)
