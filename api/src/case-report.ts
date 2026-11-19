@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { z } from 'zod';
 import type { CaseRecord } from './case-data.js';
+import { keyLockDecisionMetadata, keyLockDecisionSchema } from './case-rules.js';
 
 const snapshotSchema = z.object({
   format: z.literal('leaseflow-case-v1'),
@@ -23,6 +24,7 @@ const snapshotSchema = z.object({
       fromStatus: z.string().nullable(),
       sequence: z.number().nullable(),
       createdAt: z.string(),
+      keyLock: keyLockDecisionSchema.optional(),
     }),
   ),
 });
@@ -52,6 +54,9 @@ export function reportSnapshot(row: CaseRecord): ReportSnapshot {
       fromStatus: event.fromStatus,
       sequence: event.sequence,
       createdAt: event.createdAt.toISOString(),
+      ...(row.type === 'KEY_LOCK_CHANGE' && event.metadata
+        ? { keyLock: keyLockDecisionMetadata(event.metadata) }
+        : {}),
     })),
   };
   if (snapshot.events.length > 2000 || Buffer.byteLength(JSON.stringify(snapshot)) > 512000)
@@ -139,6 +144,17 @@ export async function renderCasePdf(input: unknown, reportId: string, generatedA
       [`${event.actorName ?? 'Legacy author unavailable'} | ${event.actorRole ?? 'System'}`, false],
       ...(event.fromStatus
         ? [['From state: ' + event.fromStatus, false] as [string, boolean]]
+        : []),
+      ...(event.keyLock
+        ? [['Authorization: ' + event.keyLock.authorization, false] as [string, boolean]]
+        : []),
+      ...(event.keyLock?.costResponsibility
+        ? [
+            [
+              'Cost responsibility: ' + event.keyLock.costResponsibility.replaceAll('_', ' '),
+              false,
+            ] as [string, boolean],
+          ]
         : []),
       ...(event.message ? [[event.message, false] as [string, boolean]] : []),
       ['Event ID: ' + event.id, false],

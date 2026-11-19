@@ -11,6 +11,8 @@ import {
   basicCaseTypes,
   caseActionNeedsMessage,
   caseAllowsMessages,
+  keyLockDecisionMetadata,
+  keyLockDecisionSchema,
   roleCanRequestStatus,
   supportsCaseType,
 } from '../case-rules.js';
@@ -56,6 +58,7 @@ const transitionSchema = z
     status: z.enum(RequestStatus),
     expectedVersion: z.number().int().min(0).max(2147483646),
     message: z.string().trim().max(5000).default(''),
+    keyLock: keyLockDecisionSchema.optional(),
   })
   .strict();
 
@@ -362,7 +365,9 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             duplicate.actorUserId !== actor.actorUserId ||
             duplicate.kind !== body.status ||
             (duplicate.message ?? '') !== body.message ||
-            duplicate.sequence !== body.expectedVersion + 1
+            duplicate.sequence !== body.expectedVersion + 1 ||
+            JSON.stringify(keyLockDecisionMetadata(duplicate.metadata)) !==
+              JSON.stringify(body.keyLock)
           )
             throw app.httpErrors.conflict('Decision key reused with different content');
           return current;
@@ -385,6 +390,24 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
           throw app.httpErrors.unprocessableEntity(
             'Add an explanation of at least three characters',
           );
+        const keyLockDecision =
+          current.type === 'KEY_LOCK_CHANGE' &&
+          (body.status === 'APPROVED' || body.status === 'RESOLVED');
+        if (keyLockDecision !== Boolean(body.keyLock))
+          throw app.httpErrors.unprocessableEntity(
+            keyLockDecision
+              ? 'Record the key or lock authorization.'
+              : 'Key or lock details are not valid for this decision.',
+          );
+        if (
+          body.keyLock &&
+          Boolean(body.keyLock.costResponsibility) !== (body.status === 'RESOLVED')
+        )
+          throw app.httpErrors.unprocessableEntity(
+            body.status === 'RESOLVED'
+              ? 'Select the cost responsibility.'
+              : 'Record cost responsibility after the work.',
+          );
         if (body.status === 'SUBMITTED') {
           if (!(await lockCaseContract(tx, current.contractId, request.user)))
             throw app.httpErrors.notFound('Contract not found');
@@ -406,6 +429,7 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             ...actor,
             kind: body.status,
             message: body.message || null,
+            ...(body.keyLock ? { metadata: { keyLock: body.keyLock } } : {}),
             fromStatus: current.status,
             sequence,
           },

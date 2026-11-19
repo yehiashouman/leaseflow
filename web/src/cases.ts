@@ -7,7 +7,18 @@ export type CaseContract = {
   tenant?: { id: string; fullName: string };
   rentalSpace?: { id?: string; name: string; unit: { id?: string; name: string; area?: string } };
 };
+export const keyLockCostLabels = {
+  MANAGER: 'Leasing manager',
+  TENANT: 'Tenant',
+  NO_COST: 'No cost',
+  UNDETERMINED: 'Under review',
+};
+export type KeyLockDecision = {
+  authorization: string;
+  costResponsibility?: keyof typeof keyLockCostLabels;
+};
 export type CaseEvent = {
+  keyLock?: KeyLockDecision;
   id: string;
   kind: string;
   message?: string | null;

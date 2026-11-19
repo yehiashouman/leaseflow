@@ -94,3 +94,7 @@ The subsequent contract regression adds one API test and maps rolled-back Prisma
 - The public preview uses synthetic browser-local records without API, financial, or provider effects.
 
 Generic case decisions never change rent, payment, deposit, transfer, or move-out records.
+
+## Key and lock changes
+
+The reason and security urgency are part of the original submission. An approval records who has authorization and what the authorization covers. Resolution records authorization, cost responsibility, and evidence of completion. Participants can add private evidence files to the case. Case history and PDF exports preserve manager decisions and recorded evidence text. The cost classification does not create a charge, receipt, or deposit entry.

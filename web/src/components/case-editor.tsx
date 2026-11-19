@@ -30,7 +30,9 @@ export function CaseEditor({
         .then((response) => response.data),
   });
   const selectedContract = contractId || options.data?.contracts[0]?.id;
-  const isComplaint = (type || options.data?.types[0]) === 'NEIGHBOR_COMPLAINT';
+  const selectedType = type || options.data?.types[0];
+  const isComplaint = selectedType === 'NEIGHBOR_COMPLAINT';
+  const isKeyLock = selectedType === 'KEY_LOCK_CHANGE';
   const relatedOccupants = useQuery({
     queryKey: ['complaint-occupants', key.current, selectedContract],
     enabled: !previewMode && isComplaint && !!selectedContract,
@@ -132,7 +134,7 @@ export function CaseEditor({
         { name: 'title', label: 'Title', required: true, maxLength: 160 },
         {
           name: 'description',
-          label: 'Description',
+          label: isKeyLock ? 'Reason for key or lock change' : 'Description',
           type: 'textarea',
           required: true,
           maxLength: 5000,
@@ -142,7 +144,7 @@ export function CaseEditor({
         {
           name: 'urgency',
           errorPath: 'metadata.urgency',
-          label: 'Urgency',
+          label: isKeyLock ? 'Security urgency' : 'Urgency',
           value: 'NORMAL',
           options: [
             { value: 'NORMAL', label: 'Normal' },

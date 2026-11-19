@@ -3,7 +3,12 @@ import { Prisma } from '@prisma/client';
 import type { FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { lockUser } from './sessions.js';
-import { allowedCaseActions, caseActionNeedsMessage, caseAllowsMessages } from './case-rules.js';
+import {
+  allowedCaseActions,
+  caseActionNeedsMessage,
+  caseAllowsMessages,
+  keyLockDecisionMetadata,
+} from './case-rules.js';
 import { canAssessMaintenance } from './maintenance-rules.js';
 
 type Identity = FastifyRequest['user'];
@@ -74,6 +79,7 @@ export const caseSelect = {
       actorRole: true,
       kind: true,
       message: true,
+      metadata: true,
       fromStatus: true,
       sequence: true,
       createdAt: true,
@@ -95,6 +101,11 @@ export function caseDto(row: CaseRecord, actor: Identity) {
   return {
     ...row,
     metadata: metadata.success ? metadata.data : {},
+    events: row.events.map(({ metadata: eventMetadata, ...event }) => {
+      const keyLock =
+        row.type === 'KEY_LOCK_CHANGE' ? keyLockDecisionMetadata(eventMetadata) : undefined;
+      return keyLock ? { ...event, keyLock } : event;
+    }),
     allowedActions: allowedCaseActions(row.type, row.status, actor.role).map((status) => ({
       status,
       requiresMessage: caseActionNeedsMessage(status),

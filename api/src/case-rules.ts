@@ -1,4 +1,17 @@
 import type { RequestStatus, RequestType, Role } from '@prisma/client';
+import { z } from 'zod';
+
+export const keyLockDecisionSchema = z
+  .object({
+    authorization: z.string().trim().min(3).max(1000),
+    costResponsibility: z.enum(['MANAGER', 'TENANT', 'NO_COST', 'UNDETERMINED']).optional(),
+  })
+  .strict();
+
+export function keyLockDecisionMetadata(value: unknown) {
+  const result = z.object({ keyLock: keyLockDecisionSchema.optional() }).safeParse(value);
+  return result.data?.keyLock;
+}
 
 export const basicCaseTypes = [
   'MAINTENANCE',

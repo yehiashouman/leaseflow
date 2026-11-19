@@ -84,6 +84,42 @@ describe('private case interfaces', () => {
       ),
     );
   });
+  it('records authorization, cost responsibility, and completion evidence for a key or lock decision', async () => {
+    auth.role = 'LEASING_MANAGER';
+    const row = {
+      ...sample(),
+      type: 'KEY_LOCK_CHANGE',
+      status: 'APPROVED',
+      allowedActions: [{ status: 'RESOLVED', requiresMessage: true }],
+    };
+    vi.spyOn(api, 'get').mockResolvedValue({ data: row });
+    const keyLock = {
+      authorization: 'Authorized building maintenance',
+      costResponsibility: 'MANAGER',
+    };
+    const message = 'Maintenance recorded a successful handover';
+    const post = vi.spyOn(api, 'post').mockResolvedValue({
+      data: {
+        ...row,
+        status: 'RESOLVED',
+        allowedActions: [],
+        events: [...row.events, { id: 'e2', kind: 'RESOLVED', keyLock, message }],
+      },
+    });
+    page(<RequestDetail />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Mark resolved' }));
+    await user.type(await screen.findByLabelText('Authorization *'), keyLock.authorization);
+    await user.selectOptions(screen.getByLabelText('Cost responsibility *'), 'MANAGER');
+    await user.type(screen.getByLabelText('Completion evidence *'), message);
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(post).toHaveBeenCalledWith(
+      '/requests/r1/respond',
+      expect.objectContaining({ keyLock, message }),
+    );
+    expect(await screen.findByText('Cost responsibility: Leasing manager')).toBeTruthy();
+    expect(screen.getByText('Completion evidence: ' + message)).toBeTruthy();
+  });
   it('shows immutable author snapshots and explicit Dubai times without invented legacy identities', async () => {
     const row = sample();
     vi.spyOn(api, 'get').mockResolvedValue({

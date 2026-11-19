@@ -15,6 +15,8 @@ import {
   caseEventLabel,
   caseStatuses,
   caseTypes,
+  keyLockCostLabels,
+  type KeyLockDecision,
   type CaseAction,
   type CaseRecord,
 } from '../cases';
@@ -50,6 +52,10 @@ export function RequestDetail() {
   const [error, setError] = useState('');
   const [command, setCommand] = useState<Decision | null>(null);
   const [reasons, setReasons] = useState<Record<string, string>>({});
+  const [keyLockDetails, setKeyLockDetails] = useState<Partial<Record<string, KeyLockDecision>>>(
+    {},
+  );
+
   const [decisionError, setDecisionError] = useState('');
   const [conflict, setConflict] = useState(false);
   const query = useQuery({
@@ -57,6 +63,10 @@ export function RequestDetail() {
     queryFn: ({ signal }) =>
       api.get<CaseRecord>('/requests/' + id, { signal }).then((response) => response.data),
   });
+  const recordsKeyLock =
+    query.data?.type === 'KEY_LOCK_CHANGE' &&
+    (command?.status === 'APPROVED' || command?.status === 'RESOLVED');
+  const keyLock = (command ? keyLockDetails[command.status] : undefined) ?? { authorization: '' };
   async function send(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
@@ -93,9 +103,11 @@ export function RequestDetail() {
         clientId: command.clientId,
         expectedVersion: command.expectedVersion,
         message: reasons[command.status] ?? '',
+        ...(recordsKeyLock ? { keyLock } : {}),
       });
       client.setQueryData(['request', id], response.data);
       setReasons((previous) => ({ ...previous, [command.status]: '' }));
+      setKeyLockDetails((previous) => ({ ...previous, [command.status]: undefined }));
       setCommand(null);
       setConflict(false);
       await client.invalidateQueries({ queryKey: ['requests'] });
@@ -210,8 +222,25 @@ export function RequestDetail() {
                     From {caseStatuses[event.fromStatus] ?? event.fromStatus}
                   </p>
                 )}
+                {event.keyLock && (
+                  <div className="space-y-1 text-sm">
+                    <p className="whitespace-pre-wrap break-words">
+                      Authorization: {event.keyLock.authorization}
+                    </p>
+                    {event.keyLock.costResponsibility && (
+                      <p>
+                        Cost responsibility: {keyLockCostLabels[event.keyLock.costResponsibility]}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {event.message && (
-                  <p className="whitespace-pre-wrap break-words">{event.message}</p>
+                  <p className="whitespace-pre-wrap break-words">
+                    {data.type === 'KEY_LOCK_CHANGE' &&
+                      event.kind === 'RESOLVED' &&
+                      'Completion evidence: '}
+                    {event.message}
+                  </p>
                 )}
               </li>
             ))}
@@ -253,7 +282,7 @@ export function RequestDetail() {
             }
           }}
         >
-          <SheetContent role="alertdialog">
+          <SheetContent role="alertdialog" className="overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 {command ? (caseCommands[command.status] ?? command.status) : 'Case decision'}
@@ -266,7 +295,65 @@ export function RequestDetail() {
                   <AlertDescription>{decisionError}</AlertDescription>
                 </Alert>
               )}
-              <Label htmlFor="case-response">Response{command?.requiresMessage ? ' *' : ''}</Label>
+              {recordsKeyLock && command && (
+                <div className="space-y-3">
+                  <Label htmlFor="key-lock-authorization">Authorization *</Label>
+                  <ValidatedTextarea
+                    id="key-lock-authorization"
+                    name="keyLock.authorization"
+                    className={textareaClass}
+                    placeholder="Who can perform the work and what did you authorize?"
+                    value={keyLock.authorization}
+                    minLength={3}
+                    maxLength={1000}
+                    required
+                    disabled={busy}
+                    onChange={(event) => {
+                      const authorization = event.target.value;
+                      setKeyLockDetails((previous) => ({
+                        ...previous,
+                        [command.status]: { ...keyLock, authorization },
+                      }));
+                    }}
+                  />
+                  {command.status === 'RESOLVED' && (
+                    <>
+                      <Label htmlFor="key-lock-cost">Cost responsibility *</Label>
+                      <select
+                        id="key-lock-cost"
+                        className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                        value={keyLock.costResponsibility ?? ''}
+                        required
+                        disabled={busy}
+                        onChange={(event) => {
+                          const costResponsibility = event.target
+                            .value as KeyLockDecision['costResponsibility'];
+                          setKeyLockDetails((previous) => ({
+                            ...previous,
+                            [command.status]: {
+                              ...keyLock,
+                              costResponsibility: costResponsibility || undefined,
+                            },
+                          }));
+                        }}
+                      >
+                        <option value="">Select responsibility</option>
+                        {Object.entries(keyLockCostLabels).map(([value, label]) => (
+                          <option key={value} value={value}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </>
+                  )}
+                </div>
+              )}
+              <Label htmlFor="case-response">
+                {recordsKeyLock && command?.status === 'RESOLVED'
+                  ? 'Completion evidence'
+                  : 'Response'}
+                {command?.requiresMessage ? ' *' : ''}
+              </Label>
               <ValidatedTextarea
                 name="message"
                 id="case-response"

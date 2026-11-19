@@ -2072,15 +2072,20 @@
     {
       "id": "UX-014",
       "requirement": "Display currency and relevant timezone alongside money and dates.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "web/src/App.tsx",
-        "web/src/components/record-editor.tsx",
-        "web/src/components/query-feedback.tsx"
+        "web/src/cases.ts",
+        "web/src/pages/ContractDetail.tsx",
+        "web/src/pages/Dashboard.tsx",
+        "web/src/pages/RoleDashboards.tsx",
+        "web/src/pages/Expenses.tsx"
       ],
-      "tests": ["web/src/ui.test.tsx", "web/src/record-editor.test.tsx"],
+      "tests": ["web/src/contracts.test.tsx"],
       "decisions": [],
-      "note": "Money preserves currency and new operational dates carry explicit timezone labels; complete legacy date-label coverage remains incomplete."
+      "note": "Contract, case, occupant, manager, and dashboard dates show Dubai time where relevant. Expense dates identify UTC. Payment amounts retain their recorded currency.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44612582983",
+      "commit": "25479c6dafb969e484acd08c081c611bb5d64dfb",
+      "verified": "2026-11-20"
     },
     {
       "id": "UX-015",

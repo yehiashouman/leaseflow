@@ -10,9 +10,9 @@ Target: the complete initial release in requirements.md.
 | Measure                                | Verified status                                                                                                                              |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total checklist tasks                  | 764                                                                                                                                          |
-| Completed tasks with evidence          | 300                                                                                                                                          |
-| Tasks without full completion evidence | 464                                                                                                                                          |
-| Strict checklist completion            | 39.27%                                                                                                                                       |
+| Completed tasks with evidence          | 301                                                                                                                                          |
+| Tasks without full completion evidence | 463                                                                                                                                          |
+| Strict checklist completion            | 39.40%                                                                                                                                       |
 | UI foundation tasks                    | 10 of 10 verified                                                                                                                            |
 | Open owner decisions                   | 6                                                                                                                                            |
 | Local API unit/route tests             | 152 pass; database mocks where required                                                                                                      |
@@ -29,14 +29,14 @@ Target: the complete initial release in requirements.md.
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial work exists beyond the 300 completed tasks; the 200-item target remains incomplete.
+Additional partial work exists beyond the 301 completed tasks; the 200-item target remains incomplete.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Current 200-Item Continuation
 
-We verified 113 additional existing checklist tasks.
-The batch contains 113 verified, 59 partial, and 28 blocked requirements. Twenty owner approvals and five verified follow-ups count separately.
-Global completion is 300 of 764 (39.27%); 464 requirements remain without full evidence.
+We verified 114 additional existing checklist tasks.
+The batch contains 114 verified, 58 partial, and 28 blocked requirements. Twenty owner approvals and five verified follow-ups count separately.
+Global completion is 301 of 764 (39.40%); 463 requirements remain without full evidence.
 The requested 200 additional completions are not complete.
 See [OPERATIONS-EXPENSE-BATCH.md](OPERATIONS-EXPENSE-BATCH.md) for every identifier, exact gap, and evidence link.
 New work covers private expenses/recoveries, contract and occupant setup, operational dashboards, reliable case notices, own preferences, and immutable external receipts, durable business schedules, monthly obligation catch-up, and annual-review decisions.
@@ -50,6 +50,7 @@ Expired document warnings and the contract admission guard pass MySQL and browse
 Unit activation with current private evidence passes MySQL and desktop and mobile verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44590412644).
 Email Attempt History and Versioned Declarations passed MySQL and application checks. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44610263136).
 Complaint Occupant Selection and List API passed MySQL and application checks. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44611611299).
+Currency and timezone labels passed component and preview checks. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44612582983).
 Cash-only financial reports require expense payment dates and verified completeness. The existing rent receipts use actual payment dates.
 Production activation, finance, provider delivery, retention, MFA, moderation, and full initial-release acceptance remain incomplete.
 
@@ -186,7 +187,7 @@ It does not mean that no code exists.
 | 20. Dashboards                          |    19 |                14 | Operational metrics, rent totals, rental terms, review milestones, and document expiry verified; deposit and profit screens remain                                    |
 | 21. Notifications and providers         |    18 |                13 | Case channel preferences, durable history, signatures, replay protection, and owner recovery verified; full event coverage and real staging delivery remain           |
 | 22. PDF reports                         |    16 |                 6 | Private case jobs, hashes, retries, status, and actual PDF content verified; full relationship reports remain                                                         |
-| 23. Shared interface and accessibility  |    28 |                13 | shadcn/ui foundation verified; complete business screens remain                                                                                                       |
+| 23. Shared interface and accessibility  |    28 |                14 | shadcn/ui foundation verified; complete business screens remain                                                                                                       |
 | 24. API standards and ownership         |    19 |                14 | Versioning, stable errors, role status, CSRF, origin/proxy policy, and redirect boundaries verified; full resource coverage remains                                   |
 | 25. Jobs, deadlines, recovery           |    13 |                11 | Durable Redis-assisted scheduler, leases, calendar catch-up, replica fencing, and audit rules verified; full job inventory and production recovery remain             |
 | 26. Security and privacy                |    13 |                 6 | Private identity access, masks, audit immutability, scans, and abuse controls verified; MFA, retention, and deployed security remain                                  |
@@ -205,7 +206,7 @@ It does not mean that no code exists.
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                                                                 |
 | 40. Source coverage map                 |     7 |                 0 | Reference table; no tasks                                                                                                                                             |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                                                             |
-| Total                                   |   764 |               300 | 464 tasks without full completion evidence                                                                                                                            |
+| Total                                   |   764 |               301 | 463 tasks without full completion evidence                                                                                                                            |
 
 ## Implemented in This Continuation
 

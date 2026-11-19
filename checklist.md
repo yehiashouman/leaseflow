@@ -591,7 +591,7 @@ Requirements: 21-22.
 - [ ] **UX-011** Provide search, pagination, filters, and sort controls for operational lists.
 - [x] **UX-012** Choose navigation from authenticated role and account status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **UX-013** Hide unauthorized controls without reliance on client-only permission enforcement. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **UX-014** Display currency and relevant timezone alongside money and dates.
+- [x] **UX-014** Display currency and relevant timezone alongside money and dates. [Evidence](docs/EVIDENCE.md#currency-and-timezone-labels).
 - [ ] **UX-015** Keep English-first interface strings ready for localization.
 - [ ] **UX-016** Provide profile, security, session, language, timezone, and notification controls.
 - [ ] **UX-017** Remove placeholder values, inactive actions, and dead-end pages.

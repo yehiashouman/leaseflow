@@ -4,8 +4,8 @@ Date: 20 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 113 additional verified requirements; 300 of 764 overall (39.27%).
-The target is not complete: 59 partial and 28 blocked requirements remain in this batch.
+Current result: 114 additional verified requirements; 301 of 764 overall (39.40%).
+The target is not complete: 58 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -25,7 +25,7 @@ The master checklist keeps every partial and blocked box unchecked.
 - Protected metrics and job summaries exclude private destinations, tokens, queries, and job payloads.
 - Shared record editors retain failed-save values and expose accessible field errors with safe request identifiers.
 
-## Acceptance Evidence
+## Initial Acceptance Evidence
 
 Code commit: [`0db3fbd`](https://github.com/yehiashouman/leaseflow/commit/0db3fbd7b8a0cea8c6c050b6a99ef6728a2ac841).
 Application and MySQL acceptance: [CI run](https://github.com/yehiashouman/leaseflow/actions/runs/42607879248).
@@ -41,7 +41,7 @@ Preview publication: [Pages run](https://github.com/yehiashouman/leaseflow/actio
 - API/web builds, lint, migration validation, dependency audit, and private-file acceptance pass.
 - Fresh Docker acceptance passes on the final receipt/preference code commit, including startup, migrations, proxy access, restart, and persistent data.
 
-Current unique automated total: 449, plus 44 browser tests.
+Initial unique automated total: 449, plus 44 browser tests.
 The evidence separates fixtures, synthetic previews, actual database journeys, and actual storage/scanner journeys.
 The report does not treat provider adapters as real inbox or WhatsApp delivery proof.
 
@@ -75,6 +75,8 @@ Tenant rental terms: [MySQL and browser evidence](https://github.com/yehiashouma
 Email Attempt History and Versioned Declarations: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44610263136).
 
 Complaint Occupant Selection and List API: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44611611299).
+
+Currency and Timezone Labels: [Component and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44612582983). [Pages publication](https://github.com/yehiashouman/leaseflow/actions/runs/44612583135).
 
 ## Complete 200-Item Matrix
 
@@ -175,7 +177,7 @@ Only VERIFIED rows receive completion credit.
 | UX-011             | PARTIAL  | Operational lists offer selected filters and bounded pages; complete inventory, contracts, and financial sorting/filter controls remain incomplete.                                                                   |
 | UX-012             | VERIFIED | Verified role and account-state navigation with independent API permission enforcement.                                                                                                                               |
 | UX-013             | VERIFIED | Verified role and account-state navigation with independent API permission enforcement.                                                                                                                               |
-| UX-014             | PARTIAL  | Money preserves currency and new operational dates carry explicit timezone labels; complete legacy date-label coverage remains incomplete.                                                                            |
+| UX-014             | VERIFIED | Contract, case, occupant, manager, and dashboard dates show Dubai time where relevant. Expense dates identify UTC. Payment amounts retain their recorded currency.                                                    |
 | UX-015             | PARTIAL  | Notice templates support Arabic with English fallback; interface strings still lack a complete localization catalog.                                                                                                  |
 | UX-016             | PARTIAL  | Security, sessions, tenant profile, language, timezone, and channel preferences work; complete manager profile/contact edits and reverification remain incomplete.                                                    |
 | UX-017             | PARTIAL  | False deposit totals and inactive business controls have explicit boundaries; complete replacement of every placeholder or unfinished release screen remains incomplete.                                              |

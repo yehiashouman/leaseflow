@@ -4,6 +4,8 @@ import type { FastifyInstance } from 'fastify';
 import type { RequestStatus, Role } from '@prisma/client';
 import { prisma } from '../src/db.js';
 import { buildApp } from '../src/app.js';
+import { caseSelect } from '../src/case-data.js';
+import { reportHash, reportSnapshot } from '../src/case-report.js';
 
 type Actor = { id: string; profileId: string; role: Role; sid: string };
 describe('MySQL private operational case workflow', () => {
@@ -97,6 +99,82 @@ describe('MySQL private operational case workflow', () => {
       },
     });
   });
+  it('preserves key or lock authorization, cost and completion evidence under the case scope', async () => {
+    const created = await send('POST', '', {
+      ...submission(),
+      type: 'KEY_LOCK_CHANGE',
+      title: 'Guest room lock change',
+      description: 'The key disappeared after handover.',
+    });
+    expect(created.statusCode, created.body).toBe(201);
+    expect(created.json().metadata.urgency).toBe('URGENT');
+    const path = '/' + created.json().id;
+    const approve = { clientId: randomUUID(), status: 'APPROVED', expectedVersion: 1 };
+    const decision = path + '/respond';
+    expect((await send('POST', decision, approve, manager)).statusCode).toBe(422);
+    const authorization =
+      'The leasing manager authorized building maintenance to replace the cylinder.';
+    expect(
+      (await send('POST', decision, { ...approve, keyLock: { authorization } }, tenant)).statusCode,
+    ).toBe(403);
+    const approved = await send(
+      'POST',
+      decision,
+      { ...approve, keyLock: { authorization } },
+      manager,
+    );
+    expect(approved.statusCode, approved.body).toBe(200);
+    expect(approved.json().events.at(-1)).toMatchObject({
+      keyLock: { authorization },
+      actorName: 'Case Manager',
+    });
+    const resolution = {
+      clientId: randomUUID(),
+      status: 'RESOLVED',
+      expectedVersion: 2,
+      message: 'Maintenance confirmed new keys work and recorded handover.',
+      keyLock: { authorization, costResponsibility: 'MANAGER' },
+    };
+    expect(
+      (await send('POST', decision, { ...resolution, keyLock: { authorization } }, manager))
+        .statusCode,
+    ).toBe(422);
+    expect((await send('POST', decision, { ...resolution, message: '' }, manager)).statusCode).toBe(
+      422,
+    );
+    const resolved = await send('POST', decision, resolution, manager);
+    expect(resolved.statusCode, resolved.body).toBe(200);
+    const replay = await send('POST', decision, resolution, manager);
+    expect(replay.statusCode, replay.body).toBe(200);
+    expect(replay.json().version).toBe(3);
+    expect(
+      (
+        await send(
+          'POST',
+          decision,
+          { ...resolution, keyLock: { authorization, costResponsibility: 'TENANT' } },
+          manager,
+        )
+      ).statusCode,
+    ).toBe(409);
+    const history = await send('GET', path);
+    expect(history.json().events.at(-1)).toMatchObject({
+      keyLock: resolution.keyLock,
+      message: resolution.message,
+    });
+    expect((await send('GET', path, undefined, roommate)).statusCode).toBe(404);
+    const record = await prisma.request.findUniqueOrThrow({
+      where: { id: history.json().id },
+      select: caseSelect,
+    });
+    const snapshot = reportSnapshot(record);
+    expect(snapshot.events.at(-1)).toMatchObject({
+      keyLock: resolution.keyLock,
+      message: resolution.message,
+    });
+    expect(reportHash(snapshot)).toMatch(/^[a-f0-9]{64}$/);
+  });
+
   it('stores a manager deadline, immutable reason, notices, and exact retry result', async () => {
     const row = await send('GET', '/' + requestId);
     const body = {

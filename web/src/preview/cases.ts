@@ -1,5 +1,5 @@
 import type { Role } from '../session';
-import { maintenanceLabels } from '../cases';
+import { keyLockCostLabels, maintenanceLabels } from '../cases';
 
 type RecordData = { id: string; [key: string]: any };
 export const previewCaseTypes = ['MAINTENANCE', 'NEIGHBOR_COMPLAINT', 'KEY_LOCK_CHANGE', 'GENERAL'];
@@ -61,11 +61,14 @@ export function previewCase(record: RecordData, contracts: RecordData[], role: R
     resolvedAt: record.resolvedAt ?? null,
     decisionDueAt: record.decisionDueAt ?? null,
     contract: contract ? previewCaseContract(contract) : null,
-    events: (record.events ?? []).map((event: Record<string, unknown>) =>
-      Object.fromEntries(
+    events: (record.events ?? []).map((event: RecordData) => ({
+      ...Object.fromEntries(
         Object.entries(event).filter(([key]) => key !== 'clientId' && key !== 'metadata'),
       ),
-    ),
+      ...(record.type === 'KEY_LOCK_CHANGE' && event.metadata?.keyLock
+        ? { keyLock: event.metadata.keyLock }
+        : {}),
+    })),
     allowedActions: (previewCaseTypes.includes(record.type)
       ? ((role === 'TENANT' ? tenantActions : managerActions)[record.status] ?? [])
       : []
@@ -231,7 +234,7 @@ export function mutatePreviewCase(
   const keys =
     action === 'messages'
       ? ['clientId', 'message']
-      : ['clientId', 'message', 'status', 'expectedVersion'];
+      : ['clientId', 'message', 'status', 'expectedVersion', 'keyLock'];
   const message = typeof data.message === 'string' ? data.message.trim() : '';
   if (
     Object.keys(data).some((key) => !keys.includes(key)) ||
@@ -241,6 +244,22 @@ export function mutatePreviewCase(
   )
     fail('Verify the request fields.', 422);
   const kind = action === 'messages' ? 'MESSAGE' : data.status;
+  let keyLock;
+  if (data.keyLock !== undefined) {
+    const authorization =
+      typeof data.keyLock?.authorization === 'string' ? data.keyLock.authorization.trim() : '';
+    const costResponsibility = data.keyLock?.costResponsibility;
+    if (
+      authorization.length < 3 ||
+      authorization.length > 1000 ||
+      Object.keys(data.keyLock).some(
+        (key) => !['authorization', 'costResponsibility'].includes(key),
+      ) ||
+      (costResponsibility !== undefined && !Object.hasOwn(keyLockCostLabels, costResponsibility))
+    )
+      fail('Verify the key or lock fields.', 422);
+    keyLock = { authorization, ...(costResponsibility ? { costResponsibility } : {}) };
+  }
   const events: RecordData[] = record.events ?? [];
   const duplicate = events.find((event) => event.clientId === data.clientId);
   if (duplicate) {
@@ -248,7 +267,8 @@ export function mutatePreviewCase(
       duplicate.actorRole !== role ||
       duplicate.kind !== kind ||
       (duplicate.message ?? '') !== message ||
-      (action === 'respond' && duplicate.sequence !== data.expectedVersion + 1)
+      (action === 'respond' && duplicate.sequence !== data.expectedVersion + 1) ||
+      JSON.stringify(duplicate.metadata?.keyLock) !== JSON.stringify(keyLock)
     )
       fail('Key reused with different content', 409);
     return;
@@ -277,6 +297,13 @@ export function mutatePreviewCase(
       fail('Invalid decision for this status', 409);
     if (requiresMessage(data.status) && message.length < 3)
       fail('Add an explanation of at least three characters', 422);
+    const recordsKeyLock =
+      record.type === 'KEY_LOCK_CHANGE' && ['APPROVED', 'RESOLVED'].includes(data.status);
+    if (
+      recordsKeyLock !== Boolean(keyLock) ||
+      (keyLock && Boolean(keyLock.costResponsibility) !== (data.status === 'RESOLVED'))
+    )
+      fail('Verify the authorization and cost responsibility.', 422);
   } else if (['DRAFT', 'CLOSED'].includes(record.status))
     fail('Reopen the case before a new message', 409);
   const now = new Date().toISOString();
@@ -294,6 +321,7 @@ export function mutatePreviewCase(
       sequence: record.version,
       createdAt: now,
       ...(action === 'respond' ? { fromStatus: record.status } : {}),
+      ...(keyLock ? { metadata: { keyLock } } : {}),
     },
   ];
   record.updatedAt = now;
