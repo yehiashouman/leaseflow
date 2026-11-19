@@ -641,3 +641,9 @@ Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leasefl
 Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44587620306).
 
 - **DEC-18 implementation:** The account worker queues one reminder at 48 hours, reschedules unsent mail if an invitation receives a later expiry, and skips revoked invitations. MySQL verifies the deadline, concurrent queue runs, and suppressed delivery. The API defaults to a 10 MiB upload limit. The private-file suite passes on desktop and mobile.
+
+## Document Expiry and Contract Admission
+
+Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44589053844).
+
+- **DEC-15 implementation:** The manager dashboard flags expired documents from the latest clean versions within the manager’s scope. MySQL verifies that expired proof blocks new contract admission, current replacements permit it, and an existing contract stays accessible after expiry. The component test verifies the red badge and unit link.

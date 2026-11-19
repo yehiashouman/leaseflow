@@ -34,7 +34,8 @@ Unit forms capture name, building, street, area, emirate, address notes, GPS coo
 Address notes support multiple lines and a 1,000-character limit.
 The interface preserves zero-valued coordinates.
 Unit detail pages show these fields and link back to the landlord record.
-New units remain drafts; this change does not bypass document or activation gates.
+New units start as drafts. To activate a unit, select current proof of ownership or tenancy and confirm the manager declaration.
+Select current written landlord consent if required. LeaseFlow records the document versions and declaration in the activation audit.
 Capture of default deposits does not certify financial calculations or approved round rules.
 
 ## Atomicity and Authorization

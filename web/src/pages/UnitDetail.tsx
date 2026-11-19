@@ -19,11 +19,14 @@ import { QueryFeedback, CachedQueryNotice } from '@/components/query-feedback';
 import type { Unit } from './Units';
 import { unitAmenities } from '../unit-amenities';
 import { UnitLifecycle } from '@/components/unit-lifecycle';
+import { UnitActivation } from '@/components/unit-activation';
+import { previewMode } from '../session';
 
 export function UnitDetail() {
   const { id } = useParams();
   const client = useQueryClient();
   const [editor, setEditor] = useState<Unit['spaces'][number] | 'new' | null>(null);
+  const [activationOpen, setActivationOpen] = useState(false);
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['unit', id],
     queryFn: () => api.get<Unit>('/inventory/units/' + id).then((response) => response.data),
@@ -55,6 +58,9 @@ export function UnitDetail() {
             {data.archivedAt ? 'Archived' : data.active ? 'Active' : 'Draft'}
           </Badge>
           <UnitLifecycle id={data.id} archived={Boolean(data.archivedAt)} />
+          {!previewMode && !data.archivedAt && !data.active && (
+            <Button onClick={() => setActivationOpen(true)}>Activate unit</Button>
+          )}
         </div>
       </div>
       <dl className="grid gap-4 border-y py-4 sm:grid-cols-3">
@@ -196,6 +202,7 @@ export function UnitDetail() {
       <Documents purpose="COMMON_PHOTO" targetId={data.id} heading="Common-area photos" />
       <Documents purpose="CONSENT" targetId={data.id} heading="Consent and delegation" />
       <Documents purpose="PROPERTY_DOCUMENT" targetId={data.id} heading="Property documents" />
+      {activationOpen && <UnitActivation id={data.id} onClose={() => setActivationOpen(false)} />}
       {editor && (
         <RecordEditor
           key={editor === 'new' ? 'new' : editor.id}

@@ -6,7 +6,7 @@ import { hashPassword } from '../../api/src/auth.js';
 test.afterAll(async () => {
   await prisma.$disconnect();
 });
-test('real monthly contract captures a couple, defaults, exact initial rent, and private occupant snapshots', async ({
+test('activates a unit with current evidence and creates a monthly couple contract with private occupant snapshots', async ({
   page,
 }, testInfo) => {
   await page.setExtraHTTPHeaders({
@@ -43,13 +43,36 @@ test('real monthly contract captures a couple, defaults, exact initial rent, and
       managerId,
       name: 'Setup Unit',
       area: 'Dubai',
-      active: true,
+      declarationAcceptedAt: new Date(),
       defaultDeposit: '850.25',
       spaces: { create: { name: 'Setup Couple Room', type: 'ROOM', capacity: 2 } },
     },
     include: { spaces: true },
   });
   try {
+    const addEvidence = async (purpose: 'PROPERTY_DOCUMENT' | 'CONSENT', title: string) => {
+      const series = await prisma.documentSeries.create({
+        data: { unitId: unit.id, ownerUserId: manager.id, purpose },
+      });
+      return prisma.document.create({
+        data: {
+          seriesId: series.id,
+          version: 1,
+          uploaderUserId: manager.id,
+          clientId: randomUUID(),
+          payloadHash: 'a'.repeat(64),
+          title,
+          originalName: 'private.pdf',
+          mimeType: 'application/pdf',
+          originalSize: 1,
+          sourceHash: 'b'.repeat(64),
+          quarantineKey: randomUUID(),
+          status: 'CLEAN',
+        },
+      });
+    };
+    const proof = await addEvidence('PROPERTY_DOCUMENT', 'Current tenancy proof');
+    const consent = await addEvidence('CONSENT', 'Current written consent');
     await page.goto('/login');
     await page.getByLabel('Email', { exact: true }).fill(manager.email);
     await page.getByLabel('Password', { exact: true }).fill(password);
@@ -57,6 +80,27 @@ test('real monthly contract captures a couple, defaults, exact initial rent, and
     await expect(
       page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
     ).toBeVisible();
+    await page.goto('/units/' + unit.id);
+    await page.getByRole('button', { name: 'Activate unit', exact: true }).click();
+    const activation = page.getByRole('dialog');
+    await activation.getByLabel('Proof type *', { exact: true }).selectOption('TENANCY');
+    await activation
+      .getByLabel('Proof of ownership or tenancy *', { exact: true })
+      .selectOption(proof.id);
+    await activation
+      .getByLabel('Does this unit require written landlord consent? *', { exact: true })
+      .selectOption('YES');
+    await activation
+      .getByLabel('Written landlord consent (if required)', { exact: true })
+      .selectOption(consent.id);
+    await activation
+      .getByLabel('I confirm this evidence is current and I am authorized to let this unit *', {
+        exact: true,
+      })
+      .check();
+    await activation.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(activation).not.toBeVisible();
+    await expect(page.getByText('Active', { exact: true })).toBeVisible();
     await page.goto('/contracts');
     await page.getByRole('button', { name: 'Create contract', exact: true }).click();
     const dialog = page.getByRole('dialog');
@@ -126,6 +170,8 @@ test('real monthly contract captures a couple, defaults, exact initial rent, and
     const where = { tenantId: tenant.tenant!.id };
     await prisma.payment.deleteMany({ where: { contract: where } });
     await prisma.contract.deleteMany({ where });
+    await prisma.document.deleteMany({ where: { series: { unitId: unit.id } } });
+    await prisma.documentSeries.deleteMany({ where: { unitId: unit.id } });
     await prisma.rentalSpace.deleteMany({ where: { unitId: unit.id } });
     await prisma.unit.delete({ where: { id: unit.id } });
     const ids = [manager.id, tenant.id];

@@ -138,6 +138,24 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
       depositAmount: 2500,
     });
   }
+  const evidenceVersion = (seriesId: string, version: number, expiresAt: Date) =>
+    prisma.document.create({
+      data: {
+        seriesId,
+        version,
+        uploaderUserId: owner.id,
+        clientId: randomUUID(),
+        payloadHash: 'a'.repeat(64),
+        title: 'Activation evidence ' + version,
+        originalName: 'proof.pdf',
+        mimeType: 'application/pdf',
+        originalSize: 1,
+        sourceHash: 'b'.repeat(64),
+        quarantineKey: randomUUID(),
+        expiresAt,
+        status: 'CLEAN',
+      },
+    });
   it('persists twelve amenities, custom labels, owner currency, rent, and literal payment schedule', async () => {
     const detail = (await send('GET', '/units/' + unitId)).json();
     expect(detail).toMatchObject({
@@ -273,40 +291,79 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
     const series = await prisma.documentSeries.create({
       data: { unitId, ownerUserId: owner.id, purpose: 'PROPERTY_DOCUMENT' },
     });
-    const evidence = (version: number, expiresAt: Date) =>
-      prisma.document.create({
-        data: {
-          seriesId: series.id,
-          version,
-          uploaderUserId: owner.id,
-          clientId: randomUUID(),
-          payloadHash: 'a'.repeat(64),
-          title: 'Proof of tenancy',
-          originalName: 'proof.pdf',
-          mimeType: 'application/pdf',
-          originalSize: 1,
-          sourceHash: 'b'.repeat(64),
-          quarantineKey: randomUUID(),
-          expiresAt,
-          status: 'CLEAN',
-        },
-      });
     try {
       const expired = new Date('2020-01-01');
-      await evidence(1, expired);
+      await evidenceVersion(series.id, 1, expired);
       const refused = await proposal(space.id);
       expect(refused.statusCode, refused.body).toBe(409);
       expect(refused.json().message).toContain('expired');
       expect(await prisma.contract.count({ where: { rentalSpaceId: space.id } })).toBe(0);
-      await evidence(2, new Date('2099-01-01'));
+      await evidenceVersion(series.id, 2, new Date('2099-01-01'));
       const accepted = await proposal(space.id);
       expect(accepted.statusCode, accepted.body).toBe(201);
-      await evidence(3, expired);
+      await evidenceVersion(series.id, 3, expired);
       expect((await send('GET', '/api/v1/contracts/' + accepted.json().id)).statusCode).toBe(200);
       expect((await send('GET', '/units/' + unitId)).statusCode).toBe(200);
     } finally {
       await prisma.document.deleteMany({ where: { seriesId: series.id } });
       await prisma.documentSeries.delete({ where: { id: series.id } });
+    }
+  });
+  it('activates a declared unit once with current proof and the required written consent', async () => {
+    const path = '/units/' + unitId;
+    const proof = await prisma.documentSeries.create({
+      data: { unitId, ownerUserId: owner.id, purpose: 'PROPERTY_DOCUMENT' },
+    });
+    const consent = await prisma.documentSeries.create({
+      data: { unitId, ownerUserId: owner.id, purpose: 'CONSENT' },
+    });
+    const seriesIds = [proof.id, consent.id];
+    try {
+      const expired = await evidenceVersion(proof.id, 1, new Date('2020-01-01'));
+      const current = await evidenceVersion(proof.id, 2, new Date('2099-01-01'));
+      const written = await evidenceVersion(consent.id, 1, new Date('2099-01-01'));
+      const declaration = {
+        proofKind: 'TENANCY',
+        proofId: expired.id,
+        consentRequired: true,
+        declarationAccepted: true,
+      };
+      expect((await send('GET', path + '/activation', undefined, foreign)).statusCode).toBe(404);
+      const choices = await send('GET', path + '/activation');
+      expect(
+        choices
+          .json()
+          .documents.map((row: { id: string }) => row.id)
+          .sort(),
+      ).toEqual([current.id, written.id].sort());
+      expect(choices.body).not.toMatch(/quarantineKey|originalName|sourceHash/);
+      expect((await send('POST', path + '/activate', declaration)).statusCode).toBe(409);
+      const activeProof = { ...declaration, proofId: current.id };
+      expect((await send('POST', path + '/activate', activeProof)).statusCode).toBe(409);
+      expect((await send('GET', path)).json().active).toBe(false);
+      const complete = { ...activeProof, consentId: written.id };
+      await prisma.unit.update({ where: { id: unitId }, data: { declarationAcceptedAt: null } });
+      expect((await send('POST', path + '/activate', complete)).statusCode).toBe(409);
+      await prisma.unit.update({
+        where: { id: unitId },
+        data: { declarationAcceptedAt: new Date() },
+      });
+      const results = await Promise.all([
+        send('POST', path + '/activate', complete),
+        send('POST', path + '/activate', complete),
+      ]);
+      for (const result of results) {
+        expect(result.statusCode, result.body).toBe(200);
+        expect(result.json().active).toBe(true);
+      }
+      const events = await prisma.auditEvent.findMany({
+        where: { entityId: unitId, action: 'ACTIVATE' },
+      });
+      expect(events).toHaveLength(1);
+      expect(events[0]?.newValue).toMatchObject({ proofId: current.id, consentId: written.id });
+    } finally {
+      await prisma.document.deleteMany({ where: { seriesId: { in: seriesIds } } });
+      await prisma.documentSeries.deleteMany({ where: { id: { in: seriesIds } } });
     }
   });
   it('serializes archive against contract admission without an archived live allocation', async () => {

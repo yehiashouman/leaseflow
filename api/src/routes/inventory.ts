@@ -84,6 +84,33 @@ export const spaceUpdateSchema = spaceSchema
 const unitInclude = (owner: string) =>
   ({ landlord: { where: { managerId: owner } }, spaces: true }) as const;
 
+async function unitActivationEvidence(
+  tx: Prisma.TransactionClient,
+  unitId: string,
+  userId: string,
+) {
+  const now = new Date();
+  const series = await tx.documentSeries.findMany({
+    where: { unitId, ownerUserId: userId, purpose: { in: ['PROPERTY_DOCUMENT', 'CONSENT'] } },
+    select: {
+      purpose: true,
+      versions: {
+        where: { status: 'CLEAN' },
+        orderBy: { version: 'desc' },
+        take: 1,
+        select: { id: true, title: true, expiresAt: true },
+      },
+    },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+  });
+  return series.flatMap(({ purpose, versions }) => {
+    const latest = versions[0];
+    return latest && (!latest.expiresAt || latest.expiresAt > now)
+      ? [{ id: latest.id, title: latest.title, purpose }]
+      : [];
+  });
+}
+
 async function recordAudit(
   tx: Prisma.TransactionClient,
   request: FastifyRequest,
@@ -323,6 +350,74 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
       await recordAudit(tx, request, 'UPDATE', 'Unit', updated, existing);
       return updated;
     });
+  });
+  app.get('/units/:id/activation', { preHandler: managerOnly }, async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    const owner = await managerId(request.user.sub);
+    const unit = await prisma.unit.findFirst({
+      where: { id, managerId: owner, archivedAt: null },
+      select: { id: true },
+    });
+    if (!unit) throw app.httpErrors.notFound('Unit not found');
+    return { documents: await unitActivationEvidence(prisma, id, request.user.sub) };
+  });
+  app.post('/units/:id/activate', { preHandler: managerOnly }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    const body = z
+      .object({
+        proofId: z.string().min(1).max(191),
+        proofKind: z.enum(['OWNERSHIP', 'TENANCY']),
+        consentRequired: z.boolean(),
+        consentId: z.string().min(1).max(191).optional(),
+        declarationAccepted: z.literal(true),
+      })
+      .strict()
+      .parse(request.body);
+    const owner = await managerId(request.user.sub);
+    return prisma.$transaction(
+      async (tx) => {
+        if (!(await activeAccount(tx, request)))
+          throw app.httpErrors.unauthorized('Session is no longer active');
+        if ((await lockUnit(tx, id, owner)).archivedAt)
+          throw app.httpErrors.conflict('Restore the unit before activation');
+        const unit = await tx.unit.findFirstOrThrow({
+          where: { id, managerId: owner },
+          include: unitInclude(owner),
+        });
+        if (unit.active) return unit;
+        if (!unit.declarationAcceptedAt)
+          throw app.httpErrors.conflict('Verify the unit declaration before activation');
+        const documents = await unitActivationEvidence(tx, id, request.user.sub);
+        if (
+          !documents.some((row) => row.id === body.proofId && row.purpose === 'PROPERTY_DOCUMENT')
+        )
+          throw app.httpErrors.conflict('Select current proof of ownership or tenancy');
+        if (
+          body.consentRequired !== !!body.consentId ||
+          (body.consentId &&
+            !documents.some((row) => row.id === body.consentId && row.purpose === 'CONSENT'))
+        )
+          throw app.httpErrors.conflict('Select current written landlord consent if required');
+        const updated = await tx.unit.update({
+          where: { id, managerId: owner },
+          data: { active: true, declarationAcceptedAt: new Date() },
+          include: unitInclude(owner),
+        });
+        const snapshot = {
+          id,
+          proofKind: body.proofKind,
+          proofId: body.proofId,
+          consentRequired: body.consentRequired,
+          consentId: body.consentId ?? null,
+          declarationAcceptedAt: updated.declarationAcceptedAt,
+          active: true,
+        };
+        await recordAudit(tx, request, 'ACTIVATE', 'Unit', snapshot, { active: false });
+        return updated;
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
   });
   for (const action of ['archive', 'restore'] as const) {
     app.post('/units/:id/' + action, { preHandler: managerOnly }, async (request) => {
