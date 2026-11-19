@@ -13,6 +13,10 @@ import {
   decryptMail,
 } from '../src/account-policy.js';
 import { runEmailWorkerOnce } from '../src/email-worker.js';
+import {
+  invitationReminderLeadMs,
+  queueInvitationReminderOnce,
+} from '../src/invitation-reminders.js';
 import { hashToken, verifyPassword } from '../src/auth.js';
 import { authenticate } from '../src/auth.js';
 import { sendApiError } from '../src/errors.js';
@@ -461,6 +465,63 @@ describe('MySQL account tokens, private setup sessions, invitations, and durable
         )
       ).statusCode,
     ).toBe(409);
+  });
+  it('queues one invitation reminder at the two-day boundary and skips revoked invitations', async () => {
+    const response = await invite();
+    expect(response.statusCode, response.body).toBe(201);
+    const invitation = response.json();
+    const boundary = new Date(Date.now() - 3600000);
+    await prisma.tenantInvitation.update({
+      where: { id: invitation.id },
+      data: { expiresAt: new Date(boundary.getTime() + invitationReminderLeadMs) },
+    });
+    await prisma.outboundEmail.updateMany({
+      where: { recipient: email, template: 'TENANT_INVITATION' },
+      data: { status: 'COMPLETE' },
+    });
+    expect(await queueInvitationReminderOnce(new Date(boundary.getTime() - 1))).toBe(false);
+    const results = await Promise.all([
+      queueInvitationReminderOnce(boundary),
+      queueInvitationReminderOnce(boundary),
+    ]);
+    expect(results.filter(Boolean)).toHaveLength(1);
+    const where = { invitationReminderId: invitation.id };
+    const reminder = await prisma.outboundEmail.findUniqueOrThrow({ where });
+    expect(reminder.recipient).toBe(email);
+    expect(decryptMail(reminder.encryptedPayload)).toMatchObject({
+      text: expect.stringContaining('latest invitation email'),
+    });
+    await prisma.outboundEmail.update({
+      where,
+      data: { createdAt: boundary, nextAttemptAt: boundary },
+    });
+    const updatedExpiry = new Date(Date.now() + 3 * 86400000);
+    await prisma.tenantInvitation.update({
+      where: { id: invitation.id },
+      data: { expiresAt: updatedExpiry },
+    });
+    const sender = vi.fn(async () => 'unexpected-delivery');
+    expect(await runEmailWorkerOnce(sender)).toBe(true);
+    expect(sender).not.toHaveBeenCalled();
+    const rescheduled = await prisma.outboundEmail.findUniqueOrThrow({ where });
+    expect(rescheduled.status).toBe('QUEUED');
+    expect(rescheduled.attempts).toBe(0);
+    expect(rescheduled.nextAttemptAt.getTime()).toBe(
+      updatedExpiry.getTime() - invitationReminderLeadMs,
+    );
+    const revoke = await send(
+      'POST',
+      '/api/v1/invitations/' + invitation.id + '/revoke',
+      {},
+      managerToken(),
+    );
+    expect(revoke.statusCode, revoke.body).toBe(200);
+    expect(await runEmailWorkerOnce(sender, rescheduled.nextAttemptAt)).toBe(true);
+    expect(sender).not.toHaveBeenCalled();
+    expect(await prisma.outboundEmail.findUniqueOrThrow({ where })).toMatchObject({
+      status: 'FAILED',
+      failureCode: 'INVITATION_NO_LONGER_ACTIVE',
+    });
   });
   it('accepts only the invitation email and bound manager with verified email before phone', async () => {
     const invitation = await invite();

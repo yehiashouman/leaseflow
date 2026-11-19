@@ -629,3 +629,9 @@ Code and test paths are recorded in [the verification matrix](batch-200.json). A
 Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.com/yehiashouman/leaseflow/commit/3b51f274d1b7cff4d5589a9ac6959390e21a8ab2) · [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
 
 - **DASH-015:** Displays the contract due day and notice period plus the tenant profile’s saved late-request window and maximum extension. MySQL and live Chromium desktop and mobile verify the saved limits with a seven-day window and a three-day maximum.
+
+## Deferred Review Reminders
+
+Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44586380402).
+
+- **CON-014:** MySQL verifies one reminder per deferral at the Dubai date boundary, even with concurrent workers. A later deferral replaces the old date. A final decision cancels the pending reminder. The anniversary schedule supplies the next reminder after a no-change decision.

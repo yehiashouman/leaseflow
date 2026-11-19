@@ -66,7 +66,9 @@ test('the larger batch preserves one hundred stable requirements and honest comp
   assert.equal(new Set(batch.items.map((item) => item.id)).size, 100);
   const continuation = JSON.parse(read('docs/batch-200.json'));
   const additional = new Set(
-    continuation.items.filter((item) => item.status === 'VERIFIED').map((item) => item.id),
+    [...continuation.items, ...continuation.verifiedFollowUp]
+      .filter((item) => item.status === 'VERIFIED')
+      .map((item) => item.id),
   );
   for (const item of batch.items) {
     assert(['PENDING_VERIFICATION', 'VERIFIED', 'PARTIAL', 'BLOCKED'].includes(item.status));
@@ -99,13 +101,16 @@ test('the continuation preserves two hundred existing requirements and evidence-
   );
   assert.equal(batch.target, 200);
   assert.equal(batch.items.length, 200);
-  assert.equal(new Set(batch.items.map((item) => item.id)).size, 200);
+  const verifiedFollowUp = batch.verifiedFollowUp;
+  for (const item of verifiedFollowUp) assert.equal(item.status, 'VERIFIED');
+  const tracked = [...batch.items, ...verifiedFollowUp];
+  assert.equal(new Set(tracked.map((item) => item.id)).size, tracked.length);
   assert.equal(batch.baselineCompleted, 162);
   assert.equal(batch.baselineCompletedIds.length, 162);
   assert.equal(new Set(batch.baselineCompletedIds).size, 162);
   for (const id of batch.baselineCompletedIds)
     assert(checkedIds.has(id), 'Lost baseline closure: ' + id);
-  for (const item of batch.items) {
+  for (const item of tracked) {
     assert(allIds.includes(item.id), 'Unknown identifier: ' + item.id);
     assert(!batch.baselineCompletedIds.includes(item.id), 'Duplicate baseline credit: ' + item.id);
     assert(['PENDING_VERIFICATION', 'VERIFIED', 'PARTIAL', 'BLOCKED'].includes(item.status));
@@ -132,7 +137,7 @@ test('the continuation preserves two hundred existing requirements and evidence-
   assert.equal(
     checkedIds.size,
     162 +
-      batch.items.filter((item) => item.status === 'VERIFIED').length +
+      tracked.filter((item) => item.status === 'VERIFIED').length +
       decisions.approvedDecisions.length,
   );
 });

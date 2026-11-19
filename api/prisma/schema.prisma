@@ -766,8 +766,10 @@ model TenantInvitation {
   lastSentAt DateTime @default(now())
   createdAt DateTime @default(now())
   manager LeasingManagerProfile @relation(fields: [managerId], references: [id], onDelete: Restrict)
+  reminder OutboundEmail?
   @@unique([managerId, clientId])
   @@index([managerId, email, createdAt])
+  @@index([acceptedAt, revokedAt, expiresAt], map: "TenantInvitation_reminder_due_idx")
 }
 
 model OutboundEmail {
@@ -788,6 +790,8 @@ model OutboundEmail {
   deliveredAt DateTime?
   createdAt DateTime @default(now())
   user User? @relation(fields: [userId], references: [id], onDelete: Restrict)
+  invitationReminderId String? @unique(map: "OutboundEmail_invitation_reminder_key")
+  invitationReminder TenantInvitation? @relation(fields: [invitationReminderId], references: [id], onDelete: Restrict, map: "OutboundEmail_invitation_reminder_fk")
   @@index([status, nextAttemptAt, createdAt])
   @@index([userId, createdAt])
 }

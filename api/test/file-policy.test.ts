@@ -137,6 +137,7 @@ describe('private file content and signed grants', () => {
     expect(fileState({ status: 'QUARANTINED', expiresAt: null }, now)).toBe('QUARANTINED');
   });
   it('validates private storage limits, strict metadata, and safe grant durations', () => {
+    expect(fileConfigSchema.parse({}).FILE_MAX_BYTES).toBe(10 * 1024 * 1024);
     for (const config of [
       { FILE_MAX_BYTES: '999999999' },
       { FILE_GRANT_SECONDS: '1000' },

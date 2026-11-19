@@ -171,6 +171,22 @@
   ],
   "checklistIdentifierSha256": "9b40cc49cdf24abbdd6d0c0efd90dd724f267bd3420449c520157036b897f3c3",
   "scopeRevision": "The continuation now includes the implemented delivery, receipt, screen, and acceptance requirements. Every identifier remains an existing baseline checklist requirement. Deferred requirements remain in the master checklist.",
+  "verifiedFollowUp": [
+    {
+      "id": "CON-014",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/review-reminders.ts",
+        "api/src/business-runtime.ts",
+        "api/src/routes/reviews.ts"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "MySQL verifies one Dubai-date reminder per deferral across workers, deferral replacement, and cancellation by a final decision. Annual reviews keep their original anniversary schedule.",
+      "commit": "79659b54910aac7fc3759232d53ff549807e286f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44586380402",
+      "verified": "2026-11-19"
+    }
+  ],
   "initialSelectionIds": [
     "FIN-001",
     "FIN-002",

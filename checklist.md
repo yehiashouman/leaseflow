@@ -316,7 +316,7 @@ Requirements: 6, 14, 17, 22-24.
 - [ ] **CON-011** Show proposed amendments and effective months to tenants.
 - [ ] **CON-012** Reset same-space anniversary after transfer without loss of history.
 - [ ] **CON-013** Prevent duplicate annual reviews.
-- [ ] **CON-014** Apply approved reminder behavior for deferred and no-change reviews.
+- [x] **CON-014** Apply approved reminder behavior for deferred and no-change reviews. [Evidence](docs/EVIDENCE.md#deferred-review-reminders).
 - [ ] **CON-015** Close contracts through confirmed move-out without silent record deletion.
 
 ## 12. Rent Obligations and Calculations

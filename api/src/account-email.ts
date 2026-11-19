@@ -6,6 +6,7 @@ export async function queueAccountEmail(
   tx: Prisma.TransactionClient,
   input: {
     userId?: string;
+    invitationReminderId?: string;
     recipient: string;
     template: string;
     subject: string;
@@ -15,6 +16,7 @@ export async function queueAccountEmail(
   return tx.outboundEmail.create({
     data: {
       userId: input.userId,
+      invitationReminderId: input.invitationReminderId,
       recipient: input.recipient,
       template: input.template,
       language: 'en',

@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from './db.js';
 import { accountConfig, decryptMail } from './account-policy.js';
 import { z } from 'zod';
+import { invitationReminderLeadMs, queueInvitationReminderOnce } from './invitation-reminders.js';
 const payloadSchema = z
   .object({ subject: z.string().min(1).max(200), text: z.string().min(1).max(10000) })
   .strict();
@@ -77,6 +78,44 @@ export async function runEmailWorkerOnce(sender: EmailSender = sendAccountMail, 
   if (!job) return false;
   const where = { id: job.id, status: 'RUNNING' as const, leaseToken: job.leaseToken };
   try {
+    if (job.invitationReminderId) {
+      const invitation = await prisma.tenantInvitation.findFirst({
+        where: {
+          id: job.invitationReminderId,
+          acceptedAt: null,
+          revokedAt: null,
+          expiresAt: { gt: now },
+          manager: { user: { status: 'ACTIVE' } },
+        },
+        select: { expiresAt: true },
+      });
+      if (!invitation) {
+        await prisma.outboundEmail.updateMany({
+          where,
+          data: {
+            status: 'FAILED',
+            failureCode: 'INVITATION_NO_LONGER_ACTIVE',
+            leaseToken: null,
+            leaseExpiresAt: null,
+          },
+        });
+        return true;
+      }
+      const nextAttemptAt = new Date(invitation.expiresAt.getTime() - invitationReminderLeadMs);
+      if (nextAttemptAt > now) {
+        await prisma.outboundEmail.updateMany({
+          where,
+          data: {
+            status: 'QUEUED',
+            nextAttemptAt,
+            attempts: { decrement: 1 },
+            leaseToken: null,
+            leaseExpiresAt: null,
+          },
+        });
+        return true;
+      }
+    }
     const payload = payloadSchema.parse(decryptMail(job.encryptedPayload));
     const providerId = await sender({ id: job.id, recipient: job.recipient, ...payload });
     await prisma.outboundEmail.updateMany({
@@ -108,8 +147,10 @@ export function emailWorker(onError: () => void) {
   let timer: ReturnType<typeof setInterval> | undefined, current: Promise<unknown> | undefined;
   const tick = () => {
     if (!current)
-      current = runEmailWorkerOnce()
-        .catch(onError)
+      current = Promise.allSettled([queueInvitationReminderOnce(), runEmailWorkerOnce()])
+        .then((results) => {
+          for (const result of results) if (result.status === 'rejected') onError();
+        })
         .finally(() => {
           current = undefined;
         });

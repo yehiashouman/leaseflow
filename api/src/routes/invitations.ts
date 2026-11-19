@@ -7,6 +7,7 @@ import { allowRoles, hashPassword, hashToken } from '../auth.js';
 import { activeAccount } from '../account-data.js';
 import { accountConfig, canonicalEmail, emailLink, securityLimits } from '../account-policy.js';
 import { queueAccountEmail } from '../account-email.js';
+import { invitationReminderLeadMs } from '../invitation-reminders.js';
 import { lockUser } from '../sessions.js';
 const tokenInput = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).strict();
 const params = z.object({ id: z.string().min(1).max(191) }).strict();
@@ -203,7 +204,22 @@ export const invitationRoutes: FastifyPluginAsync = async (app) => {
                   },
             select: selected,
           });
-          if (command === 'resend') await notify(tx, changed, token);
+          if (command === 'resend') {
+            await notify(tx, changed, token);
+            await tx.outboundEmail.updateMany({
+              where: {
+                invitationReminderId: id,
+                status: 'FAILED',
+                failureCode: 'INVITATION_NO_LONGER_ACTIVE',
+              },
+              data: {
+                status: 'QUEUED',
+                attempts: 0,
+                failureCode: null,
+                nextAttemptAt: new Date(changed.expiresAt.getTime() - invitationReminderLeadMs),
+              },
+            });
+          }
           await tx.auditEvent.create({
             data: {
               actorUserId: request.user.sub,

@@ -20,7 +20,7 @@ export const fileConfigSchema = z.object({
     .int()
     .min(1024)
     .max(10 * 1024 * 1024)
-    .default(5 * 1024 * 1024),
+    .default(10 * 1024 * 1024),
   FILE_GRANT_SECONDS: z.coerce.number().int().min(15).max(300).default(60),
   CLAMAV_HOST: z.string().min(1).default('clamav'),
   CLAMAV_PORT: z.coerce.number().int().min(1).max(65535).default(3310),
@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === 'production' && fileConfig.FILES_ENABLED === 'true'
     throw new Error('Production storage requires HTTPS.');
   // Production policy remains an explicit owner gate, not an environment-variable approval.
   throw new Error(
-    'Production private files require approved DEC-17/DEC-18 policy and deployment acceptance.',
+    'Production private files require approved retention (DEC-17) and deployment acceptance.',
   );
 }
 export const documentPurposes = [

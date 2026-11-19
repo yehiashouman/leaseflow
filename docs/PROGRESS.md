@@ -10,17 +10,17 @@ Target: the complete initial release in requirements.md.
 | Measure                                | Verified status                                                                                                                              |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total checklist tasks                  | 764                                                                                                                                          |
-| Completed tasks with evidence          | 291                                                                                                                                          |
-| Tasks without full completion evidence | 473                                                                                                                                          |
-| Strict checklist completion            | 38.09%                                                                                                                                       |
+| Completed tasks with evidence          | 292                                                                                                                                          |
+| Tasks without full completion evidence | 472                                                                                                                                          |
+| Strict checklist completion            | 38.22%                                                                                                                                       |
 | UI foundation tasks                    | 10 of 10 verified                                                                                                                            |
 | Open owner decisions                   | 6                                                                                                                                            |
-| Local API unit/route tests             | 150 pass; database mocks where required                                                                                                      |
+| Local API unit/route tests             | 152 pass; database mocks where required                                                                                                      |
 | Web/component/preview-adapter tests    | 120 pass on GitHub Actions                                                                                                                   |
 | Setup and governance tests             | 12 pass locally and in scheduler CI                                                                                                          |
 | GitHub browser suites                  | 50 pass on the interface revision: four interface fixtures, eighteen preview tests, twenty-six real API journeys, and two real-file journeys |
 | Current verified browser coverage      | Accounts, invitations, private files, occupants, expenses, receipts, preferences, notices, role boundaries, and operational cases            |
-| MySQL suites                           | 203 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
+| MySQL suites                           | 204 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
 | Fresh-stack Docker acceptance          | Pass: zero-user startup, explicit demo, proxy login, password and volume persistence after restart.                                          |
 | Local builds                           | API, web production, and isolated preview pass                                                                                               |
 | Local lint                             | API, integration sources, and web pass                                                                                                       |
@@ -29,14 +29,14 @@ Target: the complete initial release in requirements.md.
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial work exists beyond the 291 completed tasks; the 200-item target remains incomplete.
+Additional partial work exists beyond the 292 completed tasks; the 200-item target remains incomplete.
 Do not substitute synthetic-preview results for real API/database acceptance.
 
 ## Current 200-Item Continuation
 
 We verified 109 additional existing checklist tasks.
-The batch contains 109 verified, 63 partial, and 28 blocked requirements. Twenty owner approvals count separately.
-Global completion is 291 of 764 (38.09%); 473 requirements remain without full evidence.
+The batch contains 109 verified, 63 partial, and 28 blocked requirements. Twenty owner approvals and one verified follow-up count separately.
+Global completion is 292 of 764 (38.22%); 472 requirements remain without full evidence.
 The requested 200 additional completions are not complete.
 See [OPERATIONS-EXPENSE-BATCH.md](OPERATIONS-EXPENSE-BATCH.md) for every identifier, exact gap, and evidence link.
 New work covers private expenses/recoveries, contract and occupant setup, operational dashboards, reliable case notices, own preferences, and immutable external receipts, durable business schedules, monthly obligation catch-up, and annual-review decisions.
@@ -44,6 +44,7 @@ The scheduler commit passes 149 API, 109 web, 201 MySQL, two real-file tests, an
 Twelve setup/governance tests pass locally after the evidence update. Rent dashboard acceptance passes 202 MySQL tests and 26 live browser tests. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44393970365).
 Manager reviews and expiry alerts pass MySQL and live browser verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
 Tenant rental terms pass MySQL and live browser verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
+The deferred review reminder passes MySQL and desktop and mobile verifications. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44586380402).
 Cash-only financial reports require expense payment dates and verified completeness. The existing rent receipts use actual payment dates.
 Production activation, finance, provider delivery, retention, MFA, moderation, and full initial-release acceptance remain incomplete.
 
@@ -168,7 +169,7 @@ It does not mean that no code exists.
 | 8. Landlords and units                  |    19 |                14 | Landlord contacts, property documents, and photos verified; approved evidence categories and unit activation remain                                                   |
 | 9. Rental spaces and availability       |    17 |                10 | Type/hold restrictions, accessible help, capacity, and historical defaults verified; dated reservations remain                                                        |
 | 10. Tenant invitations and occupants    |    19 |                17 | Scoped invitations and identity capture verified; full occupancy and tenant onboarding acceptance remain                                                              |
-| 11. Contracts and annual reviews        |    15 |                 4 | Contract setup, terms, default snapshots, and occupants verified; review decisions now exist; applied amendments and acknowledgements remain                          |
+| 11. Contracts and annual reviews        |    15 |                 5 | Contract setup, terms, default snapshots, and occupants verified; review decisions now exist; applied amendments and acknowledgements remain                          |
 | 12. Rent obligations and calculations   |    16 |                 0 | Basic proration exists; approved round/date rules and durable obligations remain                                                                                      |
 | 13. External payments and receipts      |    17 |                 0 | Basic API exists; ledger, allocations, receipts, corrections remain                                                                                                   |
 | 14. Late-payment requests               |    13 |                 0 | Complete eligibility and decision workflow remains                                                                                                                    |
@@ -199,7 +200,7 @@ It does not mean that no code exists.
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                                                                 |
 | 40. Source coverage map                 |     7 |                 0 | Reference table; no tasks                                                                                                                                             |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                                                             |
-| Total                                   |   764 |               291 | 473 tasks without full completion evidence                                                                                                                            |
+| Total                                   |   764 |               292 | 472 tasks without full completion evidence                                                                                                                            |
 
 ## Implemented in This Continuation
 
