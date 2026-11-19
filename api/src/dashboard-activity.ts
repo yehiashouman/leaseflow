@@ -11,7 +11,6 @@ export async function managerDashboardActivity(
 ) {
   const until = new Date(now.getTime() + 30 * 86_400_000);
   const contract = { ...caseContractScope(actor), status: { in: [...openRentContractStatuses] } };
-  const expiring = { gte: now, lt: until };
   const reviewScope = { reviewedAt: null, milestoneMonths: { not: null }, contract };
   const reviewSelect = {
     id: true,
@@ -47,7 +46,7 @@ export async function managerDashboardActivity(
             ],
           },
         ],
-        versions: { some: { status: 'CLEAN', expiresAt: expiring } },
+        versions: { some: { status: 'CLEAN', expiresAt: { lt: until } } },
       },
       select: {
         id: true,
@@ -73,10 +72,10 @@ export async function managerDashboardActivity(
     }))
     .sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime() || a.id.localeCompare(b.id))
     .slice(0, 10);
-  const expiringDocuments = series
+  const documentsWithDeadlines = series
     .flatMap((row) => {
       const latest = row.versions[0];
-      if (!latest?.expiresAt || latest.expiresAt < now || latest.expiresAt >= until) return [];
+      if (!latest?.expiresAt || latest.expiresAt >= until) return [];
       return [
         {
           id: row.id,
@@ -89,9 +88,13 @@ export async function managerDashboardActivity(
       ];
     })
     .sort((a, b) => a.expiresAt.getTime() - b.expiresAt.getTime() || a.id.localeCompare(b.id));
+  const expiringDocuments = documentsWithDeadlines.filter((row) => row.expiresAt > now);
+  const expiredDocuments = documentsWithDeadlines.filter((row) => row.expiresAt <= now).reverse();
   return {
     annualReviews,
     expiringDocuments: expiringDocuments.slice(0, 10),
     expiringDocumentsTotal: expiringDocuments.length,
+    expiredDocuments: expiredDocuments.slice(0, 10),
+    expiredDocumentsTotal: expiredDocuments.length,
   };
 }

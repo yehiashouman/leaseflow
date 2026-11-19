@@ -21,6 +21,11 @@ export async function queueInvitationReminderOnce(now = new Date()) {
           )
         ORDER BY i.expiresAt, i.id LIMIT 1 FOR UPDATE SKIP LOCKED`;
       if (!invitation) return false;
+      const queued = await tx.outboundEmail.findUnique({
+        where: { invitationReminderId: invitation.id },
+        select: { id: true },
+      });
+      if (queued) return false;
       await queueAccountEmail(tx, {
         invitationReminderId: invitation.id,
         recipient: invitation.email,

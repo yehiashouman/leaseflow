@@ -36,6 +36,35 @@ beforeEach(() => {
 });
 
 describe('role-specific dashboards', () => {
+  it('warns the manager about expired documents and links to their unit', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        activity: {
+          annualReviews: [],
+          expiringDocuments: [],
+          expiringDocumentsTotal: 0,
+          expiredDocuments: [
+            {
+              id: 'proof',
+              title: 'Tenancy proof',
+              purpose: 'PROPERTY_DOCUMENT',
+              expiresAt: '2026-10-01T00:00:00Z',
+              unitId: 'unit-1',
+              contractId: null,
+            },
+          ],
+          expiredDocumentsTotal: 1,
+        },
+      },
+    });
+    renderPage(<App />);
+    expect((await screen.findByRole('link', { name: 'Tenancy proof' })).getAttribute('href')).toBe(
+      '/units/unit-1',
+    );
+    expect(screen.getByText('Expired', { exact: true }).getAttribute('data-variant')).toBe(
+      'destructive',
+    );
+  });
   it('loads the admin dashboard without a manager request', async () => {
     auth.user.role = 'ADMIN';
     const get = vi

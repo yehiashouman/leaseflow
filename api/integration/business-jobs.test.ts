@@ -219,12 +219,14 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       const licence = await addSeries(manager, 'LICENSE');
       const property = await addSeries(manager, 'PROPERTY_DOCUMENT', unitId);
       const consent = await addSeries(manager, 'CONSENT', unitId);
+      const expired = await addSeries(manager, 'PROPERTY_DOCUMENT', unitId);
       const other = await addSeries(foreign, 'IDENTITY');
       await addVersion(identity, manager, 'Expiring manager identity');
       await addVersion(licence, manager, 'Expiring manager licence');
       await addVersion(property, manager, 'Old unit document');
       await addVersion(property, manager, 'Current undated unit document', 2, null);
       await addVersion(consent, manager, 'Expiring unit consent');
+      await addVersion(expired, manager, 'Expired unit proof', 1, new Date('2020-01-01'));
       await addVersion(other, foreign, 'Foreign identity');
       const response = await send('GET', '/dashboard/manager');
       expect(response.statusCode, response.body).toBe(200);
@@ -244,9 +246,12 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
         'Expiring unit consent',
       ]);
       expect(activity.expiringDocumentsTotal).toBe(3);
+      expect(activity.expiredDocumentsTotal).toBe(1);
+      expect(activity.expiredDocuments[0].title).toBe('Expired unit proof');
       expect(JSON.stringify(activity)).not.toContain('private-original.png');
       const outside = (await send('GET', '/dashboard/manager', undefined, foreign)).json();
       expect(outside.activity.annualReviews).toEqual([]);
+      expect(outside.activity.expiredDocuments).toEqual([]);
       expect(outside.activity.expiringDocuments).toHaveLength(1);
       expect(outside.activity.expiringDocuments[0].title).toBe('Foreign identity');
     } finally {

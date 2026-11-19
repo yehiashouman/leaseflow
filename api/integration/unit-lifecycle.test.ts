@@ -267,6 +267,48 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
     expect(saved.depositAmount.toString()).toBe('2500');
     expect(saved.currency).toBe('AED');
   });
+  it('blocks new contracts that rely on expired evidence and preserves existing access', async () => {
+    const space = await room();
+    await prisma.unit.update({ where: { id: unitId }, data: { active: true } });
+    const series = await prisma.documentSeries.create({
+      data: { unitId, ownerUserId: owner.id, purpose: 'PROPERTY_DOCUMENT' },
+    });
+    const evidence = (version: number, expiresAt: Date) =>
+      prisma.document.create({
+        data: {
+          seriesId: series.id,
+          version,
+          uploaderUserId: owner.id,
+          clientId: randomUUID(),
+          payloadHash: 'a'.repeat(64),
+          title: 'Proof of tenancy',
+          originalName: 'proof.pdf',
+          mimeType: 'application/pdf',
+          originalSize: 1,
+          sourceHash: 'b'.repeat(64),
+          quarantineKey: randomUUID(),
+          expiresAt,
+          status: 'CLEAN',
+        },
+      });
+    try {
+      const expired = new Date('2020-01-01');
+      await evidence(1, expired);
+      const refused = await proposal(space.id);
+      expect(refused.statusCode, refused.body).toBe(409);
+      expect(refused.json().message).toContain('expired');
+      expect(await prisma.contract.count({ where: { rentalSpaceId: space.id } })).toBe(0);
+      await evidence(2, new Date('2099-01-01'));
+      const accepted = await proposal(space.id);
+      expect(accepted.statusCode, accepted.body).toBe(201);
+      await evidence(3, expired);
+      expect((await send('GET', '/api/v1/contracts/' + accepted.json().id)).statusCode).toBe(200);
+      expect((await send('GET', '/units/' + unitId)).statusCode).toBe(200);
+    } finally {
+      await prisma.document.deleteMany({ where: { seriesId: series.id } });
+      await prisma.documentSeries.delete({ where: { id: series.id } });
+    }
+  });
   it('serializes archive against contract admission without an archived live allocation', async () => {
     const space = await room();
     await prisma.unit.update({ where: { id: unitId }, data: { active: true } });

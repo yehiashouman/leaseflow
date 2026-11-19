@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { caseTypes } from '../cases';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { QueryFeedback } from '@/components/query-feedback';
 import { useAuth } from '../auth';
@@ -55,18 +56,21 @@ type PortfolioDashboard = Record<string, unknown> & {
       space: string;
       unit: string;
     }[];
-    expiringDocuments: {
-      id: string;
-      title: string;
-      purpose: string;
-      expiresAt: string;
-      unitId: string | null;
-      contractId: string | null;
-    }[];
+    expiringDocuments: DocumentDeadline[];
     expiringDocumentsTotal: number;
+    expiredDocuments?: DocumentDeadline[];
+    expiredDocumentsTotal?: number;
   };
   financialBasis?: string;
   deadlineSummary?: { overdue: number; approaching: number };
+};
+type DocumentDeadline = {
+  id: string;
+  title: string;
+  purpose: string;
+  expiresAt: string;
+  unitId: string | null;
+  contractId: string | null;
 };
 const dubaiDate = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dubai', dateStyle: 'medium' });
 const documentLabels: Record<string, string> = {
@@ -254,15 +258,30 @@ function ManagerDashboard() {
             aria-labelledby="document-expiry-activity"
           >
             <h2 id="document-expiry-activity" className="font-semibold">
-              Documents expiring within 30 days
+              Document expiry
             </h2>
+            {!!data.activity.expiredDocumentsTotal && (
+              <p className="text-sm font-medium text-destructive">
+                {data.activity.expiredDocumentsTotal} expired
+                {data.activity.expiredDocumentsTotal > 10 ? ' · Latest 10 shown' : ''}
+              </p>
+            )}
             <p className="text-sm text-muted-foreground">
               {data.activity.expiringDocumentsTotal
-                ? `Showing ${data.activity.expiringDocuments.length} of ${data.activity.expiringDocumentsTotal}`
-                : 'No current documents expire in this period.'}
+                ? `${data.activity.expiringDocumentsTotal} expire within 30 days${data.activity.expiringDocumentsTotal > 10 ? ' · Next 10 shown' : ''}`
+                : 'No documents expire within 30 days.'}
             </p>
             <ul className="divide-y">
-              {data.activity.expiringDocuments.map((document) => (
+              {[
+                ...(data.activity.expiredDocuments ?? []).map((document) => ({
+                  ...document,
+                  expired: true,
+                })),
+                ...data.activity.expiringDocuments.map((document) => ({
+                  ...document,
+                  expired: false,
+                })),
+              ].map((document) => (
                 <li key={document.id} className="grid gap-1 py-2 text-sm">
                   <Link
                     className="break-words text-primary underline"
@@ -276,9 +295,10 @@ function ManagerDashboard() {
                   >
                     {document.title}
                   </Link>
-                  <span>
+                  <span className="flex flex-wrap items-center gap-2">
                     {documentLabels[document.purpose] ?? document.purpose} ·{' '}
                     {dubaiDate.format(new Date(document.expiresAt))}
+                    {document.expired && <Badge variant="destructive">Expired</Badge>}
                   </span>
                 </li>
               ))}

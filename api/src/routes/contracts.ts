@@ -190,11 +190,13 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
       );
     const body = contractCreateSchema.parse(request.body);
     const hash = createHash('sha256').update(JSON.stringify(body)).digest('hex');
-    const manager = await managerProfile(request.user.sub);
     const contract = await prisma
       .$transaction(async (tx) => {
         if (!(await activeAccount(tx, request)))
           throw app.httpErrors.unauthorized('Session is no longer active');
+        const manager = await tx.leasingManagerProfile.findUniqueOrThrow({
+          where: { userId: request.user.sub },
+        });
         const tenant = await tx.tenantProfile.findFirst({
           where: { id: body.tenantId, managerId: manager.id, user: { status: 'ACTIVE' } },
         });
@@ -241,6 +243,51 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
         const depositAmount =
           body.depositAmount ?? new Prisma.Decimal(space.unit.defaultDeposit).toFixed(2);
         const startDate = new Date(body.startDate + 'T00:00:00Z');
+        const validAt = new Date(Math.max(Date.now(), startDate.getTime()));
+        const isExpired = (expiry: Date | null | undefined) => !!expiry && expiry <= validAt;
+        const secondaryExpiry = body.secondaryOccupant
+          ? new Date(body.secondaryOccupant.emiratesIdExpiry)
+          : null;
+        if (isExpired(manager.emiratesIdExpiry) || isExpired(manager.licenseExpiry))
+          throw app.httpErrors.conflict(
+            'Renew the expired manager identity or licence before creating this contract',
+          );
+        if (isExpired(tenant.emiratesIdExpiry) || isExpired(secondaryExpiry))
+          throw app.httpErrors.conflict(
+            'Renew the expired occupant identity before creating this contract',
+          );
+
+        const evidence = await tx.documentSeries.findMany({
+          where: {
+            OR: [
+              { ownerUserId: request.user.sub, purpose: { in: ['IDENTITY', 'LICENSE'] } },
+              { ownerUserId: tenant.userId, purpose: 'IDENTITY' },
+              { unitId: space.unitId, purpose: { in: ['PROPERTY_DOCUMENT', 'CONSENT'] } },
+            ],
+          },
+          select: {
+            ownerUserId: true,
+            purpose: true,
+            versions: {
+              where: { status: 'CLEAN' },
+              orderBy: { version: 'desc' },
+              take: 1,
+              select: { expiresAt: true },
+            },
+          },
+        });
+        const evidenceByPurpose = new Map<string, boolean>();
+        for (const { ownerUserId, purpose, versions } of evidence) {
+          if (!versions[0]) continue;
+          const key = purpose === 'IDENTITY' ? purpose + ':' + ownerUserId : purpose;
+          if (!evidenceByPurpose.get(key))
+            evidenceByPurpose.set(key, !isExpired(versions[0].expiresAt));
+        }
+        if ([...evidenceByPurpose.values()].includes(false))
+          throw app.httpErrors.conflict(
+            'Replace the expired identity, licence, property, or consent document before creating this contract',
+          );
+
         const primaryCipher = tenant.emiratesIdNumber
           ? tenant.emiratesIdNumber.startsWith('sealed:')
             ? tenant.emiratesIdNumber
@@ -264,7 +311,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             dateOfBirth: new Date(body.secondaryOccupant.dateOfBirth),
             nationality: body.secondaryOccupant.nationality,
             identityCipher: sealIdentity(body.secondaryOccupant.emiratesIdNumber),
-            identityExpiry: new Date(body.secondaryOccupant.emiratesIdExpiry),
+            identityExpiry: secondaryExpiry,
             effectiveFrom: startDate,
           });
         const created = await tx.contract.create({

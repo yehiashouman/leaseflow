@@ -20,7 +20,7 @@ Target: the complete initial release in requirements.md.
 | Setup and governance tests             | 12 pass locally and in scheduler CI                                                                                                          |
 | GitHub browser suites                  | 50 pass on the interface revision: four interface fixtures, eighteen preview tests, twenty-six real API journeys, and two real-file journeys |
 | Current verified browser coverage      | Accounts, invitations, private files, occupants, expenses, receipts, preferences, notices, role boundaries, and operational cases            |
-| MySQL suites                           | 204 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
+| MySQL suites                           | 205 pass on MySQL 8.4 in GitHub Actions                                                                                                      |
 | Fresh-stack Docker acceptance          | Pass: zero-user startup, explicit demo, proxy login, password and volume persistence after restart.                                          |
 | Local builds                           | API, web production, and isolated preview pass                                                                                               |
 | Local lint                             | API, integration sources, and web pass                                                                                                       |
@@ -45,6 +45,7 @@ Twelve setup/governance tests pass locally after the evidence update. Rent dashb
 Manager reviews and expiry alerts pass MySQL and live browser verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
 Tenant rental terms pass MySQL and live browser verification. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
 The deferred review reminder passes MySQL and desktop and mobile verifications. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44586380402).
+Invitation reminders and the 10 MiB upload default pass the account and private-file suites. [CI evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44587620306).
 Cash-only financial reports require expense payment dates and verified completeness. The existing rent receipts use actual payment dates.
 Production activation, finance, provider delivery, retention, MFA, moderation, and full initial-release acceptance remain incomplete.
 

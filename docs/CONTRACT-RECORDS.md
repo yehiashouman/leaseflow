@@ -70,5 +70,8 @@ Notice defaults to 30 days and permits explicit exceptions.
 The server copies a matching-currency unit deposit once, unless the manager supplies an explicit deposit.
 Cross-currency setup requires an explicit deposit.
 Tenant views exclude manager draft contracts, private owner costs, raw identity numbers, and storage keys.
+The contract form blocks new contracts that rely on expired identity, licence, property, or consent evidence under DEC-15.
+The check uses the later of the current time and the contract start date. A current clean replacement satisfies the same evidence purpose.
+Managers verify expiry errors in the contract form. Existing contracts and account access remain available.
 Proration uses decimal arithmetic and rounds the final amount once to the nearest cent, with ties away from zero.
 Production activation remains gated by the unresolved financial and acknowledgement decisions.

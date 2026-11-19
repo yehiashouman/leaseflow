@@ -635,3 +635,9 @@ Verified 19 November 2026, Asia/Dubai. [Implementation commit](https://github.co
 Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44586380402).
 
 - **CON-014:** MySQL verifies one reminder per deferral at the Dubai date boundary, even with concurrent workers. A later deferral replaces the old date. A final decision cancels the pending reminder. The anniversary schedule supplies the next reminder after a no-change decision.
+
+## Invitation Reminder and Upload Limit
+
+Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44587620306).
+
+- **DEC-18 implementation:** The account worker queues one reminder at 48 hours, reschedules unsent mail if an invitation receives a later expiry, and skips revoked invitations. MySQL verifies the deadline, concurrent queue runs, and suppressed delivery. The API defaults to a 10 MiB upload limit. The private-file suite passes on desktop and mobile.
