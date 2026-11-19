@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { previewMode } from '../session';
-import { caseTypes, type CaseContract, type CaseRecord } from '../cases';
+import { caseTypes, type CaseContract, type RequestCategory, type CaseRecord } from '../cases';
 import { RecordEditor } from './record-editor';
 import { QueryFeedback, CachedQueryNotice } from './query-feedback';
 import { Button } from './ui/button';
@@ -20,17 +20,25 @@ export function CaseEditor({
   const key = useRef(crypto.randomUUID());
   const [contractId, setContractId] = useState('');
   const [type, setType] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const options = useQuery({
     queryKey: ['case-options', key.current],
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     queryFn: ({ signal }) =>
       api
-        .get<{ types: string[]; contracts: CaseContract[] }>('/requests/options', { signal })
+        .get<{ types: string[]; contracts: CaseContract[]; categories?: RequestCategory[] }>(
+          '/requests/options',
+          { signal },
+        )
         .then((response) => response.data),
   });
   const selectedContract = contractId || options.data?.contracts[0]?.id;
   const selectedType = type || options.data?.types[0];
+  const categoryChoices = (options.data?.categories ?? []).filter(
+    (category) => category.type === selectedType,
+  );
+  const category = categoryChoices.find((item) => item.id === categoryId);
   const isComplaint = selectedType === 'NEIGHBOR_COMPLAINT';
   const isKeyLock = selectedType === 'KEY_LOCK_CHANGE';
   const relatedOccupants = useQuery({
@@ -106,7 +114,10 @@ export function CaseEditor({
           label: 'Request type',
           value: options.data.types[0],
           required: true,
-          onChange: setType,
+          onChange: (value) => {
+            setType(value);
+            setCategoryId('');
+          },
           options: options.data.types.map((type) => ({
             value: type,
             label: caseTypes[type] ?? type,
@@ -139,7 +150,32 @@ export function CaseEditor({
           required: true,
           maxLength: 5000,
         },
-        { name: 'category', errorPath: 'metadata.category', label: 'Category', maxLength: 100 },
+        ...(categoryChoices.length
+          ? [
+              {
+                name: 'category-' + selectedType,
+                errorPath: 'configuredCategory',
+                label: 'Category',
+                onChange: setCategoryId,
+                options: [
+                  { value: '', label: 'No category' },
+                  ...categoryChoices.map(({ id, name }) => ({ value: id, label: name })),
+                ],
+              },
+            ]
+          : []),
+        ...(category?.prompt
+          ? [
+              {
+                name: 'answer-' + category.id,
+                errorPath: 'configuredCategory.answer',
+                label: category.prompt,
+                required: category.answerRequired,
+                type: 'textarea',
+                maxLength: 2000,
+              },
+            ]
+          : []),
         { name: 'draft', label: 'Save as private draft', type: 'checkbox' },
         {
           name: 'urgency',
@@ -160,7 +196,15 @@ export function CaseEditor({
           type: form.get('type'),
           title: form.get('title'),
           description: form.get('description'),
-          category: form.get('category') || null,
+          ...(category
+            ? {
+                configuredCategory: {
+                  id: category.id,
+                  version: category.version,
+                  answer: form.get('answer-' + category.id) || null,
+                },
+              }
+            : {}),
           urgency: form.get('urgency'),
           ...(involvedOccupantId ? { involvedOccupantId } : {}),
           draft: form.has('draft'),

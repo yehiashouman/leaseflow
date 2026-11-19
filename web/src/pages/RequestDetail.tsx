@@ -154,6 +154,14 @@ export function RequestDetail() {
             {data.contract?.tenant?.fullName ? ' / ' + data.contract.tenant.fullName : ''}
           </p>
           {data.metadata?.category && <p className="text-sm">{data.metadata.category}</p>}
+          {data.metadata?.categorySnapshot?.prompt && (
+            <dl className="space-y-1 text-sm">
+              <dt className="font-medium">{data.metadata.categorySnapshot.prompt}</dt>
+              <dd className="whitespace-pre-wrap break-words">
+                {data.metadata.categorySnapshot.answer ?? 'No answer recorded'}
+              </dd>
+            </dl>
+          )}
           {data.metadata?.involvedOccupant && (
             <p className="text-sm">Involved occupant: {data.metadata.involvedOccupant.label}</p>
           )}

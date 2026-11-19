@@ -37,6 +37,14 @@ const createSchema = z
     title: z.string().trim().min(3).max(160),
     description: z.string().trim().min(3).max(5000),
     category: z.string().trim().max(100).nullable().optional(),
+    configuredCategory: z
+      .object({
+        id: z.string().min(1).max(191),
+        version: z.number().int().positive(),
+        answer: z.string().trim().max(2000).nullable(),
+      })
+      .strict()
+      .optional(),
     urgency: z.enum(['NORMAL', 'URGENT']).default('NORMAL'),
     draft: z.boolean().default(false),
     involvedOccupantId: z
@@ -45,6 +53,10 @@ const createSchema = z
       .optional(),
   })
   .strict()
+  .refine((body) => !body.configuredCategory || !body.category, {
+    path: ['configuredCategory'],
+    message: 'Select a configured category or provide a legacy category.',
+  })
   .refine((body) => !body.involvedOccupantId || body.type === 'NEIGHBOR_COMPLAINT', {
     path: ['involvedOccupantId'],
     message: 'Select an occupant only for a neighbor complaint.',
@@ -115,6 +127,18 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
   });
   app.get('/options', { preHandler: allowRoles('TENANT') }, async (request) => ({
     types: basicCaseTypes,
+    categories: await prisma.requestCategory.findMany({
+      where: { active: true, type: { in: [...basicCaseTypes] } },
+      orderBy: [{ type: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+      select: {
+        id: true,
+        type: true,
+        version: true,
+        name: true,
+        prompt: true,
+        answerRequired: true,
+      },
+    }),
     contracts: await prisma.contract.findMany({
       where: {
         ...caseContractScope(request.user),
@@ -165,7 +189,11 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             existing.type !== body.type ||
             existing.title !== body.title ||
             existing.description !== body.description ||
-            (previous.category ?? null) !== metadata.category ||
+            (!body.configuredCategory && (previous.category ?? null) !== metadata.category) ||
+            previous.categorySnapshot?.id !== body.configuredCategory?.id ||
+            previous.categorySnapshot?.version !== body.configuredCategory?.version ||
+            (previous.categorySnapshot?.answer ?? null) !==
+              (body.configuredCategory?.answer || null) ||
             previous.urgency !== metadata.urgency ||
             previous.involvedOccupant?.id !== body.involvedOccupantId ||
             (existing.events[0]?.kind === 'DRAFT_CREATED') !== body.draft
@@ -187,6 +215,27 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
           : undefined;
         if (body.involvedOccupantId && !involvedOccupant)
           throw app.httpErrors.unprocessableEntity('Select an occupant from the current unit.');
+        let categorySnapshot;
+        if (body.configuredCategory) {
+          const { id, version, answer } = body.configuredCategory;
+          const category = await tx.requestCategory.findFirst({
+            where: { id, version, type: body.type, active: true },
+            select: { id: true, version: true, name: true, prompt: true, answerRequired: true },
+          });
+          if (!category)
+            throw app.httpErrors.conflict(
+              'The category changed. Reopen the form and select a category.',
+            );
+          if ((category.answerRequired && !answer) || (!category.prompt && answer))
+            throw app.httpErrors.unprocessableEntity('Verify the answer to the category question.');
+          categorySnapshot = {
+            id,
+            version,
+            name: category.name,
+            prompt: category.prompt,
+            answer: answer || null,
+          };
+        }
         const created = await tx.request.create({
           data: {
             contractId: body.contractId,
@@ -196,7 +245,11 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             description: body.description,
             status: body.draft ? 'DRAFT' : 'SUBMITTED',
             version: 1,
-            metadata: { ...metadata, ...(involvedOccupant ? { involvedOccupant } : {}) },
+            metadata: {
+              ...metadata,
+              ...(categorySnapshot ? { category: categorySnapshot.name, categorySnapshot } : {}),
+              ...(involvedOccupant ? { involvedOccupant } : {}),
+            },
             events: {
               create: {
                 ...actor,

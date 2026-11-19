@@ -939,15 +939,20 @@
     {
       "id": "CASE-017",
       "requirement": "Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/prisma/schema.prisma",
         "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "api/src/case-data.ts",
+        "api/src/case-report.ts",
+        "web/src/pages/RequestDetail.tsx",
+        "web/src/components/case-editor.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
+      "tests": ["api/integration/cases.test.ts", "web/src/cases.test.tsx"],
       "decisions": [],
-      "note": "Generic key/lock history and urgency exist; structured authorization and complete cost-responsibility/completion fields remain incomplete."
+      "note": "Requests record the reason and urgency. Authorized manager decisions preserve authorization, cost responsibility, and evidence of completion in private history and PDF exports.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44613736796",
+      "commit": "41085277db5a14cad49b1573e4ad8f499db3b787",
+      "verified": "2026-11-20"
     },
     {
       "id": "CASE-018",

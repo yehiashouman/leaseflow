@@ -98,3 +98,7 @@ Generic case decisions never change rent, payment, deposit, transfer, or move-ou
 ## Key and lock changes
 
 The reason and security urgency are part of the original submission. An approval records who has authorization and what the authorization covers. Resolution records authorization, cost responsibility, and evidence of completion. Participants can add private evidence files to the case. Case history and PDF exports preserve manager decisions and recorded evidence text. The cost classification does not create a charge, receipt, or deposit entry.
+
+## Request categories
+
+Administrators in development and preview can add, edit, or deactivate request categories at `/admin/request-categories`. Each category belongs to one operational request type and can include one optional or required tenant question. Tenants see active categories for the selected type. The request stores the selected category version, name, question, and answer. Changing or deactivating a category applies to future selections. Existing requests and exact submission retries retain their original facts. Production category edits require administrator MFA.

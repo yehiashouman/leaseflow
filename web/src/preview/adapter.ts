@@ -16,6 +16,7 @@ type PreviewStore = {
   units: RecordData[];
   contracts: RecordData[];
   requests: RecordData[];
+  requestCategories?: RecordData[];
   revokedSessions?: string[];
   profile?: RecordData;
   readNotices?: Record<string, string>;
@@ -478,6 +479,63 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
   }
   if (path.startsWith('/admin/')) {
     if (role !== 'ADMIN') return fail('Insufficient permissions', 403);
+    const categoryPath = path.match(/^\/admin\/request-categories(?:\/([^/]+))?$/);
+    if (categoryPath) {
+      const rows = store.requestCategories ?? [];
+      if (!categoryPath[1] && method === 'get') {
+        const page = Number(config.params?.page ?? 1);
+        const sorted = [...rows].sort(
+          (a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name),
+        );
+        return respond({
+          items: sorted.slice((page - 1) * 20, page * 20),
+          total: rows.length,
+          page,
+          pageSize: 20,
+          editable: true,
+        });
+      }
+      const updating = method === 'patch';
+      if ((updating && !categoryPath[1]) || (!updating && (categoryPath[1] || method !== 'post')))
+        return fail('Record not found', 404);
+      const old = rows.find((row) => row.id === categoryPath[1]);
+      if (updating && !old) return fail('Request category not found.', 404);
+      if (old && old.version !== data.expectedVersion)
+        return fail('The category changed. Reload and retry.', 409);
+      const name = typeof data.name === 'string' ? data.name.trim() : '';
+      const prompt = typeof data.prompt === 'string' ? data.prompt.trim() : null;
+      if (
+        !previewCaseTypes.includes(data.type) ||
+        name.length < 2 ||
+        name.length > 100 ||
+        (prompt !== null && (prompt.length < 3 || prompt.length > 200)) ||
+        typeof data.active !== 'boolean' ||
+        typeof data.answerRequired !== 'boolean' ||
+        (data.answerRequired && !prompt)
+      )
+        return fail('Verify the category fields.', 422);
+      if (
+        rows.some(
+          (row) =>
+            row.id !== old?.id &&
+            row.type === data.type &&
+            row.name.toLowerCase() === name.toLowerCase(),
+        )
+      )
+        return fail('That request type already has a category with this name.', 409);
+      const row = {
+        id: old?.id ?? crypto.randomUUID(),
+        type: data.type,
+        name,
+        prompt,
+        answerRequired: data.answerRequired,
+        active: data.active,
+        version: (old?.version ?? 0) + 1,
+      };
+      store.requestCategories = [...rows.filter((entry) => entry.id !== row.id), row];
+      localStorage.setItem(storageKey, JSON.stringify(store));
+      return respond(row, updating ? 200 : 201);
+    }
     if (method !== 'get')
       return fail('Account moderation requires approved MFA and identity/document policies', 409);
     const manager = {
@@ -774,6 +832,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       if (role !== 'TENANT') return fail('Insufficient permissions', 403);
       return respond({
         types: previewCaseTypes,
+        categories: (store.requestCategories ?? []).filter((row) => row.active),
         contracts: store.contracts
           .filter((contract) =>
             ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status),
@@ -811,6 +870,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
               'title',
               'description',
               'category',
+              'configuredCategory',
               'urgency',
               'draft',
             ].includes(key),
@@ -830,6 +890,19 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         return fail('Verify the request fields.', 422);
       const contract = store.contracts.find((item) => item.id === data.contractId);
       if (!contract) return fail('Contract not found', 404);
+      const selection = data.configuredCategory;
+      const answer = typeof selection?.answer === 'string' ? selection.answer.trim() || null : null;
+      if (
+        selection !== undefined &&
+        (!selection ||
+          typeof selection.id !== 'string' ||
+          !Number.isInteger(selection.version) ||
+          selection.version < 1 ||
+          (selection.answer !== null && typeof selection.answer !== 'string') ||
+          (answer?.length ?? 0) > 2000 ||
+          data.category)
+      )
+        return fail('Verify the selected category fields.', 422);
       const content = {
         type: data.type,
         title: data.title.trim(),
@@ -843,18 +916,48 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         if ((record.events?.[0]?.kind === 'DRAFT_CREATED') !== Boolean(data.draft))
           return fail('Submission key reused with different content', 409);
         if (
-          Object.entries(content).some(
-            ([key, value]) => JSON.stringify(record![key]) !== JSON.stringify(value),
-          )
+          record.type !== content.type ||
+          record.title !== content.title ||
+          record.description !== content.description ||
+          record.metadata?.urgency !== content.metadata.urgency ||
+          (!selection && record.metadata?.category !== content.metadata.category) ||
+          record.metadata?.categorySnapshot?.id !== selection?.id ||
+          record.metadata?.categorySnapshot?.version !== selection?.version ||
+          (record.metadata?.categorySnapshot?.answer ?? null) !== answer
         )
           return fail('Submission key reused with different content', 409);
       } else {
         if (!['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status))
           return fail('A new request requires an open contract', 409);
+        let categoryMetadata = {};
+        if (selection) {
+          const category = (store.requestCategories ?? []).find(
+            (row) =>
+              row.active &&
+              row.id === selection.id &&
+              row.version === selection.version &&
+              row.type === data.type,
+          );
+          if (!category)
+            return fail('The category changed. Reopen the form and select a category.', 409);
+          if ((category.answerRequired && !answer) || (!category.prompt && answer))
+            return fail('Verify the answer to the category question.', 422);
+          categoryMetadata = {
+            category: category.name,
+            categorySnapshot: {
+              id: category.id,
+              version: category.version,
+              name: category.name,
+              prompt: category.prompt,
+              answer,
+            },
+          };
+        }
         const now = new Date().toISOString();
         record = {
           id: crypto.randomUUID(),
           ...content,
+          metadata: { ...content.metadata, ...categoryMetadata },
           contractId: contract.id,
           clientId: data.clientId,
           status: data.draft ? 'DRAFT' : 'SUBMITTED',

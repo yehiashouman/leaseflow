@@ -402,6 +402,18 @@ model DepositEntry {
   createdAt DateTime @default(now())
 }
 
+model RequestCategory {
+  id String @id @default(cuid())
+  type RequestType
+  name String @db.VarChar(100)
+  prompt String? @db.VarChar(200)
+  answerRequired Boolean @default(false)
+  active Boolean @default(true)
+  version Int @default(1)
+  @@unique([type, name])
+  @@index([active, type, name])
+}
+
 model Request {
   id String @id @default(cuid())
   contractId String

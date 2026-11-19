@@ -676,3 +676,9 @@ Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leasefl
 Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44612582983).
 
 - **UX-014:** Contract, case, occupant, manager, and dashboard dates show Dubai time where relevant. Expense dates identify UTC. Payment amounts retain their recorded currency.
+
+## Key and Lock Case Decisions
+
+Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44613736796).
+
+- **CASE-017:** Requests record the reason and urgency. Authorized manager decisions preserve authorization, cost responsibility, and evidence of completion in private history and PDF exports.

@@ -4,8 +4,8 @@ Date: 20 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 114 additional verified requirements; 301 of 764 overall (39.40%).
-The target is not complete: 58 partial and 28 blocked requirements remain in this batch.
+Current result: 115 additional verified requirements; 302 of 764 overall (39.53%).
+The target is not complete: 57 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -78,6 +78,8 @@ Complaint Occupant Selection and List API: [MySQL and application evidence](http
 
 Currency and Timezone Labels: [Component and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44612582983). [Pages publication](https://github.com/yehiashouman/leaseflow/actions/runs/44612583135).
 
+Key and Lock Case Decisions: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44613736796).
+
 ## Complete 200-Item Matrix
 
 Code paths, test paths, commits, dates, and evidence appear in [batch-200.json](batch-200.json).
@@ -113,7 +115,7 @@ Only VERIFIED rows receive completion credit.
 | CASE-013           | PARTIAL  | Operational reopening preserves past resolution; the complete initial-release case inventory remains incomplete.                                                                                                      |
 | CASE-014           | PARTIAL  | Complaints remain private to their actual participants; authorized support access and impersonation controls remain incomplete.                                                                                       |
 | CASE-015           | VERIFIED | Tenants can select a current occupant of the same unit in a neighbor complaint. The case retains the label, rejects unauthorized selections, and keeps case access private.                                           |
-| CASE-017           | PARTIAL  | Generic key/lock history and urgency exist; structured authorization and complete cost-responsibility/completion fields remain incomplete.                                                                            |
+| CASE-017           | VERIFIED | Requests record the reason and urgency. Authorized manager decisions preserve authorization, cost responsibility, and evidence of completion in private history and PDF exports.                                      |
 | CASE-018           | PARTIAL  | General request history persists; administrator-managed categories and configurable general-request forms remain incomplete.                                                                                          |
 | MAINT-009          | BLOCKED  | Responsibility proposals preserve acceptance; direct charges and deposit deduction workflows remain incomplete and gated.                                                                                             |
 | MAINT-010          | BLOCKED  | Neither automatic charge nor deposit posting exists; cross-route recovery invariants require both complete financial workflows.                                                                                       |

@@ -29,6 +29,15 @@ export type CaseEvent = {
   fromStatus?: string | null;
   sequence?: number | null;
 };
+export type RequestCategory = {
+  id: string;
+  version: number;
+  type: string;
+  name: string;
+  prompt: string | null;
+  answerRequired: boolean;
+  active?: boolean;
+};
 export type CaseRecord = {
   id: string;
   contractId: string;
@@ -43,6 +52,7 @@ export type CaseRecord = {
   decisionDueAt?: string | null;
   metadata?: {
     category?: string | null;
+    categorySnapshot?: { name: string; prompt: string | null; answer: string | null };
     urgency?: string;
     involvedOccupant?: { id: string; label: string };
   };

@@ -25,6 +25,7 @@ import { inventoryRoutes } from './routes/inventory.js';
 import { contractRoutes } from './routes/contracts.js';
 import { paymentRoutes } from './routes/payments.js';
 import { requestRoutes } from './routes/requests.js';
+import { requestCategoryRoutes } from './routes/request-categories.js';
 import { dashboardRoutes } from './routes/dashboard.js';
 import { adminRoutes } from './routes/admin.js';
 import { profileRoutes } from './routes/profile.js';
@@ -125,6 +126,7 @@ export async function buildApp() {
   await app.register(maintenanceRoutes, { prefix: '/api/v1/requests' });
   await app.register(dashboardRoutes, { prefix: '/api/v1/dashboard' });
   await app.register(adminRoutes, { prefix: '/api/v1/admin' });
+  await app.register(requestCategoryRoutes, { prefix: '/api/v1/admin/request-categories' });
   await app.register(profileRoutes, { prefix: '/api/v1/profile' });
   await app.register(tenantRoutes, { prefix: '/api/v1/tenants' });
   await app.register(notificationRoutes, { prefix: '/api/v1/notifications' });

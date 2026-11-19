@@ -8,6 +8,40 @@ const manager = client('LEASING_MANAGER');
 const admin = client('ADMIN');
 beforeEach(resetPreview);
 describe('synthetic case workflow', () => {
+  it('applies admin category changes to new preview requests and preserves original answers', async () => {
+    const path = '/admin/request-categories';
+    const input = {
+      type: 'GENERAL',
+      name: 'Building access',
+      prompt: 'Which entrance needs attention?',
+      answerRequired: true,
+      active: true,
+    };
+    await expect(tenant.post(path, input)).rejects.toMatchObject({ response: { status: 403 } });
+    const category = (await admin.post(path, input)).data;
+    expect((await admin.get(path)).data).toMatchObject({ editable: true, total: 1 });
+    expect((await tenant.get('/requests/options')).data.categories[0].id).toBe(category.id);
+    const request = {
+      contractId: 'contract-1',
+      clientId: crypto.randomUUID(),
+      type: 'GENERAL',
+      title: 'Access report',
+      description: 'The entry needs a sign.',
+      configuredCategory: { id: category.id, version: 1, answer: 'Main entrance' },
+    };
+    const created = (await tenant.post('/requests', request)).data;
+    await admin.patch(path + '/' + category.id, { ...input, active: false, expectedVersion: 1 });
+    expect((await tenant.get('/requests/options')).data.categories).toHaveLength(0);
+    const history = (await manager.get('/requests/' + created.id)).data;
+    expect(history.metadata.categorySnapshot).toMatchObject({
+      name: input.name,
+      answer: 'Main entrance',
+    });
+    expect((await tenant.post('/requests', request)).data.id).toBe(created.id);
+    await expect(
+      tenant.post('/requests', { ...request, clientId: crypto.randomUUID() }),
+    ).rejects.toMatchObject({ response: { status: 409 } });
+  });
   it('keeps draft requests private until an explicit tenant submission', async () => {
     const draft = (
       await tenant.post('/requests', {

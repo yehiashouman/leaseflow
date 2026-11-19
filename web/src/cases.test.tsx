@@ -56,6 +56,43 @@ function page(element: React.ReactNode, path = '/requests/r1') {
   );
 }
 describe('private case interfaces', () => {
+  it('lets a tenant select a configured category and answer its required question', async () => {
+    const category = {
+      id: 'category-1',
+      version: 3,
+      type: 'GENERAL',
+      name: 'Shared amenities',
+      prompt: 'Which amenity needs attention?',
+      answerRequired: true,
+    };
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        types: ['MAINTENANCE', 'GENERAL'],
+        contracts: [{ id: 'c1', rentalSpace: { name: 'Room A', unit: { name: 'Unit 1' } } }],
+        categories: [category],
+      },
+    });
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ data: sample() });
+    page(<CaseEditor onClose={vi.fn()} onCreated={vi.fn()} />);
+    const user = userEvent.setup();
+    expect(screen.queryByLabelText('Category')).toBeNull();
+    await user.selectOptions(await screen.findByLabelText('Request type *'), 'GENERAL');
+    await user.selectOptions(await screen.findByLabelText('Category'), category.id);
+    await user.type(await screen.findByLabelText(category.prompt + ' *'), 'The shared laundry');
+    await user.type(screen.getByLabelText('Title *'), 'Laundry access');
+    await user.type(screen.getByLabelText('Description *'), 'We need a working access schedule.');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(post).toHaveBeenCalledWith(
+      '/requests',
+      expect.objectContaining({
+        configuredCategory: {
+          id: category.id,
+          version: category.version,
+          answer: 'The shared laundry',
+        },
+      }),
+    );
+  });
   it('offers an occupant for a neighbor complaint and submits the opaque selection', async () => {
     const id = 's'.repeat(43);
     vi.spyOn(api, 'get').mockImplementation(async (url) => ({

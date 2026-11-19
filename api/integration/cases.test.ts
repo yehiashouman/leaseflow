@@ -99,6 +99,72 @@ describe('MySQL private operational case workflow', () => {
       },
     });
   });
+  it('lets only admins configure case categories and preserves tenant answers after category changes', async () => {
+    const settings = '/api/v1/admin/request-categories';
+    const input = {
+      type: 'GENERAL',
+      name: 'Case category ' + randomUUID(),
+      prompt: 'Which access procedure needs a review?',
+      answerRequired: true,
+      active: true,
+    };
+    expect((await send('POST', settings, input, manager)).statusCode).toBe(403);
+    const added = await send('POST', settings, input, admin);
+    expect(added.statusCode, added.body).toBe(201);
+    const category = added.json();
+    try {
+      expect((await send('GET', settings, undefined, tenant)).statusCode).toBe(403);
+      const options = (await send('GET', '/options')).json();
+      expect(options.categories).toContainEqual(
+        expect.objectContaining({ id: category.id, name: input.name, prompt: input.prompt }),
+      );
+      const selection = { id: category.id, version: 1, answer: 'The shared entrance procedure.' };
+      const payload = {
+        ...submission(),
+        type: 'GENERAL',
+        category: null,
+        configuredCategory: selection,
+      };
+      const incomplete = { ...payload, configuredCategory: { ...selection, answer: null } };
+      expect((await send('POST', '', incomplete)).statusCode).toBe(422);
+      expect((await send('POST', '', { ...payload, type: 'MAINTENANCE' })).statusCode).toBe(409);
+      const submitted = await send('POST', '', payload);
+      expect(submitted.statusCode, submitted.body).toBe(201);
+      const request = submitted.json();
+      const original = { ...selection, name: input.name, prompt: input.prompt };
+      expect(request.metadata.categorySnapshot).toEqual(original);
+      const changed = {
+        ...input,
+        name: input.name + ' revised',
+        prompt: 'Which building rule needs review?',
+        active: false,
+        expectedVersion: 1,
+      };
+      const edited = await send('PATCH', settings + '/' + category.id, changed, admin);
+      expect(edited.statusCode, edited.body).toBe(200);
+      expect(edited.json()).toMatchObject({ version: 2, active: false });
+      expect((await send('PATCH', settings + '/' + category.id, changed, admin)).statusCode).toBe(
+        409,
+      );
+      const current = (await send('GET', '/options')).json();
+      expect(
+        current.categories.find((item: { id: string }) => item.id === category.id),
+      ).toBeUndefined();
+      const history = await send('GET', '/' + request.id, undefined, manager);
+      expect(history.json().metadata.categorySnapshot).toEqual(original);
+      expect((await send('GET', '/' + request.id, undefined, roommate)).statusCode).toBe(404);
+      expect((await send('POST', '', payload)).json().id).toBe(request.id);
+      expect((await send('POST', '', { ...payload, clientId: randomUUID() })).statusCode).toBe(409);
+      expect(
+        await prisma.auditEvent.count({
+          where: { entityType: 'RequestCategory', entityId: category.id },
+        }),
+      ).toBe(2);
+    } finally {
+      await prisma.requestCategory.delete({ where: { id: category.id } });
+    }
+  });
+
   it('preserves key or lock authorization, cost and completion evidence under the case scope', async () => {
     const created = await send('POST', '', {
       ...submission(),

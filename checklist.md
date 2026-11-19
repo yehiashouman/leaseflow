@@ -400,7 +400,7 @@ Requirements: 9, 22-25.
 - [ ] **CASE-014** Restrict sensitive complaint details to the relevant tenant, manager, and authorized support.
 - [x] **CASE-015** Allow the complainant to select an involved occupant when known. [Evidence](docs/EVIDENCE.md#complaint-occupant-selection-and-list-api).
 - [x] **CASE-016** Record complaint evidence and manager communication/actions. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **CASE-017** Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence.
+- [x] **CASE-017** Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence. [Evidence](docs/EVIDENCE.md#key-and-lock-case-decisions).
 - [ ] **CASE-018** Keep general requests configurable without loss of event history.
 
 ## 16. Maintenance and Cost Responsibility

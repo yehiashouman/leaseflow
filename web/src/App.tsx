@@ -44,6 +44,7 @@ import { Contracts } from './pages/Contracts';
 import { ContractDetail } from './pages/ContractDetail';
 import { Requests } from './pages/Requests';
 import { RequestDetail } from './pages/RequestDetail';
+import { RequestCategories } from './pages/RequestCategories';
 import { Landlords } from './pages/Landlords';
 import { LandlordDetail } from './pages/LandlordDetail';
 import { UnitDetail } from './pages/UnitDetail';
@@ -77,6 +78,7 @@ const navigation = [
   { to: '/delivery', label: 'Delivery status', icon: Send },
   { to: '/notifications', label: 'Notifications', icon: Bell },
   { to: '/admin/managers', label: 'Account review', icon: Shield },
+  { to: '/admin/request-categories', label: 'Request categories', icon: Inbox },
   { to: '/admin/business-jobs', label: 'Scheduled jobs', icon: Shield },
   { to: '/admin/operations', label: 'Job status', icon: Activity },
   { to: '/admin/audit', label: 'Audit history', icon: FileText },
@@ -127,7 +129,13 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
     },
     {
       title: 'Administration',
-      paths: ['/admin/managers', '/admin/business-jobs', '/admin/operations', '/admin/audit'],
+      paths: [
+        '/admin/managers',
+        '/admin/request-categories',
+        '/admin/business-jobs',
+        '/admin/operations',
+        '/admin/audit',
+      ],
     },
     { title: 'Account', paths: ['/profile', '/preferences', '/security'] },
   ];
@@ -348,6 +356,7 @@ export default function App() {
               <Route path="admin/managers/:id" element={<ManagerDetail />} />
               <Route path="admin/business-jobs" element={<BusinessJobs />} />
               <Route path="admin/operations" element={<Operations />} />
+              <Route path="admin/request-categories" element={<RequestCategories />} />
               <Route path="admin/audit" element={<AdminAudit />} />
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>

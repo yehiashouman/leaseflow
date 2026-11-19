@@ -90,6 +90,15 @@ export const caseSelect = {
 const safeMetadata = z.object({
   category: z.string().max(100).nullable().optional(),
   urgency: z.enum(['NORMAL', 'URGENT']).optional(),
+  categorySnapshot: z
+    .object({
+      id: z.string().max(191),
+      version: z.number().int(),
+      name: z.string().max(100),
+      prompt: z.string().max(200).nullable(),
+      answer: z.string().max(2000).nullable(),
+    })
+    .optional(),
   involvedOccupant: z
     .object({ id: z.string().regex(/^[A-Za-z0-9_-]{43}$/), label: z.string().max(166) })
     .optional(),
