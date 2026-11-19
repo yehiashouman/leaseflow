@@ -792,8 +792,22 @@ model OutboundEmail {
   user User? @relation(fields: [userId], references: [id], onDelete: Restrict)
   invitationReminderId String? @unique(map: "OutboundEmail_invitation_reminder_key")
   invitationReminder TenantInvitation? @relation(fields: [invitationReminderId], references: [id], onDelete: Restrict, map: "OutboundEmail_invitation_reminder_fk")
+  attemptLog OutboundEmailAttempt[]
   @@index([status, nextAttemptAt, createdAt])
   @@index([userId, createdAt])
+}
+
+model OutboundEmailAttempt {
+  leaseToken String @id @db.VarChar(36)
+  emailId String
+  number Int
+  status ReportStatus @default(RUNNING)
+  failureCode String? @db.VarChar(80)
+  providerId String? @db.VarChar(191)
+  startedAt DateTime
+  finishedAt DateTime?
+  email OutboundEmail @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  @@index([emailId, startedAt])
 }
 
 model PhoneChallenge {

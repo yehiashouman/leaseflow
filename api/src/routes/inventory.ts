@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import type { Prisma } from '@prisma/client';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { activeAccount } from '../account-data.js';
 import { allowRoles } from '../auth.js';
@@ -12,6 +13,26 @@ import {
 } from '../space-availability.js';
 
 const text = (max: number) => z.string().trim().max(max).nullable().optional();
+const unitDeclaration = {
+  version: 'unit-details-v1',
+  text: 'I confirm the property and authorization information is genuine and legally sufficient.',
+};
+const activationDeclaration = {
+  version: 'unit-activation-v1',
+  text: 'I confirm this evidence is current and I am authorized to let this unit',
+};
+function acceptedDeclaration(
+  request: FastifyRequest,
+  declaration: typeof unitDeclaration,
+  acceptedAt: Date | null,
+) {
+  return {
+    version: declaration.version,
+    textHash: createHash('sha256').update(declaration.text).digest('hex'),
+    acceptedAt,
+    sessionId: request.user.sid,
+  };
+}
 const money = z.coerce
   .number()
   .finite()
@@ -64,6 +85,7 @@ export const unitSchema = z
       .catchall(z.json())
       .optional(),
     declarationAccepted: z.literal(true),
+    declarationVersion: z.literal(unitDeclaration.version).default(unitDeclaration.version),
   })
   .strict();
 export const spaceSchema = z
@@ -313,8 +335,13 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
     return unit;
   });
   app.post('/units', { preHandler: managerOnly }, async (request, reply) => {
-    const { declarationAccepted: _declaration, ...body } = unitSchema.parse(request.body);
+    const {
+      declarationAccepted: _declaration,
+      declarationVersion: _version,
+      ...body
+    } = unitSchema.parse(request.body);
     void _declaration;
+    void _version;
     const owner = await managerId(request.user.sub);
     const item = await prisma.$transaction(async (tx) => {
       if (!(await activeAccount(tx, request)))
@@ -324,15 +351,24 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
         data: { ...body, managerId: owner, active: false, declarationAcceptedAt: new Date() },
         include: unitInclude(owner),
       });
-      await recordAudit(tx, request, 'CREATE', 'Unit', created);
+      const snapshot = {
+        ...created,
+        declaration: acceptedDeclaration(request, unitDeclaration, created.declarationAcceptedAt),
+      };
+      await recordAudit(tx, request, 'CREATE', 'Unit', snapshot);
       return created;
     });
     return reply.code(201).send(item);
   });
   app.patch('/units/:id', { preHandler: managerOnly }, async (request) => {
     const { id } = z.object({ id: z.string() }).parse(request.params);
-    const { declarationAccepted: _declaration, ...body } = unitSchema.parse(request.body);
+    const {
+      declarationAccepted: _declaration,
+      declarationVersion: _version,
+      ...body
+    } = unitSchema.parse(request.body);
     void _declaration;
+    void _version;
     const owner = await managerId(request.user.sub);
     return prisma.$transaction(async (tx) => {
       if (!(await activeAccount(tx, request)))
@@ -347,7 +383,11 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
         data: { ...body, declarationAcceptedAt: new Date() },
         include: unitInclude(owner),
       });
-      await recordAudit(tx, request, 'UPDATE', 'Unit', updated, existing);
+      const snapshot = {
+        ...updated,
+        declaration: acceptedDeclaration(request, unitDeclaration, updated.declarationAcceptedAt),
+      };
+      await recordAudit(tx, request, 'UPDATE', 'Unit', snapshot, existing);
       return updated;
     });
   });
@@ -371,6 +411,9 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
         consentRequired: z.boolean(),
         consentId: z.string().min(1).max(191).optional(),
         declarationAccepted: z.literal(true),
+        declarationVersion: z
+          .literal(activationDeclaration.version)
+          .default(activationDeclaration.version),
       })
       .strict()
       .parse(request.body);
@@ -411,6 +454,11 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
           consentRequired: body.consentRequired,
           consentId: body.consentId ?? null,
           declarationAcceptedAt: updated.declarationAcceptedAt,
+          declaration: acceptedDeclaration(
+            request,
+            activationDeclaration,
+            updated.declarationAcceptedAt,
+          ),
           active: true,
         };
         await recordAudit(tx, request, 'ACTIVATE', 'Unit', snapshot, { active: false });

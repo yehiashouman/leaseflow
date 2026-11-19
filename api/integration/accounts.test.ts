@@ -518,6 +518,7 @@ describe('MySQL account tokens, private setup sessions, invitations, and durable
     expect(revoke.statusCode, revoke.body).toBe(200);
     expect(await runEmailWorkerOnce(sender, rescheduled.nextAttemptAt)).toBe(true);
     expect(sender).not.toHaveBeenCalled();
+    expect(await prisma.outboundEmailAttempt.count({ where: { emailId: reminder.id } })).toBe(0);
     expect(await prisma.outboundEmail.findUniqueOrThrow({ where })).toMatchObject({
       status: 'FAILED',
       failureCode: 'INVITATION_NO_LONGER_ACTIVE',
@@ -649,5 +650,65 @@ describe('MySQL account tokens, private setup sessions, invitations, and durable
     expect((await prisma.outboundEmail.findUniqueOrThrow({ where: { id: mail.id } })).status).toBe(
       'COMPLETE',
     );
+    const history = await prisma.outboundEmailAttempt.findMany({
+      where: { emailId: mail.id },
+      orderBy: { number: 'asc' },
+    });
+    expect(history).toMatchObject([
+      { number: 1, status: 'FAILED', failureCode: 'DELIVERY_UNAVAILABLE', providerId: null },
+      { number: 2, status: 'COMPLETE', failureCode: null, providerId: 'smtp-message-id' },
+    ]);
+    expect(
+      history.every((attempt) => attempt.finishedAt && attempt.finishedAt >= attempt.startedAt),
+    ).toBe(true);
+    expect(JSON.stringify(history)).not.toContain('Private SMTP credentials');
+  });
+  it('records an interrupted email attempt and fences the original worker after lease recovery', async () => {
+    await register();
+    const { mail } = await tokenFromMail();
+    await prisma.outboundEmail.updateMany({
+      where: { id: { not: mail.id }, status: 'QUEUED' },
+      data: { nextAttemptAt: new Date('2099-01-01') },
+    });
+    let release!: () => void;
+    let markStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      markStarted = resolve;
+    });
+    const hold = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const now = new Date();
+    const delayed = runEmailWorkerOnce(async () => {
+      markStarted();
+      await hold;
+      return 'stale-provider-id';
+    }, now);
+    try {
+      await Promise.race([
+        started,
+        delayed.then(() => {
+          throw new Error('The original worker did not claim the email');
+        }),
+      ]);
+      const recovered = new Date(now.getTime() + 60001);
+      expect(await runEmailWorkerOnce(async () => 'current-provider-id', recovered)).toBe(true);
+    } finally {
+      release();
+      await delayed;
+    }
+    expect(await prisma.outboundEmail.findUniqueOrThrow({ where: { id: mail.id } })).toMatchObject({
+      status: 'COMPLETE',
+      providerId: 'current-provider-id',
+    });
+    expect(
+      await prisma.outboundEmailAttempt.findMany({
+        where: { emailId: mail.id },
+        orderBy: { number: 'asc' },
+      }),
+    ).toMatchObject([
+      { number: 1, status: 'FAILED', failureCode: 'DELIVERY_INTERRUPTED', providerId: null },
+      { number: 2, status: 'COMPLETE', failureCode: null, providerId: 'current-provider-id' },
+    ]);
   });
 });

@@ -207,13 +207,27 @@ describe('inventory writes and role dashboards', () => {
   });
   it('preserves old and new values on a unit edit', async () => {
     db.unit.findFirst.mockResolvedValue({ id: 'unit-1', name: 'Old Unit' });
-    db.unit.update.mockResolvedValue({ id: 'unit-1', name: 'Demo Apartment' });
+    const acceptedAt = new Date('2026-11-20T12:00:00Z');
+    db.unit.update.mockResolvedValue({
+      id: 'unit-1',
+      name: 'Demo Apartment',
+      declarationAcceptedAt: acceptedAt,
+    });
     expect((await send('PATCH', '/api/v1/inventory/units/unit-1', unit)).statusCode).toBe(200);
     expect(db.auditEvent.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           oldValue: { id: 'unit-1', name: 'Old Unit' },
-          newValue: { id: 'unit-1', name: 'Demo Apartment' },
+          newValue: expect.objectContaining({
+            id: 'unit-1',
+            name: 'Demo Apartment',
+            declaration: {
+              version: 'unit-details-v1',
+              textHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+              acceptedAt: acceptedAt.toISOString(),
+              sessionId: 'session-1',
+            },
+          }),
         }),
       }),
     );

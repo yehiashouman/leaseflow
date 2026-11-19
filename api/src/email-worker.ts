@@ -49,8 +49,14 @@ export async function runEmailWorkerOnce(sender: EmailSender = sendAccountMail, 
       SELECT id FROM OutboundEmail WHERE (status = 'QUEUED' AND nextAttemptAt <= ${now})
       OR (status = 'RUNNING' AND leaseExpiresAt <= ${now}) ORDER BY createdAt,id LIMIT 1 FOR UPDATE SKIP LOCKED
     `);
-      if (!rows[0]) return null;
+      if (!rows[0]) return false;
       const current = await tx.outboundEmail.findUniqueOrThrow({ where: { id: rows[0].id } });
+      if (current.status === 'RUNNING') {
+        await tx.outboundEmailAttempt.updateMany({
+          where: { emailId: current.id, status: 'RUNNING' },
+          data: { status: 'FAILED', failureCode: 'DELIVERY_INTERRUPTED', finishedAt: now },
+        });
+      }
       if (current.attempts >= 3) {
         await tx.outboundEmail.update({
           where: { id: current.id },
@@ -63,86 +69,88 @@ export async function runEmailWorkerOnce(sender: EmailSender = sendAccountMail, 
         });
         return null;
       }
-      return tx.outboundEmail.update({
+      if (current.invitationReminderId) {
+        const invitation = await tx.tenantInvitation.findFirst({
+          where: {
+            id: current.invitationReminderId,
+            acceptedAt: null,
+            revokedAt: null,
+            expiresAt: { gt: now },
+            manager: { user: { status: 'ACTIVE' } },
+          },
+          select: { expiresAt: true },
+        });
+        const reminderAt = invitation
+          ? new Date(invitation.expiresAt.getTime() - invitationReminderLeadMs)
+          : null;
+        if (!reminderAt || reminderAt > now) {
+          await tx.outboundEmail.update({
+            where: { id: current.id },
+            data: {
+              status: reminderAt ? 'QUEUED' : 'FAILED',
+              ...(reminderAt ? { nextAttemptAt: reminderAt } : {}),
+              failureCode: reminderAt ? null : 'INVITATION_NO_LONGER_ACTIVE',
+              leaseToken: null,
+              leaseExpiresAt: null,
+            },
+          });
+          return null;
+        }
+      }
+      const leaseToken = randomUUID();
+      await tx.outboundEmailAttempt.create({
+        data: { leaseToken, emailId: current.id, number: current.attempts + 1, startedAt: now },
+      });
+      await tx.outboundEmail.update({
         where: { id: current.id },
         data: {
           status: 'RUNNING',
           attempts: { increment: 1 },
-          leaseToken: randomUUID(),
+          leaseToken,
           leaseExpiresAt: new Date(now.getTime() + 60000),
         },
       });
+      return { ...current, attempts: current.attempts + 1, leaseToken };
     },
     { isolationLevel: 'ReadCommitted' },
   );
-  if (!job) return false;
+  if (!job) return job === null;
   const where = { id: job.id, status: 'RUNNING' as const, leaseToken: job.leaseToken };
+  let providerId: string | null = null;
   try {
-    if (job.invitationReminderId) {
-      const invitation = await prisma.tenantInvitation.findFirst({
-        where: {
-          id: job.invitationReminderId,
-          acceptedAt: null,
-          revokedAt: null,
-          expiresAt: { gt: now },
-          manager: { user: { status: 'ACTIVE' } },
-        },
-        select: { expiresAt: true },
-      });
-      if (!invitation) {
-        await prisma.outboundEmail.updateMany({
-          where,
-          data: {
-            status: 'FAILED',
-            failureCode: 'INVITATION_NO_LONGER_ACTIVE',
-            leaseToken: null,
-            leaseExpiresAt: null,
-          },
-        });
-        return true;
-      }
-      const nextAttemptAt = new Date(invitation.expiresAt.getTime() - invitationReminderLeadMs);
-      if (nextAttemptAt > now) {
-        await prisma.outboundEmail.updateMany({
-          where,
-          data: {
-            status: 'QUEUED',
-            nextAttemptAt,
-            attempts: { decrement: 1 },
-            leaseToken: null,
-            leaseExpiresAt: null,
-          },
-        });
-        return true;
-      }
-    }
     const payload = payloadSchema.parse(decryptMail(job.encryptedPayload));
-    const providerId = await sender({ id: job.id, recipient: job.recipient, ...payload });
-    await prisma.outboundEmail.updateMany({
-      where,
-      data: {
-        status: 'COMPLETE',
-        providerId,
-        deliveredAt: new Date(),
-        failureCode: null,
-        leaseToken: null,
-        leaseExpiresAt: null,
-      },
-    });
+    providerId = await sender({ id: job.id, recipient: job.recipient, ...payload });
   } catch {
-    await prisma.outboundEmail.updateMany({
+    // Persist a safe failure code without recording the provider exception or message payload.
+  }
+  const finishedAt = new Date(Math.max(Date.now(), now.getTime()));
+  const failed = providerId === null;
+  const failureCode = failed ? 'DELIVERY_UNAVAILABLE' : null;
+  await prisma.$transaction(async (tx) => {
+    const updated = await tx.outboundEmail.updateMany({
       where,
       data: {
-        status: job.attempts >= 3 ? 'FAILED' : 'QUEUED',
-        failureCode: 'DELIVERY_UNAVAILABLE',
-        nextAttemptAt: new Date(now.getTime() + job.attempts * 30000),
+        status: failed ? (job.attempts >= 3 ? 'FAILED' : 'QUEUED') : 'COMPLETE',
+        failureCode,
+        ...(failed
+          ? { nextAttemptAt: new Date(now.getTime() + job.attempts * 30000) }
+          : {
+              providerId,
+              deliveredAt: finishedAt,
+            }),
         leaseToken: null,
         leaseExpiresAt: null,
       },
     });
-  }
+    if (updated.count)
+      await tx.outboundEmailAttempt.update({
+        where: { leaseToken: job.leaseToken },
+        data: { status: failed ? 'FAILED' : 'COMPLETE', failureCode, providerId, finishedAt },
+      });
+  });
   return true;
 }
+
 export function emailWorker(onError: () => void) {
   let timer: ReturnType<typeof setInterval> | undefined, current: Promise<unknown> | undefined;
   const tick = () => {

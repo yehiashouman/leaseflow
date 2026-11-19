@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { beforeAll, beforeEach, afterAll, describe, it, expect } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '../src/db.js';
@@ -195,6 +195,23 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
       (await send('POST', '/units', { ...body(), ownerPaymentSchedule: 'A'.repeat(1001) }))
         .statusCode,
     ).toBe(422);
+    expect(
+      (await send('POST', '/units', { ...body(), declarationVersion: 'unknown' })).statusCode,
+    ).toBe(422);
+    const declaration = await prisma.auditEvent.findFirstOrThrow({
+      where: { entityId: unitId, action: 'CREATE' },
+    });
+    expect(declaration.newValue).toMatchObject({
+      declaration: {
+        version: 'unit-details-v1',
+        sessionId: owner.sid,
+        textHash: createHash('sha256')
+          .update(
+            'I confirm the property and authorization information is genuine and legally sufficient.',
+          )
+          .digest('hex'),
+      },
+    });
     expect((await send('POST', '/units', { ...body(), active: true })).statusCode).toBe(422);
     for (const action of ['archive', 'restore'])
       expect(
@@ -360,7 +377,17 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
         where: { entityId: unitId, action: 'ACTIVATE' },
       });
       expect(events).toHaveLength(1);
-      expect(events[0]?.newValue).toMatchObject({ proofId: current.id, consentId: written.id });
+      expect(events[0]?.newValue).toMatchObject({
+        proofId: current.id,
+        consentId: written.id,
+        declaration: {
+          version: 'unit-activation-v1',
+          sessionId: owner.sid,
+          textHash: createHash('sha256')
+            .update('I confirm this evidence is current and I am authorized to let this unit')
+            .digest('hex'),
+        },
+      });
     } finally {
       await prisma.document.deleteMany({ where: { seriesId: { in: seriesIds } } });
       await prisma.documentSeries.deleteMany({ where: { id: { in: seriesIds } } });

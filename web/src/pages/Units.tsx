@@ -329,6 +329,7 @@ export function Units() {
                 ],
               },
               declarationAccepted: form.has('declarationAccepted'),
+              declarationVersion: 'unit-details-v1',
             };
             if (editor === 'new') await api.post('/inventory/units', body);
             else await api.patch('/inventory/units/' + editor.id, body);

@@ -87,6 +87,7 @@ export function UnitActivation({ id, onClose }: { id: string; onClose: () => voi
           consentRequired: form.get('consentRequired') === 'YES',
           ...(consentId ? { consentId } : {}),
           declarationAccepted: form.has('declarationAccepted'),
+          declarationVersion: 'unit-activation-v1',
         });
         await Promise.all([
           client.invalidateQueries({ queryKey: ['unit', id] }),
