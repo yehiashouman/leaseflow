@@ -662,7 +662,7 @@ Requirements: 16, 24-26, 29.
 - [ ] **SEC-004** Audit authentication, document access, exports, impersonation, finance, contracts, and moderation.
 - [x] **SEC-005** Protect audit records from ordinary-user edits and deletion. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **SEC-006** Mask Emirates ID numbers and private contact details unless necessary. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **SEC-007** Keep versioned consent text hashes and declarations.
+- [x] **SEC-007** Keep versioned consent text hashes and declarations. [Evidence](docs/EVIDENCE.md#email-attempt-history-and-versioned-declarations).
 - [ ] **SEC-008** Enforce approved retention, anonymization, deletion, and protected-record exceptions.
 - [ ] **SEC-009** Verify account and data export permissions.
 - [x] **SEC-010** Scan files and prevent unsafe execution. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
@@ -842,7 +842,7 @@ Requirements: 25.1.
 - [ ] **WORKER-005** Implement Annual reviews: Create one review per same-space anniversary; preserve transfer history.
 - [ ] **WORKER-006** Implement Document expiry: Notify affected users; show expired status without false legal certification.
 - [x] **WORKER-007** Implement Invitations and security tokens: Enforce expiry, resend limits, revocation, and single-use verification. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
-- [ ] **WORKER-008** Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.
+- [x] **WORKER-008** Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history. [Evidence](docs/EVIDENCE.md#email-attempt-history-and-versioned-declarations).
 - [x] **WORKER-009** Implement Reports: Generate authorized PDFs; expose queued, complete, and failed states. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **WORKER-010** Implement File scan: Quarantine uploads until accepted; reject unsafe content. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **WORKER-011** Implement Retention: Apply the confirmed policy without destruction of protected history.

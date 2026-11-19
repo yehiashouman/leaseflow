@@ -111,6 +111,17 @@ describe('MySQL landlord lifecycle and property metadata', () => {
     const response = await send('GET', '/landlords/' + landlordId);
     expect(response.statusCode).toBe(200);
     expect(response.json().units).toEqual([]);
+    const paged = await send(
+      'GET',
+      '/landlords?page=1&sort=NEWEST&q=' + encodeURIComponent(suffix),
+    );
+    expect(paged.statusCode, paged.body).toBe(200);
+    expect(paged.json()).toMatchObject({
+      items: [{ id: landlordId }],
+      total: 1,
+      page: 1,
+      pageSize: 20,
+    });
   });
   it('edits contacts with old/new audit values and no duplicate record', async () => {
     expect(

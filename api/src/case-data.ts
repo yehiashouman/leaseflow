@@ -84,6 +84,9 @@ export const caseSelect = {
 const safeMetadata = z.object({
   category: z.string().max(100).nullable().optional(),
   urgency: z.enum(['NORMAL', 'URGENT']).optional(),
+  involvedOccupant: z
+    .object({ id: z.string().regex(/^[A-Za-z0-9_-]{43}$/), label: z.string().max(166) })
+    .optional(),
 });
 export type CaseRecord = Prisma.RequestGetPayload<{ select: typeof caseSelect }>;
 export function caseDto(row: CaseRecord, actor: Identity) {

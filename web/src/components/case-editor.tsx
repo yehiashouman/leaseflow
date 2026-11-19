@@ -1,7 +1,8 @@
 import { recoverableQueryError } from '../api-errors';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { previewMode } from '../session';
 import { caseTypes, type CaseContract, type CaseRecord } from '../cases';
 import { RecordEditor } from './record-editor';
 import { QueryFeedback, CachedQueryNotice } from './query-feedback';
@@ -17,6 +18,8 @@ export function CaseEditor({
 }) {
   const client = useQueryClient();
   const key = useRef(crypto.randomUUID());
+  const [contractId, setContractId] = useState('');
+  const [type, setType] = useState('');
   const options = useQuery({
     queryKey: ['case-options', key.current],
     staleTime: Infinity,
@@ -25,6 +28,19 @@ export function CaseEditor({
       api
         .get<{ types: string[]; contracts: CaseContract[] }>('/requests/options', { signal })
         .then((response) => response.data),
+  });
+  const selectedContract = contractId || options.data?.contracts[0]?.id;
+  const isComplaint = (type || options.data?.types[0]) === 'NEIGHBOR_COMPLAINT';
+  const relatedOccupants = useQuery({
+    queryKey: ['complaint-occupants', key.current, selectedContract],
+    enabled: !previewMode && isComplaint && !!selectedContract,
+    queryFn: ({ signal }) =>
+      api
+        .get<{ occupants: { id: string; label: string }[] }>(
+          '/requests/options/' + encodeURIComponent(selectedContract!) + '/occupants',
+          { signal },
+        )
+        .then((response) => response.data.occupants),
   });
   if (
     options.isPending ||
@@ -74,6 +90,7 @@ export function CaseEditor({
           label: 'Contract',
           value: options.data.contracts[0]!.id,
           required: true,
+          onChange: setContractId,
           options: options.data.contracts.map((contract) => ({
             value: contract.id,
             label:
@@ -87,11 +104,31 @@ export function CaseEditor({
           label: 'Request type',
           value: options.data.types[0],
           required: true,
+          onChange: setType,
           options: options.data.types.map((type) => ({
             value: type,
             label: caseTypes[type] ?? type,
           })),
         },
+        ...(isComplaint
+          ? [
+              {
+                name: 'involvedOccupantId',
+                label: 'Involved occupant',
+                options: [
+                  {
+                    value: '',
+                    label: relatedOccupants.isFetching
+                      ? 'Loading occupants…'
+                      : relatedOccupants.isError
+                        ? 'Occupants unavailable'
+                        : 'Unknown or not listed',
+                  },
+                  ...(relatedOccupants.data ?? []).map(({ id, label }) => ({ value: id, label })),
+                ],
+              },
+            ]
+          : []),
         { name: 'title', label: 'Title', required: true, maxLength: 160 },
         {
           name: 'description',
@@ -114,6 +151,7 @@ export function CaseEditor({
         },
       ]}
       onSave={async (form) => {
+        const involvedOccupantId = form.get('involvedOccupantId');
         const response = await api.post<CaseRecord>('/requests', {
           clientId: key.current,
           contractId: form.get('contractId'),
@@ -122,6 +160,7 @@ export function CaseEditor({
           description: form.get('description'),
           category: form.get('category') || null,
           urgency: form.get('urgency'),
+          ...(involvedOccupantId ? { involvedOccupantId } : {}),
           draft: form.has('draft'),
         });
         client.setQueryData(['request', response.data.id], response.data);

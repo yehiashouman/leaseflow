@@ -16,17 +16,19 @@ This implementation does not complete the case or maintenance modules.
 - Resolved cases remain unacknowledged until tenants explicitly accept completion.
 - Reopen events preserve previous resolution events and their timestamps.
 - Failed forms retain text; stale decisions require review before another attempt.
+- A neighbor complaint can identify a current occupant in the same unit. The form shows first name, last initial, and room. A case retains the selected label as it appeared at submission.
 
 ## API
 
-| Method | Path                          | Behavior                                                                                                           |
-| ------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| GET    | /api/v1/requests              | Scoped list; optional q, status, and type filters                                                                  |
-| GET    | /api/v1/requests/options      | Tenant-only open contracts and four supported request types                                                        |
-| GET    | /api/v1/requests/:id          | Private case, safe contract summary, history, and permitted actions                                                |
-| POST   | /api/v1/requests              | Tenant-only submission; contractId, clientId, type, title, description, optional category, urgency, and draft flag |
-| POST   | /api/v1/requests/:id/messages | Append immutable message; clientId and message                                                                     |
-| POST   | /api/v1/requests/:id/respond  | Version-checked decision; clientId, expectedVersion, status, and optional message                                  |
+| Method | Path                                   | Behavior                                                                                                                                                                               |
+| ------ | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /api/v1/requests                       | Scoped list. See [list filters and paging](LIST-API.md).                                                                                                                               |
+| GET    | /api/v1/requests/options               | Tenant-only open contracts and four supported request types                                                                                                                            |
+| GET    | /api/v1/requests/options/:id/occupants | Options for a tenant's own contract. Returns a label and opaque selection per eligible occupant.                                                                                       |
+| GET    | /api/v1/requests/:id                   | Private case, safe contract summary, history, and permitted actions                                                                                                                    |
+| POST   | /api/v1/requests                       | Tenant-only submission. Provide contractId, clientId, type, title, and description. Optional fields include category, urgency, draft, and involvedOccupantId for a neighbor complaint. |
+| POST   | /api/v1/requests/:id/messages          | Append immutable message; clientId and message                                                                                                                                         |
+| POST   | /api/v1/requests/:id/respond           | Version-checked decision; clientId, expectedVersion, status, and optional message                                                                                                      |
 
 clientId must contain a UUID.
 Unchanged retries return current state without duplicate events.

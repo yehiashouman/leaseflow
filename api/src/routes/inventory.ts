@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { activeAccount } from '../account-data.js';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import { listPageSize, optionalPage, pageWindow } from '../list-page.js';
 import {
   lockOwnedSpace,
   occupantCount,
@@ -186,35 +187,44 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
   }
 
   app.get('/landlords', { preHandler: managerOnly }, async (request) => {
-    const { status, q } = z
+    const { status, q, page, sort } = z
       .object({
         status: z.enum(['ACTIVE', 'ARCHIVED', 'ALL']).default('ACTIVE'),
         q: z.string().trim().max(150).default(''),
+        page: optionalPage,
+        sort: z.enum(['NAME', 'NEWEST']).default('NAME'),
       })
       .strict()
       .parse(request.query);
     const owner = await managerId(request.user.sub);
-    return prisma.landlord.findMany({
-      where: {
-        managerId: owner,
-        ...(status === 'ACTIVE'
-          ? { archivedAt: null }
-          : status === 'ARCHIVED'
-            ? { archivedAt: { not: null } }
-            : {}),
-        ...(q
-          ? {
-              OR: [
-                { name: { contains: q } },
-                { companyName: { contains: q } },
-                { email: { contains: q } },
-              ],
-            }
+    const where: Prisma.LandlordWhereInput = {
+      managerId: owner,
+      ...(status === 'ACTIVE'
+        ? { archivedAt: null }
+        : status === 'ARCHIVED'
+          ? { archivedAt: { not: null } }
           : {}),
-      },
+      ...(q
+        ? {
+            OR: [
+              { name: { contains: q } },
+              { companyName: { contains: q } },
+              { email: { contains: q } },
+            ],
+          }
+        : {}),
+    };
+    const list = {
+      where,
       include: { _count: { select: { units: { where: { managerId: owner } } } } },
-      orderBy: { name: 'asc' },
-    });
+      orderBy: [sort === 'NEWEST' ? { createdAt: 'desc' } : { name: 'asc' }, { id: 'asc' }],
+    } satisfies Prisma.LandlordFindManyArgs;
+    if (page === undefined) return prisma.landlord.findMany(list);
+    const [items, total] = await prisma.$transaction([
+      prisma.landlord.findMany({ ...list, ...pageWindow(page) }),
+      prisma.landlord.count({ where }),
+    ]);
+    return { items, total, page, pageSize: listPageSize };
   });
   app.get('/landlords/:id', { preHandler: managerOnly }, async (request) => {
     const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
@@ -294,35 +304,44 @@ export const inventoryRoutes: FastifyPluginAsync = async (app) => {
   }
 
   app.get('/units', { preHandler: managerOnly }, async (request) => {
-    const { status, q } = z
+    const { status, q, page, sort } = z
       .object({
         status: z.enum(['CURRENT', 'ARCHIVED', 'ALL']).default('CURRENT'),
         q: z.string().trim().max(150).default(''),
+        page: optionalPage,
+        sort: z.enum(['NAME', 'NEWEST']).default('NEWEST'),
       })
       .strict()
       .parse(request.query);
     const owner = await managerId(request.user.sub);
-    return prisma.unit.findMany({
-      where: {
-        managerId: owner,
-        ...(status === 'CURRENT'
-          ? { archivedAt: null }
-          : status === 'ARCHIVED'
-            ? { archivedAt: { not: null } }
-            : {}),
-        ...(q
-          ? {
-              OR: [
-                { name: { contains: q } },
-                { area: { contains: q } },
-                { building: { contains: q } },
-              ],
-            }
+    const where: Prisma.UnitWhereInput = {
+      managerId: owner,
+      ...(status === 'CURRENT'
+        ? { archivedAt: null }
+        : status === 'ARCHIVED'
+          ? { archivedAt: { not: null } }
           : {}),
-      },
+      ...(q
+        ? {
+            OR: [
+              { name: { contains: q } },
+              { area: { contains: q } },
+              { building: { contains: q } },
+            ],
+          }
+        : {}),
+    };
+    const list = {
+      where,
       include: unitInclude(owner),
-      orderBy: { createdAt: 'desc' },
-    });
+      orderBy: [sort === 'NAME' ? { name: 'asc' } : { createdAt: 'desc' }, { id: 'asc' }],
+    } satisfies Prisma.UnitFindManyArgs;
+    if (page === undefined) return prisma.unit.findMany(list);
+    const [items, total] = await prisma.$transaction([
+      prisma.unit.findMany({ ...list, ...pageWindow(page) }),
+      prisma.unit.count({ where }),
+    ]);
+    return { items, total, page, pageSize: listPageSize };
   });
   app.get('/units/:id', { preHandler: managerOnly }, async (request) => {
     const { id } = z.object({ id: z.string() }).parse(request.params);

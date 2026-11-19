@@ -142,6 +142,9 @@ export function RequestDetail() {
             {data.contract?.tenant?.fullName ? ' / ' + data.contract.tenant.fullName : ''}
           </p>
           {data.metadata?.category && <p className="text-sm">{data.metadata.category}</p>}
+          {data.metadata?.involvedOccupant && (
+            <p className="text-sm">Involved occupant: {data.metadata.involvedOccupant.label}</p>
+          )}
         </div>
         <CaseDeadline data={data} />
         {!!data.allowedActions?.length && (

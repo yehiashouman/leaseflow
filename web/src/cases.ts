@@ -30,7 +30,11 @@ export type CaseRecord = {
   updatedAt?: string;
   resolvedAt?: string | null;
   decisionDueAt?: string | null;
-  metadata?: { category?: string | null; urgency?: string };
+  metadata?: {
+    category?: string | null;
+    urgency?: string;
+    involvedOccupant?: { id: string; label: string };
+  };
   contract?: CaseContract;
   events?: CaseEvent[];
   allowedActions?: CaseAction[];

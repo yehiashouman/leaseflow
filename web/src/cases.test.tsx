@@ -56,6 +56,34 @@ function page(element: React.ReactNode, path = '/requests/r1') {
   );
 }
 describe('private case interfaces', () => {
+  it('offers an occupant for a neighbor complaint and submits the opaque selection', async () => {
+    const id = 's'.repeat(43);
+    vi.spyOn(api, 'get').mockImplementation(async (url) => ({
+      data:
+        url === '/requests/options'
+          ? {
+              types: ['MAINTENANCE', 'NEIGHBOR_COMPLAINT'],
+              contracts: [{ id: 'c1', rentalSpace: { name: 'Room A', unit: { name: 'Unit 1' } } }],
+            }
+          : { occupants: [{ id, label: 'Sam · Room B' }] },
+    }));
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ data: sample() });
+    page(<CaseEditor onClose={vi.fn()} onCreated={vi.fn()} />);
+    const user = userEvent.setup();
+    expect(screen.queryByLabelText('Involved occupant')).toBeNull();
+    await user.selectOptions(await screen.findByLabelText('Request type *'), 'NEIGHBOR_COMPLAINT');
+    await screen.findByRole('option', { name: 'Sam · Room B' });
+    await user.selectOptions(screen.getByLabelText('Involved occupant'), id);
+    await user.type(screen.getByLabelText('Title *'), 'Noise complaint');
+    await user.type(screen.getByLabelText('Description *'), 'Noise in the shared hallway');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith(
+        '/requests',
+        expect.objectContaining({ involvedOccupantId: id }),
+      ),
+    );
+  });
   it('shows immutable author snapshots and explicit Dubai times without invented legacy identities', async () => {
     const row = sample();
     vi.spyOn(api, 'get').mockResolvedValue({

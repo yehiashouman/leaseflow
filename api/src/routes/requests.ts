@@ -3,6 +3,9 @@ import { RequestStatus, RequestType, type Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import { complaintOccupants, complaintSourceSelect } from '../complaint-occupants.js';
+import { openContractStatuses } from '../space-availability.js';
+import { listPageSize, optionalPage, pageWindow } from '../list-page.js';
 import {
   allowedCaseActions,
   basicCaseTypes,
@@ -34,8 +37,16 @@ const createSchema = z
     category: z.string().trim().max(100).nullable().optional(),
     urgency: z.enum(['NORMAL', 'URGENT']).default('NORMAL'),
     draft: z.boolean().default(false),
+    involvedOccupantId: z
+      .string()
+      .regex(/^[A-Za-z0-9_-]{43}$/)
+      .optional(),
   })
-  .strict();
+  .strict()
+  .refine((body) => !body.involvedOccupantId || body.type === 'NEIGHBOR_COMPLAINT', {
+    path: ['involvedOccupantId'],
+    message: 'Select an occupant only for a neighbor complaint.',
+  });
 const messageSchema = z
   .object({ clientId: z.uuid(), message: z.string().trim().min(1).max(5000) })
   .strict();
@@ -72,6 +83,8 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
         status: z.enum(RequestStatus).optional(),
         type: z.enum(RequestType).optional(),
         q: z.string().trim().max(150).default(''),
+        page: optionalPage,
+        sort: z.enum(['RECENT', 'OLDEST']).default('RECENT'),
       })
       .strict()
       .parse(request.query);
@@ -83,12 +96,19 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
         ...(query.q ? [{ title: { contains: query.q } }] : []),
       ],
     };
-    const rows = await prisma.request.findMany({
+    const list = {
       where,
       select: caseSelect,
-      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-    });
-    return rows.map((row) => caseDto(row, request.user));
+      orderBy: [{ updatedAt: query.sort === 'OLDEST' ? 'asc' : 'desc' }, { id: 'desc' }],
+    } satisfies Prisma.RequestFindManyArgs;
+    const dto = (row: Prisma.RequestGetPayload<{ select: typeof caseSelect }>) =>
+      caseDto(row, request.user);
+    if (query.page === undefined) return (await prisma.request.findMany(list)).map(dto);
+    const [rows, total] = await prisma.$transaction([
+      prisma.request.findMany({ ...list, ...pageWindow(query.page) }),
+      prisma.request.count({ where }),
+    ]);
+    return { items: rows.map(dto), total, page: query.page, pageSize: listPageSize };
   });
   app.get('/options', { preHandler: allowRoles('TENANT') }, async (request) => ({
     types: basicCaseTypes,
@@ -101,6 +121,15 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
       orderBy: { startDate: 'desc' },
     }),
   }));
+  app.get('/options/:id/occupants', { preHandler: allowRoles('TENANT') }, async (request) => {
+    const { id } = idSchema.parse(request.params);
+    const source = await prisma.contract.findFirst({
+      where: { id, ...caseContractScope(request.user), status: { in: [...openContractStatuses] } },
+      select: complaintSourceSelect,
+    });
+    if (!source) throw app.httpErrors.notFound('Contract not found');
+    return { occupants: await complaintOccupants(prisma, source) };
+  });
   app.get('/:id', { preHandler: participants }, async (request) => {
     const { id } = idSchema.parse(request.params);
     const row = await prisma.request.findFirst({
@@ -135,6 +164,7 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             existing.description !== body.description ||
             (previous.category ?? null) !== metadata.category ||
             previous.urgency !== metadata.urgency ||
+            previous.involvedOccupant?.id !== body.involvedOccupantId ||
             (existing.events[0]?.kind === 'DRAFT_CREATED') !== body.draft
           )
             throw app.httpErrors.conflict('Submission key reused with different content');
@@ -142,11 +172,18 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
         }
         const contract = await tx.contract.findFirst({
           where: { id: body.contractId, ...caseContractScope(request.user) },
-          select: { id: true, status: true },
+          select: complaintSourceSelect,
         });
         if (!contract) throw app.httpErrors.notFound('Contract not found');
         if (!['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'].includes(contract.status))
           throw app.httpErrors.conflict('A new request requires an open contract');
+        const involvedOccupant = body.involvedOccupantId
+          ? (await complaintOccupants(tx, contract)).find(
+              (occupant) => occupant.id === body.involvedOccupantId,
+            )
+          : undefined;
+        if (body.involvedOccupantId && !involvedOccupant)
+          throw app.httpErrors.unprocessableEntity('Select an occupant from the current unit.');
         const created = await tx.request.create({
           data: {
             contractId: body.contractId,
@@ -156,7 +193,7 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             description: body.description,
             status: body.draft ? 'DRAFT' : 'SUBMITTED',
             version: 1,
-            metadata,
+            metadata: { ...metadata, ...(involvedOccupant ? { involvedOccupant } : {}) },
             events: {
               create: {
                 ...actor,

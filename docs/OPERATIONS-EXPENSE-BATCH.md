@@ -1,11 +1,11 @@
 # 200-Item Continuation Report
 
-Date: 19 November 2026, Asia/Dubai.
+Date: 20 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 109 additional verified requirements; 296 of 764 overall (38.74%).
-The target is not complete: 63 partial and 28 blocked requirements remain in this batch.
+Current result: 111 additional verified requirements; 298 of 764 overall (39.01%).
+The target is not complete: 61 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -71,6 +71,8 @@ Rent dashboard acceptance: [MySQL and browser evidence](https://github.com/yehia
 Review and document expiry alerts: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44395199905).
 
 Tenant rental terms: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
+
+Email Attempt History and Versioned Declarations: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44610263136).
 
 ## Complete 200-Item Matrix
 
@@ -204,7 +206,7 @@ Only VERIFIED rows receive completion credit.
 | SEC-004            | PARTIAL  | Authentication, documents, exports, receipts, contracts, and operational cases have audit events; moderation and impersonation coverage remain incomplete.                                                            |
 | SEC-005            | VERIFIED | Verified immutable external rent receipts, exact retry deduplication, primary-tenant access, and rejection of ordinary audit edit or delete attempts. Corrections and reversals remain incomplete.                    |
 | SEC-006            | VERIFIED | Verified masked identity status, versioned declaration hashes, and denied private identity access across unrelated relationships.                                                                                     |
-| SEC-007            | PARTIAL  | Manager account declarations preserve versioned text hashes; property declarations currently preserve acceptance timestamps without complete text-version history.                                                    |
+| SEC-007            | VERIFIED | Unit create, edit, and activation audit records preserve the accepted declaration version, exact text hash, timestamp, session, and IP. Account consent retains its existing versioned history.                       |
 | SEC-008            | BLOCKED  | Approved retention, anonymization, deletion, protected-history exceptions, and execution remain incomplete; no destructive purge is enabled.                                                                          |
 | SEC-009            | PARTIAL  | Case PDFs and expense exports enforce participant ownership; full account and data export workflows remain incomplete.                                                                                                |
 | SEC-010            | VERIFIED | Verified quarantine, content validation, real scanner rejection, private downloads, and bounded abuse controls. Approved production limits remain a separate policy gate.                                             |
@@ -259,7 +261,7 @@ Only VERIFIED rows receive completion credit.
 | WORKER-004         | BLOCKED  | Seven-day negotiation execution and confirmed no-destination outcome remain incomplete.                                                                                                                               |
 | WORKER-005         | PARTIAL  | Unique anniversary reviews preserve original space snapshots and history; source changes fail safely, while complete transfer execution and anniversary reset remain incomplete.                                      |
 | WORKER-006         | PARTIAL  | Identity/document expired status exists; complete expiry notification scheduler remains incomplete.                                                                                                                   |
-| WORKER-008         | PARTIAL  | Case notice delivery preserves per-attempt records and provider outcomes; account mail lacks equivalent individual attempt history.                                                                                   |
+| WORKER-008         | VERIFIED | Account email records each attempt, safe failure or provider result, and interruption. Lease claims fence stale workers. Case email and WhatsApp retain their existing attempt logs.                                  |
 | WORKER-009         | VERIFIED | Verified authorized private case PDF queues, actual generated content, explicit failures, bounded retries, recovery, and download checks. Full relationship report content remains separate.                          |
 | WORKER-011         | BLOCKED  | Retention policy and protected-history execution remain incomplete; automatic purge stays disabled.                                                                                                                   |
 | TEST-AUTH-04       | VERIFIED | Verified one-use tokens, wrong OTP attempts, resends, login abuse, reset, refresh replay, and logout with deterministic provider adapters.                                                                            |

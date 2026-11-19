@@ -399,6 +399,59 @@ describe('MySQL private operational case workflow', () => {
     category: 'Plumbing',
     urgency: 'URGENT',
   });
+  it('scopes complaint occupant selection and preserves the selected label and retry key', async () => {
+    const path = '/options/' + contractId + '/occupants';
+    expect((await send('GET', path, undefined, roommate)).statusCode).toBe(404);
+    const options = await send('GET', path);
+    expect(options.statusCode, options.body).toBe(200);
+    expect(options.json().occupants).toHaveLength(1);
+    const [selected] = options.json().occupants;
+    expect(selected).toMatchObject({
+      id: expect.stringMatching(/^[\w-]{43}$/),
+      label: 'Case T. · Case Room',
+    });
+    expect(options.body).not.toContain(roommate.profileId);
+    const payload = {
+      ...submission(),
+      type: 'NEIGHBOR_COMPLAINT',
+      involvedOccupantId: selected.id,
+    };
+    expect(
+      (await send('POST', '', { ...payload, involvedOccupantId: 'x'.repeat(43) })).statusCode,
+    ).toBe(422);
+    const created = await send('POST', '', payload);
+    expect(created.statusCode, created.body).toBe(201);
+    const id = created.json().id;
+    expect(created.json().metadata.involvedOccupant).toEqual(selected);
+    const page = await send('GET', '?page=1&type=NEIGHBOR_COMPLAINT&sort=OLDEST');
+    expect(page.json()).toMatchObject({ items: [{ id }], total: 1, page: 1, pageSize: 20 });
+    const contracts = await send('GET', '/api/v1/contracts?page=1&status=ACTIVE&q=Case%20Room');
+    expect(contracts.json()).toMatchObject({
+      items: [{ id: contractId }],
+      total: 1,
+      page: 1,
+      pageSize: 20,
+    });
+    expect((await send('GET', '/' + id, undefined, roommate)).statusCode).toBe(404);
+    expect(
+      (await send('GET', '/' + id, undefined, manager)).json().metadata.involvedOccupant,
+    ).toEqual(selected);
+    expect((await send('POST', '', { ...payload, involvedOccupantId: undefined })).statusCode).toBe(
+      409,
+    );
+    await prisma.tenantProfile.update({
+      where: { id: roommate.profileId },
+      data: { fullName: 'Renamed Neighbor' },
+    });
+    try {
+      expect((await send('POST', '', payload)).json().metadata.involvedOccupant).toEqual(selected);
+    } finally {
+      await prisma.tenantProfile.update({
+        where: { id: roommate.profileId },
+        data: { fullName: 'Case Tenant' },
+      });
+    }
+  });
   async function decision(
     status: RequestStatus,
     actor = manager,

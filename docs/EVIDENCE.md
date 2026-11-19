@@ -656,3 +656,10 @@ Verified 19 November 2026 in [GitHub CI](https://github.com/yehiashouman/leasefl
 - **UNIT-013:** The unit stays a draft without the declaration, current proof, or required consent. Concurrent retries produce one audited activation.
 - **UNIT-014:** The declaring manager states whether consent applies. The activation audit stores evidence version IDs and the declared proof type.
 - **TEST-INV-03:** MySQL verifies refusal for a missing declaration, superseded proof, and missing required written consent. Desktop and mobile verify the successful flow.
+
+## Email Attempt History and Versioned Declarations
+
+Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44610263136).
+
+- **SEC-007:** Unit create, edit, and activation audit records preserve the accepted declaration version, exact text hash, timestamp, session, and IP. Account consent retains its existing versioned history.
+- **WORKER-008:** Account email records each attempt, safe failure or provider result, and interruption. Lease claims fence stale workers. Case email and WhatsApp retain their existing attempt logs.

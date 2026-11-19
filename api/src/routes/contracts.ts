@@ -8,12 +8,13 @@ import {
   occupantDto,
   proratedRentDecimal,
 } from '../contract-policy.js';
-import { Prisma } from '@prisma/client';
+import { ContractStatus, Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
 import { env } from '../config.js';
 import { caseContractScope } from '../case-data.js';
+import { listPageSize, optionalPage, pageWindow } from '../list-page.js';
 import {
   lockOwnedSpace,
   occupantCount,
@@ -102,12 +103,43 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     };
   });
   app.get('/', { preHandler: allowRoles('LEASING_MANAGER', 'TENANT') }, async (request) => {
-    const rows = await prisma.contract.findMany({
-      where: visibleScope(request.user),
+    const { page, q, status, sort } = z
+      .object({
+        page: optionalPage,
+        q: z.string().trim().max(150).default(''),
+        status: z.enum(ContractStatus).optional(),
+        sort: z.enum(['NEWEST', 'OLDEST']).default('NEWEST'),
+      })
+      .strict()
+      .parse(request.query);
+    const where: Prisma.ContractWhereInput = {
+      AND: [
+        visibleScope(request.user),
+        ...(status ? [{ status }] : []),
+        ...(q
+          ? [
+              {
+                OR: [
+                  { tenant: { fullName: { contains: q } } },
+                  { rentalSpace: { name: { contains: q } } },
+                  { rentalSpace: { unit: { name: { contains: q } } } },
+                ],
+              },
+            ]
+          : []),
+      ],
+    };
+    const list = {
+      where,
       select,
-      orderBy: [{ startDate: 'desc' }, { id: 'desc' }],
-    });
-    return rows.map(dto);
+      orderBy: [{ startDate: sort === 'OLDEST' ? 'asc' : 'desc' }, { id: 'desc' }],
+    } satisfies Prisma.ContractFindManyArgs;
+    if (page === undefined) return (await prisma.contract.findMany(list)).map(dto);
+    const [rows, total] = await prisma.$transaction([
+      prisma.contract.findMany({ ...list, ...pageWindow(page) }),
+      prisma.contract.count({ where }),
+    ]);
+    return { items: rows.map(dto), total, page, pageSize: listPageSize };
   });
   app.get('/:id', { preHandler: participants }, async (request) => {
     const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);

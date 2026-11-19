@@ -156,6 +156,38 @@ describe('MySQL unit archive, amenities, and owner schedules', () => {
         status: 'CLEAN',
       },
     });
+  it('returns bounded unit pages with stable ties and counts within the owner scope', async () => {
+    const prefix = 'Paging ' + randomUUID();
+    const createdAt = new Date('2026-11-01');
+    const names = Array.from(
+      { length: 21 },
+      (_, index) => prefix + ' ' + String(index).padStart(2, '0'),
+    );
+    await prisma.unit.createMany({
+      data: [
+        ...names.map((name) => ({ name, area: 'Dubai', managerId: owner.profile, createdAt })),
+        { name: prefix + ' foreign', area: 'Dubai', managerId: foreign.profile, createdAt },
+      ],
+    });
+    const path = '/units?q=' + encodeURIComponent(prefix) + '&sort=NAME';
+    const first = await send('GET', path + '&page=1');
+    expect(first.statusCode, first.body).toBe(200);
+    expect(first.json()).toMatchObject({ total: 21, page: 1, pageSize: 20 });
+    expect(first.json().items.map((row: { name: string }) => row.name)).toEqual(names.slice(0, 20));
+    const second = await send('GET', path + '&page=2');
+    expect(second.json().items.map((row: { name: string }) => row.name)).toEqual(names.slice(20));
+    expect((await send('GET', path + '&page=10001')).statusCode).toBe(422);
+    expect((await send('GET', path)).json()).toHaveLength(21);
+    const tied = await send('GET', '/units?page=1&q=' + encodeURIComponent(prefix));
+    const ids = await prisma.unit.findMany({
+      where: { managerId: owner.profile, name: { startsWith: prefix } },
+      orderBy: { id: 'asc' },
+      select: { id: true },
+    });
+    expect(tied.json().items.map((row: { id: string }) => row.id)).toEqual(
+      ids.slice(0, 20).map((row) => row.id),
+    );
+  });
   it('persists twelve amenities, custom labels, owner currency, rent, and literal payment schedule', async () => {
     const detail = (await send('GET', '/units/' + unitId)).json();
     expect(detail).toMatchObject({

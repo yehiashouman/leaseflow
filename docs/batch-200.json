@@ -2,7 +2,7 @@
   "target": 200,
   "baselineCompleted": 162,
   "baselineTotal": 764,
-  "date": "2026-11-19",
+  "date": "2026-11-20",
   "timezone": "Asia/Dubai",
   "baselineCommit": "9d7282848dee1ee2bcf42cb4f372964df5c9e8b5",
   "baselineCompletedIds": [
@@ -2704,20 +2704,23 @@
     {
       "id": "SEC-007",
       "requirement": "Keep versioned consent text hashes and declarations.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/auth.ts",
+        "api/src/routes/inventory.ts",
         "api/src/routes/accounts.ts",
-        "api/src/file-access.ts",
-        "docs/decisions.json"
+        "web/src/pages/Units.tsx",
+        "web/src/components/unit-activation.tsx"
       ],
       "tests": [
+        "api/integration/unit-lifecycle.test.ts",
         "api/integration/accounts.test.ts",
-        "api/integration/documents.test.ts",
-        "api/test/platform-contract.test.ts"
+        "api/test/inventory-role.test.ts"
       ],
       "decisions": [],
-      "note": "Manager account declarations preserve versioned text hashes; property declarations currently preserve acceptance timestamps without complete text-version history."
+      "note": "Unit create, edit, and activation audit records preserve the accepted declaration version, exact text hash, timestamp, session, and IP. Account consent retains its existing versioned history.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44610263136",
+      "commit": "4c37c367ce21615a4bec7485ab16cf526efefbbe",
+      "verified": "2026-11-20"
     },
     {
       "id": "SEC-008",
@@ -3727,20 +3730,18 @@
     {
       "id": "WORKER-008",
       "requirement": "Implement Email/WhatsApp delivery: Retry transient failures; preserve provider result and attempt history.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/src/notice-worker.ts",
-        "api/src/file-worker.ts",
         "api/src/email-worker.ts",
-        "api/src/report-worker.ts"
+        "api/prisma/migrations/20261120000000_outbound_email_attempts/migration.sql",
+        "api/src/notice-worker.ts"
       ],
-      "tests": [
-        "api/integration/notices.test.ts",
-        "api/integration/reports.test.ts",
-        "api/integration/documents.test.ts"
-      ],
+      "tests": ["api/integration/accounts.test.ts", "api/integration/notices.test.ts"],
       "decisions": [],
-      "note": "Case notice delivery preserves per-attempt records and provider outcomes; account mail lacks equivalent individual attempt history."
+      "note": "Account email records each attempt, safe failure or provider result, and interruption. Lease claims fence stale workers. Case email and WhatsApp retain their existing attempt logs.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44610263136",
+      "commit": "4c37c367ce21615a4bec7485ab16cf526efefbbe",
+      "verified": "2026-11-20"
     },
     {
       "id": "WORKER-009",
