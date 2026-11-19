@@ -398,7 +398,7 @@ Requirements: 9, 22-25.
 - [x] **CASE-012** Keep unanswered completion completed-unacknowledged. Evidence: [case acknowledgement verification](docs/EVIDENCE.md#operational-cases).
 - [ ] **CASE-013** Allow authorized reopening without deletion of previous resolution.
 - [ ] **CASE-014** Restrict sensitive complaint details to the relevant tenant, manager, and authorized support.
-- [ ] **CASE-015** Allow the complainant to select an involved occupant when known.
+- [x] **CASE-015** Allow the complainant to select an involved occupant when known. [Evidence](docs/EVIDENCE.md#complaint-occupant-selection-and-list-api).
 - [x] **CASE-016** Record complaint evidence and manager communication/actions. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [ ] **CASE-017** Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence.
 - [ ] **CASE-018** Keep general requests configurable without loss of event history.
@@ -625,7 +625,7 @@ Requirements: 15, 23-24.
 - [x] **API-009** Use 403 for authenticated forbidden actions. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **API-010** Use 409 for conflicting state or capacity. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [x] **API-011** Use documented consistent validation status, such as 422. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
-- [ ] **API-012** Document pagination, allowed filters, sort fields, limits, and stable order.
+- [x] **API-012** Document pagination, allowed filters, sort fields, limits, and stable order. [Evidence](docs/EVIDENCE.md#complaint-occupant-selection-and-list-api).
 - [ ] **API-013** Use idempotency for payments, request submission, transfer completion, and other retry-sensitive writes.
 - [ ] **API-014** Reject key reuse with a different payload.
 - [x] **API-015** Protect cookie mutations against CSRF. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).

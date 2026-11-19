@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
-import { caseDate } from '../cases';
+import { caseDate, caseDateWithZone } from '../cases';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -215,11 +215,11 @@ export function ManagerDetail() {
           ['Phone', data.phone],
           [
             'Email confirmation',
-            data.emailVerifiedAt ? caseDate(data.emailVerifiedAt) : 'Not confirmed',
+            data.emailVerifiedAt ? caseDateWithZone(data.emailVerifiedAt) : 'Not confirmed',
           ],
           [
             'Phone confirmation',
-            data.phoneVerifiedAt ? caseDate(data.phoneVerifiedAt) : 'Not confirmed',
+            data.phoneVerifiedAt ? caseDateWithZone(data.phoneVerifiedAt) : 'Not confirmed',
           ],
           ['Nationality', profile?.nationality],
           [
@@ -227,15 +227,15 @@ export function ManagerDetail() {
             profile?.dateOfBirth ? caseDate(profile.dateOfBirth).split(',')[0] : '-',
           ],
           ['Emirates ID', profile?.emiratesIdNumber],
-          ['Emirates ID expiry', caseDate(profile?.emiratesIdExpiry)],
+          ['Emirates ID expiry', caseDateWithZone(profile?.emiratesIdExpiry)],
           ['Licence type', profile?.licenseType],
           ['Licence issuer', profile?.licenseIssuer],
           ['Licence number', profile?.licenseNumber],
-          ['Licence expiry', caseDate(profile?.licenseExpiry)],
+          ['Licence expiry', caseDateWithZone(profile?.licenseExpiry)],
           [
             'Declaration accepted',
             profile?.declarationAcceptedAt
-              ? caseDate(profile.declarationAcceptedAt)
+              ? caseDateWithZone(profile.declarationAcceptedAt)
               : 'Not recorded',
           ],
           ['Documents', 'Document review not implemented'],
@@ -254,7 +254,9 @@ export function ManagerDetail() {
             <p className="break-words">
               {event.action} / {event.actorUserId || 'System'}
             </p>
-            <time className="text-sm text-muted-foreground">{caseDate(event.createdAt)}</time>
+            <time className="text-sm text-muted-foreground">
+              {caseDateWithZone(event.createdAt)}
+            </time>
           </li>
         ))}
       </ul>

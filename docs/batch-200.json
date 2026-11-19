@@ -922,15 +922,19 @@
     {
       "id": "CASE-015",
       "requirement": "Allow the complainant to select an involved occupant when known.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/prisma/schema.prisma",
+        "api/src/complaint-occupants.ts",
         "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
+      "tests": ["api/integration/cases.test.ts", "web/src/cases.test.tsx"],
       "decisions": [],
-      "note": "Private complaint forms exist; the involved-occupant selector and validated relationship snapshot remain incomplete."
+      "note": "Tenants can select a current occupant of the same unit in a neighbor complaint. The case retains the label, rejects unauthorized selections, and keeps case access private.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44611611299",
+      "commit": "305998b8cc13fe138fd3fa4a1cb29dcb0db7ad6f",
+      "verified": "2026-11-20"
     },
     {
       "id": "CASE-017",
@@ -2255,11 +2259,24 @@
     {
       "id": "API-012",
       "requirement": "Document pagination, allowed filters, sort fields, limits, and stable order.",
-      "status": "PARTIAL",
-      "code": ["api/src/app.ts", "api/prisma/schema.prisma", "docs/IMPLEMENTATION.md"],
-      "tests": ["api/test/platform-contract.test.ts", "api/integration/cases.test.ts"],
+      "status": "VERIFIED",
+      "code": [
+        "docs/LIST-API.md",
+        "api/src/list-page.ts",
+        "api/src/routes/inventory.ts",
+        "api/src/routes/contracts.ts",
+        "api/src/routes/requests.ts"
+      ],
+      "tests": [
+        "api/integration/unit-lifecycle.test.ts",
+        "api/integration/cases.test.ts",
+        "api/integration/landlords.test.ts"
+      ],
       "decisions": [],
-      "note": "Cases, receipts, expenses, documents, and notices use bounded stable pages; complete inventory/contract list pagination and documentation remain incomplete."
+      "note": "The list reference documents filters, sort, limits, and stable ordering. Inventory, contract, and request lists support opt-in pages with scoped totals and preserve legacy array responses.",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44611611299",
+      "commit": "305998b8cc13fe138fd3fa4a1cb29dcb0db7ad6f",
+      "verified": "2026-11-20"
     },
     {
       "id": "API-013",

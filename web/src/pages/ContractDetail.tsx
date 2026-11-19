@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { api } from '../api';
-import { caseDate } from '../cases';
+import { caseDateWithZone } from '../cases';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { QueryFeedback } from '@/components/query-feedback';
@@ -110,14 +110,17 @@ function Records({ id, currency }: { id: string; currency: string }) {
               <li key={row.id} className="space-y-2 break-words py-4">
                 {'amountDue' in row ? (
                   <>
-                    <p className="font-medium">Due {caseDate(row.dueDate)}</p>
+                    <p className="font-medium">Due {caseDateWithZone(row.dueDate)}</p>
                     <Badge variant="outline">{row.status.replaceAll('_', ' ')}</Badge>
                     <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
                       {[
-                        ['Period starts', caseDate(row.periodStart)],
+                        ['Period starts', caseDateWithZone(row.periodStart)],
                         ['Amount due', amount(row.currency, row.amountDue)],
                         ['Amount recorded paid', amount(row.currency, row.amountPaid)],
-                        ['Payment date', row.paidAt ? caseDate(row.paidAt) : 'Not recorded'],
+                        [
+                          'Payment date',
+                          row.paidAt ? caseDateWithZone(row.paidAt) : 'Not recorded',
+                        ],
                         ['Method', row.method || 'Not recorded'],
                         ['Reference', row.reference || 'Not recorded'],
                       ].map(([label, value]) => (
@@ -134,15 +137,19 @@ function Records({ id, currency }: { id: string; currency: string }) {
                     <p className="font-medium">
                       {row.type.replaceAll('_', ' ')} · {amount(currency, row.amount)}
                     </p>
-                    <p className="text-sm text-muted-foreground">{caseDate(row.createdAt)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {caseDateWithZone(row.createdAt)}
+                    </p>
                     {row.description && <p className="whitespace-pre-wrap">{row.description}</p>}
                     {row.tenantAcceptedAt && (
                       <p className="text-sm">
-                        Acceptance recorded: {caseDate(row.tenantAcceptedAt)}
+                        Acceptance recorded: {caseDateWithZone(row.tenantAcceptedAt)}
                       </p>
                     )}
                     {row.tenantDisputedAt && (
-                      <p className="text-sm">Dispute recorded: {caseDate(row.tenantDisputedAt)}</p>
+                      <p className="text-sm">
+                        Dispute recorded: {caseDateWithZone(row.tenantDisputedAt)}
+                      </p>
                     )}
                   </>
                 ) : (
@@ -151,7 +158,7 @@ function Records({ id, currency }: { id: string; currency: string }) {
                       {row.title}
                     </Link>
                     <p className="text-sm text-muted-foreground">
-                      {row.type.replaceAll('_', ' ')} · {caseDate(row.createdAt)}
+                      {row.type.replaceAll('_', ' ')} · {caseDateWithZone(row.createdAt)}
                     </p>
                     <Badge variant="outline">{row.status.replaceAll('_', ' ')}</Badge>
                   </>
@@ -212,8 +219,8 @@ export function ContractDetail() {
         {[
           ['Primary tenant', data.tenant.fullName],
           ['Space type', data.rentalSpace.type.replaceAll('_', ' ')],
-          ['Start date', caseDate(data.startDate)],
-          ['End date', data.endDate ? caseDate(data.endDate) : 'Open-ended'],
+          ['Start date', caseDateWithZone(data.startDate)],
+          ['End date', data.endDate ? caseDateWithZone(data.endDate) : 'Open-ended'],
           ['Monthly rent', amount(data.currency, data.monthlyRent)],
           ['Due day', String(data.dueDay)],
           ['Notice period', `${data.noticeDays} days`],

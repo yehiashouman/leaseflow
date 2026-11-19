@@ -247,7 +247,7 @@ function ManagerDashboard() {
                   </Link>
                   <span>
                     {review.milestoneMonths}-month review ·{' '}
-                    {dubaiDate.format(new Date(review.dueAt))}
+                    {dubaiDate.format(new Date(review.dueAt))} (Asia/Dubai)
                   </span>
                 </li>
               ))}
@@ -297,7 +297,7 @@ function ManagerDashboard() {
                   </Link>
                   <span className="flex flex-wrap items-center gap-2">
                     {documentLabels[document.purpose] ?? document.purpose} ·{' '}
-                    {dubaiDate.format(new Date(document.expiresAt))}
+                    {dubaiDate.format(new Date(document.expiresAt))} (Asia/Dubai)
                     {document.expired && <Badge variant="destructive">Expired</Badge>}
                   </span>
                 </li>

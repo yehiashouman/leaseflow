@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Download, FileJson, RotateCcw } from 'lucide-react';
 import { api } from '../api';
-import { caseDate } from '../cases';
+import { caseDateWithZone } from '../cases';
 import { previewMode } from '../session';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -120,7 +120,7 @@ export function CaseReports({ requestId, version }: { requestId: string; version
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="space-y-1">
                         <p className="text-sm">
-                          Version {row.expectedVersion} · {caseDate(row.createdAt)}
+                          Version {row.expectedVersion} · {caseDateWithZone(row.createdAt)}
                         </p>
                         <Badge variant={row.status === 'FAILED' ? 'destructive' : 'secondary'}>
                           {row.status}

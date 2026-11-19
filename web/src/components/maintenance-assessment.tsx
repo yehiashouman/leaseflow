@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { isAxiosError } from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
-import { caseDate, maintenanceLabels, type CaseRecord } from '../cases';
+import { caseDateWithZone, maintenanceLabels, type CaseRecord } from '../cases';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RecordEditor, type EditorField } from './record-editor';
@@ -125,7 +125,7 @@ export function MaintenanceAssessment({ data }: { data: CaseRecord }) {
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
-              Version {row.caseVersion} · {caseDate(row.createdAt)}
+              Version {row.caseVersion} · {caseDateWithZone(row.createdAt)}
             </p>
             {row.proposedAmount !== null && (
               <p className="font-medium">
@@ -154,7 +154,7 @@ export function MaintenanceAssessment({ data }: { data: CaseRecord }) {
               <p className="whitespace-pre-wrap">Tenant response: {row.responseExplanation}</p>
             )}
             {row.respondedAt && (
-              <p className="text-xs text-muted-foreground">{caseDate(row.respondedAt)}</p>
+              <p className="text-xs text-muted-foreground">{caseDateWithZone(row.respondedAt)}</p>
             )}
             {row.id === latest?.id && data.canRespondMaintenance && (
               <div className="flex flex-wrap gap-2">

@@ -220,7 +220,7 @@ export function TenantDashboard() {
           <section className="space-y-3">
             <h2 className="font-semibold">Recent payment records</h2>
             <p className="text-sm text-muted-foreground">
-              Latest 20 records. Open the contract for full history.
+              Dates use Asia/Dubai. Latest 20 records. Open the contract for full history.
             </p>
             {contract.payments.map((payment) => (
               <div key={payment.id} className="flex flex-wrap justify-between gap-3 border-b py-3">
@@ -231,7 +231,7 @@ export function TenantDashboard() {
                 </span>
                 <span>
                   {contract.currency} {Number(payment.amountDue).toLocaleString()} due ·{' '}
-                  {Number(payment.amountPaid).toLocaleString()} paid
+                  {contract.currency} {Number(payment.amountPaid).toLocaleString()} paid
                 </span>
                 <Badge variant="outline">{payment.status.replaceAll('_', ' ')}</Badge>
               </div>

@@ -663,3 +663,10 @@ Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leasefl
 
 - **SEC-007:** Unit create, edit, and activation audit records preserve the accepted declaration version, exact text hash, timestamp, session, and IP. Account consent retains its existing versioned history.
 - **WORKER-008:** Account email records each attempt, safe failure or provider result, and interruption. Lease claims fence stale workers. Case email and WhatsApp retain their existing attempt logs.
+
+## Complaint Occupant Selection and List API
+
+Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44611611299).
+
+- **CASE-015:** Tenants can select a current occupant of the same unit in a neighbor complaint. The case retains the label, rejects unauthorized selections, and keeps case access private.
+- **API-012:** The list reference documents filters, sort, limits, and stable ordering. Inventory, contract, and request lists support opt-in pages with scoped totals and preserve legacy array responses.

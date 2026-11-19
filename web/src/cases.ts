@@ -118,3 +118,8 @@ export function caseDate(value?: string | null) {
   if (!value || !Number.isFinite(new Date(value).getTime())) return '-';
   return new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' });
 }
+
+export function caseDateWithZone(value?: string | null) {
+  const date = caseDate(value);
+  return date === '-' ? date : date + ' (Asia/Dubai)';
+}

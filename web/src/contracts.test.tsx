@@ -12,7 +12,7 @@ afterEach(cleanup);
 const terms = {
   id: 'c1',
   status: 'ACTIVE',
-  startDate: '2026-11-01T00:00:00Z',
+  startDate: '2026-10-31T23:00:00Z',
   endDate: null,
   monthlyRent: '3000.10',
   depositAmount: '2000.05',
@@ -46,6 +46,7 @@ describe('read-only contract records', () => {
     }));
     page();
     expect(await screen.findByText('Open-ended')).toBeTruthy();
+    expect(screen.getByText('01/11/2026, 03:00:00 (Asia/Dubai)')).toBeTruthy();
     expect(screen.getByText('15 days')).toBeTruthy();
     expect(screen.getByText('AED 3,000.10')).toBeTruthy();
     expect(screen.getByText('AED 2,000.05')).toBeTruthy();

@@ -4,8 +4,8 @@ Date: 20 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 111 additional verified requirements; 298 of 764 overall (39.01%).
-The target is not complete: 61 partial and 28 blocked requirements remain in this batch.
+Current result: 113 additional verified requirements; 300 of 764 overall (39.27%).
+The target is not complete: 59 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -47,7 +47,7 @@ The report does not treat provider adapters as real inbox or WhatsApp delivery p
 
 ## Remaining Work and Gates
 
-All 26 owner decisions remain pending.
+Twenty of 26 owner decisions have recorded approvals. Six require a decision.
 Production financial writes, contract activation, provider delivery, and destructive retention remain gated.
 Monthly catch-up and annual decisions now work; due notices, transfer execution, settlement, full ledgers, and financial reports remain incomplete.
 Contact changes, MFA, moderation, impersonation, complete localization, and complete initial-release screen acceptance remain incomplete.
@@ -73,6 +73,8 @@ Review and document expiry alerts: [MySQL and browser evidence](https://github.c
 Tenant rental terms: [MySQL and browser evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44396995514).
 
 Email Attempt History and Versioned Declarations: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44610263136).
+
+Complaint Occupant Selection and List API: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44611611299).
 
 ## Complete 200-Item Matrix
 
@@ -108,7 +110,7 @@ Only VERIFIED rows receive completion credit.
 | CASE-011           | PARTIAL  | Operational resolution requires tenant acceptance or dispute; complete transfer and financial completion workflows remain incomplete.                                                                                 |
 | CASE-013           | PARTIAL  | Operational reopening preserves past resolution; the complete initial-release case inventory remains incomplete.                                                                                                      |
 | CASE-014           | PARTIAL  | Complaints remain private to their actual participants; authorized support access and impersonation controls remain incomplete.                                                                                       |
-| CASE-015           | PARTIAL  | Private complaint forms exist; the involved-occupant selector and validated relationship snapshot remain incomplete.                                                                                                  |
+| CASE-015           | VERIFIED | Tenants can select a current occupant of the same unit in a neighbor complaint. The case retains the label, rejects unauthorized selections, and keeps case access private.                                           |
 | CASE-017           | PARTIAL  | Generic key/lock history and urgency exist; structured authorization and complete cost-responsibility/completion fields remain incomplete.                                                                            |
 | CASE-018           | PARTIAL  | General request history persists; administrator-managed categories and configurable general-request forms remain incomplete.                                                                                          |
 | MAINT-009          | BLOCKED  | Responsibility proposals preserve acceptance; direct charges and deposit deduction workflows remain incomplete and gated.                                                                                             |
@@ -183,7 +185,7 @@ Only VERIFIED rows receive completion credit.
 | API-004            | VERIFIED | Verified authenticated owner derivation, consistent tenant/property references, and role/relationship checks across implemented resource operations. Unimplemented resource groups remain incomplete.                 |
 | API-005            | VERIFIED | Verified authenticated owner derivation, consistent tenant/property references, and role/relationship checks across implemented resource operations. Unimplemented resource groups remain incomplete.                 |
 | API-006            | VERIFIED | Verified authenticated owner derivation, consistent tenant/property references, and role/relationship checks across implemented resource operations. Unimplemented resource groups remain incomplete.                 |
-| API-012            | PARTIAL  | Cases, receipts, expenses, documents, and notices use bounded stable pages; complete inventory/contract list pagination and documentation remain incomplete.                                                          |
+| API-012            | VERIFIED | The list reference documents filters, sort, limits, and stable ordering. Inventory, contract, and request lists support opt-in pages with scoped totals and preserve legacy array responses.                          |
 | API-013            | PARTIAL  | Receipts, contracts, expenses, cases, notices, invitations, documents, and reports use retry guards; transfer completion remains incomplete.                                                                          |
 | API-014            | PARTIAL  | Implemented retry-sensitive commands reject changed content; comprehensive key inventory and every future transfer/financial command remain incomplete.                                                               |
 | API-019            | PARTIAL  | Annual-review routes now join operational resources; complete obligation, deposit, transfer, move-out, and financial report resources remain incomplete.                                                              |

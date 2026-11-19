@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
-import { caseDate } from '../cases';
+import { caseDateWithZone } from '../cases';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -143,7 +143,7 @@ export function TenantDetail() {
           ['Verified phone', data.user.phoneVerifiedAt ? data.user.phone : 'Not verified'],
           ['Nationality', data.nationality],
           ['Gender', data.gender],
-          ['Emirates ID expiry', caseDate(data.emiratesIdExpiry)],
+          ['Emirates ID expiry', caseDateWithZone(data.emiratesIdExpiry)],
         ].map(([label, value]) => (
           <div key={label}>
             <dt className="text-sm text-muted-foreground">{label}</dt>
@@ -162,7 +162,7 @@ export function TenantDetail() {
               {contract.rentalSpace.unit.name} / {contract.rentalSpace.name}
             </Link>
             <Badge variant="outline">{contract.status.replaceAll('_', ' ')}</Badge>
-            <p className="text-sm text-muted-foreground">{caseDate(contract.startDate)}</p>
+            <p className="text-sm text-muted-foreground">{caseDateWithZone(contract.startDate)}</p>
           </li>
         ))}
       </ul>
