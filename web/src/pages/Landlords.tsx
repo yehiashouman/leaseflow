@@ -1,3 +1,4 @@
+import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -36,21 +37,30 @@ export function Landlords() {
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState('');
   useEffect(() => {
-    const timer = window.setTimeout(() => setSearch(query), 250);
+    const timer = window.setTimeout(() => {
+      setSearch(query);
+      setPage(1);
+    }, 250);
     return () => window.clearTimeout(timer);
   }, [query]);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState('NAME');
   const {
-    data = [],
+    data: result,
     isPending,
     error,
     refetch,
   } = useQuery({
-    queryKey: ['landlords', status, search],
+    queryKey: ['landlords', status, search, sort, page],
     queryFn: ({ signal }) =>
       api
-        .get<Landlord[]>('/inventory/landlords', { params: { status, q: search }, signal })
+        .get<ListPage<Landlord>>('/inventory/landlords', {
+          params: { status, q: search, sort, page },
+          signal,
+        })
         .then((response) => response.data),
   });
+  const data = result?.items ?? [];
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -71,12 +81,27 @@ export function Landlords() {
           className="h-9 rounded-md border bg-background px-3 text-sm"
           aria-label="Landlord status"
           value={status}
-          onChange={(event) => setStatus(event.target.value)}
+          onChange={(event) => {
+            setStatus(event.target.value);
+            setPage(1);
+          }}
         >
           <option value="ACTIVE">Active</option>
           <option value="ARCHIVED">Archived</option>
           <option value="ALL">All</option>
         </select>
+        <ListSort
+          label="Sort landlords"
+          value={sort}
+          options={[
+            ['NAME', 'Landlord name (A–Z)'],
+            ['NEWEST', 'Newest landlords first'],
+          ]}
+          onChange={(value) => {
+            setSort(value);
+            setPage(1);
+          }}
+        />
       </div>
       {isPending || error ? (
         <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
@@ -125,6 +150,9 @@ export function Landlords() {
             )}
           </TableBody>
         </Table>
+      )}
+      {!isPending && !error && result && (
+        <ListPager page={page} total={result.total} pageSize={result.pageSize} onChange={setPage} />
       )}
       {editor && (
         <LandlordEditor

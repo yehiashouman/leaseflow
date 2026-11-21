@@ -1,3 +1,4 @@
+import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
 import dubaiBuildings from '../data/dubai-buildings.json';
 import dubaiBuildingIndex from '../data/dubai-building-index.json';
 import { Plus } from 'lucide-react';
@@ -67,18 +68,24 @@ export function Units() {
   const [editor, setEditor] = useState<Unit | 'new' | null>(null);
   const [status, setStatus] = useState('CURRENT');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState('NEWEST');
   const {
-    data = [],
+    data: result,
     isPending,
     error,
     refetch,
   } = useQuery({
-    queryKey: ['units', status, search],
+    queryKey: ['units', status, search, sort, page],
     queryFn: ({ signal }) =>
       api
-        .get<Unit[]>('/inventory/units', { params: { status, q: search }, signal })
+        .get<ListPage<Unit>>('/inventory/units', {
+          params: { status, q: search, sort, page },
+          signal,
+        })
         .then((response) => response.data),
   });
+  const data = result?.items ?? [];
   const landlords = useQuery({
     queryKey: ['landlords'],
     queryFn: () => api.get<Landlord[]>('/inventory/landlords').then((response) => response.data),
@@ -192,9 +199,9 @@ export function Units() {
       </div>
       <div className="grid grid-cols-3 gap-3">
         {[
-          ['Total units', data.length],
-          ['Active units', data.filter((unit) => unit.active && !unit.archivedAt).length],
-          ['Rental spaces', data.reduce((total, unit) => total + unit.spaces.length, 0)],
+          ['Matching units', result?.total ?? 0],
+          ['Active on this page', data.filter((unit) => unit.active && !unit.archivedAt).length],
+          ['Spaces on this page', data.reduce((total, unit) => total + unit.spaces.length, 0)],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-border/70 bg-white p-4 sm:p-5">
             <p className="text-[11px] text-muted-foreground sm:text-xs">{label}</p>
@@ -212,18 +219,36 @@ export function Units() {
           maxLength={150}
           className="max-w-sm"
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
         />
         <select
           aria-label="Unit status"
           value={status}
-          onChange={(event) => setStatus(event.target.value)}
+          onChange={(event) => {
+            setStatus(event.target.value);
+            setPage(1);
+          }}
           className="h-9 rounded-md border bg-background px-3 text-sm"
         >
           <option value="CURRENT">Current</option>
           <option value="ARCHIVED">Archived</option>
           <option value="ALL">All</option>
         </select>
+        <ListSort
+          label="Sort units"
+          value={sort}
+          options={[
+            ['NEWEST', 'Newest units first'],
+            ['NAME', 'Unit name (A–Z)'],
+          ]}
+          onChange={(value) => {
+            setSort(value);
+            setPage(1);
+          }}
+        />
       </div>
       {isPending || error ? (
         <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
@@ -271,12 +296,15 @@ export function Units() {
             {!data.length && (
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                  No units yet
+                  {search || status !== 'CURRENT' ? 'No matching units' : 'No units yet'}
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+      )}
+      {!isPending && !error && result && (
+        <ListPager page={page} total={result.total} pageSize={result.pageSize} onChange={setPage} />
       )}
       <p className="text-xs text-muted-foreground">
         Building data ©{' '}

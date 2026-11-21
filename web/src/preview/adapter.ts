@@ -175,6 +175,26 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
   const fail = (message: string, status: number): never => {
     throw new AxiosError(message, undefined, config, undefined, respond({ message }, status));
   };
+  function pageList<T>(items: T[]) {
+    if (config.params?.page === undefined) return items;
+    const page = Number(config.params.page);
+    if (!Number.isInteger(page) || page < 1 || page > 10000) fail('Verify the page number.', 422);
+    return {
+      items: items.slice((page - 1) * 20, page * 20),
+      total: items.length,
+      page,
+      pageSize: 20,
+    };
+  }
+  function sortInventoryRows<T extends RecordData>(rows: T[], sort: string) {
+    return rows.sort((a, b) => {
+      const difference =
+        sort === 'NAME'
+          ? a.name.localeCompare(b.name)
+          : String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? ''));
+      return difference || a.id.localeCompare(b.id);
+    });
+  }
   if (path === '/auth/login') {
     const role = accounts[data.email];
     if (!role || data.password !== 'PreviewOnly123!')
@@ -629,24 +649,23 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       .toLowerCase();
     if (!['ACTIVE', 'ARCHIVED', 'ALL'].includes(status))
       return fail('Verify the landlord status.', 422);
-    return respond(
-      store.landlords
-        .filter(
-          (landlord) =>
-            (status === 'ALL' ||
-              (status === 'ARCHIVED' ? Boolean(landlord.archivedAt) : !landlord.archivedAt)) &&
-            (!query ||
-              [landlord.name, landlord.companyName, landlord.email].some((value) =>
-                String(value ?? '')
-                  .toLowerCase()
-                  .includes(query),
-              )),
-        )
-        .map((landlord) => ({
-          ...landlord,
-          _count: { units: store.units.filter((unit) => unit.landlordId === landlord.id).length },
-        })),
-    );
+    const rows = store.landlords
+      .filter(
+        (landlord) =>
+          (status === 'ALL' ||
+            (status === 'ARCHIVED' ? Boolean(landlord.archivedAt) : !landlord.archivedAt)) &&
+          (!query ||
+            [landlord.name, landlord.companyName, landlord.email].some((value) =>
+              String(value ?? '')
+                .toLowerCase()
+                .includes(query),
+            )),
+      )
+      .map((landlord) => ({
+        ...landlord,
+        _count: { units: store.units.filter((unit) => unit.landlordId === landlord.id).length },
+      }));
+    return respond(pageList(sortInventoryRows(rows, config.params?.sort ?? 'NAME')));
   }
   if (method === 'get' && /^\/inventory\/landlords\/[^/]+$/.test(path)) {
     const landlord = store.landlords.find((item) => item.id === path.split('/').at(-1));
@@ -661,19 +680,18 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
   if (method === 'get' && path === '/inventory/units') {
     const status = config.params?.status ?? 'CURRENT';
     const q = String(config.params?.q ?? '').toLowerCase();
-    return respond(
-      units().filter(
-        (unit) =>
-          (status === 'ALL' ||
-            (status === 'ARCHIVED' ? Boolean(unit.archivedAt) : !unit.archivedAt)) &&
-          (!q ||
-            [unit.name, unit.area, unit.building].some((value) =>
-              String(value ?? '')
-                .toLowerCase()
-                .includes(q),
-            )),
-      ),
+    const rows = units().filter(
+      (unit) =>
+        (status === 'ALL' ||
+          (status === 'ARCHIVED' ? Boolean(unit.archivedAt) : !unit.archivedAt)) &&
+        (!q ||
+          [unit.name, unit.area, unit.building].some((value) =>
+            String(value ?? '')
+              .toLowerCase()
+              .includes(q),
+          )),
     );
+    return respond(pageList(sortInventoryRows(rows, config.params?.sort ?? 'NEWEST')));
   }
   if (method === 'get' && /^\/inventory\/units\/[^/]+$/.test(path))
     return respond(
@@ -744,8 +762,29 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
             'Contract setup requires the live API. This preview does not store personal identity documents or create backend contracts.',
         })
       : fail('Insufficient permissions', 403);
-  if (path === '/contracts' && method === 'get')
-    return role !== 'ADMIN' ? respond(store.contracts) : fail('Insufficient permissions', 403);
+  if (path === '/contracts' && method === 'get') {
+    if (role === 'ADMIN') return fail('Insufficient permissions', 403);
+    const q = String(config.params?.q ?? '')
+      .trim()
+      .toLowerCase();
+    const rows = store.contracts.filter(
+      (row) =>
+        (!config.params?.status || row.status === config.params.status) &&
+        (!q ||
+          [row.tenant?.fullName, row.rentalSpace?.name, row.rentalSpace?.unit?.name].some((value) =>
+            String(value ?? '')
+              .toLowerCase()
+              .includes(q),
+          )),
+    );
+    const ascending = config.params?.sort === 'OLDEST' ? 1 : -1;
+    rows.sort(
+      (a, b) =>
+        ascending * String(a.startDate).localeCompare(String(b.startDate)) ||
+        b.id.localeCompare(a.id),
+    );
+    return respond(pageList(rows));
+  }
   if (/^\/payments\/[^/]+\/receipts$/.test(path) && method === 'get') {
     if (!['LEASING_MANAGER', 'TENANT'].includes(role)) return fail('Insufficient permissions', 403);
     if (
@@ -845,17 +884,22 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       const query = String(config.params?.q ?? '')
         .trim()
         .toLowerCase();
-      return respond(
-        store.requests
-          .filter(
-            (item) =>
-              (role !== 'LEASING_MANAGER' || item.status !== 'DRAFT') &&
-              (!config.params?.status || item.status === config.params.status) &&
-              (!config.params?.type || item.type === config.params.type) &&
-              (!query || item.title.toLowerCase().includes(query)),
-          )
-          .map((item) => previewCase(item, store.contracts, role)),
-      );
+      const ascending = config.params?.sort === 'OLDEST' ? 1 : -1;
+      const rows = store.requests
+        .filter(
+          (item) =>
+            (role !== 'LEASING_MANAGER' || item.status !== 'DRAFT') &&
+            (!config.params?.status || item.status === config.params.status) &&
+            (!config.params?.type || item.type === config.params.type) &&
+            (!query || item.title.toLowerCase().includes(query)),
+        )
+        .sort(
+          (a, b) =>
+            ascending * String(a.updatedAt ?? '').localeCompare(String(b.updatedAt ?? '')) ||
+            b.id.localeCompare(a.id),
+        )
+        .map((item) => previewCase(item, store.contracts, role));
+      return respond(pageList(rows));
     }
     if (path === '/requests' && method === 'post') {
       if (role !== 'TENANT') return fail('Insufficient permissions', 403);
@@ -1145,7 +1189,12 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         Object.assign(existing, data);
         item = existing;
       } else {
-        item = { ...data, id: crypto.randomUUID(), archivedAt: null };
+        item = {
+          ...data,
+          id: crypto.randomUUID(),
+          archivedAt: null,
+          createdAt: new Date().toISOString(),
+        };
         store.landlords.push(item);
       }
     } else if (/^\/inventory\/units\/[^/]+\/spaces$/.test(path) && method === 'post') {
@@ -1180,7 +1229,13 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         Object.assign(existing, data);
         item = existing;
       } else {
-        item = { ...data, id: crypto.randomUUID(), active: false, spaces: [] };
+        item = {
+          ...data,
+          id: crypto.randomUUID(),
+          active: false,
+          spaces: [],
+          createdAt: new Date().toISOString(),
+        };
         store.units.push(item);
       }
     } else return fail('This workflow is not implemented in the preview.', 501);

@@ -50,6 +50,7 @@ const listSchema = z
     category: z.enum(expenseCategories).optional(),
     currency: z.enum(['AED', 'USD']).optional(),
     status: z.enum(['ACTIVE', 'VOID', 'ALL']).default('ACTIVE'),
+    sort: z.enum(['NEWEST', 'OLDEST']).default('NEWEST'),
     q: z.string().trim().max(150).default(''),
     from: z.iso.date().optional(),
     to: z.iso.date().optional(),
@@ -190,17 +191,21 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
           }
         : {}),
     };
-    return { query, where };
+    const orderBy: Prisma.ExpenseOrderByWithRelationInput[] = [
+      { incurredAt: query.sort === 'OLDEST' ? 'asc' : 'desc' },
+      { id: 'desc' },
+    ];
+    return { query, where, orderBy };
   }
   app.get('/', async (request) => {
-    const { query, where } = await listWhere(request);
+    const { query, where, orderBy } = await listWhere(request);
     return prisma.$transaction(
       async (tx) => {
         const [rows, total, sums] = await Promise.all([
           tx.expense.findMany({
             where,
             select,
-            orderBy: [{ incurredAt: 'desc' }, { id: 'desc' }],
+            orderBy,
             skip: (query.page - 1) * 20,
             take: 20,
           }),
@@ -222,11 +227,11 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
     );
   });
   app.get('/export.csv', async (request, reply) => {
-    const { where } = await listWhere(request);
+    const { where, orderBy } = await listWhere(request);
     const rows = await prisma.expense.findMany({
       where,
       select,
-      orderBy: [{ incurredAt: 'desc' }, { id: 'desc' }],
+      orderBy,
       take: 1001,
     });
     if (rows.length > 1000)

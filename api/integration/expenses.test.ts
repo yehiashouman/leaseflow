@@ -143,6 +143,34 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
     expect(list.json().items.some((item: { id: string }) => item.id === row.id)).toBe(true);
     expect(detail.body).not.toMatch(/evidenceKey|payloadHash|passwordHash/);
   });
+  it('uses the same filters and date sort for the list and CSV', async () => {
+    const older = await create({ vendor: 'List Sort Fixture', incurredAt: '2026-09-01' });
+    const newer = await create({ vendor: 'List Sort Fixture', incurredAt: '2026-09-02' });
+    const excluded = await create({
+      vendor: 'List Sort Fixture',
+      incurredAt: '2026-09-01',
+      category: 'CLEANING',
+    });
+    const filters = '?q=List%20Sort%20Fixture&category=MAINTENANCE';
+    for (const [sort, ids] of [
+      ['OLDEST', [older.id, newer.id]],
+      ['NEWEST', [newer.id, older.id]],
+    ] as const) {
+      const query = filters + '&sort=' + sort;
+      const list = await send('GET', query);
+      const csv = await send('GET', '/export.csv' + query);
+      expect(list.statusCode).toBe(200);
+      expect(list.json().items.map((item: { id: string }) => item.id)).toEqual(ids);
+      expect(csv.statusCode).toBe(200);
+      expect(csv.body).not.toContain(excluded.id);
+      expect(
+        csv.body
+          .split('\r\n')
+          .slice(1)
+          .map((row) => row.split(',')[0]),
+      ).toEqual(ids.map((id) => '"' + id + '"'));
+    }
+  });
   it('replays the same intent once and rejects a different payload under the same key', async () => {
     const input = body();
     const first = await send('POST', '', input),

@@ -342,19 +342,36 @@ describe('private case interfaces', () => {
     expect(await screen.findByText('No open contracts')).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
   });
-  it('filters cases and restricts the submission entry point to tenants', async () => {
+  it('pages and sorts filtered cases and restricts submission to tenants', async () => {
     auth.role = 'LEASING_MANAGER';
-    const get = vi.spyOn(api, 'get').mockResolvedValue({ data: [] });
+    const get = vi.spyOn(api, 'get').mockImplementation(async (_path, config) => ({
+      data: {
+        items: [],
+        total: 21,
+        page: (config?.params as { page: number } | undefined)?.page,
+        pageSize: 20,
+      },
+    }));
     page(<Requests />, '/requests');
     const user = userEvent.setup();
     expect(screen.queryByRole('button', { name: 'New request' })).toBeNull();
+    await user.click(await screen.findByRole('button', { name: 'Next' }));
+    await waitFor(() =>
+      expect(get).toHaveBeenLastCalledWith(
+        '/requests',
+        expect.objectContaining({ params: expect.objectContaining({ page: 2 }) }),
+      ),
+    );
+    await user.selectOptions(screen.getByLabelText('Sort requests'), 'OLDEST');
     await user.selectOptions(screen.getByLabelText('Request status'), 'RESOLVED');
     await user.selectOptions(screen.getByLabelText('Request type filter'), 'MAINTENANCE');
     await user.type(screen.getByLabelText('Search requests'), 'Tap');
     await waitFor(() =>
       expect(get).toHaveBeenCalledWith(
         '/requests',
-        expect.objectContaining({ params: { status: 'RESOLVED', type: 'MAINTENANCE', q: 'Tap' } }),
+        expect.objectContaining({
+          params: { status: 'RESOLVED', type: 'MAINTENANCE', q: 'Tap', sort: 'OLDEST', page: 1 },
+        }),
       ),
     );
   });

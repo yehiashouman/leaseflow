@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -41,6 +41,30 @@ it('shows request failure without financial zero totals', async () => {
   mount();
   await screen.findByText('Unable to load records');
   expect(screen.queryByText(/Filtered gross:/)).toBeNull();
+});
+it('returns to page one when the expense category or sort changes', async () => {
+  const get = vi.spyOn(api, 'get').mockResolvedValue({
+    data: { items: [expense], total: 21, pageSize: 20, totals: [] },
+  });
+  mount();
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: 'Next' }));
+  await waitFor(() =>
+    expect(get).toHaveBeenLastCalledWith(
+      '/expenses',
+      expect.objectContaining({ params: expect.objectContaining({ page: 2 }) }),
+    ),
+  );
+  await user.selectOptions(screen.getByLabelText('Category'), 'MAINTENANCE');
+  await user.selectOptions(screen.getByLabelText('Sort expenses'), 'OLDEST');
+  await waitFor(() =>
+    expect(get).toHaveBeenLastCalledWith(
+      '/expenses',
+      expect.objectContaining({
+        params: expect.objectContaining({ page: 1, category: 'MAINTENANCE', sort: 'OLDEST' }),
+      }),
+    ),
+  );
 });
 it('records recoveries through the API without altering gross expense', async () => {
   vi.spyOn(api, 'get').mockImplementation(async (path) => ({

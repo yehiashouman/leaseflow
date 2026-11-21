@@ -219,9 +219,17 @@ describe('shadcn UI foundation', () => {
   });
 
   it('retains real unit records in an accessible table', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue({
-      data: [{ id: 'u1', name: 'Unit One', area: 'Dubai', spaces: [], active: true }],
-    });
+    vi.spyOn(api, 'get').mockImplementation(async (path) => ({
+      data:
+        path === '/inventory/units'
+          ? {
+              items: [{ id: 'u1', name: 'Unit One', area: 'Dubai', spaces: [], active: true }],
+              total: 1,
+              page: 1,
+              pageSize: 20,
+            }
+          : [],
+    }));
     renderPage(<Units />);
     expect((await screen.findByRole('table')).textContent).toContain('Unit One');
     expect(screen.getByText('Active')).toBeDefined();

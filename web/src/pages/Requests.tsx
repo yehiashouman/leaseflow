@@ -1,3 +1,4 @@
+import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -21,30 +22,36 @@ export function Requests() {
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState('');
   useEffect(() => {
-    const timer = window.setTimeout(() => setSearch(query), 250);
+    const timer = window.setTimeout(() => {
+      setSearch(query);
+      setPage(1);
+    }, 250);
     return () => window.clearTimeout(timer);
   }, [query]);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState('RECENT');
   const {
-    data = [],
+    data: result,
     isPending,
     error,
     refetch,
   } = useQuery({
-    queryKey: ['requests', status, type, search],
+    queryKey: ['requests', status, type, search, sort, page],
     queryFn: ({ signal }) =>
       api
-        .get<CaseRecord[]>('/requests', {
-          params: { status: status || undefined, type: type || undefined, q: search },
+        .get<ListPage<CaseRecord>>('/requests', {
+          params: { status: status || undefined, type: type || undefined, q: search, sort, page },
           signal,
         })
         .then((response) => response.data),
   });
+  const data = result?.items ?? [];
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Requests</h1>
         <div className="flex items-center gap-2">
-          {!isPending && !error && <Badge variant="secondary">{data.length} requests</Badge>}
+          {!isPending && !error && <Badge variant="secondary">{result?.total ?? 0} requests</Badge>}
           {user?.role === 'TENANT' && <Button onClick={() => setOpen(true)}>New request</Button>}
         </div>
       </div>
@@ -62,7 +69,10 @@ export function Requests() {
           className="h-9 max-w-full rounded-md border bg-background px-3 text-sm"
           aria-label="Request status"
           value={status}
-          onChange={(event) => setStatus(event.target.value)}
+          onChange={(event) => {
+            setStatus(event.target.value);
+            setPage(1);
+          }}
         >
           <option value="">All statuses</option>
           {Object.entries(caseStatuses).map(([value, label]) => (
@@ -75,7 +85,10 @@ export function Requests() {
           className="h-9 rounded-md border bg-background px-3 text-sm"
           aria-label="Request type filter"
           value={type}
-          onChange={(event) => setType(event.target.value)}
+          onChange={(event) => {
+            setType(event.target.value);
+            setPage(1);
+          }}
         >
           <option value="">All types</option>
           {Object.entries(caseTypes).map(([value, label]) => (
@@ -84,6 +97,18 @@ export function Requests() {
             </option>
           ))}
         </select>
+        <ListSort
+          label="Sort requests"
+          value={sort}
+          options={[
+            ['RECENT', 'Recently updated first'],
+            ['OLDEST', 'Oldest updates first'],
+          ]}
+          onChange={(value) => {
+            setSort(value);
+            setPage(1);
+          }}
+        />
       </div>
       {isPending || error ? (
         <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
@@ -118,6 +143,9 @@ export function Requests() {
             </div>
           )}
         </div>
+      )}
+      {!isPending && !error && result && (
+        <ListPager page={page} total={result.total} pageSize={result.pageSize} onChange={setPage} />
       )}
       {open && (
         <CaseEditor

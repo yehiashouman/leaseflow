@@ -169,7 +169,9 @@ describe('inventory forms', () => {
     await waitFor(() =>
       expect(get).toHaveBeenCalledWith(
         '/inventory/landlords',
-        expect.objectContaining({ params: { status: 'ARCHIVED', q: 'Owner' } }),
+        expect.objectContaining({
+          params: { status: 'ARCHIVED', q: 'Owner', sort: 'NAME', page: 1 },
+        }),
       ),
     );
   });
@@ -239,7 +241,9 @@ describe('inventory forms', () => {
   });
   it('creates a landlord and refreshes the list', async () => {
     const rows: { id: string; name: string }[] = [];
-    vi.spyOn(api, 'get').mockImplementation(async () => ({ data: [...rows] }));
+    vi.spyOn(api, 'get').mockImplementation(async () => ({
+      data: { items: [...rows], total: rows.length, page: 1, pageSize: 20 },
+    }));
     const post = vi.spyOn(api, 'post').mockImplementation(async (_url, data) => {
       rows.push({ id: 'l2', name: (data as { name: string }).name });
       return { data: rows[0] };
@@ -257,7 +261,9 @@ describe('inventory forms', () => {
     );
   });
   it('edits a landlord without a duplicate create', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue({ data: [{ id: 'l1', name: 'Demo Owner' }] });
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: { items: [{ id: 'l1', name: 'Demo Owner' }], total: 1, page: 1, pageSize: 20 },
+    });
     const patch = vi.spyOn(api, 'patch').mockResolvedValue({ data: {} });
     page(<Landlords />);
     const user = userEvent.setup();

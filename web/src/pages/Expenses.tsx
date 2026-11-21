@@ -1,3 +1,5 @@
+import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
+import { expenseCategories } from '../expense-categories';
 import { requestError } from '../api-errors';
 import { recoverableQueryError } from '../api-errors';
 import { useRef, useState } from 'react';
@@ -168,6 +170,8 @@ export function Expenses() {
   const [page, setPage] = useState(1),
     [open, setOpen] = useState(false),
     [status, setStatus] = useState('ACTIVE'),
+    [category, setCategory] = useState(''),
+    [sort, setSort] = useState('NEWEST'),
     [currency, setCurrency] = useState(''),
     [search, setSearch] = useState(''),
     [from, setFrom] = useState(''),
@@ -177,6 +181,8 @@ export function Expenses() {
   const params = {
     page,
     status,
+    category: category || undefined,
+    sort,
     currency: currency || undefined,
     q: search,
     from: from || undefined,
@@ -186,12 +192,10 @@ export function Expenses() {
     queryKey: ['expenses', params],
     queryFn: ({ signal }) =>
       api
-        .get<{
-          items: Expense[];
-          total: number;
-          pageSize: number;
-          totals: { currency: string; grossAmount: string }[];
-        }>('/expenses', { params, signal })
+        .get<ListPage<Expense> & { totals: { currency: string; grossAmount: string }[] }>(
+          '/expenses',
+          { params, signal },
+        )
         .then((response) => response.data),
   });
   async function download() {
@@ -277,6 +281,25 @@ export function Expenses() {
           </select>
         </div>
         <div>
+          <Label htmlFor="expense-category">Category</Label>
+          <select
+            id="expense-category"
+            value={category}
+            onChange={(event) => {
+              setCategory(event.target.value);
+              setPage(1);
+            }}
+            className="mt-1 block h-9 w-full rounded-md border bg-background px-3 text-sm"
+          >
+            <option value="">All categories</option>
+            {expenseCategories.map((option) => (
+              <option key={option} value={option}>
+                {option.replaceAll('_', ' ')}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
           <Label htmlFor="expense-from">From (UTC)</Label>
           <Input
             id="expense-from"
@@ -300,6 +323,18 @@ export function Expenses() {
             }}
           />
         </div>
+        <ListSort
+          label="Sort expenses"
+          value={sort}
+          options={[
+            ['NEWEST', 'Newest expense date first'],
+            ['OLDEST', 'Oldest expense date first'],
+          ]}
+          onChange={(value) => {
+            setSort(value);
+            setPage(1);
+          }}
+        />
       </div>
       {error && (
         <Alert variant="destructive">
@@ -350,21 +385,12 @@ export function Expenses() {
             ))}
             {!query.data!.items.length && <p>No expenses match these filters.</p>}
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Previous
-            </Button>
-            <span>
-              Page {page} · {query.data!.total} records
-            </span>
-            <Button
-              variant="outline"
-              disabled={page * query.data!.pageSize >= query.data!.total}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          <ListPager
+            page={page}
+            total={query.data!.total}
+            pageSize={query.data!.pageSize}
+            onChange={setPage}
+          />
         </>
       )}
       {open && <ExpenseEditor onClose={() => setOpen(false)} />}

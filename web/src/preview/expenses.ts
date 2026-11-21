@@ -1,19 +1,8 @@
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { Role } from '../session';
+import { expenseCategories as categories } from '../expense-categories';
 type Row = { id: string; [key: string]: any };
 type Store = { expenses?: Row[]; units: Row[]; landlords: Row[]; contracts: Row[]; profile?: Row };
-const categories = [
-  'OWNER_RENT',
-  'ELECTRICITY',
-  'WATER',
-  'COOLING',
-  'INTERNET',
-  'MAINTENANCE',
-  'CLEANING',
-  'FURNISHING',
-  'LICENSE_FEE',
-  'OTHER',
-];
 const minor = (value: string) => {
   const [whole, fraction = ''] = value.split('.');
   return BigInt(whole!) * 100n + BigInt(fraction.padEnd(2, '0'));
@@ -77,7 +66,10 @@ export function previewExpenses(
           (!query.from || row.incurredAt.slice(0, 10) >= query.from) &&
           (!query.to || row.incurredAt.slice(0, 10) <= query.to),
       )
-      .sort((a, b) => b.incurredAt.localeCompare(a.incurredAt) || b.id.localeCompare(a.id));
+      .sort((a, b) => {
+        const ascending = query.sort === 'OLDEST' ? 1 : -1;
+        return ascending * a.incurredAt.localeCompare(b.incurredAt) || b.id.localeCompare(a.id);
+      });
     if (path.endsWith('.csv')) {
       const content = [
         [
