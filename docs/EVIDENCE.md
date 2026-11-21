@@ -692,3 +692,15 @@ Verified 21 November 2026 using [GitHub CI](https://github.com/yehiashouman/leas
 - **CASE-018** General request categories support optional or required questions. Each request retains the original category name, question, and answer after changes.
 
 The run passed 213 MySQL tests, 126 web tests, 26 desktop and mobile journeys, private-file tests, and Docker Compose checks.
+
+## Operational list controls
+
+Code commit: `a6b8a9851901fb5118c307e777975f808da58629`.
+[Application and MySQL checks](https://github.com/yehiashouman/leaseflow/actions/runs/44845653310).
+[Browser fixtures, preview checks, and Pages deployment](https://github.com/yehiashouman/leaseflow/actions/runs/44845653284).
+
+- **UX-011** Search, filters, stable sort order, and pagination cover landlords, units, tenants, contracts, requests, annual reviews, and expenses.
+- Search, filter, and sort changes return the affected list to page one.
+- Expense CSV uses the same filter and sort parameters as the expense list.
+
+The Pages workflow passed 127 web tests, four browser fixture tests, and 18 preview browser tests.

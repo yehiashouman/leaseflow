@@ -4,8 +4,8 @@ Date: 21 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 118 additional verified requirements; 305 of 764 overall (39.92%).
-The target is not complete: 54 partial and 28 blocked requirements remain in this batch.
+Current result: 119 additional verified requirements; 306 of 764 overall (40.05%).
+The target is not complete: 53 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -81,6 +81,8 @@ Currency and Timezone Labels: [Component and application evidence](https://githu
 Key and Lock Case Decisions: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44613736796).
 
 Request categories and assignment history passed [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44616178467).
+
+Operational list controls passed [application and MySQL checks](https://github.com/yehiashouman/leaseflow/actions/runs/44845653310) and [Pages checks](https://github.com/yehiashouman/leaseflow/actions/runs/44845653284).
 
 ## Complete 200-Item Matrix
 
@@ -178,7 +180,7 @@ Only VERIFIED rows receive completion credit.
 | UX-008             | PARTIAL  | Custom account, document, request, deadline, security, and shared record forms expose linked field errors; complete future release-form acceptance remains incomplete.                                                |
 | UX-009             | PARTIAL  | Shared query and command errors now include safe server messages and validated request references; complete future release-screen acceptance remains incomplete.                                                      |
 | UX-010             | PARTIAL  | Receipt, expense, recovery, void, and contract forms require confirmations; final transfer, move-out, and settlement actions remain incomplete.                                                                       |
-| UX-011             | PARTIAL  | Operational lists offer selected filters and bounded pages; complete inventory, contracts, and financial sorting/filter controls remain incomplete.                                                                   |
+| UX-011             | VERIFIED | Landlords, units, tenants, contracts, requests, annual reviews, and expenses support search, filters, stable sort order, and pagination. Expense CSV uses the selected filters and order.                             |
 | UX-012             | VERIFIED | Verified role and account-state navigation with independent API permission enforcement.                                                                                                                               |
 | UX-013             | VERIFIED | Verified role and account-state navigation with independent API permission enforcement.                                                                                                                               |
 | UX-014             | VERIFIED | Contract, case, occupant, manager, and dashboard dates show Dubai time where relevant. Expense dates identify UTC. Payment amounts retain their recorded currency.                                                    |

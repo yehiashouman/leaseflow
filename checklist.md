@@ -588,7 +588,7 @@ Requirements: 21-22.
 - [ ] **UX-008** Show field errors beside inputs.
 - [ ] **UX-009** Show safe server messages with request identifiers.
 - [ ] **UX-010** Confirm destructive, financial, and final contract actions.
-- [ ] **UX-011** Provide search, pagination, filters, and sort controls for operational lists.
+- [x] **UX-011** Provide search, pagination, filters, and sort controls for operational lists. [Evidence](docs/EVIDENCE.md#operational-list-controls).
 - [x] **UX-012** Choose navigation from authenticated role and account status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **UX-013** Hide unauthorized controls without reliance on client-only permission enforcement. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **UX-014** Display currency and relevant timezone alongside money and dates. [Evidence](docs/EVIDENCE.md#currency-and-timezone-labels).

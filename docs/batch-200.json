@@ -2045,15 +2045,37 @@
     {
       "id": "UX-011",
       "requirement": "Provide search, pagination, filters, and sort controls for operational lists.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "web/src/App.tsx",
-        "web/src/components/record-editor.tsx",
-        "web/src/components/query-feedback.tsx"
+        "web/src/components/list-controls.tsx",
+        "web/src/pages/Landlords.tsx",
+        "web/src/pages/Units.tsx",
+        "web/src/pages/Tenants.tsx",
+        "web/src/pages/Contracts.tsx",
+        "web/src/pages/Requests.tsx",
+        "web/src/pages/Reviews.tsx",
+        "web/src/pages/Expenses.tsx",
+        "api/src/routes/expenses.ts",
+        "api/src/routes/reviews.ts",
+        "api/src/routes/tenants.ts"
       ],
-      "tests": ["web/src/ui.test.tsx", "web/src/record-editor.test.tsx"],
-      "decisions": [],
-      "note": "Operational lists offer selected filters and bounded pages; complete inventory, contracts, and financial sorting/filter controls remain incomplete."
+      "tests": [
+        "web/src/inventory.test.tsx",
+        "web/src/ui.test.tsx",
+        "web/src/cases.test.tsx",
+        "web/src/expenses.test.tsx",
+        "web/src/profile-notifications.test.tsx",
+        "api/integration/expenses.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/ui.spec.ts",
+        "web/e2e/inventory.live.spec.ts"
+      ],
+      "note": "Landlords, units, tenants, contracts, requests, annual reviews, and expenses support search, filters, stable sort order, and pagination. Expense CSV uses the selected filters and order.",
+      "commit": "a6b8a9851901fb5118c307e777975f808da58629",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44845653310",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
     },
     {
       "id": "UX-012",
