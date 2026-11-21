@@ -372,6 +372,7 @@ model Payment {
   receipts PaymentReceipt[]
   periodStart DateTime
   dueDate DateTime
+  expectedDate DateTime?
   amountDue Decimal @db.Decimal(12, 2)
   amountPaid Decimal @default(0) @db.Decimal(12, 2)
   currency String @default("AED")

@@ -21,16 +21,26 @@ import { RecordEditor, formValues, type EditorField } from '@/components/record-
 import type { Landlord } from './Landlords';
 import { unitAmenities } from '../unit-amenities';
 import { Input } from '@/components/ui/input';
+import { choiceNameKey } from '@/components/ui/search-select';
 
 const buildingsByArea: Record<string, string[]> = dubaiBuildingIndex.areas;
-const mappedBuildings = [
-  ...Object.entries(buildingsByArea),
-  ...Object.entries(dubaiBuildingIndex.aliases).map(([alias, area]): [string, string[]] => [
-    alias,
-    buildingsByArea[area] ?? [],
+const buildingAreaAliases: Record<string, string> = dubaiBuildingIndex.aliases;
+const catalogAreas = [
+  ...new Set([
+    ...Object.keys(buildingsByArea),
+    ...Object.keys(buildingAreaAliases),
+    ...dubaiBuildings.buildings.map(({ area }) => area),
   ]),
-].flatMap(([area, names]) => names.map((name) => ({ name, area })));
-const catalogBuildings = [...mappedBuildings, ...dubaiBuildings.buildings];
+];
+const catalogBuildings = catalogAreas.flatMap((area) => {
+  const canonical = buildingAreaAliases[area] ?? area;
+  return [
+    ...(buildingsByArea[canonical] ?? []),
+    ...dubaiBuildings.buildings
+      .filter((item) => (buildingAreaAliases[item.area] ?? item.area) === canonical)
+      .map((item) => item.name),
+  ].map((name) => ({ name, area }));
+});
 
 export type Unit = {
   id: string;
@@ -109,18 +119,14 @@ export function Units() {
       allowCustom: true,
       dependsOn: 'area',
       options: [
-        ...new Map(
-          [
-            ...catalogBuildings,
-            ...data
-              .filter((item) => item.building)
-              .map((item) => ({ name: item.building!, area: item.area })),
-          ].map(({ name, area }) => [
-            area + ':' + name.toLocaleLowerCase(),
-            { value: name, label: name + ' · ' + area, area },
-          ]),
-        ).values(),
-      ].sort((a, b) => a.label.localeCompare(b.label)),
+        ...catalogBuildings,
+        ...data
+          .filter((item) => item.building)
+          .map((item) => ({ name: item.building!, area: item.area })),
+      ]
+        .map(({ name, area }) => ({ value: name, label: name.replace(/\s+/gu, ' ').trim(), area }))
+        .filter((option) => choiceNameKey(option.value))
+        .sort((a, b) => a.label.localeCompare(b.label)),
     },
     { name: 'street', label: 'Street', maxLength: 200 },
     { name: 'addressNotes', label: 'Address notes', type: 'textarea', maxLength: 1000 },

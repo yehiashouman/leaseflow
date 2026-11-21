@@ -91,9 +91,32 @@ describe('reference choices', () => {
     await user.click(screen.getByRole('option', { name: 'Dubai Marina' }));
     expect(screen.getByLabelText('Building').textContent).toContain('Select an option');
   });
+  it('shows one building for catalogue and saved spelling variants without changing saved text', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <form>
+        <SearchSelect
+          name="building"
+          options={[
+            { value: 'Marina Tower', label: 'Marina Tower' },
+            { value: 'MARINA  TOWER', label: 'MARINA TOWER' },
+          ]}
+          defaultValue="  Marina Tower "
+          allowCustom
+        />
+      </form>,
+    );
+    await user.click(screen.getByRole('combobox'));
+    expect(screen.getAllByRole('option', { name: 'Marina Tower' })).toHaveLength(1);
+    await user.type(screen.getByRole('combobox', { name: 'Search choices' }), 'marina tower');
+    expect(screen.queryByRole('button', { name: /Add unlisted building/ })).toBeNull();
+    expect(new FormData(container.querySelector('form')!).get('building')).toBe('  Marina Tower ');
+  });
   it('provides country, language, and Dubai catalogues without duplicate values', () => {
     expect(countries.length).toBe(249);
     expect(languages.length).toBeGreaterThan(180);
+    expect(new Set(languages.map((item) => item.label)).size).toBe(languages.length);
+    expect(languages.find((item) => item.value === 'tw')?.label).toBe('Twi');
     expect(dubaiAreas.some((item) => item.value === 'Deira')).toBe(true);
     expect(dubaiAreas.some((item) => item.value === 'Dubai Marina')).toBe(true);
     for (const choices of [countries, languages, dubaiAreas])

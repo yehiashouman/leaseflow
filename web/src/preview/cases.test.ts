@@ -73,6 +73,7 @@ describe('synthetic case workflow', () => {
       'NEIGHBOR_COMPLAINT',
       'KEY_LOCK_CHANGE',
       'GENERAL',
+      'LATE_PAYMENT',
     ]);
     const body = {
       contractId: 'contract-1',
@@ -98,6 +99,34 @@ describe('synthetic case workflow', () => {
     await expect(manager.post('/requests', body)).rejects.toMatchObject({
       response: { status: 403 },
     });
+  });
+  it('preserves the original due date when the manager approves the preview extension', async () => {
+    const options = (await tenant.get('/requests/options/contract-1/late-payments')).data;
+    const candidate = options.obligations[0];
+    const submitted = (
+      await tenant.post('/requests', {
+        contractId: 'contract-1',
+        clientId: crypto.randomUUID(),
+        type: 'LATE_PAYMENT',
+        title: 'Rent extension',
+        description: 'Request a later payment date.',
+        latePayment: { paymentId: candidate.id, requestedDate: candidate.latestDate },
+      })
+    ).data;
+    const decision = { clientId: crypto.randomUUID(), status: 'APPROVED', expectedVersion: 1 };
+    const path = '/requests/' + submitted.id + '/respond';
+    await expect(tenant.post(path, decision)).rejects.toMatchObject({ response: { status: 403 } });
+    const approved = (await manager.post(path, decision)).data;
+    expect(approved.events.at(-1).latePayment).toEqual({
+      originalDate: candidate.originalDate,
+      expectedDate: candidate.latestDate,
+    });
+    const records = (
+      await tenant.get('/contracts/contract-1/records', { params: { section: 'payments' } })
+    ).data;
+    const rent = records.items.find((item: { id: string }) => item.id === candidate.id);
+    expect(rent.dueDate).not.toBe(rent.expectedDate);
+    expect((await manager.post(path, decision)).data.events).toHaveLength(2);
   });
   it('requires tenant acknowledgement and rejects stale or forbidden decisions', async () => {
     const path = '/requests/request-1/respond';

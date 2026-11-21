@@ -10,7 +10,7 @@ export const countries: Choice[] = codes.countries
   .map((code) => ({ value: countryNames.of(code) ?? code, label: countryNames.of(code) ?? code }))
   .sort(alphabetic);
 export const languages: Choice[] = codes.languages
-  .map((code) => ({ value: code, label: languageNames.of(code) ?? code }))
+  .map((code) => ({ value: code, label: code === 'tw' ? 'Twi' : (languageNames.of(code) ?? code) }))
   .sort(alphabetic);
 export const dubaiAreas: Choice[] = [
   ...new Set([...dubai.areas, ...Object.keys(buildings.areas), ...Object.keys(buildings.aliases)]),

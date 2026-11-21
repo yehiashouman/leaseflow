@@ -47,3 +47,22 @@ describe('Dubai business calendar', () => {
     expect(dubaiMidnight(new Date('2026-02-01')).toISOString()).toBe('2026-01-31T20:00:00.000Z');
   });
 });
+
+import { latePaymentDates, nextLateApproval } from '../src/late-payment-policy.js';
+
+it('uses Dubai calendar boundaries and clamps late-payment limits', () => {
+  const dates = latePaymentDates(new Date('2026-02-13T20:00:00Z'), {
+    lateRequestWindowDays: 15,
+    maxLateExtensionDays: 9,
+  });
+  expect(dates).toMatchObject({
+    originalDate: '2026-02-14',
+    opensAt: new Date('2026-02-03T20:00:00Z'),
+    closesAt: new Date('2026-02-13T20:00:00Z'),
+    earliestDate: '2026-02-15',
+    latestDate: '2026-02-19',
+  });
+  expect(nextLateApproval(new Date('2025-08-30T21:00:00Z'))).toEqual(
+    new Date('2026-02-27T20:00:00Z'),
+  );
+});

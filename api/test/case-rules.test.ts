@@ -18,7 +18,7 @@ describe('operational case rules', () => {
     expect(allowedCaseActions('MAINTENANCE', 'ACCEPTED', 'LEASING_MANAGER')).toContain('CLOSED');
   });
   it('never grants financial transitions through the generic workflow', () => {
-    for (const type of ['LATE_PAYMENT', 'ROOM_CHANGE', 'MOVE_OUT'] as const)
+    for (const type of ['ROOM_CHANGE', 'MOVE_OUT'] as const)
       for (const status of Object.values(RequestStatus))
         for (const role of Object.values(Role))
           expect(allowedCaseActions(type, status, role)).toEqual([]);

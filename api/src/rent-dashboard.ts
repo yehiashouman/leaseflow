@@ -25,6 +25,7 @@ export function rentBalance(amountDue: Prisma.Decimal, amountPaid: Prisma.Decima
 
 type RentPayment = {
   dueDate: Date;
+  expectedDate?: Date | null;
   currency: string;
   amountDue: Prisma.Decimal;
   amountPaid: Prisma.Decimal;
@@ -57,9 +58,10 @@ export function rentDashboardTotals(
   for (const payment of payments) {
     const balance = rentBalance(payment.amountDue, payment.amountPaid);
     const row = forCurrency(payment.currency);
-    if (payment.dueDate < windows.today) row.overdue = row.overdue.plus(balance);
-    else if (payment.dueDate < windows.tomorrow) row.dueToday = row.dueToday.plus(balance);
-    else if (payment.dueDate < windows.afterNextWeek)
+    const dueDate = payment.expectedDate ?? payment.dueDate;
+    if (dueDate < windows.today) row.overdue = row.overdue.plus(balance);
+    else if (dueDate < windows.tomorrow) row.dueToday = row.dueToday.plus(balance);
+    else if (dueDate < windows.afterNextWeek)
       row.dueNextSevenDays = row.dueNextSevenDays.plus(balance);
     if (payment.amountPaid.gt(0)) row.partiallyPaid = row.partiallyPaid.plus(balance);
   }

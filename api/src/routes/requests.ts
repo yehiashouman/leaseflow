@@ -4,6 +4,13 @@ import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
 import { complaintOccupants, complaintSourceSelect } from '../complaint-occupants.js';
+import { calendarDate, dubaiMidnight } from '../business-calendar.js';
+import {
+  latePaymentDates,
+  latePaymentInput,
+  latePaymentSnapshot,
+  nextLateApproval,
+} from '../late-payment-policy.js';
 import { openContractStatuses } from '../space-availability.js';
 import { listPageSize, optionalPage, pageWindow } from '../list-page.js';
 import {
@@ -30,6 +37,13 @@ import {
   latestCaseAssignment,
 } from '../case-data.js';
 
+const pendingLateStatuses: RequestStatus[] = [
+  'SUBMITTED',
+  'SEEN',
+  'AWAITING_TENANT',
+  'AWAITING_MANAGER',
+  'APPROVED',
+];
 const idSchema = z.object({ id: z.string().min(1).max(191) });
 const createSchema = z
   .object({
@@ -49,6 +63,7 @@ const createSchema = z
       .optional(),
     urgency: z.enum(['NORMAL', 'URGENT']).default('NORMAL'),
     draft: z.boolean().default(false),
+    latePayment: latePaymentInput.optional(),
     involvedOccupantId: z
       .string()
       .regex(/^[A-Za-z0-9_-]{43}$/)
@@ -62,6 +77,14 @@ const createSchema = z
   .refine((body) => !body.involvedOccupantId || body.type === 'NEIGHBOR_COMPLAINT', {
     path: ['involvedOccupantId'],
     message: 'Select an occupant only for a neighbor complaint.',
+  })
+  .refine((body) => (body.type === 'LATE_PAYMENT') === !!body.latePayment, {
+    path: ['latePayment'],
+    message: 'Select a rent obligation and requested date for a late-payment request.',
+  })
+  .refine((body) => !body.latePayment || !body.draft, {
+    path: ['draft'],
+    message: 'Submit the request within the available window.',
   });
 const messageSchema = z
   .object({ clientId: z.uuid(), message: z.string().trim().min(1).max(5000) })
@@ -89,6 +112,81 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
     });
     if (!row) throw app.httpErrors.notFound('Request not found');
     return row;
+  }
+  async function latestLateApproval(tx: Prisma.TransactionClient, tenantId: string) {
+    return tx.requestEvent.findFirst({
+      where: {
+        kind: 'APPROVED',
+        actorRole: 'LEASING_MANAGER',
+        request: { type: 'LATE_PAYMENT', contract: { tenantId } },
+      },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async function changeExpectedDate(
+    tx: Prisma.TransactionClient,
+    current: Awaited<ReturnType<typeof load>>,
+    action: 'APPROVED' | 'CLOSED',
+    now: Date,
+  ) {
+    const details = latePaymentSnapshot.safeParse(
+      z.object({ latePayment: z.unknown() }).safeParse(current.metadata).data?.latePayment,
+    );
+    if (!details.success)
+      throw app.httpErrors.conflict('The request has no recorded rent obligation.');
+    const contract = await tx.contract.findUniqueOrThrow({
+      where: { id: current.contractId },
+      select: { tenantId: true, status: true },
+    });
+    await tx.$queryRaw`SELECT id FROM TenantProfile WHERE id = ${contract.tenantId} FOR UPDATE`;
+    const { paymentId, originalDate, requestedDate } = details.data;
+    await tx.$queryRaw`SELECT id FROM Payment WHERE id = ${paymentId} AND contractId = ${current.contractId} FOR UPDATE`;
+    const payment = await tx.payment.findFirst({
+      where: { id: paymentId, contractId: current.contractId },
+    });
+    if (!payment) throw app.httpErrors.conflict('The rent obligation is unavailable.');
+    const today = dubaiMidnight(calendarDate(now));
+    const proposed = dubaiMidnight(new Date(requestedDate + 'T00:00:00Z'));
+    const expectedDate = action === 'APPROVED' ? proposed : null;
+    if (action === 'APPROVED') {
+      if (
+        !openContractStatuses.some((status) => status === contract.status) ||
+        payment.expectedDate ||
+        payment.amountPaid.gte(payment.amountDue) ||
+        ['ADJUSTED', 'DISPUTED'].includes(payment.status) ||
+        proposed <= now
+      )
+        throw app.httpErrors.conflict(
+          'This obligation can no longer receive the requested extension.',
+        );
+      const prior = await latestLateApproval(tx, contract.tenantId);
+      if (prior && now < nextLateApproval(prior.createdAt))
+        throw app.httpErrors.conflict('Only one late-payment approval is allowed per six months.');
+    } else if (payment.expectedDate?.getTime() !== proposed.getTime()) {
+      throw app.httpErrors.conflict('The expected date has changed.');
+    }
+    const dueDate = expectedDate ?? payment.dueDate;
+    await tx.payment.update({
+      where: { id: paymentId },
+      data: {
+        expectedDate,
+        ...(!['PAID', 'ADJUSTED', 'DISPUTED'].includes(payment.status)
+          ? {
+              status:
+                dueDate < today
+                  ? 'LATE'
+                  : payment.amountPaid.gt(0)
+                    ? 'PARTIALLY_PAID'
+                    : dueDate <= now
+                      ? 'DUE'
+                      : 'UPCOMING',
+            }
+          : {}),
+      },
+    });
+    return { originalDate, expectedDate: action === 'APPROVED' ? requestedDate : null };
   }
   app.addHook('onSend', async (_request, reply) => {
     reply.header('Cache-Control', 'no-store');
@@ -128,7 +226,7 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
     return { items: rows.map(dto), total, page: query.page, pageSize: listPageSize };
   });
   app.get('/options', { preHandler: allowRoles('TENANT') }, async (request) => ({
-    types: basicCaseTypes,
+    types: [...basicCaseTypes, 'LATE_PAYMENT'],
     categories: await prisma.requestCategory.findMany({
       where: { active: true, type: { in: [...basicCaseTypes] } },
       orderBy: [{ type: 'asc' }, { name: 'asc' }, { id: 'asc' }],
@@ -150,6 +248,55 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
       orderBy: { startDate: 'desc' },
     }),
   }));
+  app.get('/options/:id/late-payments', { preHandler: allowRoles('TENANT') }, async (request) => {
+    const { id } = idSchema.parse(request.params);
+    const contract = await prisma.contract.findFirst({
+      where: { id, ...caseContractScope(request.user), status: { in: [...openContractStatuses] } },
+      select: {
+        tenant: { select: { id: true, lateRequestWindowDays: true, maxLateExtensionDays: true } },
+        requests: {
+          where: { type: 'LATE_PAYMENT', status: { in: pendingLateStatuses } },
+          select: { metadata: true },
+        },
+        payments: {
+          where: {
+            expectedDate: null,
+            dueDate: { gte: new Date(), lte: new Date(Date.now() + 11 * 86_400_000) },
+            status: { in: ['UPCOMING', 'DUE', 'PARTIALLY_PAID'] },
+          },
+          select: { id: true, dueDate: true, amountDue: true, amountPaid: true },
+          orderBy: [{ dueDate: 'asc' }, { id: 'asc' }],
+        },
+      },
+    });
+    if (!contract) throw app.httpErrors.notFound('Contract not found');
+    const { tenant } = contract;
+    const pending = new Set(
+      contract.requests.map(
+        ({ metadata }) =>
+          z.object({ latePayment: latePaymentSnapshot }).safeParse(metadata).data?.latePayment
+            .paymentId,
+      ),
+    );
+    const now = new Date();
+    const prior = await latestLateApproval(prisma, tenant.id);
+    const nextApprovalAt = prior ? nextLateApproval(prior.createdAt) : null;
+    return {
+      windowDays: Math.max(0, Math.min(tenant.lateRequestWindowDays, 10)),
+      extensionDays: Math.max(0, Math.min(tenant.maxLateExtensionDays, 5)),
+      nextApprovalAt: nextApprovalAt && now < nextApprovalAt ? nextApprovalAt : null,
+      obligations: contract.payments.flatMap((payment) => {
+        const dates = latePaymentDates(payment.dueDate, tenant);
+        return !pending.has(payment.id) &&
+          payment.amountPaid.lt(payment.amountDue) &&
+          dates.opensAt <= now &&
+          now < dates.closesAt &&
+          dates.earliestDate <= dates.latestDate
+          ? [{ id: payment.id, ...dates }]
+          : [];
+      }),
+    };
+  });
   app.get('/options/:id/occupants', { preHandler: allowRoles('TENANT') }, async (request) => {
     const { id } = idSchema.parse(request.params);
     const source = await prisma.contract.findFirst({
@@ -198,6 +345,8 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
               (body.configuredCategory?.answer || null) ||
             previous.urgency !== metadata.urgency ||
             previous.involvedOccupant?.id !== body.involvedOccupantId ||
+            previous.latePayment?.paymentId !== body.latePayment?.paymentId ||
+            previous.latePayment?.requestedDate !== body.latePayment?.requestedDate ||
             (existing.events[0]?.kind === 'DRAFT_CREATED') !== body.draft
           )
             throw app.httpErrors.conflict('Submission key reused with different content');
@@ -238,6 +387,48 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             answer: answer || null,
           };
         }
+        let latePayment;
+        if (body.latePayment) {
+          const { paymentId, requestedDate } = body.latePayment;
+          await tx.$queryRaw`SELECT id FROM Payment WHERE id = ${paymentId} AND contractId = ${body.contractId} FOR UPDATE`;
+          const payment = await tx.payment.findFirst({
+            where: { id: paymentId, contractId: body.contractId },
+            include: {
+              contract: {
+                select: {
+                  tenant: { select: { lateRequestWindowDays: true, maxLateExtensionDays: true } },
+                },
+              },
+            },
+          });
+          if (!payment) throw app.httpErrors.notFound('Rent obligation not found');
+          const now = new Date();
+          const dates = latePaymentDates(payment.dueDate, payment.contract.tenant);
+          if (
+            payment.expectedDate ||
+            payment.amountPaid.gte(payment.amountDue) ||
+            !['UPCOMING', 'DUE', 'PARTIALLY_PAID'].includes(payment.status)
+          )
+            throw app.httpErrors.conflict(
+              'This obligation is unavailable for a late-payment request.',
+            );
+          if (now < dates.opensAt || now >= dates.closesAt)
+            throw app.httpErrors.conflict('The late-payment request window is closed.');
+          if (requestedDate < dates.earliestDate || requestedDate > dates.latestDate)
+            throw app.httpErrors.unprocessableEntity('Select a permitted expected payment date.');
+          const pending = await tx.request.findFirst({
+            where: {
+              contractId: body.contractId,
+              type: 'LATE_PAYMENT',
+              status: { in: pendingLateStatuses },
+              metadata: { path: '$.latePayment.paymentId', equals: paymentId },
+            },
+            select: { id: true },
+          });
+          if (pending)
+            throw app.httpErrors.conflict('A request already exists for this obligation.');
+          latePayment = { paymentId, requestedDate, originalDate: dates.originalDate };
+        }
         const created = await tx.request.create({
           data: {
             contractId: body.contractId,
@@ -251,6 +442,7 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
               ...metadata,
               ...(categorySnapshot ? { category: categorySnapshot.name, categorySnapshot } : {}),
               ...(involvedOccupant ? { involvedOccupant } : {}),
+              ...(latePayment ? { latePayment } : {}),
             },
             events: {
               create: {
@@ -433,7 +625,10 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             throw app.httpErrors.conflict('Deadline key reused with different content');
           return caseDto(current, request.user);
         }
-        if (!supportsCaseType(current.type))
+        if (
+          !supportsCaseType(current.type) ||
+          (current.type === 'LATE_PAYMENT' && !caseDto(current, request.user).metadata.latePayment)
+        )
           throw app.httpErrors.conflict('This request requires its dedicated deadline workflow');
         if (['DRAFT', 'CLOSED', 'ACCEPTED', 'REJECTED', 'RESOLVED'].includes(current.status))
           throw app.httpErrors.conflict('A deadline requires an open operational case');
@@ -489,9 +684,16 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             throw app.httpErrors.conflict('Decision key reused with different content');
           return current;
         }
-        if (!roleCanRequestStatus(actor.actorRole, body.status))
+        const isLatePayment = current.type === 'LATE_PAYMENT';
+        if (
+          !roleCanRequestStatus(actor.actorRole, body.status) &&
+          !(isLatePayment && actor.actorRole === 'TENANT' && body.status === 'CLOSED')
+        )
           throw app.httpErrors.forbidden('Your role cannot perform this decision');
-        if (!supportsCaseType(current.type))
+        if (
+          !supportsCaseType(current.type) ||
+          (isLatePayment && !caseDto(current, request.user).metadata.latePayment)
+        )
           throw app.httpErrors.conflict(
             'This request type requires a dedicated workflow that is not implemented',
           );
@@ -503,7 +705,10 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
           !allowedCaseActions(current.type, current.status, actor.actorRole).includes(body.status)
         )
           throw app.httpErrors.conflict('This decision is not valid for the current status');
-        if (caseActionNeedsMessage(body.status) && body.message.length < 3)
+        if (
+          (caseActionNeedsMessage(body.status) || (isLatePayment && body.status === 'CLOSED')) &&
+          body.message.length < 3
+        )
           throw app.httpErrors.unprocessableEntity(
             'Add an explanation of at least three characters',
           );
@@ -538,6 +743,13 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
           )
             throw app.httpErrors.conflict('Submission requires an open contract');
         }
+        const now = new Date();
+        const latePayment =
+          isLatePayment &&
+          (body.status === 'APPROVED' ||
+            (body.status === 'CLOSED' && current.status === 'APPROVED'))
+            ? await changeExpectedDate(tx, current, body.status, now)
+            : null;
         const sequence = current.version + 1;
         const event = await tx.requestEvent.create({
           data: {
@@ -547,6 +759,7 @@ export const requestRoutes: FastifyPluginAsync = async (app) => {
             kind: body.status,
             message: body.message || null,
             ...(body.keyLock ? { metadata: { keyLock: body.keyLock } } : {}),
+            ...(latePayment ? { metadata: { latePayment }, createdAt: now } : {}),
             fromStatus: current.status,
             sequence,
           },

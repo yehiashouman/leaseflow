@@ -295,13 +295,13 @@ export async function runBusinessJobOnce(
           }
           const today = dubaiMidnight(calendarDate(now));
           const rows = await tx.$queryRaw<{ id: string }[]>(
-            Prisma.sql`SELECT id FROM Payment WHERE contractId = ${contract.id} AND ((status = 'UPCOMING' AND dueDate <= ${now}) OR (status IN ('DUE','PARTIALLY_PAID') AND dueDate < ${today})) ORDER BY dueDate,id LIMIT 100 FOR UPDATE`,
+            Prisma.sql`SELECT id FROM Payment WHERE contractId = ${contract.id} AND ((status = 'UPCOMING' AND COALESCE(expectedDate, dueDate) <= ${now}) OR (status IN ('DUE','PARTIALLY_PAID') AND COALESCE(expectedDate, dueDate) < ${today})) ORDER BY dueDate,id LIMIT 100 FOR UPDATE`,
           );
           for (const candidate of rows) {
             const payment = await tx.payment.findUniqueOrThrow({ where: { id: candidate.id } });
             const state = payment.amountPaid.gte(payment.amountDue)
               ? 'PAID'
-              : payment.dueDate < today
+              : (payment.expectedDate ?? payment.dueDate) < today
                 ? 'LATE'
                 : payment.amountPaid.gt(0)
                   ? 'PARTIALLY_PAID'
@@ -316,7 +316,9 @@ export async function runBusinessJobOnce(
                 oldValue: { status: payment.status },
                 newValue: {
                   status: state,
-                  rule: 'original-due-dubai-calendar-v1',
+                  rule: payment.expectedDate
+                    ? 'expected-dubai-calendar-v1'
+                    : 'original-due-dubai-calendar-v1',
                   evaluatedAt: now.toISOString(),
                   jobId: job.id,
                   amountChanged: false,

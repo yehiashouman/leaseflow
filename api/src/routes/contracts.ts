@@ -172,6 +172,7 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             id: true,
             periodStart: true,
             dueDate: true,
+            expectedDate: true,
             amountDue: true,
             amountPaid: true,
             currency: true,

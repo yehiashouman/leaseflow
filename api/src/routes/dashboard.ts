@@ -46,7 +46,14 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             occupants: { select: occupantSelect, orderBy: { role: 'asc' } },
             rentalSpace: caseContractSelect.rentalSpace,
             payments: {
-              select: { id: true, dueDate: true, amountDue: true, amountPaid: true, status: true },
+              select: {
+                id: true,
+                dueDate: true,
+                expectedDate: true,
+                amountDue: true,
+                amountPaid: true,
+                status: true,
+              },
               orderBy: [{ dueDate: 'desc' }, { id: 'desc' }],
               take: 20,
             },
@@ -77,17 +84,33 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           amountPaid: { lt: tx.payment.fields.amountDue },
           currency: contract.currency,
         };
-        const [due, next] = await Promise.all([
+        const [due, original, extended] = await Promise.all([
           tx.payment.aggregate({
-            where: { ...unpaid, dueDate: { lt: windows.tomorrow } },
+            where: {
+              ...unpaid,
+              OR: [
+                { expectedDate: null, dueDate: { lt: windows.tomorrow } },
+                { expectedDate: { lt: windows.tomorrow } },
+              ],
+            },
             _sum: { amountDue: true, amountPaid: true },
           }),
           tx.payment.findFirst({
-            where: { ...unpaid, dueDate: { gte: windows.today } },
+            where: { ...unpaid, expectedDate: null, dueDate: { gte: windows.today } },
             orderBy: [{ dueDate: 'asc' }, { id: 'asc' }],
             select: { dueDate: true, amountDue: true, amountPaid: true },
           }),
+          tx.payment.findFirst({
+            where: { ...unpaid, expectedDate: { gte: windows.today } },
+            orderBy: [{ expectedDate: 'asc' }, { id: 'asc' }],
+            select: { expectedDate: true, amountDue: true, amountPaid: true },
+          }),
         ]);
+        const expected = extended?.expectedDate
+          ? { ...extended, dueDate: extended.expectedDate }
+          : null;
+        const next =
+          expected && (!original || expected.dueDate < original.dueDate) ? expected : original;
         const zero = new Prisma.Decimal(0);
         return {
           contracts,
@@ -214,6 +237,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
               amountPaid: true,
               status: true,
               dueDate: true,
+              expectedDate: true,
               contract: { select: { status: true } },
             },
           }),

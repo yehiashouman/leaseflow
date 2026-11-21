@@ -5,6 +5,8 @@ import type { RequestStatus, Role } from '@prisma/client';
 import { prisma } from '../src/db.js';
 import { buildApp } from '../src/app.js';
 import { caseSelect } from '../src/case-data.js';
+import { calendarDate, dubaiMidnight } from '../src/business-calendar.js';
+import { dateLabel, shiftDays } from '../src/late-payment-policy.js';
 import { reportHash, reportSnapshot } from '../src/case-report.js';
 
 type Actor = { id: string; profileId: string; role: Role; sid: string };
@@ -1073,7 +1075,7 @@ describe('MySQL private operational case workflow', () => {
     expect(await prisma.requestEvent.count({ where: { requestId } })).toBe(3);
   });
   it('blocks unsupported financial case writes and preserves readable legacy history', async () => {
-    for (const type of ['LATE_PAYMENT', 'ROOM_CHANGE', 'MOVE_OUT'])
+    for (const type of ['ROOM_CHANGE', 'MOVE_OUT'])
       expect((await send('POST', '', { ...submission(), type })).statusCode).toBe(409);
     await prisma.request.update({
       where: { id: requestId },
@@ -1609,5 +1611,130 @@ describe('MySQL private operational case workflow', () => {
         data: { managerId: manager.profileId },
       });
     }
+  });
+  it('runs late-payment eligibility, clarification, concurrent decisions, notices, and cancellation', async () => {
+    const limitsPath = '/api/v1/tenants/' + tenant.profileId + '/late-payment-limits';
+    const limits = { lateRequestWindowDays: 7, maxLateExtensionDays: 3 };
+    expect((await send('PATCH', limitsPath, limits, outsider)).statusCode).toBe(404);
+    expect((await send('PATCH', limitsPath, limits, tenant)).statusCode).toBe(403);
+    expect(
+      (await send('PATCH', limitsPath, { ...limits, maxLateExtensionDays: 6 }, manager)).statusCode,
+    ).toBe(422);
+    expect(
+      (await send('PATCH', limitsPath, { ...limits, maxLateExtensionDays: 2 }, manager)).json(),
+    ).toMatchObject({ maxLateExtensionDays: 2 });
+    expect((await send('PATCH', limitsPath, limits, manager)).json()).toEqual(limits);
+    const today = calendarDate(new Date());
+    const makePayment = (offset: number) =>
+      prisma.payment.create({
+        data: {
+          contractId,
+          periodStart: shiftDays(today, offset),
+          dueDate: dubaiMidnight(shiftDays(today, offset)),
+          amountDue: '1000.00',
+          amountPaid: '100.00',
+          status: 'PARTIALLY_PAID',
+        },
+      });
+    const [todayPayment, first, second, outsideWindow] = await Promise.all([
+      makePayment(0),
+      makePayment(2),
+      makePayment(3),
+      makePayment(8),
+    ]);
+    const body = (payment: typeof first, extension = 2) => ({
+      ...submission(),
+      type: 'LATE_PAYMENT',
+      latePayment: {
+        paymentId: payment.id,
+        requestedDate: dateLabel(shiftDays(calendarDate(payment.dueDate), extension)),
+      },
+    });
+    const optionsPath = '/options/' + contractId + '/late-payments';
+    const list = await send('GET', optionsPath);
+    expect(list.statusCode, list.body).toBe(200);
+    expect(list.json()).toMatchObject({ windowDays: 7, extensionDays: 3, nextApprovalAt: null });
+    expect(list.json().obligations.map((row: { id: string }) => row.id)).toEqual([
+      first.id,
+      second.id,
+    ]);
+    expect((await send('GET', optionsPath, undefined, roommate)).statusCode).toBe(404);
+    expect((await send('POST', '', body(todayPayment))).statusCode).toBe(409);
+    expect((await send('POST', '', body(outsideWindow))).statusCode).toBe(409);
+    expect((await send('POST', '', body(first, 4))).statusCode).toBe(422);
+    expect(
+      (await send('PATCH', limitsPath, { ...limits, maxLateExtensionDays: 5 }, manager)).statusCode,
+    ).toBe(200);
+    expect((await send('POST', '', body(first, 6))).statusCode).toBe(422);
+    expect((await send('PATCH', limitsPath, limits, manager)).statusCode).toBe(200);
+    await prisma.request.create({
+      data: {
+        contractId,
+        title: 'Prior room-change approval',
+        description: 'Room-change history has a separate limit.',
+        type: 'ROOM_CHANGE',
+        status: 'APPROVED',
+        events: {
+          create: { kind: 'APPROVED', actorRole: 'LEASING_MANAGER', actorUserId: manager.id },
+        },
+      },
+    });
+    const originalSubmission = body(first);
+    const firstCase = await send('POST', '', originalSubmission);
+    expect(firstCase.statusCode, firstCase.body).toBe(201);
+    expect((await send('POST', '', originalSubmission)).json().id).toBe(firstCase.json().id);
+    expect((await send('POST', '', body(first))).statusCode).toBe(409);
+    const secondCase = await send('POST', '', body(second));
+    expect(secondCase.statusCode, secondCase.body).toBe(201);
+    const firstCaseId = firstCase.json().id;
+    const secondCaseId = secondCase.json().id;
+    const decide = (id: string, status: RequestStatus, expectedVersion: number, actor = manager) =>
+      send(
+        'POST',
+        '/' + id + '/respond',
+        {
+          clientId: randomUUID(),
+          status,
+          expectedVersion,
+          message: 'Recorded reason',
+        },
+        actor,
+      );
+    expect((await decide(firstCaseId, 'APPROVED', 1, tenant)).statusCode).toBe(403);
+    expect((await decide(firstCaseId, 'APPROVED', 1, outsider)).statusCode).toBe(404);
+    expect((await decide(firstCaseId, 'AWAITING_TENANT', 1)).statusCode).toBe(200);
+    expect((await decide(firstCaseId, 'AWAITING_MANAGER', 2, tenant)).statusCode).toBe(200);
+    const approvals = await Promise.all([
+      decide(firstCaseId, 'APPROVED', 3),
+      decide(secondCaseId, 'APPROVED', 1),
+    ]);
+    expect(approvals.map(({ statusCode }) => statusCode).sort()).toEqual([200, 409]);
+    const firstWon = approvals[0]!.statusCode === 200;
+    const approved = (firstWon ? approvals[0]! : approvals[1]!).json();
+    const approvedPayment = firstWon ? first : second;
+    const approval = approved.events.at(-1);
+    expect(approval.latePayment).toEqual({
+      originalDate: dateLabel(calendarDate(approvedPayment.dueDate)),
+      expectedDate: body(approvedPayment).latePayment.requestedDate,
+    });
+    const payment = await prisma.payment.findUniqueOrThrow({ where: { id: approvedPayment.id } });
+    expect(payment.dueDate).toEqual(approvedPayment.dueDate);
+    expect(payment.amountDue.toString()).toBe('1000');
+    expect(payment.amountPaid.toString()).toBe('100');
+    expect(payment.expectedDate).toEqual(
+      dubaiMidnight(new Date(approval.latePayment.expectedDate + 'T00:00:00Z')),
+    );
+    expect(await prisma.notification.count({ where: { eventId: approval.id } })).toBe(2);
+    const cancelled = await decide(approved.id, 'CLOSED', approved.version, tenant);
+    expect(cancelled.statusCode, cancelled.body).toBe(200);
+    expect(cancelled.json().events.at(-1).latePayment.expectedDate).toBeNull();
+    expect(
+      (await prisma.payment.findUniqueOrThrow({ where: { id: payment.id } })).expectedDate,
+    ).toBeNull();
+    const rejectedId = firstWon ? secondCaseId : firstCaseId;
+    const version = firstWon ? 1 : 3;
+    expect((await decide(rejectedId, 'APPROVED', version)).statusCode).toBe(409);
+    expect((await decide(rejectedId, 'REJECTED', version)).statusCode).toBe(200);
+    expect((await send('GET', optionsPath)).json().nextApprovalAt).toBeTruthy();
   });
 });

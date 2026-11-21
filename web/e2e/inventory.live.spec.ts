@@ -85,7 +85,7 @@ test('real landlord lifecycle and property fields persist through the browser', 
       await choose(page, 'Area *', 'Dubai Marina');
       await editor.getByLabel('Landlord', { exact: true }).selectOption(landlord.id);
       if (index === 0) {
-        await choose(page, 'Building', 'Aurora · Dubai Marina');
+        await choose(page, 'Building', 'Aurora');
         await editor.getByLabel('Street', { exact: true }).fill('Al Reem Road');
         await choose(page, 'Emirate *', 'Dubai');
         await editor.getByLabel('Address notes', { exact: true }).fill('Gate 2\nFloor 3');

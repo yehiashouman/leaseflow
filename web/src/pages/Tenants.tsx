@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { previewMode } from '../session';
+import { RecordEditor } from '@/components/record-editor';
+import { Button } from '@/components/ui/button';
 import { caseDateWithZone } from '../cases';
 import { Input } from '@/components/ui/input';
 import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
@@ -21,6 +24,8 @@ type Tenant = {
   nationality?: string;
   gender?: string;
   emiratesIdExpiry?: string;
+  lateRequestWindowDays?: number;
+  maxLateExtensionDays?: number;
   user: { email: string; phone?: string; status: string; phoneVerifiedAt?: string };
   contracts?: {
     id: string;
@@ -152,6 +157,8 @@ export function Tenants() {
 }
 export function TenantDetail() {
   const { id } = useParams();
+  const client = useQueryClient();
+  const [limitsOpen, setLimitsOpen] = useState(false);
   const query = useQuery({
     queryKey: ['tenant', id],
     queryFn: ({ signal }) =>
@@ -187,6 +194,51 @@ export function TenantDetail() {
           </div>
         ))}
       </dl>
+      <section className="space-y-2">
+        <h2 className="text-lg font-semibold">Late-payment limits</h2>
+        <p>Request window: {data.lateRequestWindowDays ?? 10} days before the original due date.</p>
+        <p>Maximum extension: {data.maxLateExtensionDays ?? 5} days.</p>
+        {!previewMode && (
+          <Button variant="outline" onClick={() => setLimitsOpen(true)}>
+            Edit late-payment limits
+          </Button>
+        )}
+        {limitsOpen && (
+          <RecordEditor
+            open
+            onOpenChange={setLimitsOpen}
+            title="Edit late-payment limits"
+            fields={[
+              {
+                name: 'lateRequestWindowDays',
+                label: 'Request window in days',
+                type: 'number',
+                required: true,
+                min: 0,
+                max: 10,
+                value: data.lateRequestWindowDays ?? 10,
+              },
+              {
+                name: 'maxLateExtensionDays',
+                label: 'Maximum extension in days',
+                type: 'number',
+                required: true,
+                min: 0,
+                max: 5,
+                value: data.maxLateExtensionDays ?? 5,
+              },
+            ]}
+            onSave={async (form) => {
+              await api.patch('/tenants/' + id + '/late-payment-limits', {
+                lateRequestWindowDays: Number(form.get('lateRequestWindowDays')),
+                maxLateExtensionDays: Number(form.get('maxLateExtensionDays')),
+              });
+              await client.invalidateQueries({ queryKey: ['tenant', id] });
+              setLimitsOpen(false);
+            }}
+          />
+        )}
+      </section>
       <h2 className="text-lg font-semibold">Contracts</h2>
       <ul className="divide-y">
         {data.contracts?.map((contract) => (

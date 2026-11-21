@@ -8,6 +8,7 @@ import {
   previewCaseContract,
   previewCaseTypes,
 } from './cases';
+import { previewLateDecision, previewLateOptions } from './late-payments';
 import { previewExpenses } from './expenses';
 import { preferenceFields } from '../profile-fields';
 
@@ -873,7 +874,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     if (path === '/requests/options' && method === 'get') {
       if (role !== 'TENANT') return fail('Insufficient permissions', 403);
       return respond({
-        types: previewCaseTypes,
+        types: [...previewCaseTypes, 'LATE_PAYMENT'],
         categories: (store.requestCategories ?? []).filter((row) => row.active),
         contracts: store.contracts
           .filter((contract) =>
@@ -881,6 +882,15 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           )
           .map(previewCaseContract),
       });
+    }
+    const lateOptions = /^\/requests\/options\/([^/]+)\/late-payments$/.exec(path);
+    if (lateOptions && method === 'get') {
+      if (role !== 'TENANT') return fail('Insufficient permissions', 403);
+      const contract = store.contracts.find((row) => row.id === lateOptions[1]);
+      if (!contract) return fail('Contract not found', 404);
+      const options = previewLateOptions(contract, store.requests);
+      localStorage.setItem(storageKey, JSON.stringify(store));
+      return respond(options);
     }
     if (path === '/requests' && method === 'get') {
       const query = String(config.params?.q ?? '')
@@ -905,7 +915,8 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
     }
     if (path === '/requests' && method === 'post') {
       if (role !== 'TENANT') return fail('Insufficient permissions', 403);
-      if (!previewCaseTypes.includes(data.type))
+      const isLate = data.type === 'LATE_PAYMENT';
+      if (!isLate && !previewCaseTypes.includes(data.type))
         return fail('Dedicated workflow not implemented', 409);
       if (
         Object.keys(data).some(
@@ -920,6 +931,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
               'configuredCategory',
               'urgency',
               'draft',
+              'latePayment',
             ].includes(key),
         ) ||
         typeof data.title !== 'string' ||
@@ -932,6 +944,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
         (data.category != null &&
           (typeof data.category !== 'string' || data.category.length > 100)) ||
         !['NORMAL', 'URGENT'].includes(data.urgency ?? 'NORMAL') ||
+        (isLate ? !data.latePayment || data.draft : data.latePayment !== undefined) ||
         (data.draft !== undefined && typeof data.draft !== 'boolean')
       )
         return fail('Verify the request fields.', 422);
@@ -967,6 +980,8 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           record.title !== content.title ||
           record.description !== content.description ||
           record.metadata?.urgency !== content.metadata.urgency ||
+          record.metadata?.latePayment?.requestedDate !== data.latePayment?.requestedDate ||
+          record.metadata?.latePayment?.paymentId !== data.latePayment?.paymentId ||
           (!selection && record.metadata?.category !== content.metadata.category) ||
           record.metadata?.categorySnapshot?.id !== selection?.id ||
           record.metadata?.categorySnapshot?.version !== selection?.version ||
@@ -1000,11 +1015,42 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
             },
           };
         }
+        let latePayment;
+        if (isLate) {
+          const related = previewLateOptions(contract, store.requests).obligations.find(
+            ({ id }) => id === data.latePayment.paymentId,
+          );
+          const requestedDate = data.latePayment.requestedDate;
+          if (
+            !related ||
+            !/^\d{4}-\d{2}-\d{2}$/.test(requestedDate) ||
+            requestedDate < related.earliestDate ||
+            requestedDate > related.latestDate
+          )
+            return fail('Select a permitted payment date.', 422);
+          if (
+            store.requests.some(
+              (row) =>
+                row.metadata?.latePayment?.paymentId === related.id &&
+                !['CLOSED', 'REJECTED'].includes(row.status),
+            )
+          )
+            return fail('A request already exists for this obligation.', 409);
+          latePayment = {
+            paymentId: related.id,
+            originalDate: related.originalDate,
+            requestedDate,
+          };
+        }
         const now = new Date().toISOString();
         record = {
           id: crypto.randomUUID(),
           ...content,
-          metadata: { ...content.metadata, ...categoryMetadata },
+          metadata: {
+            ...content.metadata,
+            ...categoryMetadata,
+            ...(latePayment ? { latePayment } : {}),
+          },
           contractId: contract.id,
           clientId: data.clientId,
           status: data.draft ? 'DRAFT' : 'SUBMITTED',
@@ -1082,6 +1128,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
           role,
           fail,
           role === 'TENANT' ? profile.tenant.fullName : 'Demo Manager',
+          (status) => previewLateDecision(record, status, store.contracts, store.requests, fail),
         );
         localStorage.setItem(storageKey, JSON.stringify(store));
         return respond(

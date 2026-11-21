@@ -455,10 +455,39 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       await cleanup();
     }
   });
+  it('ages an approved extension by its expected date and preserves the original due date', async () => {
+    try {
+      const payment = await prisma.payment.create({
+        data: {
+          contractId,
+          periodStart: new Date('2026-05-01'),
+          dueDate: new Date('2026-05-10T20:00:00Z'),
+          expectedDate: new Date('2026-05-14T20:00:00Z'),
+          amountDue: '3100.00',
+          amountPaid: '100.00',
+          status: 'PARTIALLY_PAID',
+        },
+      });
+      await jobs();
+      await drain('OBLIGATION_STATUS');
+      expect((await prisma.payment.findUniqueOrThrow({ where: { id: payment.id } })).status).toBe(
+        'PARTIALLY_PAID',
+      );
+      await drain('OBLIGATION_STATUS', new Date('2026-05-15T20:00:00Z'));
+      const aged = await prisma.payment.findUniqueOrThrow({ where: { id: payment.id } });
+      expect(aged.status).toBe('LATE');
+      expect(aged.dueDate).toEqual(payment.dueDate);
+      expect(aged.expectedDate).toEqual(payment.expectedDate);
+    } finally {
+      await cleanup();
+    }
+  });
   it('creates twelve-month anniversary reviews once without automatic rent changes', async () => {
     try {
       await review();
-      await drain('ANNUAL_REVIEW');
+      const later = new Date('2027-03-01T00:00:00Z');
+      await drain('ANNUAL_REVIEW', later);
+      await drain('ANNUAL_REVIEW', later);
       const rows = await prisma.contractReview.findMany({
         where: { contractId },
         orderBy: { dueAt: 'asc' },
@@ -466,8 +495,9 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       expect(rows.map((row) => row.dueAt.toISOString().slice(0, 10))).toEqual([
         '2025-02-28',
         '2026-02-28',
+        '2027-02-28',
       ]);
-      expect(rows.map((row) => row.milestoneMonths)).toEqual([12, 24]);
+      expect(rows.map((row) => row.milestoneMonths)).toEqual([12, 24, 36]);
       expect(
         (
           await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })
@@ -477,7 +507,7 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
         await prisma.notification.count({
           where: { recipientUserId: manager.id, reviewEvent: { review: { contractId } } },
         }),
-      ).toBe(2);
+      ).toBe(3);
       expect(
         await prisma.noticeDelivery.count({
           where: { notification: { reviewEvent: { review: { contractId } } } },

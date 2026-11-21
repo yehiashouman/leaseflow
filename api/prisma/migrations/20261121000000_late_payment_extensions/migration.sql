@@ -1,0 +1,1 @@
+ALTER TABLE `Payment` ADD COLUMN `expectedDate` DATETIME(3) NULL;

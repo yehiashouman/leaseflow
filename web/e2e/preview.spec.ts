@@ -431,7 +431,7 @@ test('Dubai reference choices persist through a preview reload', async ({ page }
   const editor = page.getByRole('dialog');
   await editor.getByLabel('Unit name *', { exact: true }).fill('Choice catalogue apartment');
   await choose(page, 'Area *', 'Dubai Marina');
-  await choose(page, 'Building', 'Cayan Tower · Dubai Marina');
+  await choose(page, 'Building', 'Cayan Tower');
   await editor.getByRole('checkbox', { name: /I confirm the property/ }).check();
   await editor.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(editor).not.toBeVisible();
@@ -447,5 +447,38 @@ test('Dubai reference choices persist through a preview reload', async ({ page }
   await expect(page.getByRole('combobox', { name: 'Building', exact: true })).toHaveText(
     'Select an option',
   );
-  await choose(page, 'Building', 'Almas Tower · Jumeirah Lakes Towers');
+  await choose(page, 'Building', 'Almas Tower');
+});
+
+test('preview late-payment dates persist across tenant and manager sessions', async ({
+  page,
+}, testInfo) => {
+  const mobile = testInfo.project.name === 'mobile';
+  await page.goto('./#/login');
+  await page.getByRole('button', { name: 'Preview tenant', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+  await page.goto('./#/requests');
+  await page.getByRole('button', { name: 'New request', exact: true }).click();
+  const editor = page.getByRole('dialog');
+  await editor.getByLabel('Request type *', { exact: true }).selectOption('LATE_PAYMENT');
+  await editor.getByLabel('Rent obligation *', { exact: true }).selectOption('preview-late-rent');
+  await editor.getByLabel('Requested payment date *', { exact: true }).selectOption({ index: 1 });
+  await editor.getByLabel('Title *', { exact: true }).fill('Synthetic rent extension');
+  await editor.getByLabel('Description *', { exact: true }).fill('I request a different date.');
+  await editor.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Synthetic rent extension', exact: true }),
+  ).toBeVisible();
+  const original = await page.getByText(/^Original due date:/).textContent();
+  const url = page.url();
+  await logout(page, mobile);
+  await page.getByRole('button', { name: 'Preview manager', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Portfolio overview' })).toBeVisible();
+  await page.goto(url);
+  await page.getByRole('button', { name: 'Approve request', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.getByText(/^Expected payment date:/)).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(original!)).toBeVisible();
+  await expect(page.getByText(/^Expected payment date:/)).toBeVisible();
 });

@@ -58,6 +58,7 @@ type TenantContract = {
   payments: {
     id: string;
     dueDate: string;
+    expectedDate?: string | null;
     amountDue: number | string;
     amountPaid: number | string;
     status: string;
@@ -233,7 +234,17 @@ export function TenantDashboard() {
                   {contract.currency} {Number(payment.amountDue).toLocaleString()} due ·{' '}
                   {contract.currency} {Number(payment.amountPaid).toLocaleString()} paid
                 </span>
-                <Badge variant="outline">{payment.status.replaceAll('_', ' ')}</Badge>
+                {payment.expectedDate && (
+                  <span>
+                    Expected{' '}
+                    {new Date(payment.expectedDate).toLocaleDateString('en-GB', {
+                      timeZone: 'Asia/Dubai',
+                    })}
+                  </span>
+                )}
+                <Badge variant={payment.status === 'LATE' ? 'destructive' : 'outline'}>
+                  {payment.status.replaceAll('_', ' ')}
+                </Badge>
               </div>
             ))}
           </section>

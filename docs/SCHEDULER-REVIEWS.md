@@ -26,7 +26,8 @@ If the monthly due day does not exist, the worker uses the last calendar day in 
 The database unique period constraint, locked job, and lease token prevent duplicate effects.
 A payment, its audit event, and cursor movement share one transaction.
 The worker preserves original due dates and original currency.
-A separate daily status job derives due/late state without a new charge or amount change.
+A separate daily job derives payment status from the expected date when a manager approves an extension.
+Receipt history calculates days late from the original due date.
 
 Production financial generation remains paused.
 Invalid stored due days, unknown applied amendments, final-month policy, ownership inconsistency, and changed source allocation require explicit resolution.

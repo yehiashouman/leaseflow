@@ -26,6 +26,27 @@ const tenantActions: Record<string, string[]> = {
 };
 const requiresMessage = (status: string) =>
   ['REJECTED', 'RESOLVED', 'REOPENED', 'AWAITING_TENANT'].includes(status);
+function transitions(record: RecordData, role: Role): string[] {
+  if (record.type === 'LATE_PAYMENT' && record.metadata?.latePayment) {
+    if (role === 'TENANT') {
+      if (record.status === 'AWAITING_TENANT') return ['AWAITING_MANAGER', 'CLOSED'];
+      return ['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'APPROVED'].includes(record.status)
+        ? ['CLOSED']
+        : [];
+    }
+    if (role === 'LEASING_MANAGER') {
+      if (['SUBMITTED', 'SEEN', 'AWAITING_MANAGER'].includes(record.status))
+        return ['APPROVED', 'REJECTED', 'AWAITING_TENANT'];
+      if (record.status === 'AWAITING_TENANT') return ['REJECTED'];
+      if (record.status === 'APPROVED') return ['CLOSED'];
+    }
+    return [];
+  }
+  return previewCaseTypes.includes(record.type)
+    ? ((role === 'TENANT' ? tenantActions : managerActions)[record.status] ?? [])
+    : [];
+}
+
 export function previewCaseContract(contract: RecordData) {
   return {
     id: contract.id,
@@ -82,11 +103,15 @@ export function previewCase(record: RecordData, contracts: RecordData[], role: R
       ...(record.type === 'KEY_LOCK_CHANGE' && event.metadata?.keyLock
         ? { keyLock: event.metadata.keyLock }
         : {}),
+      ...(record.type === 'LATE_PAYMENT' && event.metadata?.latePayment
+        ? { latePayment: event.metadata.latePayment }
+        : {}),
     })),
-    allowedActions: (previewCaseTypes.includes(record.type)
-      ? ((role === 'TENANT' ? tenantActions : managerActions)[record.status] ?? [])
-      : []
-    ).map((status) => ({ status, requiresMessage: requiresMessage(status) })),
+    allowedActions: transitions(record, role).map((status) => ({
+      status,
+      requiresMessage:
+        requiresMessage(status) || (record.type === 'LATE_PAYMENT' && status === 'CLOSED'),
+    })),
     canMessage: !['DRAFT', 'CLOSED'].includes(record.status),
     canManageAssignment: previewCanAssign(record, role),
     assignment: assignment
@@ -302,6 +327,9 @@ export function mutatePreviewCase(
   role: Role,
   fail: (message: string, status: number) => never,
   actorName?: string,
+  decideLatePayment?: (
+    status: string,
+  ) => { originalDate: string; expectedDate: string | null } | undefined,
 ) {
   const keys =
     action === 'messages'
@@ -316,6 +344,8 @@ export function mutatePreviewCase(
   )
     fail('Verify the request fields.', 422);
   const kind = action === 'messages' ? 'MESSAGE' : data.status;
+  const isLate = record.type === 'LATE_PAYMENT';
+  let latePayment;
   let keyLock;
   if (data.keyLock !== undefined) {
     const authorization =
@@ -361,13 +391,21 @@ export function mutatePreviewCase(
             'REOPENED',
             'CLOSED',
           ];
-    if (!targets.includes(data.status)) fail('Your role cannot perform this decision', 403);
-    if (!previewCaseTypes.includes(record.type)) fail('Dedicated workflow not implemented', 409);
+    if (
+      !targets.includes(data.status) &&
+      !(isLate && role === 'TENANT' && data.status === 'CLOSED')
+    )
+      fail('Your role cannot perform this decision', 403);
+    if (!isLate && !previewCaseTypes.includes(record.type))
+      fail('Dedicated workflow not implemented', 409);
     if ((record.version ?? 0) !== data.expectedVersion)
       fail('Case changed. Review the latest history', 409);
-    if (!(role === 'TENANT' ? tenantActions : managerActions)[record.status]?.includes(data.status))
+    if (!transitions(record, role).includes(data.status))
       fail('Invalid decision for this status', 409);
-    if (requiresMessage(data.status) && message.length < 3)
+    if (
+      (requiresMessage(data.status) || (isLate && data.status === 'CLOSED')) &&
+      message.length < 3
+    )
       fail('Add an explanation of at least three characters', 422);
     const recordsKeyLock =
       record.type === 'KEY_LOCK_CHANGE' && ['APPROVED', 'RESOLVED'].includes(data.status);
@@ -376,6 +414,7 @@ export function mutatePreviewCase(
       (keyLock && Boolean(keyLock.costResponsibility) !== (data.status === 'RESOLVED'))
     )
       fail('Verify the authorization and cost responsibility.', 422);
+    if (isLate) latePayment = decideLatePayment?.(data.status);
   } else if (['DRAFT', 'CLOSED'].includes(record.status))
     fail('Reopen the case before a new message', 409);
   const now = new Date().toISOString();
@@ -394,6 +433,7 @@ export function mutatePreviewCase(
       createdAt: now,
       ...(action === 'respond' ? { fromStatus: record.status } : {}),
       ...(keyLock ? { metadata: { keyLock } } : {}),
+      ...(latePayment ? { metadata: { latePayment } } : {}),
     },
   ];
   record.updatedAt = now;

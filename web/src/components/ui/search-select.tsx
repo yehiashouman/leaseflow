@@ -4,6 +4,15 @@ import { Check, ChevronsUpDown, Search } from 'lucide-react';
 import { FieldErrorsContext } from '../../form-errors';
 import { cn } from '../../lib/utils';
 
+export function choiceNameKey(value: string) {
+  return value
+    .normalize('NFKC')
+    .replace(/\p{Cf}/gu, '')
+    .trim()
+    .replace(/\s+/gu, ' ')
+    .toLowerCase();
+}
+
 export type Choice = { value: string; label: string; area?: string };
 export function SearchSelect({
   id,
@@ -38,13 +47,19 @@ export function SearchSelect({
     [active, setActive] = useState(0),
     [missing, setMissing] = useState(false);
   const contextError = useContext(FieldErrorsContext)[name];
-  const choices =
-    value && !options.some((item) => item.value === value)
-      ? [{ value, label: value }, ...options]
-      : options;
-  const query = search.trim().toLocaleLowerCase();
+  const choiceKey = allowCustom ? choiceNameKey : (entry: string) => entry;
+  const seen = new Set<string>();
+  const choices = options.filter((item) => {
+    const key = choiceKey(item.value);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  const current = choices.find((item) => choiceKey(item.value) === choiceKey(value));
+  if (value && !current) choices.unshift({ value, label: value });
+  const query = choiceNameKey(search);
   const matches = choices.filter((item) =>
-    (item.label + ' ' + item.value).toLocaleLowerCase().includes(query),
+    choiceNameKey(item.label + ' ' + item.value).includes(query),
   );
   const filtered = matches.slice(0, 100);
   const select = (next: string) => {
@@ -99,7 +114,7 @@ export function SearchSelect({
             className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-input bg-white px-3.5 py-2.5 text-left text-sm shadow-xs outline-none transition hover:border-primary/50 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 aria-invalid:border-destructive"
           >
             <span className={cn('truncate', !value && 'text-muted-foreground')}>
-              {choices.find((item) => item.value === value)?.label || 'Select an option'}
+              {current?.label || value || 'Select an option'}
             </span>
             <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           </button>
@@ -174,7 +189,7 @@ export function SearchSelect({
                   id={uid + '-option-' + index}
                   key={item.value}
                   role="option"
-                  aria-selected={value === item.value}
+                  aria-selected={choiceKey(value) === choiceKey(item.value)}
                   tabIndex={-1}
                   className={cn(
                     'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-accent',
@@ -183,7 +198,7 @@ export function SearchSelect({
                   onClick={() => select(item.value)}
                 >
                   {item.label}
-                  {value === item.value && (
+                  {choiceKey(value) === choiceKey(item.value) && (
                     <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />
                   )}
                 </button>
@@ -198,8 +213,8 @@ export function SearchSelect({
               </p>
             )}
             {allowCustom &&
-              search.trim() &&
-              !choices.some((item) => item.value.toLowerCase() === search.trim().toLowerCase()) && (
+              query &&
+              !choices.some((item) => choiceNameKey(item.value) === query) && (
                 <button
                   type="button"
                   className="w-full border-t px-3 py-3 text-left text-sm font-medium text-primary"

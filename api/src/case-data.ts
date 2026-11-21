@@ -10,6 +10,7 @@ import {
   caseAllowsAssignment,
   keyLockDecisionMetadata,
 } from './case-rules.js';
+import { latePaymentDecisionMetadata, latePaymentSnapshot } from './late-payment-policy.js';
 import { canAssessMaintenance } from './maintenance-rules.js';
 
 type Identity = FastifyRequest['user'];
@@ -89,6 +90,7 @@ export const caseSelect = {
   },
 } satisfies Prisma.RequestSelect;
 const safeMetadata = z.object({
+  latePayment: latePaymentSnapshot.optional(),
   category: z.string().max(100).nullable().optional(),
   urgency: z.enum(['NORMAL', 'URGENT']).optional(),
   categorySnapshot: z
@@ -119,11 +121,17 @@ export function caseDto(row: CaseRecord, actor: Identity) {
     events: row.events.map(({ metadata: eventMetadata, ...event }) => {
       const keyLock =
         row.type === 'KEY_LOCK_CHANGE' ? keyLockDecisionMetadata(eventMetadata) : undefined;
-      return keyLock ? { ...event, keyLock } : event;
+      const latePayment =
+        row.type === 'LATE_PAYMENT' ? latePaymentDecisionMetadata(eventMetadata) : undefined;
+      return { ...event, ...(keyLock ? { keyLock } : {}), ...(latePayment ? { latePayment } : {}) };
     }),
-    allowedActions: allowedCaseActions(row.type, row.status, actor.role).map((status) => ({
+    allowedActions: (row.type === 'LATE_PAYMENT' && !metadata.data?.latePayment
+      ? []
+      : allowedCaseActions(row.type, row.status, actor.role)
+    ).map((status) => ({
       status,
-      requiresMessage: caseActionNeedsMessage(status),
+      requiresMessage:
+        caseActionNeedsMessage(status) || (row.type === 'LATE_PAYMENT' && status === 'CLOSED'),
     })),
     canMessage: caseAllowsMessages(row.status),
     canManageAssignment:

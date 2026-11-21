@@ -83,7 +83,7 @@ The subsequent contract regression adds one API test and maps rolled-back Prisma
 
 ## Remaining Scope
 
-- Late payment, room transfer, and move-out submission/status changes return 409 pending dedicated workflows.
+- Room transfer and move-out still require their dedicated workflows.
 - Existing specialized cases remain privately readable and retain permitted messages.
 - Attachments, complaint occupant selection, financial cost posting, and completion evidence remain incomplete.
 - Maintenance responsibility assessments and explicit cost acceptance/dispute now exist; see [MAINTENANCE.md](MAINTENANCE.md).
@@ -93,7 +93,7 @@ The subsequent contract regression adds one API test and maps rolled-back Prisma
 - Historical access after suspension or closure remains subject to unresolved owner decisions.
 - The public preview uses synthetic browser-local records without API, financial, or provider effects.
 
-Generic case decisions never change rent, payment, deposit, transfer, or move-out records.
+Late-payment approvals update the expected payment date. Other case decisions leave financial records separate.
 
 ## Key and lock changes
 
@@ -106,3 +106,13 @@ Administrators in development and preview can add, edit, or deactivate request c
 ## Case assignment
 
 The responsible leasing manager can assign an open case to themselves or clear the assignment. Each action stores the actor, reason, and time as a new case event. Authorized participants see the current assignment and earlier assignments in the case history. Assignment changes preserve case status and access scope.
+
+## Late-payment requests
+
+- Tenants select an eligible unpaid rent obligation and a date within their manager-configured limits.
+- Submission opens up to ten Dubai calendar days before the original due date and closes as that date starts.
+- The manager can approve, reject, or request clarification. Managers can edit tenant limits from the tenant detail screen.
+- Approval changes the expected date. Contract records and case history retain the original due date.
+- One approval counts per tenant per six Dubai calendar months. A cancellation retains the approval in the history.
+- Participants receive case notices according to their preferences. Existing case evidence and PDF controls apply.
+- The preview supports the workflow with synthetic records.

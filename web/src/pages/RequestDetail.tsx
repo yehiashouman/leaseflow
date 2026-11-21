@@ -111,7 +111,12 @@ export function RequestDetail() {
       setKeyLockDetails((previous) => ({ ...previous, [command.status]: undefined }));
       setCommand(null);
       setConflict(false);
-      await client.invalidateQueries({ queryKey: ['requests'] });
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['requests'] }),
+        client.invalidateQueries({ queryKey: ['contract-records'] }),
+        client.invalidateQueries({ queryKey: ['dashboard'] }),
+        client.invalidateQueries({ queryKey: ['late-payment-options'] }),
+      ]);
     } catch (cause) {
       setDecisionFields(validationFields(cause));
       setDecisionError(errorMessage(cause));
@@ -154,6 +159,12 @@ export function RequestDetail() {
             {data.contract?.rentalSpace?.unit.name} / {data.contract?.rentalSpace?.name}
             {data.contract?.tenant?.fullName ? ' / ' + data.contract.tenant.fullName : ''}
           </p>
+          {data.metadata?.latePayment && (
+            <div className="space-y-1 text-sm">
+              <p>Original due date: {data.metadata.latePayment.originalDate} (Asia/Dubai)</p>
+              <p>Requested payment date: {data.metadata.latePayment.requestedDate} (Asia/Dubai)</p>
+            </div>
+          )}
           {data.metadata?.category && <p className="text-sm">{data.metadata.category}</p>}
           {data.metadata?.categorySnapshot?.prompt && (
             <dl className="space-y-1 text-sm">
@@ -189,7 +200,11 @@ export function RequestDetail() {
                   setDecisionError('');
                 }}
               >
-                {caseCommands[action.status] ?? action.status}
+                {data.type === 'LATE_PAYMENT' && action.status === 'CLOSED'
+                  ? data.status === 'APPROVED'
+                    ? 'Cancel extension'
+                    : 'Withdraw request'
+                  : (caseCommands[action.status] ?? action.status)}
               </Button>
             ))}
           </div>
@@ -232,6 +247,12 @@ export function RequestDetail() {
                 {event.fromStatus && (
                   <p className="text-xs text-muted-foreground">
                     From {caseStatuses[event.fromStatus] ?? event.fromStatus}
+                  </p>
+                )}
+                {event.latePayment && (
+                  <p className="text-sm">
+                    Expected payment date:{' '}
+                    {event.latePayment.expectedDate ?? event.latePayment.originalDate} (Asia/Dubai)
                   </p>
                 )}
                 {event.keyLock && (

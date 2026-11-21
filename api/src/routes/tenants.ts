@@ -3,6 +3,7 @@ import { UserStatus } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
+import { activeAccount } from '../account-data.js';
 import { caseContractScope } from '../case-data.js';
 
 const select = {
@@ -11,6 +12,8 @@ const select = {
   nationality: true,
   gender: true,
   emiratesIdExpiry: true,
+  lateRequestWindowDays: true,
+  maxLateExtensionDays: true,
   user: {
     select: {
       email: true,
@@ -71,5 +74,46 @@ export const tenantRoutes: FastifyPluginAsync = async (app) => {
       orderBy: { startDate: 'desc' },
     });
     return { ...tenant, contracts };
+  });
+  app.patch('/:id/late-payment-limits', { preHandler: managerOnly }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    const body = z
+      .object({
+        lateRequestWindowDays: z.number().int().min(0).max(10),
+        maxLateExtensionDays: z.number().int().min(0).max(5),
+      })
+      .strict()
+      .parse(request.body);
+    return prisma.$transaction(
+      async (tx) => {
+        if (!(await activeAccount(tx, request)))
+          throw app.httpErrors.unauthorized('Session is no longer active');
+        const owned = await tx.$queryRaw<{ id: string }[]>`
+        SELECT t.id FROM TenantProfile t JOIN LeasingManagerProfile m ON m.id = t.managerId
+        WHERE t.id = ${id} AND m.userId = ${request.user.sub} FOR UPDATE
+      `;
+        if (!owned.length) throw app.httpErrors.notFound('Tenant not found');
+        const fields = { lateRequestWindowDays: true, maxLateExtensionDays: true } as const;
+        const before = await tx.tenantProfile.findUniqueOrThrow({ where: { id }, select: fields });
+        if (
+          before.lateRequestWindowDays === body.lateRequestWindowDays &&
+          before.maxLateExtensionDays === body.maxLateExtensionDays
+        )
+          return before;
+        const next = await tx.tenantProfile.update({ where: { id }, data: body, select: fields });
+        await tx.auditEvent.create({
+          data: {
+            actorUserId: request.user.sub,
+            action: 'TENANT_LATE_PAYMENT_LIMITS_CHANGED',
+            entityType: 'TenantProfile',
+            entityId: id,
+            oldValue: before,
+            newValue: next,
+          },
+        });
+        return next;
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
   });
 };

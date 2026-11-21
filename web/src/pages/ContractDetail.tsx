@@ -39,6 +39,7 @@ type Payment = {
   id: string;
   periodStart: string;
   dueDate: string;
+  expectedDate?: string | null;
   amountDue: string;
   amountPaid: string;
   currency: string;
@@ -111,7 +112,10 @@ function Records({ id, currency }: { id: string; currency: string }) {
                 {'amountDue' in row ? (
                   <>
                     <p className="font-medium">Due {caseDateWithZone(row.dueDate)}</p>
-                    <Badge variant="outline">{row.status.replaceAll('_', ' ')}</Badge>
+                    <Badge variant={row.status === 'LATE' ? 'destructive' : 'outline'}>
+                      {row.status.replaceAll('_', ' ')}
+                    </Badge>
+                    {row.expectedDate && <p>Expected {caseDateWithZone(row.expectedDate)}</p>}
                     <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
                       {[
                         ['Period starts', caseDateWithZone(row.periodStart)],

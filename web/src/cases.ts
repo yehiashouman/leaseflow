@@ -19,6 +19,7 @@ export type KeyLockDecision = {
 };
 export type CaseEvent = {
   keyLock?: KeyLockDecision;
+  latePayment?: { originalDate: string; expectedDate: string | null };
   id: string;
   kind: string;
   message?: string | null;
@@ -54,6 +55,7 @@ export type CaseRecord = {
     category?: string | null;
     categorySnapshot?: { name: string; prompt: string | null; answer: string | null };
     urgency?: string;
+    latePayment?: { paymentId: string; originalDate: string; requestedDate: string };
     involvedOccupant?: { id: string; label: string };
   };
   contract?: CaseContract;

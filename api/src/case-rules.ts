@@ -54,13 +54,26 @@ const roleTargets: Partial<Record<Role, RequestStatus[]>> = {
   TENANT: ['SUBMITTED', 'AWAITING_MANAGER', 'ACCEPTED', 'REOPENED'],
 };
 export function supportsCaseType(type: RequestType) {
-  return (basicCaseTypes as readonly string[]).includes(type);
+  return type === 'LATE_PAYMENT' || (basicCaseTypes as readonly string[]).includes(type);
 }
 export function allowedCaseActions(
   type: RequestType,
   status: RequestStatus,
   role: Role,
 ): RequestStatus[] {
+  if (type === 'LATE_PAYMENT') {
+    if (role === 'TENANT') {
+      if (status === 'AWAITING_TENANT') return ['AWAITING_MANAGER', 'CLOSED'];
+      if (['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'APPROVED'].includes(status)) return ['CLOSED'];
+    }
+    if (role === 'LEASING_MANAGER') {
+      if (['SUBMITTED', 'SEEN', 'AWAITING_MANAGER'].includes(status))
+        return ['APPROVED', 'REJECTED', 'AWAITING_TENANT'];
+      if (status === 'AWAITING_TENANT') return ['REJECTED'];
+      if (status === 'APPROVED') return ['CLOSED'];
+    }
+    return [];
+  }
   if (!supportsCaseType(type)) return [];
   return (
     (role === 'LEASING_MANAGER'

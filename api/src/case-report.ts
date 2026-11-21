@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { z } from 'zod';
+import { latePaymentDecision, latePaymentDecisionMetadata } from './late-payment-policy.js';
 import type { CaseRecord } from './case-data.js';
 import { keyLockDecisionMetadata, keyLockDecisionSchema } from './case-rules.js';
 
@@ -25,6 +26,7 @@ const snapshotSchema = z.object({
       sequence: z.number().nullable(),
       createdAt: z.string(),
       keyLock: keyLockDecisionSchema.optional(),
+      latePayment: latePaymentDecision.optional(),
     }),
   ),
 });
@@ -56,6 +58,9 @@ export function reportSnapshot(row: CaseRecord): ReportSnapshot {
       createdAt: event.createdAt.toISOString(),
       ...(row.type === 'KEY_LOCK_CHANGE' && event.metadata
         ? { keyLock: keyLockDecisionMetadata(event.metadata) }
+        : {}),
+      ...(row.type === 'LATE_PAYMENT' && event.metadata
+        ? { latePayment: latePaymentDecisionMetadata(event.metadata) }
         : {}),
     })),
   };
@@ -152,6 +157,19 @@ export async function renderCasePdf(input: unknown, reportId: string, generatedA
         ? [
             [
               'Cost responsibility: ' + event.keyLock.costResponsibility.replaceAll('_', ' '),
+              false,
+            ] as [string, boolean],
+          ]
+        : []),
+      ...(event.latePayment
+        ? [
+            ['Original due date (Asia/Dubai): ' + event.latePayment.originalDate, false] as [
+              string,
+              boolean,
+            ],
+            [
+              'Expected payment date (Asia/Dubai): ' +
+                (event.latePayment.expectedDate ?? event.latePayment.originalDate),
               false,
             ] as [string, boolean],
           ]

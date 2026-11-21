@@ -41,6 +41,37 @@ export function CaseEditor({
   const category = categoryChoices.find((item) => item.id === categoryId);
   const isComplaint = selectedType === 'NEIGHBOR_COMPLAINT';
   const isKeyLock = selectedType === 'KEY_LOCK_CHANGE';
+  const isLatePayment = selectedType === 'LATE_PAYMENT';
+  const [selectedPayment, setSelectedPayment] = useState('');
+  const lateOptions = useQuery({
+    queryKey: ['late-payment-options', selectedContract],
+    enabled: isLatePayment && !!selectedContract,
+    queryFn: ({ signal }) =>
+      api
+        .get<{
+          windowDays: number;
+          extensionDays: number;
+          nextApprovalAt: string | null;
+          obligations: {
+            id: string;
+            originalDate: string;
+            earliestDate: string;
+            latestDate: string;
+          }[];
+        }>('/requests/options/' + encodeURIComponent(selectedContract!) + '/late-payments', {
+          signal,
+        })
+        .then((response) => response.data),
+  });
+  const paymentOptions = lateOptions.data?.obligations ?? [];
+  const selectedObligation = paymentOptions.find(({ id }) => id === selectedPayment);
+  const expectedDates = selectedObligation
+    ? Array.from({ length: 5 }, (_, index) => {
+        const date = new Date(selectedObligation.earliestDate + 'T00:00:00Z');
+        date.setUTCDate(date.getUTCDate() + index);
+        return date.toISOString().slice(0, 10);
+      }).filter((date) => date <= selectedObligation.latestDate)
+    : [];
   const relatedOccupants = useQuery({
     queryKey: ['complaint-occupants', key.current, selectedContract],
     enabled: !previewMode && isComplaint && !!selectedContract,
@@ -88,7 +119,36 @@ export function CaseEditor({
     );
   return (
     <RecordEditor
-      notice={<CachedQueryNotice error={options.error} onRetry={() => void options.refetch()} />}
+      notice={
+        <>
+          <CachedQueryNotice error={options.error} onRetry={() => void options.refetch()} />
+          {isLatePayment && (lateOptions.isPending || lateOptions.error) && (
+            <QueryFeedback
+              pending={lateOptions.isPending}
+              error={lateOptions.error}
+              onRetry={() => void lateOptions.refetch()}
+            />
+          )}
+          {isLatePayment && lateOptions.data && (
+            <div className="space-y-1 text-sm">
+              <p>
+                Request window: {lateOptions.data.windowDays} days before the original due date.
+              </p>
+              <p>Maximum extension: {lateOptions.data.extensionDays} days.</p>
+              {lateOptions.data.nextApprovalAt && (
+                <p>
+                  Next approval from{' '}
+                  {new Date(lateOptions.data.nextApprovalAt).toLocaleDateString('en-GB', {
+                    timeZone: 'Asia/Dubai',
+                  })}{' '}
+                  (Asia/Dubai).
+                </p>
+              )}
+              {!paymentOptions.length && <p>No rent obligations are eligible today.</p>}
+            </div>
+          )}
+        </>
+      }
       open
       onOpenChange={(open) => {
         if (!open) onClose();
@@ -100,7 +160,10 @@ export function CaseEditor({
           label: 'Contract',
           value: options.data.contracts[0]!.id,
           required: true,
-          onChange: setContractId,
+          onChange: (value) => {
+            setContractId(value);
+            setSelectedPayment('');
+          },
           options: options.data.contracts.map((contract) => ({
             value: contract.id,
             label:
@@ -117,6 +180,7 @@ export function CaseEditor({
           onChange: (value) => {
             setType(value);
             setCategoryId('');
+            setSelectedPayment('');
           },
           options: options.data.types.map((type) => ({
             value: type,
@@ -138,6 +202,34 @@ export function CaseEditor({
                         : 'Unknown or not listed',
                   },
                   ...(relatedOccupants.data ?? []).map(({ id, label }) => ({ value: id, label })),
+                ],
+              },
+            ]
+          : []),
+        ...(isLatePayment
+          ? [
+              {
+                name: 'paymentId-' + selectedContract,
+                errorPath: 'latePayment.paymentId',
+                label: 'Rent obligation',
+                required: true,
+                onChange: setSelectedPayment,
+                options: [
+                  { value: '', label: 'Select the original due date' },
+                  ...paymentOptions.map(({ id, originalDate }) => ({
+                    value: id,
+                    label: originalDate + ' (Asia/Dubai)',
+                  })),
+                ],
+              },
+              {
+                name: 'requestedDate-' + selectedPayment,
+                errorPath: 'latePayment.requestedDate',
+                label: 'Requested payment date',
+                required: true,
+                options: [
+                  { value: '', label: 'Select a date' },
+                  ...expectedDates.map((date) => ({ value: date, label: date + ' (Asia/Dubai)' })),
                 ],
               },
             ]
@@ -176,7 +268,9 @@ export function CaseEditor({
               },
             ]
           : []),
-        { name: 'draft', label: 'Save as private draft', type: 'checkbox' },
+        ...(!isLatePayment
+          ? [{ name: 'draft', label: 'Save as private draft', type: 'checkbox' }]
+          : []),
         {
           name: 'urgency',
           errorPath: 'metadata.urgency',
@@ -208,6 +302,14 @@ export function CaseEditor({
           urgency: form.get('urgency'),
           ...(involvedOccupantId ? { involvedOccupantId } : {}),
           draft: form.has('draft'),
+          ...(isLatePayment
+            ? {
+                latePayment: {
+                  paymentId: selectedPayment,
+                  requestedDate: form.get('requestedDate-' + selectedPayment),
+                },
+              }
+            : {}),
         });
         client.setQueryData(['request', response.data.id], response.data);
         await client.invalidateQueries({ queryKey: ['requests'] });
