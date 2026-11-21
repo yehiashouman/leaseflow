@@ -426,17 +426,19 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       },
     };
     if (path === '/tenants') {
-      const q = String(config.params?.q ?? '').toLowerCase();
-      const page = Number(config.params?.page ?? 1);
-      const items = [tenant].filter((item) =>
-        (item.fullName + item.user.email).toLowerCase().includes(q),
+      const { status, page = 1 } = config.params ?? {};
+      const q = String(config.params?.q ?? '')
+        .trim()
+        .toLowerCase();
+      const items = [tenant].filter(
+        (item) =>
+          (!status || item.user.status === status) &&
+          [item.fullName, item.user.email].some((value) => value.toLowerCase().includes(q)),
       );
-      return respond({
-        items: items.slice((page - 1) * 20, page * 20),
-        total: items.length,
-        page,
-        pageSize: 20,
-      });
+      const result = pageList(items);
+      return respond(
+        Array.isArray(result) ? { items, total: items.length, page, pageSize: 20 } : result,
+      );
     }
     if (path === '/tenants/tenant-1')
       return respond({

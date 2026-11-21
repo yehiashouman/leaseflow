@@ -2,7 +2,8 @@ import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/v1/**', async (route) => {
-    const path = new URL(route.request().url()).pathname;
+    const url = new URL(route.request().url());
+    const path = url.pathname;
     const payload = path.endsWith('/auth/me')
       ? {
           id: 'manager-1',
@@ -57,7 +58,12 @@ test.beforeEach(async ({ page }) => {
                     },
                   ]
                 : [];
-    await route.fulfill({ json: payload });
+    const pageNumber = url.searchParams.get('page');
+    const json =
+      Array.isArray(payload) && pageNumber !== null
+        ? { items: payload, total: payload.length, page: Number(pageNumber), pageSize: 20 }
+        : payload;
+    await route.fulfill({ json });
   });
 });
 
@@ -132,7 +138,7 @@ test('failed records expose retry, not a false empty state', async ({ page }) =>
   await expect(page.getByText('No units yet')).not.toBeVisible();
   await page.route(
     (url) => url.pathname === '/api/v1/inventory/units',
-    (route) => route.fulfill({ json: [] }),
+    (route) => route.fulfill({ json: { items: [], total: 0, page: 1, pageSize: 20 } }),
   );
   await page.getByRole('button', { name: 'Retry' }).click();
   await expect(page.getByText('No units yet')).toBeVisible();

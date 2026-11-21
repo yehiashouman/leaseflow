@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
 import { caseDateWithZone } from '../cases';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -32,28 +32,70 @@ type Tenant = {
 export function Tenants() {
   const [q, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('');
+  const [sort, setSort] = useState('NAME_ASC');
   const query = useQuery({
-    queryKey: ['tenants', q, page],
+    queryKey: ['tenants', q, page, status, sort],
     queryFn: ({ signal }) =>
       api
-        .get<{ items: Tenant[]; total: number }>('/tenants', { params: { q, page }, signal })
+        .get<ListPage<Tenant>>('/tenants', {
+          params: { q, page, status: status || undefined, sort },
+          signal,
+        })
         .then((response) => response.data),
   });
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Tenants</h1>
-      <Input
-        className="max-w-sm"
-        type="search"
-        aria-label="Search tenants"
-        placeholder="Search tenants"
-        maxLength={150}
-        value={q}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setPage(1);
-        }}
-      />
+      <div className="flex flex-wrap gap-3">
+        <Input
+          className="max-w-sm"
+          type="search"
+          aria-label="Search tenants"
+          placeholder="Search tenants"
+          maxLength={150}
+          value={q}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setPage(1);
+          }}
+        />
+        <select
+          aria-label="Tenant status"
+          className="h-9 max-w-full rounded-md border bg-background px-3 text-sm"
+          value={status}
+          onChange={(event) => {
+            setStatus(event.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">All statuses</option>
+          {[
+            'PENDING_EMAIL',
+            'PENDING_PHONE',
+            'PENDING_APPROVAL',
+            'ACTIVE',
+            'REJECTED',
+            'SUSPENDED',
+          ].map((value) => (
+            <option key={value} value={value}>
+              {value.replaceAll('_', ' ')}
+            </option>
+          ))}
+        </select>
+        <ListSort
+          label="Sort tenants"
+          value={sort}
+          options={[
+            ['NAME_ASC', 'Name A to Z'],
+            ['NAME_DESC', 'Name Z to A'],
+          ]}
+          onChange={(value) => {
+            setSort(value);
+            setPage(1);
+          }}
+        />
+      </div>
       {query.isPending || query.error || !query.data ? (
         <QueryFeedback
           pending={query.isPending}
@@ -97,18 +139,12 @@ export function Tenants() {
               )}
             </TableBody>
           </Table>
-          <div className="flex justify-between gap-3">
-            <Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              disabled={page * 20 >= query.data.total}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          <ListPager
+            page={page}
+            total={query.data.total}
+            pageSize={query.data.pageSize}
+            onChange={setPage}
+          />
         </>
       )}
     </div>

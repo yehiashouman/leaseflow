@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify';
+import { UserStatus } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
@@ -26,22 +27,25 @@ export const tenantRoutes: FastifyPluginAsync = async (app) => {
     reply.header('Cache-Control', 'no-store');
   });
   app.get('/', { preHandler: managerOnly }, async (request) => {
-    const { q, page } = z
+    const { q, page, status, sort } = z
       .object({
         q: z.string().trim().max(150).default(''),
+        status: z.enum(UserStatus).optional(),
+        sort: z.enum(['NAME_ASC', 'NAME_DESC']).default('NAME_ASC'),
         page: z.coerce.number().int().min(1).max(10000).default(1),
       })
       .strict()
       .parse(request.query);
     const where = {
       manager: { userId: request.user.sub },
+      ...(status ? { user: { status } } : {}),
       ...(q ? { OR: [{ fullName: { contains: q } }, { user: { email: { contains: q } } }] } : {}),
     };
     const [items, total] = await prisma.$transaction([
       prisma.tenantProfile.findMany({
         where,
         select,
-        orderBy: [{ fullName: 'asc' }, { id: 'asc' }],
+        orderBy: [{ fullName: sort === 'NAME_DESC' ? 'desc' : 'asc' }, { id: 'asc' }],
         skip: (page - 1) * 20,
         take: 20,
       }),

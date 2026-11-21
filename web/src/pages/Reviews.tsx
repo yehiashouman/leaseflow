@@ -1,4 +1,5 @@
 import { recoverableQueryError } from '../api-errors';
+import { ListPager, ListSort, type ListPage } from '@/components/list-controls';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -51,13 +52,14 @@ const decisionLabel = (value: string | null) =>
 export function Reviews() {
   const [page, setPage] = useState(1),
     [status, setStatus] = useState('ALL'),
+    [sort, setSort] = useState('NEWEST'),
     [q, setQ] = useState('');
   const query = useQuery({
-    queryKey: ['reviews', page, status, q],
+    queryKey: ['reviews', page, status, q, sort],
     queryFn: ({ signal }) =>
       api
-        .get<{ items: Review[]; total: number; pageSize: number }>('/reviews', {
-          params: { page, status, q },
+        .get<ListPage<Review>>('/reviews', {
+          params: { page, status, q, sort },
           signal,
         })
         .then((response) => response.data),
@@ -72,6 +74,7 @@ export function Reviews() {
         <Input
           aria-label="Search reviews"
           placeholder="Unit, space, or primary tenant"
+          maxLength={150}
           value={q}
           onChange={(event) => {
             setQ(event.target.value);
@@ -93,6 +96,18 @@ export function Reviews() {
             </option>
           ))}
         </select>
+        <ListSort
+          label="Sort reviews"
+          value={sort}
+          options={[
+            ['NEWEST', 'Latest review date first'],
+            ['OLDEST', 'Earliest review date first'],
+          ]}
+          onChange={(value) => {
+            setSort(value);
+            setPage(1);
+          }}
+        />
       </div>
       {query.isPending || query.error ? (
         <QueryFeedback
@@ -118,21 +133,12 @@ export function Reviews() {
             ))}
           </ul>
           {!query.data!.items.length && <p>No annual reviews match these filters.</p>}
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Previous
-            </Button>
-            <span>
-              Page {page} · {query.data!.total} reviews
-            </span>
-            <Button
-              variant="outline"
-              disabled={page * query.data!.pageSize >= query.data!.total}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </Button>
-          </div>
+          <ListPager
+            page={page}
+            total={query.data!.total}
+            pageSize={query.data!.pageSize}
+            onChange={setPage}
+          />
         </>
       )}
     </div>

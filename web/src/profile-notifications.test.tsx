@@ -108,10 +108,14 @@ describe('tenant profile and notice interfaces', () => {
     notices.unmount();
     page(<Tenants />);
     await user.type(screen.getByLabelText('Search tenants'), 'Alice');
+    await user.selectOptions(screen.getByLabelText('Tenant status'), 'ACTIVE');
+    await user.selectOptions(screen.getByLabelText('Sort tenants'), 'NAME_DESC');
     await waitFor(() =>
       expect(get).toHaveBeenLastCalledWith(
         '/tenants',
-        expect.objectContaining({ params: { q: 'Alice', page: 1 } }),
+        expect.objectContaining({
+          params: { q: 'Alice', page: 1, status: 'ACTIVE', sort: 'NAME_DESC' },
+        }),
       ),
     );
     expect(screen.queryByRole('button', { name: 'Add tenant' })).toBeNull();

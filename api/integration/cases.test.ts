@@ -1526,6 +1526,22 @@ describe('MySQL private operational case workflow', () => {
     expect(list.json().items.some((item: { id: string }) => item.id === tenant.profileId)).toBe(
       true,
     );
+    const active = await send(
+      'GET',
+      '/api/v1/tenants?q=Case%20Tenant&status=ACTIVE&sort=NAME_DESC',
+      undefined,
+      manager,
+    );
+    expect(active.statusCode).toBe(200);
+    expect(active.json().items).toEqual(list.json().items);
+    const suspended = await send(
+      'GET',
+      '/api/v1/tenants?q=Case%20Tenant&status=SUSPENDED',
+      undefined,
+      manager,
+    );
+    expect(suspended.statusCode).toBe(200);
+    expect(suspended.json()).toMatchObject({ items: [], total: 0 });
     expect(list.body).not.toContain('passwordHash');
     expect(list.body).not.toContain('pendingPhone');
     const detail = await send('GET', '/api/v1/tenants/' + tenant.profileId, undefined, manager);

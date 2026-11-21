@@ -60,11 +60,12 @@ export const reviewRoutes: FastifyPluginAsync = async (app) => {
   });
   const participants = allowRoles('LEASING_MANAGER', 'TENANT');
   app.get('/', { preHandler: participants }, async (request) => {
-    const { page, status, q } = z
+    const { page, status, q, sort } = z
       .object({
         page: z.coerce.number().int().min(1).max(10000).default(1),
         status: z.enum(['ALL', 'OPEN', 'REVIEWED', 'DEFERRED']).default('ALL'),
         q: z.string().trim().max(150).default(''),
+        sort: z.enum(['NEWEST', 'OLDEST']).default('NEWEST'),
       })
       .strict()
       .parse(request.query);
@@ -93,7 +94,7 @@ export const reviewRoutes: FastifyPluginAsync = async (app) => {
       prisma.contractReview.findMany({
         where,
         select,
-        orderBy: [{ dueAt: 'desc' }, { id: 'desc' }],
+        orderBy: [{ dueAt: sort === 'OLDEST' ? 'asc' : 'desc' }, { id: 'desc' }],
         skip: (page - 1) * 20,
         take: 20,
       }),

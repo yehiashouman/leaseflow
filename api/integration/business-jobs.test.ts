@@ -623,6 +623,12 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       expect(
         (await send('POST', '/reviews/' + row.id + '/decision', decision(), foreign)).statusCode,
       ).toBe(404);
+      const list = await send('GET', '/reviews?sort=OLDEST');
+      expect(list.statusCode).toBe(200);
+      expect(list.json().items).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: row.id })]),
+      );
+      expect((await send('GET', '/reviews?sort=invalid')).statusCode).toBe(422);
       expect((await send('GET', '/reviews?unknown=x')).statusCode).toBe(422);
       expect((await send('GET', '/reviews?page=0')).statusCode).toBe(422);
     } finally {
