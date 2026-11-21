@@ -26,6 +26,9 @@
   "overrides": {
     "deepmerge-ts": "$deepmerge-ts",
     "mysql2": "^3.24.3",
-    "mariadb": "^3.5.4"
+    "mariadb": "^3.5.4",
+    "@prisma/config": {
+      "effect": "3.22.1"
+    }
   }
 }
