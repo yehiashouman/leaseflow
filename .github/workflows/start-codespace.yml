@@ -36,13 +36,19 @@ jobs:
 
           name="$REQUESTED_NAME"
           if [[ -z "$name" ]]; then
-            if ! spaces=$(gh api --paginate --slurp               "user/codespaces?repository_id=$REPOSITORY_ID&per_page=100" 2>/dev/null); then
-              echo "::error::Codespace discovery requires Codespaces read access. Run this workflow manually with the exact Codespace name to use lifecycle permission only."
+            if ! spaces=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/codespaces?per_page=100" 2>/dev/null); then
+              echo "::error::Verify Codespaces repository read permission on the token."
               exit 1
             fi
-            names=$(jq --argjson repo "$REPOSITORY_ID" -r               '[.[].codespaces[] | select(.repository.id == $repo) | .name] | unique | .[]' <<< "$spaces")
+            names=$(jq -r '
+              [.[].codespaces[] |
+                select(((.display_name // "") | ascii_downcase) == "leaseflow"
+                  or (.name | ascii_downcase) == "leaseflow") |
+                .name] | unique | .[]
+            ' <<< "$spaces")
             if [[ -z "$names" || "$names" == *$'\n'* ]]; then
-              echo "::error::Expected one LeaseFlow Codespace. Find its exact name on github.com/codespaces and run this workflow manually."
+              count=$(jq '[.[].codespaces[]] | length' <<< "$spaces")
+              echo "::error::GitHub returned $count Codespaces for this repository and did not find one unique leaseflow match. Verify the token owner, repository access, and display name."
               exit 1
             fi
             name="$names"
