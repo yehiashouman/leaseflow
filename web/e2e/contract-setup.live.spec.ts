@@ -192,6 +192,25 @@ test('activates a unit with current evidence and confirms a monthly couple contr
       path: testInfo.outputPath('monthly-contract-occupants.png'),
       fullPage: true,
     });
+    const desiredDate = new Date();
+    desiredDate.setUTCDate(desiredDate.getUTCDate() + 3);
+    const moveOutDate = desiredDate.toISOString().slice(0, 10);
+    await page.getByRole('button', { name: 'Prepare move-out notice' }).click();
+    await page.getByLabel('Desired move-out date (Dubai)').fill(moveOutDate);
+    await page.getByLabel('Explanation', { exact: true }).fill('I need to move near my work.');
+    await page.getByRole('button', { name: 'Preview notice' }).click();
+    const submitNotice = page.getByRole('button', { name: 'Submit move-out notice' });
+    await expect(submitNotice).toBeDisabled();
+    await expect(page.getByText('Earliest penalty-free date')).toBeVisible();
+    await expect(page.getByText('Projected refund after this deduction')).toBeVisible();
+    await page.getByLabel('I reviewed the notice dates and projected deposit amounts.').check();
+    await submitNotice.click();
+    await expect(page.getByRole('heading', { name: 'Move-out notice', exact: true })).toBeVisible();
+    await expect(page.getByText(moveOutDate, { exact: true })).toBeVisible();
+    await expect(page.getByText('Notice submitted', { exact: true })).toBeVisible();
+    expect(await prisma.request.count({ where: { contractId: offer.id, type: 'MOVE_OUT' } })).toBe(
+      1,
+    );
     if (testInfo.project.name === 'mobile')
       await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
     await page
@@ -226,6 +245,9 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     await prisma.payment.deleteMany({ where: { contract: where } });
     await prisma.depositEvent.deleteMany({ where: { entry: { contract: where } } });
     await prisma.depositEntry.deleteMany({ where: { contract: where } });
+    await prisma.notification.deleteMany({ where: { event: { request: { contract: where } } } });
+    await prisma.requestEvent.deleteMany({ where: { request: { contract: where } } });
+    await prisma.request.deleteMany({ where: { contract: where } });
     await prisma.contract.deleteMany({ where });
     await prisma.document.deleteMany({ where: { series: { unitId: unit.id } } });
     await prisma.documentSeries.deleteMany({ where: { unitId: unit.id } });

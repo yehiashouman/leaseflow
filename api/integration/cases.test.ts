@@ -1612,6 +1612,40 @@ describe('MySQL private operational case workflow', () => {
       });
     }
   });
+  it('requires a current acknowledged move-out preview and preserves it in participant history', async () => {
+    const path = '/api/v1/contracts/' + contractId + '/move-out';
+    const desiredDate = dateLabel(shiftDays(calendarDate(new Date()), 2));
+    expect((await send('POST', path + '/preview', { desiredDate }, roommate)).statusCode).toBe(404);
+    const preview = await send('POST', path + '/preview', { desiredDate });
+    expect(preview.statusCode, preview.body).toBe(200);
+    const body = {
+      clientId: randomUUID(),
+      desiredDate,
+      fingerprint: preview.json().fingerprint,
+      acknowledged: true,
+      explanation: 'I need to leave this room.',
+    };
+    expect((await send('POST', path, { ...body, acknowledged: false })).statusCode).toBe(422);
+    expect((await send('POST', path, { ...body, fingerprint: 'f'.repeat(64) })).statusCode).toBe(
+      409,
+    );
+    const submitted = await send('POST', path, body);
+    expect(submitted.statusCode, submitted.body).toBe(201);
+    expect((await send('POST', path, body)).statusCode).toBe(200);
+    expect((await send('POST', path, { ...body, desiredDate: '2030-01-01' })).statusCode).toBe(409);
+    const caseId = submitted.json().requestId;
+    const history = await send('GET', '/' + caseId, undefined, manager);
+    expect(history.statusCode).toBe(200);
+    expect(history.json().metadata.moveOut).toMatchObject({
+      desiredDate,
+      submittedAt: expect.any(String),
+    });
+    expect(history.body).not.toContain('previewFingerprint');
+    expect(await prisma.notification.count({ where: { event: { requestId: caseId } } })).toBe(2);
+    expect((await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })).status).toBe(
+      'ACTIVE',
+    );
+  });
   it('runs late-payment eligibility, clarification, concurrent decisions, notices, and cancellation', async () => {
     const limitsPath = '/api/v1/tenants/' + tenant.profileId + '/late-payment-limits';
     const limits = { lateRequestWindowDays: 7, maxLateExtensionDays: 3 };

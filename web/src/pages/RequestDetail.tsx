@@ -13,6 +13,7 @@ import { api } from '../api';
 import {
   caseCommands,
   caseDate,
+  caseDateWithZone,
   caseEventLabel,
   caseStatuses,
   caseTypes,
@@ -159,6 +160,32 @@ export function RequestDetail() {
             {data.contract?.rentalSpace?.unit.name} / {data.contract?.rentalSpace?.name}
             {data.contract?.tenant?.fullName ? ' / ' + data.contract.tenant.fullName : ''}
           </p>
+          {data.metadata?.moveOut && (
+            <dl className="grid gap-2 text-sm sm:grid-cols-2">
+              {[
+                ['Requested move-out date (Dubai)', data.metadata.moveOut.desiredDate],
+                ['Notice submitted', caseDateWithZone(data.metadata.moveOut.submittedAt)],
+                [
+                  'Earliest penalty-free date (Dubai)',
+                  data.metadata.moveOut.earliestPenaltyFreeDate,
+                ],
+                ['Missing notice days', String(data.metadata.moveOut.missingDays)],
+                [
+                  'Projected notice deduction',
+                  data.metadata.moveOut.currency + ' ' + data.metadata.moveOut.proposedDeduction,
+                ],
+                [
+                  'Projected refund',
+                  data.metadata.moveOut.currency + ' ' + data.metadata.moveOut.projectedRefund,
+                ],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
           {data.metadata?.latePayment && (
             <div className="space-y-1 text-sm">
               <p>Original due date: {data.metadata.latePayment.originalDate} (Asia/Dubai)</p>

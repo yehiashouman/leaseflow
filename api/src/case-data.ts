@@ -90,6 +90,18 @@ export const caseSelect = {
   },
 } satisfies Prisma.RequestSelect;
 const safeMetadata = z.object({
+  moveOut: z
+    .object({
+      desiredDate: z.iso.date(),
+      submittedAt: z.iso.datetime(),
+      earliestPenaltyFreeDate: z.iso.date(),
+      noticeDays: z.number().int(),
+      missingDays: z.number().int(),
+      currency: z.string(),
+      proposedDeduction: z.string(),
+      projectedRefund: z.string(),
+    })
+    .optional(),
   latePayment: latePaymentSnapshot.optional(),
   category: z.string().max(100).nullable().optional(),
   urgency: z.enum(['NORMAL', 'URGENT']).optional(),

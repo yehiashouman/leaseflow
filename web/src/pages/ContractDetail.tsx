@@ -1,4 +1,5 @@
 import { PaymentReceipts } from '@/components/payment-receipts';
+import { MoveOutNotice } from '@/components/move-out-notice';
 import { DepositLedger } from '@/components/deposit-ledger';
 import { previewMode } from '../session';
 import { Documents } from '@/components/documents';
@@ -391,6 +392,9 @@ export function ContractDetail() {
           Record completion is not legal certification.
         </p>
       </section>
+      {!previewMode && user?.role === 'TENANT' && data.status === 'ACTIVE' && (
+        <MoveOutNotice contractId={data.id} />
+      )}
       {!offered && <Records key={data.id} id={data.id} currency={data.currency} />}
     </div>
   );

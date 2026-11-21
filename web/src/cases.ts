@@ -52,6 +52,16 @@ export type CaseRecord = {
   resolvedAt?: string | null;
   decisionDueAt?: string | null;
   metadata?: {
+    moveOut?: {
+      desiredDate: string;
+      submittedAt: string;
+      earliestPenaltyFreeDate: string;
+      noticeDays: number;
+      missingDays: number;
+      currency: string;
+      proposedDeduction: string;
+      projectedRefund: string;
+    };
     category?: string | null;
     categorySnapshot?: { name: string; prompt: string | null; answer: string | null };
     urgency?: string;
