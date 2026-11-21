@@ -86,6 +86,9 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
     await prisma.expenseRecovery.deleteMany({ where: { expense: where } });
     await prisma.expenseVoid.deleteMany({ where: { expense: where } });
     await prisma.expense.deleteMany({ where });
+    await prisma.paymentReceipt.deleteMany({ where: { payment: { contractId } } });
+    await prisma.payment.deleteMany({ where: { contractId } });
+    await prisma.depositEntry.deleteMany({ where: { contractId } });
     await prisma.contract.deleteMany({ where: { id: contractId } });
     await prisma.rentalSpace.deleteMany({ where: { id: spaceId } });
     await prisma.unit.deleteMany({ where: { managerId: { in: managers } } });
@@ -115,7 +118,7 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
   ) =>
     app.inject({
       method,
-      url: '/api/v1/expenses' + path,
+      url: path.startsWith('/api/') ? path : '/api/v1/expenses' + path,
       payload,
       headers: {
         authorization:
@@ -277,6 +280,95 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
     expect(voids.json().items.some((item: { id: string }) => item.id === row.id)).toBe(true);
     expect((await send('PATCH', '/' + row.id, { amount: '1' })).statusCode).toBe(404);
     expect((await send('DELETE', '/' + row.id)).statusCode).toBe(404);
+  });
+  it('reports dated cash at Dubai month boundaries with authorized reconciliation', async () => {
+    const ownerRent = await create({
+      incurredAt: '2026-08-31',
+      amount: '90.10',
+      category: 'OWNER_RENT',
+      scopeKind: 'UNIT',
+      targetId: unitId,
+    });
+    await create({
+      incurredAt: '2026-09-03',
+      amount: '38.00',
+      scopeKind: 'UNIT',
+      targetId: unitId,
+    });
+    const upkeep = await create({
+      incurredAt: '2026-09-04',
+      paidOn: '2026-09-05',
+      amount: '10.02',
+      scopeKind: 'SPACE',
+      targetId: spaceId,
+    });
+    const settle = '/' + ownerRent.id + '/record-payment';
+    expect((await send('POST', settle, { paidOn: '2026-09-01' }, foreign)).statusCode).toBe(404);
+    expect((await send('POST', settle, { paidOn: '2099-09-01' })).statusCode).toBe(422);
+    const settled = await send('POST', settle, { paidOn: '2026-09-01' });
+    expect(settled.statusCode, settled.body).toBe(200);
+    expect(settled.json().paidOn).toMatch(/^2026-09-01/);
+    expect((await send('POST', settle, { paidOn: '2026-09-01' })).statusCode).toBe(200);
+    expect((await send('POST', settle, { paidOn: '2026-09-02' })).statusCode).toBe(409);
+    expect(
+      await prisma.auditEvent.count({
+        where: {
+          entityId: ownerRent.id,
+          action: 'EXPENSE_PAYMENT_RECORDED',
+        },
+      }),
+    ).toBe(1);
+    const payment = await prisma.payment.create({
+      data: {
+        contractId,
+        dueDate: new Date('2026-09-01'),
+        periodStart: new Date('2026-09-01'),
+        amountDue: '500.00',
+        amountPaid: '121.00',
+      },
+    });
+    await prisma.paymentReceipt.createMany({
+      data: [
+        { paymentId: payment.id, paidAt: new Date('2026-08-31T19:59:59Z'), amount: '1.00' },
+        { paymentId: payment.id, paidAt: new Date('2026-08-31T20:00:00Z'), amount: '120.00' },
+      ].map((row) => ({
+        ...row,
+        actorUserId: manager.id,
+        clientId: randomUUID(),
+        payloadHash: 'f'.repeat(64),
+        currency: 'AED',
+        method: 'Cash',
+        recordedBalance: '379.00',
+      })),
+    });
+    await prisma.depositEntry.create({ data: { contractId, type: 'RECEIVED', amount: '9900.00' } });
+    const root = '/api/v1/cash-reports';
+    const filter = '?month=2026-09&unitId=' + unitId;
+    const response = await send('GET', root + filter);
+    expect(response.statusCode, response.body).toBe(200);
+    const result = response.json();
+    expect(result).toMatchObject({
+      basis: 'CASH',
+      filters: { currency: 'AED' },
+      undatedExpenses: 1,
+      totals: { rent: '120.00', ownerRent: '90.10', otherExpenses: '10.02', cashResult: '19.88' },
+    });
+    expect(result.lines).toHaveLength(3);
+    expect(result.lines).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ date: '2026-09-01', kind: 'RENT_RECEIPT' }),
+        expect.objectContaining({ date: '2026-09-01', kind: 'EXPENSE_PAYMENT' }),
+        expect.objectContaining({ date: '2026-09-05', kind: 'EXPENSE_PAYMENT' }),
+      ]),
+    );
+    expect(result.lines.some((row: { id: string }) => row.id === upkeep.id)).toBe(true);
+    expect(result.spaceTotals[0].cashResult).toBe('109.98');
+    expect((await send('GET', root + filter, undefined, tenant)).statusCode).toBe(403);
+    expect((await send('GET', root + filter, undefined, foreign)).statusCode).toBe(404);
+    const csv = await send('GET', root + '/export.csv' + filter);
+    expect(csv.statusCode, csv.body).toBe(200);
+    expect(csv.body).toContain(upkeep.id);
+    expect(csv.body).not.toContain('9900.00');
   });
   it('exports only authorized filtered records with spreadsheet formula protection and an audit event', async () => {
     const row = await create({ vendor: '=1+1', description: 'unique-export-token' });

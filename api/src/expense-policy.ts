@@ -23,6 +23,7 @@ export const expenseSchema = z
     amount: expenseMoney,
     currency: z.enum(['AED', 'USD']).default('AED'),
     incurredAt: z.iso.date(),
+    paidOn: z.iso.date().optional(),
     vendor: z.string().trim().min(2).max(200),
     description: z.string().trim().max(5000).default(''),
     scopeKind: z.enum(['PORTFOLIO', 'LANDLORD', 'UNIT', 'SPACE', 'CONTRACT']).default('PORTFOLIO'),

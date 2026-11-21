@@ -6,6 +6,7 @@ import { activeAccount } from '../account-data.js';
 import { prisma } from '../db.js';
 import { env } from '../config.js';
 import { caseContractScope } from '../case-data.js';
+import { calendarDate } from '../business-calendar.js';
 import {
   expenseCategories,
   expenseSchema,
@@ -20,6 +21,7 @@ const select = {
   amount: true,
   currency: true,
   incurredAt: true,
+  paidOn: true,
   vendor: true,
   description: true,
   scopeKind: true,
@@ -240,6 +242,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
     const columns = [
       'Record ID',
       'Date (UTC)',
+      'Paid date (Dubai)',
       'Category',
       'Vendor',
       'Currency',
@@ -254,6 +257,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
       ...rows.map((row) => [
         row.id,
         row.incurredAt.toISOString().slice(0, 10),
+        row.paidOn?.toISOString().slice(0, 10),
         row.category,
         row.vendor,
         row.currency,
@@ -296,6 +300,8 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
             throw app.httpErrors.conflict('Expense key reused with different content');
           return tx.expense.findUniqueOrThrow({ where: { id: existing.id }, select });
         }
+        if (body.paidOn && new Date(body.paidOn) > calendarDate(new Date()))
+          throw app.httpErrors.unprocessableEntity('The paid date cannot be in the future.');
         const links: {
           landlordId?: string;
           unitId?: string;
@@ -348,6 +354,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
             vendor: body.vendor,
             description: body.description,
             incurredAt: new Date(body.incurredAt),
+            paidOn: body.paidOn ? new Date(body.paidOn) : null,
           },
           select,
         });
@@ -356,12 +363,40 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
           amount: normalized.amount,
           currency: created.currency,
           scopeKind: created.scopeKind,
+          paidOn: body.paidOn ?? null,
         });
         return created;
       },
       { isolationLevel: 'ReadCommitted' },
     );
     return reply.code(201).send(dto(row));
+  });
+  app.post('/:id/record-payment', async (request) => {
+    const { id } = idSchema.parse(request.params);
+    const managerId = await owner(request);
+    const { paidOn } = z.strictObject({ paidOn: z.iso.date() }).parse(request.body);
+    const date = new Date(paidOn);
+    if (date > calendarDate(new Date()))
+      throw app.httpErrors.unprocessableEntity('The paid date cannot be in the future.');
+    return prisma.$transaction(
+      async (tx) => {
+        await write(tx, request);
+        const row = await lock(tx, id, managerId);
+        if (row.void)
+          throw app.httpErrors.conflict('Voided expenses cannot receive payment records.');
+        if (row.paidOn) {
+          if (row.paidOn.getTime() === date.getTime()) return dto(row);
+          throw app.httpErrors.conflict('This expense already has a dated payment record.');
+        }
+        const updated = await tx.expense.update({ where: { id }, data: { paidOn: date }, select });
+        await audit(tx, request, 'EXPENSE_PAYMENT_RECORDED', id, {
+          paidOn,
+          currency: row.currency,
+        });
+        return dto(updated);
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
   });
   app.post('/:id/void', async (request) => {
     const { id } = idSchema.parse(request.params),

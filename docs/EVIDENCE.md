@@ -726,3 +726,23 @@ Code commit `09dbf5ce26f49d6a4d03f87b91716e296366a480`.
 - Tenant confirmation verifies current evidence and capacity before it activates the contract and posts the first obligation.
 - An accepted rent change affects obligations from its effective month. Earlier obligations and original terms remain available.
 - Additional checks cover linked landlords, optional receipt evidence, expiry of unapproved transfers, and the documented rent examples.
+
+## Deposit Ledger
+
+Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.
+[GitHub verification](https://github.com/yehiashouman/leaseflow/actions/runs/44853376632).
+
+## Deposit Dashboards
+
+Verified ledger states and the scoped deposit and refund totals for both roles.
+[GitHub verification](https://github.com/yehiashouman/leaseflow/actions/runs/44931106996).
+
+## Move-Out Notice
+
+Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.
+[GitHub verification](https://github.com/yehiashouman/leaseflow/actions/runs/44853918433).
+
+## Manager Notice Response
+
+Verified waiver, reduced proposals, deposit caps, and tenant acceptance by scoped and retry-safe commands.
+[GitHub verification](https://github.com/yehiashouman/leaseflow/actions/runs/44931106996).

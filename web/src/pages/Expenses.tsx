@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { previewMode } from '../session';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,7 @@ type Expense = {
   currency: string;
   vendor: string | null;
   incurredAt: string;
+  paidOn?: string | null;
   description: string | null;
   scopeKind: string;
   unit?: { id: string; name: string } | null;
@@ -136,6 +138,9 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
           value: today(),
           required: true,
         },
+        ...(!previewMode
+          ? [{ name: 'paidOn', label: 'Paid date (Dubai)', type: 'date' as const }]
+          : []),
         {
           name: 'scope',
           errorPaths: ['scopeKind', 'landlordId', 'unitId', 'rentalSpaceId', 'contractId'],
@@ -154,6 +159,7 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
           amount: String(form.get('amount')),
           currency: form.get('currency'),
           incurredAt: form.get('incurredAt'),
+          ...(form.get('paidOn') ? { paidOn: form.get('paidOn') } : {}),
           scopeKind,
           targetId: targetId ?? null,
           description: form.get('description') || '',
@@ -400,7 +406,7 @@ export function Expenses() {
 export function ExpenseDetail() {
   const { id } = useParams(),
     client = useQueryClient();
-  const [action, setAction] = useState<'void' | 'recoveries' | null>(null),
+  const [action, setAction] = useState<'void' | 'recoveries' | 'record-payment' | null>(null),
     key = useRef(crypto.randomUUID());
   const query = useQuery({
     queryKey: ['expense', id],
@@ -436,6 +442,9 @@ export function ExpenseDetail() {
           ['External recoveries', data.currency + ' ' + data.recovered],
           ['Unrecovered amount', data.currency + ' ' + data.unrecovered],
           ['Expense date (UTC)', date(data.incurredAt)],
+          ...(!previewMode
+            ? [['Paid date (Dubai)', data.paidOn ? date(data.paidOn) : 'No payment date recorded']]
+            : []),
           ['Category', data.category.replaceAll('_', ' ')],
           [
             'Scope',
@@ -465,6 +474,11 @@ export function ExpenseDetail() {
         </Alert>
       ) : (
         <div className="flex flex-wrap gap-2">
+          {!previewMode && !data.paidOn && (
+            <Button variant="outline" onClick={() => setAction('record-payment')}>
+              Record expense payment
+            </Button>
+          )}
           <Button
             onClick={() => {
               key.current = crypto.randomUUID();
@@ -515,69 +529,80 @@ export function ExpenseDetail() {
           onOpenChange={(open) => {
             if (!open) setAction(null);
           }}
-          title={action === 'void' ? 'Confirm expense void' : 'Record external recovery'}
-          fields={
+          title={
             action === 'void'
-              ? [
-                  { name: 'reason', label: 'Reason', required: true, maxLength: 1000 },
-                  {
-                    name: 'confirmed',
-                    label: 'I confirm this void preserves the original record',
-                    required: true,
-                    type: 'checkbox',
-                  },
-                ]
-              : [
-                  moneyField(data.currency),
-                  {
-                    name: 'payerTenantId',
-                    label: 'Payer tenant (optional)',
-                    options: [
-                      { value: '', label: 'No tenant link' },
-                      ...(payers.data?.tenants ?? []).map((row) => ({
-                        value: row.id,
-                        label: row.fullName,
-                      })),
-                    ],
-                  },
-                  {
-                    name: 'paidAt',
-                    label: 'Payment date (UTC)',
-                    type: 'date',
-                    value: today(),
-                    required: true,
-                  },
-                  { name: 'method', label: 'Payment method', required: true, maxLength: 80 },
-                  { name: 'reference', label: 'Reference', maxLength: 200 },
-                  { name: 'notes', label: 'Notes', type: 'textarea', maxLength: 5000 },
-                  {
-                    name: 'confirmed',
-                    label: 'I confirm this external payment already happened',
-                    required: true,
-                    type: 'checkbox',
-                  },
-                ]
+              ? 'Confirm expense void'
+              : action === 'record-payment'
+                ? 'Record expense payment'
+                : 'Record external recovery'
+          }
+          fields={
+            action === 'record-payment'
+              ? [{ name: 'paidOn', label: 'Paid date (Dubai)', type: 'date', required: true }]
+              : action === 'void'
+                ? [
+                    { name: 'reason', label: 'Reason', required: true, maxLength: 1000 },
+                    {
+                      name: 'confirmed',
+                      label: 'I confirm this void preserves the original record',
+                      required: true,
+                      type: 'checkbox',
+                    },
+                  ]
+                : [
+                    moneyField(data.currency),
+                    {
+                      name: 'payerTenantId',
+                      label: 'Payer tenant (optional)',
+                      options: [
+                        { value: '', label: 'No tenant link' },
+                        ...(payers.data?.tenants ?? []).map((row) => ({
+                          value: row.id,
+                          label: row.fullName,
+                        })),
+                      ],
+                    },
+                    {
+                      name: 'paidAt',
+                      label: 'Payment date (UTC)',
+                      type: 'date',
+                      value: today(),
+                      required: true,
+                    },
+                    { name: 'method', label: 'Payment method', required: true, maxLength: 80 },
+                    { name: 'reference', label: 'Reference', maxLength: 200 },
+                    { name: 'notes', label: 'Notes', type: 'textarea', maxLength: 5000 },
+                    {
+                      name: 'confirmed',
+                      label: 'I confirm this external payment already happened',
+                      required: true,
+                      type: 'checkbox',
+                    },
+                  ]
           }
           onSave={async (form) => {
             const body =
-              action === 'void'
-                ? { clientId: key.current, reason: form.get('reason') }
-                : {
-                    clientId: key.current,
-                    amount: String(form.get('amount')),
-                    paidAt: form.get('paidAt'),
-                    method: form.get('method'),
-                    reference: form.get('reference') || '',
-                    notes: form.get('notes') || '',
-                    ...(form.get('payerTenantId')
-                      ? { payerTenantId: String(form.get('payerTenantId')) }
-                      : {}),
-                  };
+              action === 'record-payment'
+                ? { paidOn: form.get('paidOn') }
+                : action === 'void'
+                  ? { clientId: key.current, reason: form.get('reason') }
+                  : {
+                      clientId: key.current,
+                      amount: String(form.get('amount')),
+                      paidAt: form.get('paidAt'),
+                      method: form.get('method'),
+                      reference: form.get('reference') || '',
+                      notes: form.get('notes') || '',
+                      ...(form.get('payerTenantId')
+                        ? { payerTenantId: String(form.get('payerTenantId')) }
+                        : {}),
+                    };
             const response = await api.post<Expense>('/expenses/' + id + '/' + action, body);
             client.setQueryData(['expense', id], response.data);
             await Promise.all([
               client.invalidateQueries({ queryKey: ['expenses'] }),
               client.invalidateQueries({ queryKey: ['dashboard'] }),
+              client.invalidateQueries({ queryKey: ['cash-report'] }),
             ]);
           }}
         />

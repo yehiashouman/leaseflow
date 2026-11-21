@@ -443,7 +443,11 @@ function ManagerDashboard() {
             ))}
           </section>
         ) : (
-          <p className="text-sm text-muted-foreground">No deposit transactions recorded.</p>
+          <p className="text-sm text-muted-foreground">
+            {data?.depositLiability === null
+              ? 'No deposit transactions recorded.'
+              : 'Deposit liabilities require a verified deposit ledger.'}
+          </p>
         )}
       </section>
       <section className="space-y-3 border-t pt-6" aria-labelledby="portfolio-records">

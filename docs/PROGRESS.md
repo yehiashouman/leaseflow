@@ -10,9 +10,9 @@ Target: the complete initial release in requirements.md.
 | Measure                                | Verified status                                                                                                                   |
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Total checklist tasks                  | 764                                                                                                                               |
-| Completed tasks with evidence          | 369                                                                                                                               |
-| Tasks without full completion evidence | 395                                                                                                                               |
-| Strict checklist completion            | 48.30%                                                                                                                            |
+| Completed tasks with evidence          | 404                                                                                                                               |
+| Tasks without full completion evidence | 360                                                                                                                               |
+| Strict checklist completion            | 52.88%                                                                                                                            |
 | UI foundation tasks                    | 10 of 10 verified                                                                                                                 |
 | Open owner decisions                   | 6                                                                                                                                 |
 | Local API unit/route tests             | 158 pass; database mocks where required                                                                                           |
@@ -29,8 +29,15 @@ Target: the complete initial release in requirements.md.
 
 The percentage counts tasks, not effort, feature quantity, or production readiness.
 An unchecked task can contain partial code; it lacks complete acceptance evidence.
-Additional partial work exists beyond the 369 completed tasks; the 200-item target remains incomplete.
+The current target is 600 of 764 verified.
 Do not substitute synthetic-preview results for real API/database acceptance.
+
+## Deposits and Move-Out Notices
+
+The deposit ledger records cash received, evidence, proposed deductions, disputes, refunds, and tenant acknowledgements.
+Both dashboards use the same deposit balance calculation.
+The tenant confirms a Dubai-calendar notice preview. The manager can waive or reduce the proposed deduction.
+[Deposit and move-out evidence](EVIDENCE.md#deposit-ledger).
 
 ## Tenant Confirmation and Contract Lifecycle
 
@@ -50,9 +57,9 @@ Building options merge equivalent spellings for the selected area. The language 
 
 ## Earlier 200-Item Continuation
 
-We verified 121 additional existing checklist tasks.
-The batch contains 121 verified, 52 partial, and 27 blocked requirements. Twenty owner approvals and 66 verified follow-ups count separately.
-Global completion is 369 of 764 (48.30%); 395 requirements remain without full evidence.
+We verified 124 additional existing checklist tasks.
+The batch contains 124 verified, 51 partial, and 25 blocked requirements. Twenty owner approvals and 98 verified follow-ups count separately.
+Global completion is 404 of 764 (52.88%); 360 requirements remain without full evidence.
 The requested 200 additional completions are not complete.
 See [OPERATIONS-EXPENSE-BATCH.md](OPERATIONS-EXPENSE-BATCH.md) for every identifier, exact gap, and evidence link.
 New work covers private expenses/recoveries, contract and occupant setup, operational dashboards, reliable case notices, own preferences, and immutable external receipts, durable business schedules, monthly obligation catch-up, and annual-review decisions.
@@ -186,7 +193,7 @@ It does not mean that no code exists.
 | --------------------------------------- | ----: | ----------------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1. Scope and architecture               |    20 |                18 | Manager responsibility, initial account boundaries, and private storage verified; complete workflows remain                                                           |
 | 2. Decisions and change control         |    11 |                 4 | Decision owners, proposal boundaries, and source integrity verified; approvals and full traceability remain                                                           |
-| 3. Data and persistence                 |    26 |                 8 | Account security state, invitations, consent hashes, and versioned private documents persist; full financial models remain                                            |
+| 3. Data and persistence                 |    26 |                 9 | Account security state, invitations, consent hashes, and versioned private documents persist; full financial models remain                                            |
 | 4. Authentication and sessions          |    19 |                14 | Role/session controls and password recovery verified; MFA, contact changes, and full verification gates remain                                                        |
 | 5. Manager registration and activation  |    17 |                12 | Registration, declarations, identity capture, and review submission verified; moderation outcomes and staging delivery remain                                         |
 | 6. Administration and support           |    21 |                 1 | Filtered account queue verified; masked detail/audit screens exist; moderation, MFA, and impersonation remain                                                         |
@@ -201,9 +208,9 @@ It does not mean that no code exists.
 | 15. Cases and tenant requests           |    18 |                10 | Operational complaint evidence and histories verified; specialized financial cases and full provider delivery remain                                                  |
 | 16. Maintenance and cost responsibility |    12 |                10 | Maintenance evidence, cost proposals, expenses, and separate recoveries verified; charge/deposit posting and cross-route recovery remain                              |
 | 17. Room changes and transfers          |    18 |                 2 | Atomic dated transfer and negotiation workflow remains                                                                                                                |
-| 18. Deposits, move-out, disputes        |    29 |                 3 | Complete liabilities, notice, deduction, refund, and dispute workflow remains                                                                                         |
+| 18. Deposits, move-out, disputes        |    29 |                26 | Receipts, proposals, disputes, refunds, move-out notice, and manager response verified. Final rent and closure remain.                                                |
 | 19. Expenses, currency, reports         |    18 |                 4 | Private direct-scope expenses, evidence, recoveries, and voids verified; allocation policy and complete financial reports remain                                      |
-| 20. Dashboards                          |    19 |                14 | Operational metrics, rent totals, rental terms, review milestones, and document expiry verified; deposit and profit screens remain                                    |
+| 20. Dashboards                          |    19 |                16 | Deposit, rent, review, and operational dashboards verified. Profit reporting remains.                                                                                 |
 | 21. Notifications and providers         |    18 |                13 | Case channel preferences, durable history, signatures, replay protection, and owner recovery verified; full event coverage and real staging delivery remain           |
 | 22. PDF reports                         |    16 |                 6 | Private case jobs, hashes, retries, status, and actual PDF content verified; full relationship reports remain                                                         |
 | 23. Shared interface and accessibility  |    28 |                15 | shadcn/ui foundation and core operational list controls verified; complete business screens remain                                                                    |
@@ -212,20 +219,20 @@ It does not mean that no code exists.
 | 26. Security and privacy                |    13 |                 6 | Private identity access, masks, audit immutability, scans, and abuse controls verified; MFA, retention, and deployed security remain                                  |
 | 27. Local setup and Codespaces          |    19 |                13 | Fresh startup, private ports, persistent volumes, demo controls, and preflight verified; exact public Codespaces journey remains                                      |
 | 28. Production infrastructure           |    21 |                 0 | Infrastructure files exist; actual deployment/recovery acceptance remains                                                                                             |
-| 29. Entity inventory                    |    17 |                12 | Accounts, profiles, inventory, occupants, contracts, expenses, documents, and notices verified; complete financial ledgers and applied amendment models remain        |
-| 30. Required screens                    |    46 |                10 | Rent extension and annual review screens verified alongside prior account and operational screens.                                                                    |
+| 29. Entity inventory                    |    17 |                13 | Deposit ledger verified alongside the other documented models. Payment corrections remain.                                                                            |
+| 30. Required screens                    |    46 |                13 | Deposit and move-out notice screens verified alongside prior account and operational screens.                                                                         |
 | 31. API resources                       |    20 |                 7 | Authentication, invitations, documents, landlords, expenses, notifications, and operations verified; complete financial/domain resources remain                       |
 | 32. Background jobs                     |    11 |                 6 | Monthly obligations, room expiry, security tokens, file scans, and private PDFs verified; due notices, transfer-aware reviews, document notices, and retention remain |
 | 33. Notification events                 |    12 |                 0 | Complete delivery event coverage remains                                                                                                                              |
 | 34. Configuration                       |    12 |                 1 | Private storage configuration verified; approved production provider, upload, and retention settings remain                                                           |
 | 35. Calculation and ledger examples     |     9 |                 8 | Complete approved financial examples remain                                                                                                                           |
-| 36. Acceptance tests                    |    57 |                29 | Rent, annual review, and extension acceptance verified alongside earlier role, case, and operations suites.                                                           |
+| 36. Acceptance tests                    |    57 |                34 | Rent, annual review, and extension acceptance verified alongside earlier role, case, and operations suites.                                                           |
 | 37. Full browser journey                |    17 |                 0 | Preview tests pass; real end-to-end release journey remains                                                                                                           |
 | 38. Owner decisions                     |    26 |                20 | Final-month rent and five partial approvals remain open.                                                                                                              |
 | 39. Final release gates                 |    20 |                 0 | Complete release verification remains                                                                                                                                 |
 | 40. Source coverage map                 |     7 |                 0 | Reference table; no tasks                                                                                                                                             |
 | Final sign-off                          |     7 |                 0 | Full acceptance and owner approval remain                                                                                                                             |
-| Total                                   |   764 |               369 | 395 tasks without full completion evidence                                                                                                                            |
+| Total                                   |   764 |               404 | 360 tasks without full completion evidence                                                                                                                            |
 
 ## Implemented in This Continuation
 

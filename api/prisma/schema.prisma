@@ -589,6 +589,7 @@ model Expense {
   currency String @default("AED")
   exchangeRateToAed Decimal? @db.Decimal(18, 8)
   incurredAt DateTime
+  paidOn DateTime? @db.Date
   vendor String? @db.VarChar(200)
   description String? @db.Text
   evidenceKey String?
@@ -603,6 +604,7 @@ model Expense {
   documentSeries DocumentSeries[]
   @@unique([managerId, clientId])
   @@index([managerId, incurredAt])
+  @@index([managerId, paidOn])
   @@index([managerId, category, incurredAt])
   @@index([landlordId])
   @@index([rentalSpaceId])

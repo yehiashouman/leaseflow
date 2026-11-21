@@ -1387,6 +1387,641 @@
       "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
       "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
       "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-004",
+      "requirement": "Record deposit receipts, amount, date, method, evidence, and outstanding balance.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-007",
+      "requirement": "Expose held balances and projected refund liabilities.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-017",
+      "requirement": "Propose each deduction separately with category, explanation, amount, and evidence.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-018",
+      "requirement": "Support insufficient notice, damage, missing item/key, exceptional cleaning, and other documented contractual charges.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-019",
+      "requirement": "Let tenants accept or dispute each deduction.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-020",
+      "requirement": "Preserve proposal versions, discussions, and evidence.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-021",
+      "requirement": "Never convert a disputed proposal silently into an accepted deduction.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-022",
+      "requirement": "Mark unresolved disagreement Deadlock / External Resolution Required.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-023",
+      "requirement": "Prevent administrator arbitration.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-024",
+      "requirement": "Calculate projected refund from held deposit minus approved deductions.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-026",
+      "requirement": "Record external refund payment and optional evidence.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-027",
+      "requirement": "Ask the tenant to acknowledge refund receipt.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DATA-023",
+      "requirement": "Keep disputed proposals separate from accepted deductions.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-DEP-01",
+      "requirement": "Verify Deposit defaults copy once; receipt, partial receipt, refund, and liability reconcile.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-DEP-04",
+      "requirement": "Verify Deduction acceptance, dispute, revisions, deadlock, refund, and acknowledgement preserve history.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-DEP-05",
+      "requirement": "Verify Disputed proposal cannot silently become an accepted deduction.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "SCREEN-MANAGER-012",
+      "requirement": "Implement Deposits: Record receipt, balance, proposed deductions, dispute, refund liability, and refund evidence.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "SCREEN-TENANT-004",
+      "requirement": "Implement Deposit: Held amount, proposals, explanations, evidence, accept/dispute actions, refund, and acknowledgement.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
+      ],
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-005",
+      "requirement": "Support Not Required, Due, Partially Received, Held, and Refund Pending states.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/dashboard.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/pages/Dashboard.tsx",
+        "web/src/pages/RoleDashboards.tsx"
+      ],
+      "tests": [
+        "api/test/deposit-ledger.test.ts",
+        "api/integration/payments.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified ledger states and the scoped deposit and refund totals for both roles.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-006",
+      "requirement": "Support Partially Refunded, Refunded, and Disputed states.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/dashboard.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/pages/Dashboard.tsx",
+        "web/src/pages/RoleDashboards.tsx"
+      ],
+      "tests": [
+        "api/test/deposit-ledger.test.ts",
+        "api/integration/payments.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified ledger states and the scoped deposit and refund totals for both roles.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-028",
+      "requirement": "Show refunds due, projected liabilities, and disputes on manager dashboards.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/dashboard.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/pages/Dashboard.tsx",
+        "web/src/pages/RoleDashboards.tsx"
+      ],
+      "tests": [
+        "api/test/deposit-ledger.test.ts",
+        "api/integration/payments.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified ledger states and the scoped deposit and refund totals for both roles.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-008",
+      "requirement": "Capture desired move-out date and notice submission time.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-009",
+      "requirement": "Apply confirmed notice inclusivity and penalty-free-date rules.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-010",
+      "requirement": "Calculate uncovered days across actual calendar months.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-011",
+      "requirement": "Use the relevant monthly rent and actual days per uncovered month.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-013",
+      "requirement": "Preview requested date, notice, missing days, deduction, and projected refund.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-014",
+      "requirement": "Require explicit tenant acknowledgement before move-out submission.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-DEP-02",
+      "requirement": "Verify Notice preview handles cross-month daily rates and caps deductions at available deposit.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-DEP-03",
+      "requirement": "Verify Tenant acknowledgement precedes move-out submission.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "SCREEN-TENANT-008",
+      "requirement": "Implement Move-out: Preview notice calculation, missing days, deduction, and refund before explicit acknowledgement.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/move-out-notice.ts",
+        "web/src/components/move-out-notice.tsx"
+      ],
+      "tests": [
+        "api/test/move-out-notice.test.ts",
+        "api/integration/cases.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit tenant acknowledgement.",
+      "commit": "4e9e87b3bef92d8f29ef62dd5d3c89a19ac01704",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853918433",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-012",
+      "requirement": "Cap applied notice deduction at available deposit balance.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/routes/deposits.ts",
+        "web/src/components/move-out-response.tsx"
+      ],
+      "tests": ["api/integration/cases.test.ts", "web/e2e/contract-setup.live.spec.ts"],
+      "note": "Verified waiver, reduced proposals, deposit caps, and tenant acceptance by scoped and retry-safe commands.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-015",
+      "requirement": "Allow manager response, waiver, or reduced notice deduction.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/move-out.ts",
+        "api/src/routes/deposits.ts",
+        "web/src/components/move-out-response.tsx"
+      ],
+      "tests": ["api/integration/cases.test.ts", "web/e2e/contract-setup.live.spec.ts"],
+      "note": "Verified waiver, reduced proposals, deposit caps, and tenant acceptance by scoped and retry-safe commands.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
     }
   ],
   "initialSelectionIds": [
@@ -2586,15 +3221,23 @@
     {
       "id": "DASH-005",
       "requirement": "Show deposits held, projected refunds, refunds due, and disputed deductions.",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "code": [
         "api/src/routes/dashboard.ts",
+        "api/src/deposit-ledger.ts",
         "web/src/pages/Dashboard.tsx",
         "web/src/pages/RoleDashboards.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "web/src/ui.test.tsx"],
-      "decisions": ["DEC-24"],
-      "note": "The dashboard states that verified deposit liability is unavailable; refund projections, disputes, and liabilities remain incomplete."
+      "tests": [
+        "api/test/deposit-ledger.test.ts",
+        "api/integration/payments.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified ledger states and the scoped deposit and refund totals for both roles.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
     },
     {
       "id": "DASH-006",
@@ -2736,15 +3379,23 @@
     {
       "id": "DASH-013",
       "requirement": "Show held deposit, proposals, projected refund, and refund status.",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "code": [
         "api/src/routes/dashboard.ts",
+        "api/src/deposit-ledger.ts",
         "web/src/pages/Dashboard.tsx",
         "web/src/pages/RoleDashboards.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "web/src/ui.test.tsx"],
-      "decisions": ["DEC-24"],
-      "note": "Deposit contract terms exist; held liability, refund projections, proposals, and refund status require a complete settlement ledger."
+      "tests": [
+        "api/test/deposit-ledger.test.ts",
+        "api/integration/payments.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified ledger states and the scoped deposit and refund totals for both roles.",
+      "commit": "531a5c70cfa4e215d45f58bd0f3d724a2bbc9d3e",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
     },
     {
       "id": "DASH-014",
@@ -4318,15 +4969,22 @@
     {
       "id": "MODEL-011",
       "requirement": "Implement `deposits / deposit_ledger`: Received, held, proposed deductions, refunds and disputes.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/prisma/schema.prisma",
-        "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "api/src/routes/deposits.ts",
+        "api/src/deposit-ledger.ts",
+        "web/src/components/deposit-ledger.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
-      "decisions": [],
-      "note": "Legacy deposit entries persist; complete liability ledger, deductions, refunds, and dispute settlement remain incomplete."
+      "tests": [
+        "api/integration/payments.test.ts",
+        "api/integration/documents.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.",
+      "commit": "756fdb7be4ee1249e5faae8657e8a159e0302f0c",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44853376632",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
+      "verified": "2026-11-21"
     },
     {
       "id": "MODEL-012",

@@ -4,8 +4,8 @@ Date: 21 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 121 additional verified requirements; 369 of 764 overall (48.30%).
-The target is not complete: 52 partial and 27 blocked requirements remain in this batch.
+Current result: 124 additional verified requirements; 404 of 764 overall (52.88%).
+The target is not complete: 51 partial and 25 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -147,7 +147,7 @@ Only VERIFIED rows receive completion credit.
 | DASH-002           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-003           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-004           | VERIFIED | Shows exact outstanding rent today, over the next seven Dubai dates, overdue and partially paid. Monthly receipts use immutable payment records and retain their original currency.                                   |
-| DASH-005           | BLOCKED  | The dashboard states that verified deposit liability is unavailable; refund projections, disputes, and liabilities remain incomplete.                                                                                 |
+| DASH-005           | VERIFIED | Verified ledger states and the scoped deposit and refund totals for both roles.                                                                                                                                       |
 | DASH-006           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-007           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-008           | VERIFIED | Shows owned annual-review milestones and current clean identity, licence, property, and consent documents that expire within 30 days. Replaced clean versions and other managers’ records are excluded.               |
@@ -155,7 +155,7 @@ Only VERIFIED rows receive completion credit.
 | DASH-010           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-011           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-012           | VERIFIED | Shows rent, scheduled payment date and unpaid balance through today with recent payment history, scoped to the tenant’s current contract.                                                                             |
-| DASH-013           | BLOCKED  | Deposit contract terms exist; held liability, refund projections, proposals, and refund status require a complete settlement ledger.                                                                                  |
+| DASH-013           | VERIFIED | Verified ledger states and the scoped deposit and refund totals for both roles.                                                                                                                                       |
 | DASH-014           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
 | DASH-015           | VERIFIED | Displays the contract due day and notice period plus the tenant profile’s saved late-request window and maximum extension.                                                                                            |
 | DASH-016           | VERIFIED | Role-specific scoped dashboards expose operational counts, private replies, acknowledgement counts, and Dubai calendar occupancy. Full finance and deposit dashboards remain separate.                                |
@@ -233,7 +233,7 @@ Only VERIFIED rows receive completion credit.
 | MODEL-008          | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | MODEL-009          | PARTIAL  | ContractAmendment schema exists; effective-dated amendment forms, acknowledgement, application, and history acceptance remain incomplete.                                                                             |
 | MODEL-010          | PARTIAL  | Recurring obligations, calendar status, and immutable receipts persist; complete corrections, allocations, and reversals remain incomplete.                                                                           |
-| MODEL-011          | PARTIAL  | Legacy deposit entries persist; complete liability ledger, deductions, refunds, and dispute settlement remain incomplete.                                                                                             |
+| MODEL-011          | VERIFIED | Verified participant access, receipts, private evidence, versioned deductions, disputes, deadlock, refunds, and acknowledgements.                                                                                     |
 | MODEL-012          | PARTIAL  | Operational cases preserve typed immutable events; complete financial-case workflow fields and execution remain incomplete.                                                                                           |
 | MODEL-013          | VERIFIED | Direct scope allocations and separate external recoveries are verified. Shared-cost formulas, automatic charges, and deposit deductions remain separate requirements.                                                 |
 | MODEL-014          | VERIFIED | Verified versioned identity, property, consent, evidence and image records plus private report snapshots. Full financial report content remains separate.                                                             |

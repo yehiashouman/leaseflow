@@ -24,7 +24,13 @@ async function proposal(page: Page, value: string) {
   await dialog
     .getByLabel('Evidence notes', { exact: true })
     .fill('Inspection on 8 November recorded a snapped handle.');
-  await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+  const stored = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'POST' &&
+      new URL(response.url()).pathname.endsWith('/maintenance'),
+  );
+  await dialog.getByRole('button', { name: 'Save', exact: true }).press('Enter');
+  expect((await stored).status()).toBe(201);
   await expect(dialog).not.toBeVisible();
 }
 async function decision(page: Page, label: string, reason: string) {

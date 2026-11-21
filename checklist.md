@@ -125,7 +125,7 @@ Requirements: 14, 24.
 - [x] **DATA-020** Reject archive actions that invalidate active contracts or erase protected history. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **DATA-021** Use transactions and locks for capacity, finance, allocation, and transfer invariants.
 - [ ] **DATA-022** Prevent payment and deposit over-allocation.
-- [ ] **DATA-023** Keep disputed proposals separate from accepted deductions.
+- [x] **DATA-023** Keep disputed proposals separate from accepted deductions. [Evidence](docs/EVIDENCE.md#deposit-ledger).
 - [ ] **DATA-024** Keep deposit liabilities outside rent income and operational profit.
 - [ ] **DATA-025** Require explicit allocations for payments across multiple obligations.
 - [ ] **DATA-026** Keep financial history queryable after defaults and exchange rates change.
@@ -453,31 +453,31 @@ Requirements: 8, 9, 17, 24, 29.
 - [x] **DEP-001** Copy unit deposit default into new contracts. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **DEP-002** Allow explicitly negotiated contract deposit amounts. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **DEP-003** Preserve old contract deposits after default changes. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
-- [ ] **DEP-004** Record deposit receipts, amount, date, method, evidence, and outstanding balance.
-- [ ] **DEP-005** Support Not Required, Due, Partially Received, Held, and Refund Pending states.
-- [ ] **DEP-006** Support Partially Refunded, Refunded, and Disputed states.
-- [ ] **DEP-007** Expose held balances and projected refund liabilities.
-- [ ] **DEP-008** Capture desired move-out date and notice submission time.
-- [ ] **DEP-009** Apply confirmed notice inclusivity and penalty-free-date rules.
-- [ ] **DEP-010** Calculate uncovered days across actual calendar months.
-- [ ] **DEP-011** Use the relevant monthly rent and actual days per uncovered month.
-- [ ] **DEP-012** Cap applied notice deduction at available deposit balance.
-- [ ] **DEP-013** Preview requested date, notice, missing days, deduction, and projected refund.
-- [ ] **DEP-014** Require explicit tenant acknowledgement before move-out submission.
-- [ ] **DEP-015** Allow manager response, waiver, or reduced notice deduction.
+- [x] **DEP-004** Record deposit receipts, amount, date, method, evidence, and outstanding balance. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-005** Support Not Required, Due, Partially Received, Held, and Refund Pending states. [Evidence](docs/EVIDENCE.md#deposit-dashboards).
+- [x] **DEP-006** Support Partially Refunded, Refunded, and Disputed states. [Evidence](docs/EVIDENCE.md#deposit-dashboards).
+- [x] **DEP-007** Expose held balances and projected refund liabilities. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-008** Capture desired move-out date and notice submission time. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **DEP-009** Apply confirmed notice inclusivity and penalty-free-date rules. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **DEP-010** Calculate uncovered days across actual calendar months. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **DEP-011** Use the relevant monthly rent and actual days per uncovered month. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **DEP-012** Cap applied notice deduction at available deposit balance. [Evidence](docs/EVIDENCE.md#manager-notice-response).
+- [x] **DEP-013** Preview requested date, notice, missing days, deduction, and projected refund. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **DEP-014** Require explicit tenant acknowledgement before move-out submission. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **DEP-015** Allow manager response, waiver, or reduced notice deduction. [Evidence](docs/EVIDENCE.md#manager-notice-response).
 - [ ] **DEP-016** Require separate charges for amounts beyond available deposit or applicable contract limits.
-- [ ] **DEP-017** Propose each deduction separately with category, explanation, amount, and evidence.
-- [ ] **DEP-018** Support insufficient notice, damage, missing item/key, exceptional cleaning, and other documented contractual charges.
-- [ ] **DEP-019** Let tenants accept or dispute each deduction.
-- [ ] **DEP-020** Preserve proposal versions, discussions, and evidence.
-- [ ] **DEP-021** Never convert a disputed proposal silently into an accepted deduction.
-- [ ] **DEP-022** Mark unresolved disagreement Deadlock / External Resolution Required.
-- [ ] **DEP-023** Prevent administrator arbitration.
-- [ ] **DEP-024** Calculate projected refund from held deposit minus approved deductions.
+- [x] **DEP-017** Propose each deduction separately with category, explanation, amount, and evidence. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-018** Support insufficient notice, damage, missing item/key, exceptional cleaning, and other documented contractual charges. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-019** Let tenants accept or dispute each deduction. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-020** Preserve proposal versions, discussions, and evidence. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-021** Never convert a disputed proposal silently into an accepted deduction. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-022** Mark unresolved disagreement Deadlock / External Resolution Required. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-023** Prevent administrator arbitration. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-024** Calculate projected refund from held deposit minus approved deductions. [Evidence](docs/EVIDENCE.md#deposit-ledger).
 - [ ] **DEP-025** Apply confirmed final-rent and move-out closure policy.
-- [ ] **DEP-026** Record external refund payment and optional evidence.
-- [ ] **DEP-027** Ask the tenant to acknowledge refund receipt.
-- [ ] **DEP-028** Show refunds due, projected liabilities, and disputes on manager dashboards.
+- [x] **DEP-026** Record external refund payment and optional evidence. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-027** Ask the tenant to acknowledge refund receipt. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **DEP-028** Show refunds due, projected liabilities, and disputes on manager dashboards. [Evidence](docs/EVIDENCE.md#deposit-dashboards).
 - [ ] **DEP-029** Apply approved refund target dates and unresolved-dispute closure policy.
 
 ## 19. Expenses, Currency, and Financial Reports
@@ -511,7 +511,7 @@ Requirements: 11, 22-23.
 - [x] **DASH-002** Build a manager dashboard from owned operational data. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-003** Show units, enabled spaces, occupancy, vacancies, and maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-004** Show rent due today, within seven days, overdue, partially paid, and received this month. [Evidence](docs/EVIDENCE.md#rent-dashboard-balances).
-- [ ] **DASH-005** Show deposits held, projected refunds, refunds due, and disputed deductions.
+- [x] **DASH-005** Show deposits held, projected refunds, refunds due, and disputed deductions. [Evidence](docs/EVIDENCE.md#deposit-dashboards).
 - [x] **DASH-006** Show open maintenance, complaints, room changes, late requests, and move-outs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-007** Show requests that await the manager and approaching deadlines. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-008** Show annual-review milestones and expiring identity, licence, unit, and consent documents. [Evidence](docs/EVIDENCE.md#dashboard-reviews-and-document-expiry).
@@ -519,7 +519,7 @@ Requirements: 11, 22-23.
 - [x] **DASH-010** Build a tenant dashboard scoped to the authenticated relationship. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-011** Show current unit/space, move-in date, and months/days of occupancy. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-012** Show next payment date, rent, current balance, and payment history. [Evidence](docs/EVIDENCE.md#rent-dashboard-balances).
-- [ ] **DASH-013** Show held deposit, proposals, projected refund, and refund status.
+- [x] **DASH-013** Show held deposit, proposals, projected refund, and refund status. [Evidence](docs/EVIDENCE.md#deposit-dashboards).
 - [x] **DASH-014** Show unresolved requests, recent replies, and pending acknowledgements. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **DASH-015** Show due day, notice, late-request window, and permitted extension. [Evidence](docs/EVIDENCE.md#tenant-rental-terms).
 - [x] **DASH-016** Show primary and optional secondary occupant identity status. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
@@ -734,7 +734,7 @@ Requirements: 14, 24.
 - [x] **MODEL-008** Implement `contracts`: Open-ended monthly agreement, space, primary tenant, rent, currency, due day and notice. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **MODEL-009** Implement `contract_amendments`: Effective-dated rent, space, deposit, due-day or notice changes.
 - [ ] **MODEL-010** Implement `rent_obligations / payments`: Monthly dues and external payment records, receipts and corrections.
-- [ ] **MODEL-011** Implement `deposits / deposit_ledger`: Received, held, proposed deductions, refunds and disputes.
+- [x] **MODEL-011** Implement `deposits / deposit_ledger`: Received, held, proposed deductions, refunds and disputes. [Evidence](docs/EVIDENCE.md#deposit-ledger).
 - [ ] **MODEL-012** Implement `requests / request_events`: Typed cases, status, deadlines, messages and immutable history.
 - [x] **MODEL-013** Implement `expenses`: Owner rent, utilities, maintenance and other bookkeeping costs. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **MODEL-014** Implement `documents / media`: Versioned identity, property, consent, evidence, images and reports. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
@@ -784,7 +784,7 @@ Each screen requires functional API access, forms, validation, permissions, pers
 - [x] **SCREEN-MANAGER-009** Implement Annual reviews: Review milestones; record no change, proposed amendment, or deferral. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **SCREEN-MANAGER-010** Implement Rent obligations: Filter period and status; inspect amount, allocations, original due date, and revised expected date.
 - [ ] **SCREEN-MANAGER-011** Implement Payments: Record external payment; attach optional evidence; issue receipt; record audited correction.
-- [ ] **SCREEN-MANAGER-012** Implement Deposits: Record receipt, balance, proposed deductions, dispute, refund liability, and refund evidence.
+- [x] **SCREEN-MANAGER-012** Implement Deposits: Record receipt, balance, proposed deductions, dispute, refund liability, and refund evidence. [Evidence](docs/EVIDENCE.md#deposit-ledger).
 - [ ] **SCREEN-MANAGER-013** Implement Cases: Type-specific forms, messages, evidence, deadlines, decisions, completion, dispute, and event history.
 - [ ] **SCREEN-MANAGER-014** Implement Transfers: Approve or reject; negotiate; select destination; preview terms; confirm atomic effective transfer.
 - [ ] **SCREEN-MANAGER-015** Implement Move-out: Review notice preview, waivers, final allocation, deductions, deposit settlement, and closure.
@@ -798,11 +798,11 @@ Each screen requires functional API access, forms, validation, permissions, pers
 - [ ] **SCREEN-TENANT-001** Implement Dashboard: Every metric, rule, acknowledgement, and action from section 11.2.
 - [ ] **SCREEN-TENANT-002** Implement Occupancy and contract: Current space, history, terms, amendments, documents, and primary/secondary occupant details.
 - [ ] **SCREEN-TENANT-003** Implement Rent and payments: Current obligations, prior payments, receipts, evidence, acknowledgement, and error report.
-- [ ] **SCREEN-TENANT-004** Implement Deposit: Held amount, proposals, explanations, evidence, accept/dispute actions, refund, and acknowledgement.
+- [x] **SCREEN-TENANT-004** Implement Deposit: Held amount, proposals, explanations, evidence, accept/dispute actions, refund, and acknowledgement. [Evidence](docs/EVIDENCE.md#deposit-ledger).
 - [ ] **SCREEN-TENANT-005** Implement Requests: Submit each enabled type; inspect timeline; reply; attach evidence; accept or dispute completion.
 - [x] **SCREEN-TENANT-006** Implement Late payment: Show eligibility, permitted dates, frequency limit, decision, and original/revised due dates. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **SCREEN-TENANT-007** Implement Room change: Show eligibility, five-day deadline, decision, seven-day negotiation, and accepted destination.
-- [ ] **SCREEN-TENANT-008** Implement Move-out: Preview notice calculation, missing days, deduction, and refund before explicit acknowledgement.
+- [x] **SCREEN-TENANT-008** Implement Move-out: Preview notice calculation, missing days, deduction, and refund before explicit acknowledgement. [Evidence](docs/EVIDENCE.md#move-out-notice).
 - [ ] **SCREEN-TENANT-009** Implement Interaction report: Select own relationship; request PDF; download authorized report; inspect generation status.
 - [ ] **SCREEN-TENANT-010** Implement Profile and preferences: Own identity, contacts, language, timezone, security, and notification preferences.
 
@@ -931,11 +931,11 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [x] **TEST-LATE-02** Verify Extension beyond five calendar days or stricter tenant maximum fails. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **TEST-LATE-03** Verify Second approved request inside its six-month window fails. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **TEST-LATE-04** Verify Approval preserves original due date, revised expected date, decision, and messages. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
-- [ ] **TEST-DEP-01** Verify Deposit defaults copy once; receipt, partial receipt, refund, and liability reconcile.
-- [ ] **TEST-DEP-02** Verify Notice preview handles cross-month daily rates and caps deductions at available deposit.
-- [ ] **TEST-DEP-03** Verify Tenant acknowledgement precedes move-out submission.
-- [ ] **TEST-DEP-04** Verify Deduction acceptance, dispute, revisions, deadlock, refund, and acknowledgement preserve history.
-- [ ] **TEST-DEP-05** Verify Disputed proposal cannot silently become an accepted deduction.
+- [x] **TEST-DEP-01** Verify Deposit defaults copy once; receipt, partial receipt, refund, and liability reconcile. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **TEST-DEP-02** Verify Notice preview handles cross-month daily rates and caps deductions at available deposit. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **TEST-DEP-03** Verify Tenant acknowledgement precedes move-out submission. [Evidence](docs/EVIDENCE.md#move-out-notice).
+- [x] **TEST-DEP-04** Verify Deduction acceptance, dispute, revisions, deadlock, refund, and acknowledgement preserve history. [Evidence](docs/EVIDENCE.md#deposit-ledger).
+- [x] **TEST-DEP-05** Verify Disputed proposal cannot silently become an accepted deduction. [Evidence](docs/EVIDENCE.md#deposit-ledger).
 - [ ] **TEST-CASE-01** Verify Each case type supports required fields, evidence, messages, response, resolution, and tenant acknowledgement.
 - [x] **TEST-CASE-02** Verify Complaint privacy, reopening, cost responsibility, and evidence permissions remain enforced. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-CASE-03** Verify No tenant response leaves completion unacknowledged, not automatically accepted. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).

@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { DeliveryStatus } from './pages/DeliveryStatus';
+import { CashReports } from './pages/CashReports';
 import { Expenses, ExpenseDetail } from './pages/Expenses';
 import { Operations } from './pages/Operations';
 import { Login } from './pages/Login';
@@ -69,6 +70,7 @@ const navigation = [
   { to: '/contracts', label: 'Contracts', icon: FileText },
   { to: '/requests', label: 'Requests', icon: Inbox },
   { to: '/expenses', label: 'Expenses', icon: Wallet },
+  ...(!previewMode ? [{ to: '/cash-reports', label: 'Cash reports', icon: FileText }] : []),
   { to: '/invitations', label: 'Invitations', icon: Send },
   { to: '/documents', label: 'My documents', icon: FolderOpen },
   { to: '/security', label: 'Security', icon: Shield },
@@ -121,7 +123,7 @@ function Navigation({ mobile = false }: { mobile?: boolean }) {
   const groups = [
     {
       title: 'Workspace',
-      paths: ['/', '/units', '/landlords', '/tenants', '/contracts', '/expenses'],
+      paths: ['/', '/units', '/landlords', '/tenants', '/contracts', '/expenses', '/cash-reports'],
     },
     {
       title: 'Operations',
@@ -361,6 +363,7 @@ export default function App() {
             </Route>
             <Route element={<Guard roles={['LEASING_MANAGER']} />}>
               <Route path="expenses" element={<Expenses />} />
+              {!previewMode && <Route path="cash-reports" element={<CashReports />} />}
               <Route path="expenses/:id" element={<ExpenseDetail />} />
               <Route path="invitations" element={<AccountInvitations />} />
               <Route path="tenants" element={<Tenants />} />

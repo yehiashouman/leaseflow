@@ -33,6 +33,7 @@ import { adminRoutes } from './routes/admin.js';
 import { profileRoutes } from './routes/profile.js';
 import { tenantRoutes } from './routes/tenants.js';
 import { notificationRoutes } from './routes/notifications.js';
+import { cashReportRoutes } from './routes/cash-reports.js';
 import { reportRoutes } from './routes/reports.js';
 import { reportWorker } from './report-worker.js';
 import { invitationRoutes } from './routes/invitations.js';
@@ -135,6 +136,7 @@ export async function buildApp() {
   await app.register(tenantRoutes, { prefix: '/api/v1/tenants' });
   await app.register(notificationRoutes, { prefix: '/api/v1/notifications' });
   await app.register(reportRoutes, { prefix: '/api/v1/reports' });
+  await app.register(cashReportRoutes, { prefix: '/api/v1/cash-reports' });
   await app.register(documentRoutes, { prefix: '/api/v1/documents' });
   const notices = noticeWorker(() => app.log.error('Notification worker failed'));
   const emails = emailWorker(() => app.log.error('Email worker failed'));

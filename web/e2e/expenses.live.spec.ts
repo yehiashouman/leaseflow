@@ -46,6 +46,11 @@ test('real expense record, external recovery, immutable original, CSV, and reaso
     await expect(dialog).not.toBeVisible();
     await page.getByRole('link', { name: 'Browser Repair Vendor', exact: true }).click();
     await expect(page.getByText('Original factual invoice', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Record expense payment', exact: true }).click();
+    dialog = page.getByRole('dialog');
+    await dialog.getByLabel('Paid date (Dubai) *', { exact: true }).fill('2026-11-09');
+    await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(dialog).not.toBeVisible();
     await page.getByRole('button', { name: 'Record external recovery', exact: true }).click();
     dialog = page.getByRole('dialog');
     await dialog.getByLabel('Amount (AED) *', { exact: true }).fill('20.10');
@@ -67,6 +72,14 @@ test('real expense record, external recovery, immutable original, CSV, and reaso
     expect(expense.amount.toFixed(2)).toBe('100.10');
     expect(expense.recoveries[0]!.amount.toFixed(2)).toBe('20.10');
     await page.screenshot({ path: testInfo.outputPath('expense-recovery.png'), fullPage: true });
+    await page.goto('/cash-reports');
+    await page.getByLabel('Month (Dubai)', { exact: true }).fill('2026-11');
+    await expect(page.getByText('Net recorded cash', { exact: true }).locator('..')).toContainText(
+      'AED -80.00',
+    );
+    const reportDownload = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Export CSV', exact: true }).click();
+    expect((await reportDownload).suggestedFilename()).toBe('leaseflow-cash-2026-11-AED.csv');
     await page.goto('/expenses');
     const download = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export CSV', exact: true }).click();
