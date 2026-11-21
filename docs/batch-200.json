@@ -225,6 +225,808 @@
       "commit": "e3f7f07afc818886447e8db0af07baf68d25f0f8",
       "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44590412644",
       "verified": "2026-11-19"
+    },
+    {
+      "id": "CON-007",
+      "requirement": "Prevent automatic rent changes at annual review.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "CON-008",
+      "requirement": "Create same-space reviews at 12, 24, 36, and subsequent continuous-month milestones.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "CON-009",
+      "requirement": "Notify managers through configured channels.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "CON-010",
+      "requirement": "Support Reviewed / No Change, next-month price proposal, and deferred review date.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "CON-011",
+      "requirement": "Show proposed amendments and effective months to tenants.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "CON-013",
+      "requirement": "Prevent duplicate annual reviews.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "SCREEN-MANAGER-009",
+      "requirement": "Implement Annual reviews: Review milestones; record no change, proposed amendment, or deferral.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-RENT-04",
+      "requirement": "Verify Same-space annual reviews recur without duplicate reviews or automatic price changes.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/business-jobs.ts",
+        "api/src/routes/reviews.ts",
+        "web/src/pages/Reviews.tsx"
+      ],
+      "tests": ["api/integration/business-jobs.test.ts", "web/e2e/reviews.live.spec.ts"],
+      "note": "Verified same-space review milestones, one review per milestone, configured notification intent, manager decisions, and tenant visibility of proposed rent and effective months.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-002",
+      "requirement": "Calculate first rent as monthly rent / actual calendar days * occupied days.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-003",
+      "requirement": "Include the move-in day.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-004",
+      "requirement": "Use full monthly rent for subsequent complete months.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-007",
+      "requirement": "Prevent duplicate obligations per contract period.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-010",
+      "requirement": "Verify AED 3,100 with 17 January move-in produces 15 days and AED 1,500.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-011",
+      "requirement": "Verify AED 2,900 with leap-year 15 February move-in produces 15 days and AED 1,500.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-012",
+      "requirement": "Verify AED 2,800 with non-leap 15 February move-in produces 14 days and AED 1,400.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-013",
+      "requirement": "Verify first-day move-in produces full rent.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-014",
+      "requirement": "Verify later full February rent remains the negotiated monthly amount.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-015",
+      "requirement": "Verify month boundaries, leap years, timezone boundaries, and approved round policy.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-RENT-01",
+      "requirement": "Verify First-month proration passes every example in section 24.3.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-RENT-02",
+      "requirement": "Verify Later months retain full rent across 28-, 29-, 30-, and 31-day months.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-RENT-03",
+      "requirement": "Verify Multiple scheduler runs produce one obligation per contract period.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/contract-policy.ts",
+        "api/src/business-calendar.ts",
+        "api/src/business-jobs.ts"
+      ],
+      "tests": [
+        "api/test/proration.test.ts",
+        "api/test/contract-policy.test.ts",
+        "api/integration/business-jobs.test.ts"
+      ],
+      "note": "Verified initial proration examples, full later months, Dubai calendar boundaries, minor-unit rounding, and one obligation per period under retries.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-001",
+      "requirement": "Expose the tenant's permitted submission window and extension limit.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-002",
+      "requirement": "Restrict requests to the configured final-ten-day window before the original due date.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-003",
+      "requirement": "Apply approved same-day and overdue submission rules.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-004",
+      "requirement": "Cap extensions at five calendar days after the original due date.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-005",
+      "requirement": "Apply stricter per-tenant limits.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-006",
+      "requirement": "Allow one approved late-payment request per rolling six months.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-007",
+      "requirement": "Use approved eligibility anchor and calendar-boundary rules.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-008",
+      "requirement": "Keep the late-payment allowance independent from room-change allowance.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-009",
+      "requirement": "Allow manager approval, rejection, and clarification.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-010",
+      "requirement": "Preserve original date, revised expected date, decision, messages, and evidence.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-011",
+      "requirement": "Change expected payment date without a change to monthly rent.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-012",
+      "requirement": "Notify both parties according to preferences.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "LATE-013",
+      "requirement": "Verify denied, repeated, boundary-date, and concurrent requests.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-LATE-01",
+      "requirement": "Verify Request outside the configured final-ten-day window fails.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-LATE-02",
+      "requirement": "Verify Extension beyond five calendar days or stricter tenant maximum fails.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-LATE-03",
+      "requirement": "Verify Second approved request inside its six-month window fails.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-LATE-04",
+      "requirement": "Verify Approval preserves original due date, revised expected date, decision, and messages.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "SCREEN-TENANT-006",
+      "requirement": "Implement Late payment: Show eligibility, permitted dates, frequency limit, decision, and original/revised due dates.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/requests.ts",
+        "api/src/routes/tenants.ts",
+        "api/src/late-payment-policy.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "api/test/business-calendar.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified Dubai eligibility, configured limits, manager decisions, participant history and notices, separate payment dates, concurrent approvals, and lasting approval history after cancellation.",
+      "commit": "bb881f045e2136cb0aa0da367ddf98717417598f",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
+      "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
+      "verified": "2026-11-21"
     }
   ],
   "initialSelectionIds": [

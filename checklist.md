@@ -309,13 +309,13 @@ Requirements: 6, 14, 17, 22-24.
 - [x] **CON-004** Support explicit per-contract notice exceptions such as 15 days. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **CON-005** Preserve original terms and all effective-dated amendments.
 - [ ] **CON-006** Implement tenant visibility and the approved acknowledgement policy.
-- [ ] **CON-007** Prevent automatic rent changes at annual review.
-- [ ] **CON-008** Create same-space reviews at 12, 24, 36, and subsequent continuous-month milestones.
-- [ ] **CON-009** Notify managers through configured channels.
-- [ ] **CON-010** Support Reviewed / No Change, next-month price proposal, and deferred review date.
-- [ ] **CON-011** Show proposed amendments and effective months to tenants.
+- [x] **CON-007** Prevent automatic rent changes at annual review. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **CON-008** Create same-space reviews at 12, 24, 36, and subsequent continuous-month milestones. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **CON-009** Notify managers through configured channels. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **CON-010** Support Reviewed / No Change, next-month price proposal, and deferred review date. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **CON-011** Show proposed amendments and effective months to tenants. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **CON-012** Reset same-space anniversary after transfer without loss of history.
-- [ ] **CON-013** Prevent duplicate annual reviews.
+- [x] **CON-013** Prevent duplicate annual reviews. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **CON-014** Apply approved reminder behavior for deferred and no-change reviews. [Evidence](docs/EVIDENCE.md#deferred-review-reminders).
 - [ ] **CON-015** Close contracts through confirmed move-out without silent record deletion.
 
@@ -324,20 +324,20 @@ Requirements: 6, 14, 17, 22-24.
 Requirements: 6-7, 17, 24.3.
 
 - [ ] **RENT-001** Generate obligations from active contract terms and effective amendments.
-- [ ] **RENT-002** Calculate first rent as monthly rent / actual calendar days * occupied days.
-- [ ] **RENT-003** Include the move-in day.
-- [ ] **RENT-004** Use full monthly rent for subsequent complete months.
+- [x] **RENT-002** Calculate first rent as monthly rent / actual calendar days * occupied days. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-003** Include the move-in day. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-004** Use full monthly rent for subsequent complete months. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **RENT-005** Apply confirmed final-month and due-day policies.
 - [ ] **RENT-006** Store amount, period, original due date, approved expected date, allocations, and balance.
-- [ ] **RENT-007** Prevent duplicate obligations per contract period.
+- [x] **RENT-007** Prevent duplicate obligations per contract period. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **RENT-008** Support Upcoming, Due, Partially Paid, Paid, Late, Waived/Adjusted, and Disputed states.
 - [ ] **RENT-009** Audit waivers and adjustments.
-- [ ] **RENT-010** Verify AED 3,100 with 17 January move-in produces 15 days and AED 1,500.
-- [ ] **RENT-011** Verify AED 2,900 with leap-year 15 February move-in produces 15 days and AED 1,500.
-- [ ] **RENT-012** Verify AED 2,800 with non-leap 15 February move-in produces 14 days and AED 1,400.
-- [ ] **RENT-013** Verify first-day move-in produces full rent.
-- [ ] **RENT-014** Verify later full February rent remains the negotiated monthly amount.
-- [ ] **RENT-015** Verify month boundaries, leap years, timezone boundaries, and approved round policy.
+- [x] **RENT-010** Verify AED 3,100 with 17 January move-in produces 15 days and AED 1,500. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-011** Verify AED 2,900 with leap-year 15 February move-in produces 15 days and AED 1,500. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-012** Verify AED 2,800 with non-leap 15 February move-in produces 14 days and AED 1,400. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-013** Verify first-day move-in produces full rent. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-014** Verify later full February rent remains the negotiated monthly amount. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **RENT-015** Verify month boundaries, leap years, timezone boundaries, and approved round policy. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **RENT-016** Verify job retries do not duplicate obligations or notifications.
 
 ## 13. External Payments and Receipts
@@ -366,19 +366,19 @@ Requirements: 7, 23-24.
 
 Requirements: 7.1, 9, 17, 29.
 
-- [ ] **LATE-001** Expose the tenant's permitted submission window and extension limit.
-- [ ] **LATE-002** Restrict requests to the configured final-ten-day window before the original due date.
-- [ ] **LATE-003** Apply approved same-day and overdue submission rules.
-- [ ] **LATE-004** Cap extensions at five calendar days after the original due date.
-- [ ] **LATE-005** Apply stricter per-tenant limits.
-- [ ] **LATE-006** Allow one approved late-payment request per rolling six months.
-- [ ] **LATE-007** Use approved eligibility anchor and calendar-boundary rules.
-- [ ] **LATE-008** Keep the late-payment allowance independent from room-change allowance.
-- [ ] **LATE-009** Allow manager approval, rejection, and clarification.
-- [ ] **LATE-010** Preserve original date, revised expected date, decision, messages, and evidence.
-- [ ] **LATE-011** Change expected payment date without a change to monthly rent.
-- [ ] **LATE-012** Notify both parties according to preferences.
-- [ ] **LATE-013** Verify denied, repeated, boundary-date, and concurrent requests.
+- [x] **LATE-001** Expose the tenant's permitted submission window and extension limit. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-002** Restrict requests to the configured final-ten-day window before the original due date. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-003** Apply approved same-day and overdue submission rules. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-004** Cap extensions at five calendar days after the original due date. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-005** Apply stricter per-tenant limits. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-006** Allow one approved late-payment request per rolling six months. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-007** Use approved eligibility anchor and calendar-boundary rules. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-008** Keep the late-payment allowance independent from room-change allowance. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-009** Allow manager approval, rejection, and clarification. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-010** Preserve original date, revised expected date, decision, messages, and evidence. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-011** Change expected payment date without a change to monthly rent. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-012** Notify both parties according to preferences. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **LATE-013** Verify denied, repeated, boundary-date, and concurrent requests. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 
 ## 15. Case Lifecycle and Tenant Requests
 
@@ -781,7 +781,7 @@ Each screen requires functional API access, forms, validation, permissions, pers
 - [ ] **SCREEN-MANAGER-006** Implement Tenants: Invite, resend or revoke invitation, view profile, verify completion, and inspect own relationship history.
 - [ ] **SCREEN-MANAGER-007** Implement Tenant detail: Contracts, occupants, dues, payments, deposits, requests, documents, and export.
 - [ ] **SCREEN-MANAGER-008** Implement Contracts: Create, inspect, propose effective-dated amendments, record acknowledgement, transfer, and close.
-- [ ] **SCREEN-MANAGER-009** Implement Annual reviews: Review milestones; record no change, proposed amendment, or deferral.
+- [x] **SCREEN-MANAGER-009** Implement Annual reviews: Review milestones; record no change, proposed amendment, or deferral. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **SCREEN-MANAGER-010** Implement Rent obligations: Filter period and status; inspect amount, allocations, original due date, and revised expected date.
 - [ ] **SCREEN-MANAGER-011** Implement Payments: Record external payment; attach optional evidence; issue receipt; record audited correction.
 - [ ] **SCREEN-MANAGER-012** Implement Deposits: Record receipt, balance, proposed deductions, dispute, refund liability, and refund evidence.
@@ -800,7 +800,7 @@ Each screen requires functional API access, forms, validation, permissions, pers
 - [ ] **SCREEN-TENANT-003** Implement Rent and payments: Current obligations, prior payments, receipts, evidence, acknowledgement, and error report.
 - [ ] **SCREEN-TENANT-004** Implement Deposit: Held amount, proposals, explanations, evidence, accept/dispute actions, refund, and acknowledgement.
 - [ ] **SCREEN-TENANT-005** Implement Requests: Submit each enabled type; inspect timeline; reply; attach evidence; accept or dispute completion.
-- [ ] **SCREEN-TENANT-006** Implement Late payment: Show eligibility, permitted dates, frequency limit, decision, and original/revised due dates.
+- [x] **SCREEN-TENANT-006** Implement Late payment: Show eligibility, permitted dates, frequency limit, decision, and original/revised due dates. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **SCREEN-TENANT-007** Implement Room change: Show eligibility, five-day deadline, decision, seven-day negotiation, and accepted destination.
 - [ ] **SCREEN-TENANT-008** Implement Move-out: Preview notice calculation, missing days, deduction, and refund before explicit acknowledgement.
 - [ ] **SCREEN-TENANT-009** Implement Interaction report: Select own relationship; request PDF; download authorized report; inspect generation status.
@@ -920,17 +920,17 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [x] **TEST-OCC-02** Verify Concurrent allocation cannot exceed capacity or bypass maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-CON-01** Verify Open-ended contract stores negotiated rent, due day, notice, deposit, currency, and occupancy dates. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-CON-02** Verify Amendments preserve past terms and apply on the explicit effective date.
-- [ ] **TEST-RENT-01** Verify First-month proration passes every example in section 24.3.
-- [ ] **TEST-RENT-02** Verify Later months retain full rent across 28-, 29-, 30-, and 31-day months.
-- [ ] **TEST-RENT-03** Verify Multiple scheduler runs produce one obligation per contract period.
-- [ ] **TEST-RENT-04** Verify Same-space annual reviews recur without duplicate reviews or automatic price changes.
+- [x] **TEST-RENT-01** Verify First-month proration passes every example in section 24.3. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **TEST-RENT-02** Verify Later months retain full rent across 28-, 29-, 30-, and 31-day months. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **TEST-RENT-03** Verify Multiple scheduler runs produce one obligation per contract period. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **TEST-RENT-04** Verify Same-space annual reviews recur without duplicate reviews or automatic price changes. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **TEST-PAY-01** Verify External payment without evidence succeeds and creates a durable tenant receipt. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **TEST-PAY-02** Verify Partial payment, multiple allocations, correction, reversal, and tenant error report preserve balances and audit.
 - [x] **TEST-PAY-03** Verify Repeated idempotent payment request cannot duplicate money. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **TEST-LATE-01** Verify Request outside the configured final-ten-day window fails.
-- [ ] **TEST-LATE-02** Verify Extension beyond five calendar days or stricter tenant maximum fails.
-- [ ] **TEST-LATE-03** Verify Second approved request inside its six-month window fails.
-- [ ] **TEST-LATE-04** Verify Approval preserves original due date, revised expected date, decision, and messages.
+- [x] **TEST-LATE-01** Verify Request outside the configured final-ten-day window fails. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **TEST-LATE-02** Verify Extension beyond five calendar days or stricter tenant maximum fails. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **TEST-LATE-03** Verify Second approved request inside its six-month window fails. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
+- [x] **TEST-LATE-04** Verify Approval preserves original due date, revised expected date, decision, and messages. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [ ] **TEST-DEP-01** Verify Deposit defaults copy once; receipt, partial receipt, refund, and liability reconcile.
 - [ ] **TEST-DEP-02** Verify Notice preview handles cross-month daily rates and caps deductions at available deposit.
 - [ ] **TEST-DEP-03** Verify Tenant acknowledgement precedes move-out submission.

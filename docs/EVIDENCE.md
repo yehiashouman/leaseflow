@@ -704,3 +704,16 @@ Code commit: `a6b8a9851901fb5118c307e777975f808da58629`.
 - Expense CSV uses the same filter and sort parameters as the expense list.
 
 The Pages workflow passed 127 web tests, four browser fixture tests, and 18 preview browser tests.
+
+## Rent lifecycle and reference choices
+
+Code commit `bb881f045e2136cb0aa0da367ddf98717417598f`.
+[MySQL, live browser, and application checks](https://github.com/yehiashouman/leaseflow/actions/runs/44849923224).
+[Desktop and mobile preview and Pages checks](https://github.com/yehiashouman/leaseflow/actions/runs/44849923146).
+
+- Late-payment eligibility follows Dubai calendar dates and the tenant's configured request window and extension limit.
+- Managers can request clarification, reject, or approve. Approval preserves the original date and posts a separate expected date.
+- Concurrent approvals share a tenant lock. Cancellation restores the original expected date and retains the approval in history.
+- Rent checks cover calendar boundaries, proration examples, full later months, and scheduler retries.
+- Review checks cover 12-, 24-, and 36-month same-space milestones, participant notices, and price proposals.
+- Building choices collapse equivalent variants in the selected area. The catalogue preserves distinct Akan and Twi options.
