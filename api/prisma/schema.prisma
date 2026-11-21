@@ -250,6 +250,7 @@ model RentalSpace {
   unit Unit @relation(fields: [unitId], references: [id])
   contracts Contract[]
   expenses Expense[]
+  sharedExpenses ExpenseSharedAllocation[]
   documentSeries DocumentSeries[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -614,6 +615,8 @@ model Expense {
   exchangeRateToAed Decimal? @db.Decimal(18, 8)
   incurredAt DateTime
   paidOn DateTime? @db.Date
+  sharedPeriod DateTime? @db.Date
+  allocations ExpenseSharedAllocation[]
   vendor String? @db.VarChar(200)
   description String? @db.Text
   evidenceKey String?
@@ -633,6 +636,16 @@ model Expense {
   @@index([landlordId])
   @@index([rentalSpaceId])
   @@index([contractId])
+}
+
+model ExpenseSharedAllocation {
+  expenseId String
+  rentalSpaceId String
+  amount Decimal @db.Decimal(12, 2)
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+  rentalSpace RentalSpace @relation(fields: [rentalSpaceId], references: [id], onDelete: Restrict)
+  @@id([expenseId, rentalSpaceId])
+  @@index([rentalSpaceId])
 }
 
 model ExpenseVoid {

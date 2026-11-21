@@ -119,7 +119,7 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
           ...(filter.unitId ? { unitId: filter.unitId } : {}),
           ...(filter.contractId ? { contractId: filter.contractId } : {}),
         } satisfies Prisma.ExpenseWhereInput;
-        const [receipts, reversals, paid, recovered, undated] = await Promise.all([
+        const [receipts, reversals, paid, recovered, undated, shares] = await Promise.all([
           tx.paymentReceipt.findMany({
             where: { paidAt: instant, currency: filter.currency, payment: { contract: contracts } },
             select: {
@@ -184,8 +184,38 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
             take: maxRows + 1,
           }),
           tx.expense.count({ where: { ...expenses, incurredAt: dateOnly, paidOn: null } }),
+          filter.contractId
+            ? []
+            : tx.expenseSharedAllocation.findMany({
+                where: {
+                  expense: {
+                    managerId: manager.id,
+                    currency: filter.currency,
+                    void: null,
+                    paidOn: dateOnly,
+                  },
+                  rentalSpace: {
+                    unit: { managerId: manager.id },
+                    ...(filter.unitId ? { unitId: filter.unitId } : {}),
+                  },
+                },
+                select: {
+                  amount: true,
+                  expenseId: true,
+                  rentalSpaceId: true,
+                  expense: { select: { sharedPeriod: true, paidOn: true, category: true } },
+                  rentalSpace: {
+                    select: { name: true, unitId: true, unit: { select: { name: true } } },
+                  },
+                },
+                orderBy: [{ expenseId: 'asc' }, { rentalSpaceId: 'asc' }],
+                take: maxRows + 1,
+              }),
         ]);
-        if (receipts.length + reversals.length + paid.length + recovered.length > maxRows)
+        if (
+          receipts.length + reversals.length + paid.length + recovered.length + shares.length >
+          maxRows
+        )
           throw app.httpErrors.conflict('Filter by unit or contract to fit the report row limit.');
         const lines: Line[] = [
           ...receipts.map(({ id, paidAt, amount, payment }) => ({
@@ -235,6 +265,14 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
           add(space, line);
           spaceTotals.set(line.rentalSpaceId, space);
         }
+        const sharedBySpace = new Map<string, Prisma.Decimal>();
+        for (const share of shares) {
+          if (!spaceTotals.has(share.rentalSpaceId)) spaceTotals.set(share.rentalSpaceId, totals());
+          sharedBySpace.set(
+            share.rentalSpaceId,
+            (sharedBySpace.get(share.rentalSpaceId) ?? new Prisma.Decimal(0)).plus(share.amount),
+          );
+        }
         return {
           basis: 'CASH' as const,
           timezone: 'Asia/Dubai',
@@ -247,7 +285,27 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
             name: id ? (unitNames.get(id) ?? id) : 'Without unit attribution',
             ...amounts(total),
           })),
-          spaceTotals: [...spaceTotals].map(([id, total]) => ({ id, ...amounts(total) })),
+          spaceTotals: [...spaceTotals].map(([id, total]) => {
+            const direct = amounts(total);
+            const shared = sharedBySpace.get(id) ?? new Prisma.Decimal(0);
+            return {
+              id,
+              ...direct,
+              sharedCosts: shared.toFixed(2),
+              afterShared: new Prisma.Decimal(direct.cashResult).minus(shared).toFixed(2),
+            };
+          }),
+          sharedCosts: shares.map((share) => ({
+            expenseId: share.expenseId,
+            spaceId: share.rentalSpaceId,
+            spaceName: share.rentalSpace.name,
+            unitId: share.rentalSpace.unitId,
+            unitName: share.rentalSpace.unit.name,
+            month: day(share.expense.sharedPeriod!).slice(0, 7),
+            paidOn: day(share.expense.paidOn!),
+            category: share.expense.category,
+            amount: share.amount.toFixed(2),
+          })),
           lines: lines.map((row) => ({ ...row, amount: row.amount.toFixed(2) })),
         };
       },
@@ -280,6 +338,7 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
         'Unit ID',
         'Space ID',
         'Contract ID',
+        'Allocation month (Dubai)',
       ],
       ...data.lines.map((row) => [
         data.filters.month,
@@ -293,6 +352,21 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
         row.unitId,
         row.rentalSpaceId,
         row.contractId,
+        '',
+      ]),
+      ...data.sharedCosts.map((row) => [
+        data.filters.month,
+        'ALLOCATION',
+        data.filters.currency,
+        row.paidOn,
+        'SHARED_EXPENSE_ALLOCATION',
+        row.expenseId,
+        row.amount,
+        row.category,
+        row.unitId,
+        row.spaceId,
+        '',
+        row.month,
       ]),
     ]
       .map((row) => row.map(csvCell).join(','))

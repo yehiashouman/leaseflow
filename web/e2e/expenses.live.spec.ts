@@ -41,11 +41,17 @@ test('real expense record, external recovery, immutable original, CSV, and reaso
     await dialog.getByLabel('Vendor *', { exact: true }).fill('Browser Repair Vendor');
     await dialog.getByLabel('Amount (selected currency) *', { exact: true }).fill('100.10');
     await dialog.getByLabel('Expense date (UTC) *', { exact: true }).fill('2026-11-09');
+    const share = dialog.getByRole('checkbox', {
+      name: 'Split across spaces occupied on the first day of the expense month (Dubai)',
+    });
+    await share.press('Space');
+    await expect(share).toBeChecked();
     await dialog.getByLabel('Notes', { exact: true }).fill('Original factual invoice');
     await dialog.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(dialog).not.toBeVisible();
     await page.getByRole('link', { name: 'Browser Repair Vendor', exact: true }).click();
     await expect(page.getByText('Original factual invoice', { exact: true })).toBeVisible();
+    await expect(page.getByText('No occupied spaces on the allocation date.')).toBeVisible();
     await page.getByRole('button', { name: 'Record expense payment', exact: true }).click();
     dialog = page.getByRole('dialog');
     await dialog.getByLabel('Paid date (Dubai) *', { exact: true }).fill('2026-11-09');

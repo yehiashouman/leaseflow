@@ -24,6 +24,7 @@ export const expenseSchema = z
     currency: z.enum(['AED', 'USD']).default('AED'),
     incurredAt: z.iso.date(),
     paidOn: z.iso.date().optional(),
+    sharedCost: z.literal(true).optional(),
     vendor: z.string().trim().min(2).max(200),
     description: z.string().trim().max(5000).default(''),
     scopeKind: z.enum(['PORTFOLIO', 'LANDLORD', 'UNIT', 'SPACE', 'CONTRACT']).default('PORTFOLIO'),
@@ -33,6 +34,10 @@ export const expenseSchema = z
   .refine(
     (value) => (value.scopeKind === 'PORTFOLIO') === (value.targetId === null),
     'Portfolio scope requires no target; other scopes require a target',
+  )
+  .refine(
+    (value) => !value.sharedCost || ['PORTFOLIO', 'LANDLORD', 'UNIT'].includes(value.scopeKind),
+    { path: ['sharedCost'], message: 'Shared costs require a portfolio, landlord, or unit scope.' },
   );
 export const expensePayloadHash = (value: unknown) =>
   createHash('sha256').update(JSON.stringify(value)).digest('hex');

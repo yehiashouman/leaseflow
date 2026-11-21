@@ -20,6 +20,15 @@ type Result = {
   units: { id: string; name: string }[];
   totals: Amounts;
   undatedExpenses: number;
+  sharedCosts: {
+    expenseId: string;
+    spaceId: string;
+    spaceName: string;
+    unitName: string;
+    amount: string;
+    month: string;
+  }[];
+  spaceTotals: ({ id: string; sharedCosts: string; afterShared: string } & Amounts)[];
   unitTotals: ({ id: string | null; name: string } & Amounts)[];
   lines: {
     id: string;
@@ -61,6 +70,7 @@ export function CashReports() {
   const [currency, setCurrency] = useState('AED');
   const [unitId, setUnitId] = useState('');
   const [page, setPage] = useState(1);
+  const [sharesPage, setSharesPage] = useState(1);
   const [downloadState, setDownloadState] = useState<'idle' | 'busy' | 'failed'>('idle');
   const params = { month, currency, ...(unitId ? { unitId } : {}) };
   const query = useQuery({
@@ -113,6 +123,7 @@ export function CashReports() {
             onChange={(event) => {
               if (event.target.value) setMonth(event.target.value);
               setPage(1);
+              setSharesPage(1);
             }}
           />
         </div>
@@ -125,6 +136,7 @@ export function CashReports() {
             onChange={(event) => {
               setCurrency(event.target.value);
               setPage(1);
+              setSharesPage(1);
             }}
           >
             <option>AED</option>
@@ -140,6 +152,7 @@ export function CashReports() {
             onChange={(event) => {
               setUnitId(event.target.value);
               setPage(1);
+              setSharesPage(1);
             }}
           >
             <option value="">Entire portfolio</option>
@@ -198,6 +211,34 @@ export function CashReports() {
                   </span>
                 </div>
               ))}
+            </section>
+          )}
+          {query.data.sharedCosts.length > 0 && (
+            <section className="space-y-3" aria-label="Shared cost allocations">
+              <h2 className="font-semibold">Shared cost allocations</h2>
+              <ul className="divide-y">
+                {query.data.sharedCosts
+                  .slice((sharesPage - 1) * pageSize, sharesPage * pageSize)
+                  .map((share) => (
+                    <li
+                      key={share.expenseId + ':' + share.spaceId}
+                      className="flex flex-wrap justify-between gap-2 py-2"
+                    >
+                      <span>
+                        {share.unitName} / {share.spaceName} · {share.month}
+                      </span>
+                      <Link to={'/expenses/' + share.expenseId} className="text-primary underline">
+                        {currency} {share.amount}
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
+              <ListPager
+                page={sharesPage}
+                pageSize={pageSize}
+                total={query.data.sharedCosts.length}
+                onChange={setSharesPage}
+              />
             </section>
           )}
           <section className="space-y-3">

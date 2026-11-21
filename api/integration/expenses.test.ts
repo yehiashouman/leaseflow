@@ -83,14 +83,15 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
     const ids = actors.map((a) => a.id),
       managers = actors.flatMap((a) => (a.managerId ? [a.managerId] : []));
     const where = { managerId: { in: managers } };
+    await prisma.expenseSharedAllocation.deleteMany({ where: { expense: where } });
     await prisma.expenseRecovery.deleteMany({ where: { expense: where } });
     await prisma.expenseVoid.deleteMany({ where: { expense: where } });
     await prisma.expense.deleteMany({ where });
     await prisma.paymentReceipt.deleteMany({ where: { payment: { contractId } } });
     await prisma.payment.deleteMany({ where: { contractId } });
     await prisma.depositEntry.deleteMany({ where: { contractId } });
-    await prisma.contract.deleteMany({ where: { id: contractId } });
-    await prisma.rentalSpace.deleteMany({ where: { id: spaceId } });
+    await prisma.contract.deleteMany({ where: { rentalSpace: { unit: where } } });
+    await prisma.rentalSpace.deleteMany({ where: { unit: where } });
     await prisma.unit.deleteMany({ where: { managerId: { in: managers } } });
     await prisma.landlord.deleteMany({ where: { managerId: { in: managers } } });
     await prisma.auditEvent.deleteMany({ where: { actorUserId: { in: ids } } });
@@ -369,6 +370,72 @@ describe('MySQL expense records, recoveries, and immutable void history', () => 
     expect(csv.statusCode, csv.body).toBe(200);
     expect(csv.body).toContain(upkeep.id);
     expect(csv.body).not.toContain('9900.00');
+  });
+  it('freezes equal occupied-space shares at the Dubai monthly boundary and preserves cents', async () => {
+    const secondSpace = await prisma.rentalSpace.create({
+      data: { unitId, name: 'August Room', type: 'ROOM' },
+    });
+    const secondTenant = await prisma.user.create({
+      data: {
+        email: randomUUID() + '@expense.invalid',
+        passwordHash: 'not-for-login',
+        role: 'TENANT',
+        status: 'ACTIVE',
+        tenant: { create: { managerId: manager.managerId!, fullName: 'Shared expense tenant' } },
+      },
+      include: { tenant: true },
+    });
+    actors.push({ id: secondTenant.id, role: 'TENANT', sid: '' });
+    await prisma.contract.create({
+      data: {
+        rentalSpaceId: secondSpace.id,
+        tenantId: secondTenant.tenant!.id,
+        startDate: new Date('2026-07-15'),
+        monthlyRent: '100.00',
+        status: 'ACTIVE',
+      },
+    });
+    const common = { scopeKind: 'UNIT', targetId: unitId, amount: '10.01', sharedCost: true };
+    const july = await create({ ...common, incurredAt: '2026-07-29', paidOn: '2026-08-01' });
+    expect(july.sharedPeriod).toMatch(/^2026-07-01/);
+    expect(july.allocations).toEqual([
+      expect.objectContaining({
+        amount: '10.01',
+        rentalSpace: expect.objectContaining({ id: spaceId }),
+      }),
+    ]);
+    const august = await create({ ...common, incurredAt: '2026-08-05', paidOn: '2026-08-05' });
+    expect(august.allocations.map((row: { amount: string }) => row.amount).sort()).toEqual([
+      '5',
+      '5.01',
+    ]);
+    expect((await send('GET', '/' + july.id)).json().allocations).toEqual(july.allocations);
+    expect(
+      (
+        await send(
+          'POST',
+          '',
+          body({
+            ...common,
+            scopeKind: 'SPACE',
+            targetId: spaceId,
+          }),
+        )
+      ).statusCode,
+    ).toBe(422);
+    const cash = await send('GET', '/api/v1/cash-reports?month=2026-08&unitId=' + unitId);
+    expect(cash.statusCode, cash.body).toBe(200);
+    expect(cash.json().totals.otherExpenses).toBe('20.02');
+    expect(cash.json().sharedCosts).toHaveLength(3);
+    expect(cash.json().sharedCosts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ expenseId: july.id, month: '2026-07', amount: '10.01', spaceId }),
+        expect.objectContaining({ expenseId: august.id, month: '2026-08' }),
+      ]),
+    );
+    const csv = await send('GET', '/api/v1/cash-reports/export.csv?month=2026-08&unitId=' + unitId);
+    expect(csv.body).toContain('SHARED_EXPENSE_ALLOCATION');
+    expect(csv.body).toContain(july.id);
   });
   it('exports only authorized filtered records with spreadsheet formula protection and an audit event', async () => {
     const row = await create({ vendor: '=1+1', description: 'unique-export-token' });

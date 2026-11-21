@@ -24,6 +24,11 @@ type Expense = {
   vendor: string | null;
   incurredAt: string;
   paidOn?: string | null;
+  sharedPeriod?: string | null;
+  allocations?: {
+    amount: string;
+    rentalSpace: { id: string; name: string; unit: { name: string } };
+  }[];
   description: string | null;
   scopeKind: string;
   unit?: { id: string; name: string } | null;
@@ -139,7 +144,14 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
           required: true,
         },
         ...(!previewMode
-          ? [{ name: 'paidOn', label: 'Paid date (Dubai)', type: 'date' as const }]
+          ? [
+              { name: 'paidOn', label: 'Paid date (Dubai)', type: 'date' as const },
+              {
+                name: 'sharedCost',
+                label: 'Split across spaces occupied on the first day of the expense month (Dubai)',
+                type: 'checkbox' as const,
+              },
+            ]
           : []),
         {
           name: 'scope',
@@ -160,6 +172,7 @@ function ExpenseEditor({ onClose }: { onClose: () => void }) {
           currency: form.get('currency'),
           incurredAt: form.get('incurredAt'),
           ...(form.get('paidOn') ? { paidOn: form.get('paidOn') } : {}),
+          ...(form.has('sharedCost') ? { sharedCost: true } : {}),
           scopeKind,
           targetId: targetId ?? null,
           description: form.get('description') || '',
@@ -466,6 +479,27 @@ export function ExpenseDetail() {
         ))}
       </dl>
       <p className="whitespace-pre-wrap break-words">{data.description}</p>
+      {data.sharedPeriod && (
+        <section className="space-y-2 border-y py-3">
+          <h2 className="font-semibold">Shared cost · {data.sharedPeriod.slice(0, 7)} (Dubai)</h2>
+          {data.allocations?.length ? (
+            <ul className="divide-y">
+              {data.allocations.map(({ amount, rentalSpace }) => (
+                <li key={rentalSpace.id} className="flex justify-between gap-2 py-2">
+                  <span>
+                    {rentalSpace.unit.name} / {rentalSpace.name}
+                  </span>
+                  <span>
+                    {data.currency} {Number(amount).toFixed(2)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No occupied spaces on the allocation date.</p>
+          )}
+        </section>
+      )}
       {data.void ? (
         <Alert>
           <AlertDescription>

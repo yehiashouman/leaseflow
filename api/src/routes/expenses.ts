@@ -7,6 +7,7 @@ import { prisma } from '../db.js';
 import { env } from '../config.js';
 import { caseContractScope } from '../case-data.js';
 import { calendarDate } from '../business-calendar.js';
+import { monthlyExpenseAllocation } from '../shared-expenses.js';
 import {
   expenseCategories,
   expenseSchema,
@@ -22,6 +23,14 @@ const select = {
   currency: true,
   incurredAt: true,
   paidOn: true,
+  sharedPeriod: true,
+  allocations: {
+    orderBy: { rentalSpaceId: 'asc' },
+    select: {
+      amount: true,
+      rentalSpace: { select: { id: true, name: true, unit: { select: { name: true } } } },
+    },
+  },
   vendor: true,
   description: true,
   scopeKind: true,
@@ -243,6 +252,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
       'Record ID',
       'Date (UTC)',
       'Paid date (Dubai)',
+      'Shared allocation month (Dubai)',
       'Category',
       'Vendor',
       'Currency',
@@ -258,6 +268,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
         row.id,
         row.incurredAt.toISOString().slice(0, 10),
         row.paidOn?.toISOString().slice(0, 10),
+        row.sharedPeriod?.toISOString().slice(0, 7),
         row.category,
         row.vendor,
         row.currency,
@@ -341,6 +352,14 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
           if (!rows.length) throw app.httpErrors.notFound('Scope not found');
           links.unitId = unitId;
         }
+        const day = new Date(body.incurredAt);
+        if (body.sharedCost && day > calendarDate(new Date()))
+          throw app.httpErrors.unprocessableEntity(
+            'A shared cost requires an incurred date on or before today.',
+          );
+        const split = body.sharedCost
+          ? await monthlyExpenseAllocation(tx, managerId, links, day, normalized.amount)
+          : null;
         const created = await tx.expense.create({
           data: {
             ...links,
@@ -353,8 +372,16 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
             currency: body.currency,
             vendor: body.vendor,
             description: body.description,
-            incurredAt: new Date(body.incurredAt),
+            incurredAt: day,
             paidOn: body.paidOn ? new Date(body.paidOn) : null,
+            ...(split
+              ? {
+                  sharedPeriod: split.period,
+                  ...(split.allocations.length
+                    ? { allocations: { createMany: { data: split.allocations } } }
+                    : {}),
+                }
+              : {}),
           },
           select,
         });
@@ -364,6 +391,7 @@ export const expenseRoutes: FastifyPluginAsync = async (app) => {
           currency: created.currency,
           scopeKind: created.scopeKind,
           paidOn: body.paidOn ?? null,
+          allocatedSpaces: split?.allocations.length ?? 0,
         });
         return created;
       },
