@@ -717,3 +717,12 @@ Code commit `bb881f045e2136cb0aa0da367ddf98717417598f`.
 - Rent checks cover calendar boundaries, proration examples, full later months, and scheduler retries.
 - Review checks cover 12-, 24-, and 36-month same-space milestones, participant notices, and price proposals.
 - Building choices collapse equivalent variants in the selected area. The catalogue preserves distinct Akan and Twi options.
+
+## Tenant confirmation and contract lifecycle
+
+Code commit `09dbf5ce26f49d6a4d03f87b91716e296366a480`.
+[Application, MySQL, Redis, private-file, and browser verification](https://github.com/yehiashouman/leaseflow/actions/runs/44851991437).
+
+- Tenant confirmation verifies current evidence and capacity before it activates the contract and posts the first obligation.
+- An accepted rent change affects obligations from its effective month. Earlier obligations and original terms remain available.
+- Additional checks cover linked landlords, optional receipt evidence, expiry of unapproved transfers, and the documented rent examples.

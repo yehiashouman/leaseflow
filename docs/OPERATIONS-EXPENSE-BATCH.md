@@ -4,8 +4,8 @@ Date: 21 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 119 additional verified requirements; 345 of 764 overall (45.16%).
-The target is not complete: 53 partial and 28 blocked requirements remain in this batch.
+Current result: 121 additional verified requirements; 369 of 764 overall (48.30%).
+The target is not complete: 52 partial and 27 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -106,8 +106,8 @@ Only VERIFIED rows receive completion credit.
 | CON-002            | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | CON-003            | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
 | CON-004            | VERIFIED | Verified contract fields, occupant snapshots, primary responsibility, and capacity under development controls. Production activation and acknowledgement policies remain gated.                                       |
-| CON-005            | PARTIAL  | Original terms and immutable proposed amendments persist; approved acknowledgement, effective application, and historical applied-term projections remain incomplete.                                                 |
-| CON-006            | BLOCKED  | Tenant contract visibility exists; approved acknowledgement-before-effect workflow remains incomplete.                                                                                                                |
+| CON-005            | VERIFIED | Contract terms and confirmed effective-dated rent amendments preserve original values and earlier obligations.                                                                                                        |
+| CON-006            | VERIFIED | Tenants confirm new offers and future rent amendments before they take effect.                                                                                                                                        |
 | CASE-001           | PARTIAL  | Maintenance, complaint, key/lock, and general forms work; late-payment, room-change, and move-out forms remain incomplete.                                                                                            |
 | CASE-002           | PARTIAL  | Operational cases preserve type, description, private evidence, contract, and relationship; complete financial case forms remain incomplete.                                                                          |
 | CASE-003           | VERIFIED | Administrators configure request categories in development and preview. Managers can set response deadlines with history. Production category edits require administrator MFA.                                        |

@@ -1027,6 +1027,366 @@
       "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44849923224",
       "environment": "GitHub Actions; Node 22; MySQL 8.4; Chromium desktop and mobile",
       "verified": "2026-11-21"
+    },
+    {
+      "id": "PLAN-009",
+      "requirement": "Preserve past contract terms when defaults change.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DATA-009",
+      "requirement": "Persist original contract terms and effective-dated amendments.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "RENT-001",
+      "requirement": "Generate obligations from active contract terms and effective amendments.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-001",
+      "requirement": "Copy unit deposit default into new contracts.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-002",
+      "requirement": "Allow explicitly negotiated contract deposit amounts.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DEP-003",
+      "requirement": "Preserve old contract deposits after default changes.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TEST-CON-02",
+      "requirement": "Verify Amendments preserve past terms and apply on the explicit effective date.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-008",
+      "requirement": "Verify Default deposit changes after contract creation: Existing contract deposit remains unchanged.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-001",
+      "requirement": "Verify Rent AED 3,100; move-in 17 January: 15 occupied days; first obligation AED 1,500.",
+      "status": "VERIFIED",
+      "code": ["api/src/contract-policy.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/test/proration.test.ts", "api/integration/business-jobs.test.ts"],
+      "note": "Verified the listed monthly rent examples, Dubai calendar boundaries, and retry-safe obligation generation.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-002",
+      "requirement": "Verify Rent AED 2,900; move-in 15 February in a leap year: 15 occupied days; first obligation AED 1,500.",
+      "status": "VERIFIED",
+      "code": ["api/src/contract-policy.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/test/proration.test.ts", "api/integration/business-jobs.test.ts"],
+      "note": "Verified the listed monthly rent examples, Dubai calendar boundaries, and retry-safe obligation generation.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-003",
+      "requirement": "Verify Rent AED 2,800; move-in 15 February in a non-leap year: 14 occupied days; first obligation AED 1,400.",
+      "status": "VERIFIED",
+      "code": ["api/src/contract-policy.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/test/proration.test.ts", "api/integration/business-jobs.test.ts"],
+      "note": "Verified the listed monthly rent examples, Dubai calendar boundaries, and retry-safe obligation generation.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-004",
+      "requirement": "Verify Rent AED 3,000; move-in on first day: Full monthly rent.",
+      "status": "VERIFIED",
+      "code": ["api/src/contract-policy.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/test/proration.test.ts", "api/integration/business-jobs.test.ts"],
+      "note": "Verified the listed monthly rent examples, Dubai calendar boundaries, and retry-safe obligation generation.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-005",
+      "requirement": "Verify Rent AED 3,000; later full February: AED 3,000, regardless of February length.",
+      "status": "VERIFIED",
+      "code": ["api/src/contract-policy.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/test/proration.test.ts", "api/integration/business-jobs.test.ts"],
+      "note": "Verified the listed monthly rent examples, Dubai calendar boundaries, and retry-safe obligation generation.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-007",
+      "requirement": "Verify Job retry for the same contract month: One obligation, not a duplicate.",
+      "status": "VERIFIED",
+      "code": ["api/src/contract-policy.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/test/proration.test.ts", "api/integration/business-jobs.test.ts"],
+      "note": "Verified the listed monthly rent examples, Dubai calendar boundaries, and retry-safe obligation generation.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "DATA-010",
+      "requirement": "Persist separate original due dates and approved expected dates.",
+      "status": "VERIFIED",
+      "code": [
+        "api/prisma/schema.prisma",
+        "api/src/routes/requests.ts",
+        "api/src/routes/contracts.ts"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified that approved extensions retain the original due date alongside the expected date and the decision history.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "EXAMPLE-009",
+      "requirement": "Verify Approved extension: Original due date remains; revised expected date and approval remain visible.",
+      "status": "VERIFIED",
+      "code": [
+        "api/prisma/schema.prisma",
+        "api/src/routes/requests.ts",
+        "api/src/routes/contracts.ts"
+      ],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "api/integration/business-jobs.test.ts",
+        "web/e2e/preview.spec.ts"
+      ],
+      "note": "Verified that approved extensions retain the original due date alongside the expected date and the decision history.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "BASE-015",
+      "requirement": "Use Redis with durable workers and a scheduler.",
+      "status": "VERIFIED",
+      "code": ["api/src/business-runtime.ts", "api/src/business-jobs.ts"],
+      "tests": ["api/integration/business-jobs.test.ts"],
+      "note": "Verified durable MySQL jobs with Redis wake signals and recovery after checkpoint eviction.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "UNIT-007",
+      "requirement": "Link each unit to its manager and landlord.",
+      "status": "VERIFIED",
+      "code": ["api/src/routes/inventory.ts", "api/prisma/schema.prisma"],
+      "tests": ["api/integration/landlords.test.ts", "api/integration/unit-lifecycle.test.ts"],
+      "note": "Verified manager ownership and reusable landlord links, including cross-manager denials.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "PAY-002",
+      "requirement": "Allow optional image/PDF evidence without a mandatory attachment.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/payments.ts",
+        "api/src/routes/documents.ts",
+        "web/src/components/payment-receipts.tsx"
+      ],
+      "tests": ["api/integration/payments.test.ts", "api/integration/documents.test.ts"],
+      "note": "Verified durable participant-scoped receipts and optional private evidence.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "PAY-007",
+      "requirement": "Create durable in-system tenant receipts.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/payments.ts",
+        "api/src/routes/documents.ts",
+        "web/src/components/payment-receipts.tsx"
+      ],
+      "tests": ["api/integration/payments.test.ts", "api/integration/documents.test.ts"],
+      "note": "Verified durable participant-scoped receipts and optional private evidence.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TRANS-005",
+      "requirement": "Automatically reject unapproved requests at expiry.",
+      "status": "VERIFIED",
+      "code": ["api/src/business-jobs.ts", "api/src/business-runtime.ts"],
+      "tests": ["api/integration/business-jobs.test.ts"],
+      "note": "Verified the durable worker rejects unapproved room changes at expiry and records the approved reason.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
+    },
+    {
+      "id": "TRANS-006",
+      "requirement": "Record the reason Approval period expired.",
+      "status": "VERIFIED",
+      "code": ["api/src/business-jobs.ts", "api/src/business-runtime.ts"],
+      "tests": ["api/integration/business-jobs.test.ts"],
+      "note": "Verified the durable worker rejects unapproved room changes at expiry and records the approved reason.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
     }
   ],
   "initialSelectionIds": [
@@ -1576,20 +1936,44 @@
     {
       "id": "CON-005",
       "requirement": "Preserve original terms and all effective-dated amendments.",
-      "status": "PARTIAL",
-      "code": ["api/src/routes/contracts.ts", "api/prisma/schema.prisma"],
-      "tests": ["api/integration/space.test.ts"],
-      "decisions": [],
-      "note": "Original terms and immutable proposed amendments persist; approved acknowledgement, effective application, and historical applied-term projections remain incomplete."
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
     },
     {
       "id": "CON-006",
       "requirement": "Implement tenant visibility and the approved acknowledgement policy.",
-      "status": "BLOCKED",
-      "code": ["api/src/routes/contracts.ts", "api/prisma/schema.prisma"],
-      "tests": ["api/integration/space.test.ts"],
-      "decisions": ["DEC-23"],
-      "note": "Tenant contract visibility exists; approved acknowledgement-before-effect workflow remains incomplete."
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/contracts.ts",
+        "api/src/rent-amendments.ts",
+        "api/src/business-jobs.ts",
+        "web/src/pages/ContractDetail.tsx"
+      ],
+      "tests": [
+        "api/integration/business-jobs.test.ts",
+        "api/integration/space.test.ts",
+        "web/e2e/contract-setup.live.spec.ts"
+      ],
+      "note": "Verified tenant confirmation, preserved original terms and deposit snapshots, and effective-dated confirmed rent obligations.",
+      "commit": "09dbf5ce26f49d6a4d03f87b91716e296366a480",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44851991437",
+      "environment": "GitHub Actions with MySQL, Redis, Chromium and private-file services",
+      "verified": "2026-11-21"
     },
     {
       "id": "CASE-001",

@@ -76,7 +76,7 @@ Requirements: 1-3, 15, 18-21.
 - [x] **BASE-012** Use shadcn/ui, Radix primitives, Lucide icons, React Query, and Axios. [Evidence](docs/EVIDENCE.md#foundation).
 - [x] **BASE-013** Use Tailwind CSS 4 through its Vite plugin; remove Bootstrap and SCSS dependencies. [Evidence](docs/EVIDENCE.md#foundation).
 - [x] **BASE-014** Keep REST API independent from web deployment. [Evidence](docs/EVIDENCE.md#foundation).
-- [ ] **BASE-015** Use Redis with durable workers and a scheduler.
+- [x] **BASE-015** Use Redis with durable workers and a scheduler. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **BASE-016** Use private S3-compatible storage and development MinIO. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **BASE-017** Retain Docker Compose, Codespaces, Helm, Terraform, and the AWS baseline. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [ ] **BASE-018** Select maintained PDF, job, upload-scan, and browser-test libraries.
@@ -95,7 +95,7 @@ Requirements: 20, 24, 29.
 - [ ] **PLAN-006** Do not silently adopt last-day due dates or half-open allocation intervals.
 - [ ] **PLAN-007** Preserve unaffected work while decisions remain open.
 - [ ] **PLAN-008** Update requirements, API schemas, interface copy, and tests for each approved change.
-- [ ] **PLAN-009** Preserve past contract terms when defaults change.
+- [x] **PLAN-009** Preserve past contract terms when defaults change. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **PLAN-010** Preserve SPECIFICATION.md as the original source. [Evidence](docs/EVIDENCE.md#platform-and-startup-controls).
 - [ ] **PLAN-011** Maintain a requirement-to-code-to-test evidence matrix.
 
@@ -111,8 +111,8 @@ Requirements: 14, 24.
 - [x] **DATA-006** Persist verification states, role, account status, language, and timezone. [Evidence](docs/EVIDENCE.md#tenant-profiles-and-case-notices).
 - [x] **DATA-007** Persist invitation lifecycle, security sessions, declarations, and immutable consent hashes. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **DATA-008** Persist primary and secondary occupants with effective allocation dates. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **DATA-009** Persist original contract terms and effective-dated amendments.
-- [ ] **DATA-010** Persist separate original due dates and approved expected dates.
+- [x] **DATA-009** Persist original contract terms and effective-dated amendments. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **DATA-010** Persist separate original due dates and approved expected dates. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [ ] **DATA-011** Persist obligations, payments, allocations, credits, reversals, charges, deductions, and refunds.
 - [ ] **DATA-012** Use decimal arithmetic or integer minor units for money.
 - [ ] **DATA-013** Apply the approved currency-round policy; never use binary floating-point for posted balances.
@@ -236,7 +236,7 @@ Requirements: 4.1-4.2, 22.4.
 - [x] **UNIT-004** Allow one landlord record to serve multiple manager-owned units. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-005** Capture unit name/reference, building, street, area/community, emirate, and address notes. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-006** Capture GPS latitude and longitude. [Evidence](docs/EVIDENCE.md#landlord-and-property).
-- [ ] **UNIT-007** Link each unit to its manager and landlord.
+- [x] **UNIT-007** Link each unit to its manager and landlord. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **UNIT-008** Capture owner rent, payment schedule, and currency. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [x] **UNIT-009** Capture the default unit security deposit. [Evidence](docs/EVIDENCE.md#landlord-and-property).
 - [x] **UNIT-010** Support unit and common-area images. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
@@ -307,8 +307,8 @@ Requirements: 6, 14, 17, 22-24.
 - [x] **CON-002** Capture space, primary tenant, occupants, start date, monthly rent, currency, due day, notice, and deposit. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **CON-003** Default due day to 1 and notice to 30 days. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **CON-004** Support explicit per-contract notice exceptions such as 15 days. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **CON-005** Preserve original terms and all effective-dated amendments.
-- [ ] **CON-006** Implement tenant visibility and the approved acknowledgement policy.
+- [x] **CON-005** Preserve original terms and all effective-dated amendments. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **CON-006** Implement tenant visibility and the approved acknowledgement policy. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **CON-007** Prevent automatic rent changes at annual review. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **CON-008** Create same-space reviews at 12, 24, 36, and subsequent continuous-month milestones. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **CON-009** Notify managers through configured channels. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
@@ -323,7 +323,7 @@ Requirements: 6, 14, 17, 22-24.
 
 Requirements: 6-7, 17, 24.3.
 
-- [ ] **RENT-001** Generate obligations from active contract terms and effective amendments.
+- [x] **RENT-001** Generate obligations from active contract terms and effective amendments. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **RENT-002** Calculate first rent as monthly rent / actual calendar days * occupied days. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **RENT-003** Include the move-in day. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **RENT-004** Use full monthly rent for subsequent complete months. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
@@ -345,12 +345,12 @@ Requirements: 6-7, 17, 24.3.
 Requirements: 7, 23-24.
 
 - [ ] **PAY-001** Record external payment amount, date, method, reference, payer, period, and notes.
-- [ ] **PAY-002** Allow optional image/PDF evidence without a mandatory attachment.
+- [x] **PAY-002** Allow optional image/PDF evidence without a mandatory attachment. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [ ] **PAY-003** Allocate payments explicitly to obligations.
 - [ ] **PAY-004** Support partial payments and multiple allocations.
 - [ ] **PAY-005** Prevent allocations above available payment or obligation balances.
 - [ ] **PAY-006** Apply approved overpayment, advance rent, and credit policies.
-- [ ] **PAY-007** Create durable in-system tenant receipts.
+- [x] **PAY-007** Create durable in-system tenant receipts. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [ ] **PAY-008** Include amount, date, payer, period, and evidence status on receipts.
 - [ ] **PAY-009** Notify the tenant after recorded payment.
 - [ ] **PAY-010** Allow tenant acknowledgement and error reports.
@@ -431,8 +431,8 @@ Requirements: 9.3, 17, 24.2, 29.
 - [ ] **TRANS-002** Allow one approved room-change request per rolling six months.
 - [ ] **TRANS-003** Apply approved eligibility and cancellation policies.
 - [ ] **TRANS-004** Give the manager five calendar days to approve or reject.
-- [ ] **TRANS-005** Automatically reject unapproved requests at expiry.
-- [ ] **TRANS-006** Record the reason Approval period expired.
+- [x] **TRANS-005** Automatically reject unapproved requests at expiry. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **TRANS-006** Record the reason Approval period expired. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [ ] **TRANS-007** Open seven calendar days of negotiation after approval.
 - [ ] **TRANS-008** Preserve messages and relevant outcomes from discussions outside the platform.
 - [ ] **TRANS-009** Apply only the confirmed negotiation-expiry policy.
@@ -450,9 +450,9 @@ Requirements: 9.3, 17, 24.2, 29.
 
 Requirements: 8, 9, 17, 24, 29.
 
-- [ ] **DEP-001** Copy unit deposit default into new contracts.
-- [ ] **DEP-002** Allow explicitly negotiated contract deposit amounts.
-- [ ] **DEP-003** Preserve old contract deposits after default changes.
+- [x] **DEP-001** Copy unit deposit default into new contracts. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **DEP-002** Allow explicitly negotiated contract deposit amounts. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **DEP-003** Preserve old contract deposits after default changes. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [ ] **DEP-004** Record deposit receipts, amount, date, method, evidence, and outstanding balance.
 - [ ] **DEP-005** Support Not Required, Due, Partially Received, Held, and Refund Pending states.
 - [ ] **DEP-006** Support Partially Refunded, Refunded, and Disputed states.
@@ -885,15 +885,15 @@ Requirements: 26.1.
 
 Requirements: 24.3.
 
-- [ ] **EXAMPLE-001** Verify Rent AED 3,100; move-in 17 January: 15 occupied days; first obligation AED 1,500.
-- [ ] **EXAMPLE-002** Verify Rent AED 2,900; move-in 15 February in a leap year: 15 occupied days; first obligation AED 1,500.
-- [ ] **EXAMPLE-003** Verify Rent AED 2,800; move-in 15 February in a non-leap year: 14 occupied days; first obligation AED 1,400.
-- [ ] **EXAMPLE-004** Verify Rent AED 3,000; move-in on first day: Full monthly rent.
-- [ ] **EXAMPLE-005** Verify Rent AED 3,000; later full February: AED 3,000, regardless of February length.
+- [x] **EXAMPLE-001** Verify Rent AED 3,100; move-in 17 January: 15 occupied days; first obligation AED 1,500. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **EXAMPLE-002** Verify Rent AED 2,900; move-in 15 February in a leap year: 15 occupied days; first obligation AED 1,500. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **EXAMPLE-003** Verify Rent AED 2,800; move-in 15 February in a non-leap year: 14 occupied days; first obligation AED 1,400. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **EXAMPLE-004** Verify Rent AED 3,000; move-in on first day: Full monthly rent. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **EXAMPLE-005** Verify Rent AED 3,000; later full February: AED 3,000, regardless of February length. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [ ] **EXAMPLE-006** Verify Obligation AED 3,000; payment AED 1,000: Paid allocation AED 1,000; outstanding AED 2,000.
-- [ ] **EXAMPLE-007** Verify Job retry for the same contract month: One obligation, not a duplicate.
-- [ ] **EXAMPLE-008** Verify Default deposit changes after contract creation: Existing contract deposit remains unchanged.
-- [ ] **EXAMPLE-009** Verify Approved extension: Original due date remains; revised expected date and approval remain visible.
+- [x] **EXAMPLE-007** Verify Job retry for the same contract month: One obligation, not a duplicate. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **EXAMPLE-008** Verify Default deposit changes after contract creation: Existing contract deposit remains unchanged. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
+- [x] **EXAMPLE-009** Verify Approved extension: Original due date remains; revised expected date and approval remain visible. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 
 ## 36. Required Acceptance Tests
 
@@ -919,7 +919,7 @@ Each item requires an automated test and recorded evidence; a checklist box alon
 - [x] **TEST-OCC-01** Verify Single tenant, couple, and unrelated occupants use the required account and contract structure. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-OCC-02** Verify Concurrent allocation cannot exceed capacity or bypass maintenance blocks. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
 - [x] **TEST-CON-01** Verify Open-ended contract stores negotiated rent, due day, notice, deposit, currency, and occupancy dates. [Evidence](docs/EVIDENCE.md#operational-expense-and-delivery-controls).
-- [ ] **TEST-CON-02** Verify Amendments preserve past terms and apply on the explicit effective date.
+- [x] **TEST-CON-02** Verify Amendments preserve past terms and apply on the explicit effective date. [Evidence](docs/EVIDENCE.md#tenant-confirmation-and-contract-lifecycle).
 - [x] **TEST-RENT-01** Verify First-month proration passes every example in section 24.3. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **TEST-RENT-02** Verify Later months retain full rent across 28-, 29-, 30-, and 31-day months. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
 - [x] **TEST-RENT-03** Verify Multiple scheduler runs produce one obligation per contract period. [Evidence](docs/EVIDENCE.md#rent-lifecycle-and-reference-choices).
