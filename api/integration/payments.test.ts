@@ -460,6 +460,23 @@ describe('MySQL immutable external rent payment receipts', () => {
       reserved: '50',
       status: 'DISPUTED',
     });
+    const tenantDashboard = (await scoped('/api/v1/dashboard/tenant', tenant)).json();
+    expect(tenantDashboard.contracts).toEqual([
+      expect.objectContaining({
+        id: contractId,
+        depositSummary: {
+          held: '50.00',
+          projectedRefund: '50.00',
+          refundable: '0.00',
+          refunded: '830.00',
+          status: 'DISPUTED',
+          proposals: expect.arrayContaining([
+            { id: entryId, amount: '120.00', category: 'DAMAGE', status: 'ACCEPT' },
+            { id: second, amount: '50.00', category: 'DAMAGE', status: 'DEADLOCK' },
+          ]),
+        },
+      }),
+    ]);
     const dashboard = (await scoped('/api/v1/dashboard/manager', manager)).json();
     expect(dashboard.depositLiability).toEqual([
       {

@@ -211,6 +211,9 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     expect(await prisma.request.count({ where: { contractId: offer.id, type: 'MOVE_OUT' } })).toBe(
       1,
     );
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'Deposit · Setup Couple Room' })).toBeVisible();
+    await expect(page.getByText('Projected refund after accepted deductions')).toBeVisible();
     if (testInfo.project.name === 'mobile')
       await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
     await page

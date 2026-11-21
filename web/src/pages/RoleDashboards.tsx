@@ -42,6 +42,14 @@ type TenantContract = {
   currency: string;
   monthlyRent: number | string;
   depositAmount: number | string;
+  depositSummary?: {
+    held: string;
+    projectedRefund: string | null;
+    refundable: string;
+    refunded: string;
+    status: string;
+    proposals: { id: string; amount: string; category: string | null; status: string }[];
+  } | null;
   startDate: string;
   occupants?: {
     id: string;
@@ -252,6 +260,53 @@ export function TenantDashboard() {
       ) : (
         <p className="text-muted-foreground">No active accommodation contract.</p>
       )}
+      {data?.contracts.map((record) => {
+        const deposit = record.depositSummary;
+        if (!deposit || (record.id !== contract?.id && deposit.status === 'NOT_REQUIRED'))
+          return null;
+        const labels: Record<string, string> = {
+          PROPOSE: 'Awaiting response',
+          REVISE: 'Revised, awaiting response',
+          DISPUTE: 'Disputed',
+          DEADLOCK: 'External resolution required',
+          ACCEPT: 'Accepted',
+          LEGACY: 'Reconciliation required',
+        };
+        return (
+          <section key={record.id} className="space-y-3 rounded-xl border p-4">
+            <h2 className="font-semibold">Deposit · {record.rentalSpace.name}</h2>
+            <Badge variant="secondary">{deposit.status.replaceAll('_', ' ')}</Badge>
+            <dl className="grid grid-cols-2 gap-3">
+              {[
+                ['Deposit held', deposit.held],
+                ['Projected refund after accepted deductions', deposit.projectedRefund],
+                ['Refund available', deposit.refundable],
+                ['Refund recorded', deposit.refunded],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <dt className="text-sm text-muted-foreground">{label}</dt>
+                  <dd>
+                    {value === null ? 'Reconciliation required' : record.currency + ' ' + value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {deposit.proposals.length > 0 && (
+              <ul className="space-y-2">
+                {deposit.proposals.map((row) => (
+                  <li key={row.id}>
+                    {(row.category ?? 'Other').replaceAll('_', ' ')} · {record.currency}{' '}
+                    {row.amount} · {labels[row.status] ?? row.status}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link className="text-primary underline" to={'/contracts/' + record.id}>
+              View contract deposit history
+            </Link>
+          </section>
+        );
+      })}
       <section className="space-y-3" aria-labelledby="unresolved-requests">
         <h2 id="unresolved-requests" className="font-semibold">
           Unresolved requests

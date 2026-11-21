@@ -1,6 +1,6 @@
 import { calendarDate } from '../business-calendar.js';
 import { effectiveRent } from '../rent-amendments.js';
-import { depositBalance } from '../deposit-ledger.js';
+import { deduction, depositBalance, depositSummarySelect } from '../deposit-ledger.js';
 import { occupantDto, occupantSelect } from '../contract-policy.js';
 import { Prisma } from '@prisma/client';
 import type { FastifyPluginAsync } from 'fastify';
@@ -50,6 +50,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             noticeDays: true,
             tenant: { select: { lateRequestWindowDays: true, maxLateExtensionDays: true } },
             depositAmount: true,
+            depositEntries: { select: depositSummarySelect },
             occupants: { select: occupantSelect, orderBy: { role: 'asc' } },
             rentalSpace: caseContractSelect.rentalSpace,
             payments: {
@@ -176,17 +177,37 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
       rentSummary,
       unresolvedCount,
       pendingAcknowledgements,
-      contracts: contracts.map(({ tenant, amendments, ...row }) => ({
-        ...row,
-        monthlyRent: effectiveRent(
-          row.monthlyRent,
-          row.currency,
-          amendments,
-          calendarDate(windows.now),
-        ),
-        lateRequestLimits: tenant,
-        occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
-      })),
+      contracts: contracts.map(({ tenant, amendments, depositEntries = [], ...row }) => {
+        const balance = depositBalance(depositEntries, row.depositAmount, row.status);
+        const proposals = depositEntries
+          .filter(({ type }) => type === 'DEDUCTION_PROPOSED')
+          .map((entry) => {
+            const proposal = deduction(entry);
+            return { id: entry.id, ...proposal, amount: proposal.amount.toFixed(2) };
+          });
+        return {
+          ...row,
+          monthlyRent: effectiveRent(
+            row.monthlyRent,
+            row.currency,
+            amendments,
+            calendarDate(windows.now),
+          ),
+          depositSummary:
+            row.status === 'CANCELLED'
+              ? null
+              : {
+                  held: balance.held.toFixed(2),
+                  projectedRefund: balance.reconciled ? balance.held.toFixed(2) : null,
+                  refundable: balance.refundable.toFixed(2),
+                  refunded: balance.refunded.toFixed(2),
+                  status: balance.status,
+                  proposals,
+                },
+          lateRequestLimits: tenant,
+          occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
+        };
+      }),
     };
   });
   app.get('/manager', { preHandler: allowRoles('LEASING_MANAGER') }, async (request) => {
@@ -280,17 +301,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
               currency: true,
               depositAmount: true,
               status: true,
-              depositEntries: {
-                select: {
-                  type: true,
-                  amount: true,
-                  category: true,
-                  events: {
-                    orderBy: { sequence: 'asc' },
-                    select: { action: true, amount: true, category: true },
-                  },
-                },
-              },
+              depositEntries: { select: depositSummarySelect },
             },
           }),
           managerDashboardActivity(tx, request.user, now),

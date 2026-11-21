@@ -1,5 +1,16 @@
 import { Prisma, type ContractStatus, type DepositEntryType } from '@prisma/client';
 
+export const depositSummarySelect = {
+  id: true,
+  type: true,
+  amount: true,
+  category: true,
+  events: {
+    orderBy: { sequence: 'asc' },
+    select: { action: true, amount: true, category: true },
+  },
+} satisfies Prisma.DepositEntrySelect;
+
 type Event = { action: string; amount: Prisma.Decimal | null; category: string | null };
 type Entry = {
   type: DepositEntryType;

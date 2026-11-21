@@ -412,7 +412,13 @@ function ManagerDashboard() {
                   </dd>
                 </div>
                 <div>
-                  <dt>Available refunds</dt>
+                  <dt>Projected refunds after accepted deductions</dt>
+                  <dd>
+                    {row.currency} {row.held}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Refunds due</dt>
                   <dd>
                     {row.currency} {row.refundable}
                   </dd>
@@ -437,9 +443,7 @@ function ManagerDashboard() {
             ))}
           </section>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Deposit liabilities require a verified deposit ledger.
-          </p>
+          <p className="text-sm text-muted-foreground">No deposit transactions recorded.</p>
         )}
       </section>
       <section className="space-y-3 border-t pt-6" aria-labelledby="portfolio-records">
