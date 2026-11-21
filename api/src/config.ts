@@ -11,7 +11,20 @@ export function durationSeconds(value: string) {
 export const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-  LOG_LEVEL: z.string().default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  APP_URL: z
+    .url()
+    .default('http://localhost:8080')
+    .refine((value) => {
+      const url = new URL(value);
+      return (
+        ['http:', 'https:'].includes(url.protocol) &&
+        !url.username &&
+        !url.password &&
+        !url.search &&
+        !url.hash
+      );
+    }, 'Use an HTTP application URL without credentials, query, or fragment.'),
   DATABASE_URL: z.url().refine((value) => {
     const url = new URL(value);
     return url.protocol === 'mysql:' && Boolean(url.hostname) && url.pathname.length > 1;
@@ -40,8 +53,9 @@ export const configSchema = z.object({
   DEMO_MODE: z
     .string()
     .optional()
-    .transform((value) => value?.trim().toLowerCase() === 'true')
-    .pipe(z.boolean()),
+    .transform((value) => value?.trim().toLowerCase() ?? 'false')
+    .pipe(z.enum(['true', 'false']))
+    .transform((value) => value === 'true'),
   TWILIO_ACCOUNT_SID: z.string().optional(),
   TWILIO_AUTH_TOKEN: z.string().optional(),
   TWILIO_VERIFY_SERVICE_SID: z.string().optional(),
@@ -73,6 +87,8 @@ export function parseConfiguration(input: NodeJS.ProcessEnv) {
   }
   proxyConfiguration(value.TRUST_PROXY);
   if (value.NODE_ENV === 'production') {
+    if (input.APP_URL && new URL(value.APP_URL).protocol !== 'https:')
+      throw new Error('Production APP_URL must use HTTPS.');
     if (!input.CORS_ORIGINS || !origins.length)
       throw new Error('Production requires explicit CORS_ORIGINS.');
     if (!input.TRUST_PROXY) throw new Error('Production requires explicit TRUST_PROXY or false.');

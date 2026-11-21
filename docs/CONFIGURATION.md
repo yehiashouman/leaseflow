@@ -7,16 +7,32 @@ Store production secrets outside version control and never reuse development cre
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Environment         | NODE_ENV, PORT, WEB_PORT, DEMO_MODE, COMPOSE_PROJECT_NAME, Asia/Dubai display                                                                          | API validates modes and ports; local helper refuses production; app hostnames await DEC-19                                                                                            |
 | Database            | DATABASE_URL, MYSQL_CONNECTION_URL, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_ROOT_PASSWORD                                                    | Runtime uses MySQL URL; migrations precede readiness; production migration identity remains an infrastructure gate                                                                    |
-| Redis               | REDIS_URL, REDIS_PASSWORD, local AOF volume                                                                                                            | URL scheme validation; local authentication enabled; complete durable Redis jobs remain incomplete                                                                                    |
+| Redis               | REDIS_URL, REDIS_PASSWORD, local AOF volume                                                                                                            | URL scheme validation; local authentication enabled; durable MySQL jobs use Redis wake signals and rebuildable checkpoints                                                            |
 | Authentication      | JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL                                                                             | Distinct secrets, bounded lifetimes, secure production refresh cookies; reset flows verified; MFA remains incomplete                                                                  |
 | Origins and proxies | CORS_ORIGINS, TRUST_PROXY, FRONTEND_SUBNET                                                                                                             | Production requires explicit HTTPS origins and proxy policy; false disables proxy trust; global CIDR trust is rejected                                                                |
 | Twilio              | TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFY_SERVICE_SID                                                                                       | Verify adapter and bounded attempts exist; configured sender/content SIDs and signed callbacks exist; approved production templates and real delivery remain unverified               |
 | Email               | ACCOUNT_EMAIL_ENABLED, APP_URL, MAIL_FROM, SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASSWORD                                                 | SMTP adapter, encrypted outbox, and bounded retries verified; sender and inbox delivery remain unverified                                                                             |
 | Storage             | FILES_ENABLED, S3_PROVIDER, S3_ENDPOINT, S3_REGION, S3_BUCKET, S3_ACCESS_KEY, S3_SECRET_KEY, S3_FORCE_PATH_STYLE, MINIO_ROOT_USER, MINIO_ROOT_PASSWORD | Private MinIO, short session-bound grants, anonymous denial, and restart persistence verified; production policy remains open                                                         |
-| Upload safety       | FILE_MAX_BYTES, FILE_GRANT_SECONDS, CLAMAV_HOST, CLAMAV_PORT                                                                                           | JPEG/PNG/PDF, bounded bytes, quarantine, ClamAV, and sanitization verified; DEC-18 sets the 10 MiB limit                                                                              |
+| Upload safety       | FILE_MAX_BYTES, FILE_GRANT_SECONDS, CLAMAV_HOST, CLAMAV_PORT                                                                                           | JPEG, PNG, and PDF only. Bounded bytes, quarantine, ClamAV, and sanitization verified. DEC-18 sets the 10 MiB limit.                                                                  |
 | Financial defaults  | AED/USD records, due day, notice, EXCHANGE_RATE_PROVIDER_URL                                                                                           | No provider conversion or approved rounding policy; DEC-01 through DEC-13 remain applicable gates                                                                                     |
 | Observability       | LOG_LEVEL, safe request IDs, container health probes                                                                                                   | Errors expose stable codes and safe correlation IDs; protected metrics and aggregate job summaries verified; external monitoring and deployed production acceptance remain incomplete |
 | Retention           | Database/files, reports, protected records, backups, purge rules                                                                                       | DEC-17 and DEC-26 remain unresolved; no automatic retention purge is enabled                                                                                                          |
+
+## Runtime and Migration Configuration
+
+`NODE_ENV` accepts `development`, `test`, or `production`. `DEMO_MODE` accepts `true` or `false`. Production rejects demo mode.
+`APP_URL` sets the base URL for application links. If supplied in production, it must use HTTPS.
+`VITE_API_URL` defaults to the same-origin `/api/v1`. It also accepts a complete HTTP or HTTPS URL with the same API path.
+Business dates use `Asia/Dubai`. Users can choose their display timezone through preferences.
+The migration runner checks `MIGRATION_DATABASE_URL` first, then falls back to `DATABASE_URL`.
+Set a dedicated migration identity with schema privileges when the runtime identity has restricted access.
+The Compose migration service receives the override. The API and worker retain their own `DATABASE_URL`.
+Redis uses `REDIS_URL`. Compose reads the private `REDIS_PASSWORD` for the authenticated connection.
+`BUSINESS_JOBS_ENABLED` enables the worker. Use a distinct `BUSINESS_REDIS_PREFIX` per deployment.
+MySQL retains job state. Redis provides wake signals and rebuildable checkpoints.
+`LOG_LEVEL` accepts `fatal`, `error`, `warn`, `info`, `debug`, `trace`, or `silent`.
+Administrator-scoped metrics are available at `/api/v1/operations/metrics`.
+The API returns stable error codes and safe request IDs for correlation.
 
 ## Local Credentials
 

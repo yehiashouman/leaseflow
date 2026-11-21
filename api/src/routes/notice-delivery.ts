@@ -197,7 +197,7 @@ export const noticeDeliveryRoutes: FastifyPluginAsync = async (app) => {
               payloadCipher: encryptMail(
                 source.notification.event
                   ? noticeTemplate(language, source.notification.event.request.id)
-                  : recordNoticeTemplate(language, notificationTarget(source.notification).path),
+                  : recordNoticeTemplate(language, notificationTarget(source.notification)),
               ),
               state: enabled ? 'QUEUED' : 'PAUSED',
               retrySequence: source.retrySequence + 1,

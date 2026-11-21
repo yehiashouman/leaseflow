@@ -126,7 +126,7 @@ Requirements: 14, 24.
 - [ ] **DATA-021** Use transactions and locks for capacity, finance, allocation, and transfer invariants.
 - [ ] **DATA-022** Prevent payment and deposit over-allocation.
 - [x] **DATA-023** Keep disputed proposals separate from accepted deductions. [Evidence](docs/EVIDENCE.md#deposit-ledger).
-- [ ] **DATA-024** Keep deposit liabilities outside rent income and operational profit.
+- [x] **DATA-024** Keep deposit liabilities outside rent income and operational profit. [Evidence](docs/EVIDENCE.md#cash-reports).
 - [ ] **DATA-025** Require explicit allocations for payments across multiple obligations.
 - [ ] **DATA-026** Keep financial history queryable after defaults and exchange rates change.
 
@@ -493,10 +493,10 @@ Requirements: 10, 14, 24, 29.
 - [ ] **FIN-007** Calculate unit gross profit from unit income minus owner rent and attributed expenses.
 - [ ] **FIN-008** Calculate space contribution from attributed income minus direct space costs.
 - [ ] **FIN-009** Show separately allocated shared costs.
-- [ ] **FIN-010** Keep deposit receipt and refund liabilities outside operational profit.
+- [x] **FIN-010** Keep deposit receipt and refund liabilities outside operational profit. [Evidence](docs/EVIDENCE.md#cash-reports).
 - [ ] **FIN-011** Separate cash receipts from unpaid accepted charges.
-- [ ] **FIN-012** Label cash/accrual basis explicitly under the approved policy.
-- [ ] **FIN-013** Default report totals to AED.
+- [x] **FIN-012** Label cash/accrual basis explicitly under the approved policy. [Evidence](docs/EVIDENCE.md#cash-reports).
+- [x] **FIN-013** Default report totals to AED. [Evidence](docs/EVIDENCE.md#cash-reports).
 - [ ] **FIN-014** Preserve original currency and saved conversion snapshot.
 - [ ] **FIN-015** Use the approved rate provider, refresh, fallback, and manual-override policy.
 - [ ] **FIN-016** Provide monthly income/expense, unit profit, occupancy, arrears, and deposit liability reports.

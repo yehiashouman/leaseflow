@@ -4,8 +4,8 @@ Date: 21 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 124 additional verified requirements; 404 of 764 overall (52.88%).
-The target is not complete: 51 partial and 25 blocked requirements remain in this batch.
+Current result: 127 additional verified requirements; 408 of 764 overall (53.40%).
+The target is not complete: 50 partial and 23 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -134,10 +134,10 @@ Only VERIFIED rows receive completion credit.
 | FIN-007            | BLOCKED  | Unit gross-profit reports require approved basis, attributed income, shared-cost rules, and report implementation.                                                                                                    |
 | FIN-008            | BLOCKED  | Space contribution requires attributed income and cost calculations under approved policies; the calculation and report remain incomplete.                                                                            |
 | FIN-009            | BLOCKED  | Shared-cost allocation and separate allocated-cost reports remain incomplete until the allocation rule receives approval.                                                                                             |
-| FIN-010            | PARTIAL  | No deposit liability is misrepresented as profit; complete receipt, refund, and liability ledgers remain incomplete.                                                                                                  |
+| FIN-010            | VERIFIED | Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.                                                                                               |
 | FIN-011            | PARTIAL  | Rent receipts remain distinct from unpaid obligations; accepted-charge accounting and complete cash/accrual views remain incomplete.                                                                                  |
-| FIN-012            | BLOCKED  | Recorded all-date totals carry an explicit basis label; approved cash/accrual financial reports remain incomplete.                                                                                                    |
-| FIN-013            | BLOCKED  | Original AED/USD values remain separate; AED-converted report totals require approved conversion policy and implementation.                                                                                           |
+| FIN-012            | VERIFIED | Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.                                                                                               |
+| FIN-013            | VERIFIED | Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.                                                                                               |
 | FIN-014            | BLOCKED  | Original currency persists; immutable conversion-rate, provider, timestamp, and AED snapshots remain incomplete.                                                                                                      |
 | FIN-015            | BLOCKED  | Rate-provider integration, refresh, fallback, and manual authority require policy approval and implementation.                                                                                                        |
 | FIN-016            | BLOCKED  | Expense records exist; complete monthly income, profit, occupancy, arrears, and deposit-liability reports remain incomplete.                                                                                          |

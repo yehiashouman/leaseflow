@@ -7,7 +7,20 @@ import { Badge } from './ui/badge';
 import { RecordEditor } from './record-editor';
 import { QueryFeedback } from './query-feedback';
 import { Documents } from './documents';
+import { previewMode } from '../session';
+import { caseDateWithZone } from '../cases';
 
+const actionLabel = {
+  ACKNOWLEDGE: 'Acknowledge receipt',
+  REPORT_ERROR: 'Report a receipt error',
+  REVERSE: 'Reverse receipt',
+} as const;
+const eventLabel: Record<string, string> = {
+  ACKNOWLEDGE: 'Tenant acknowledged receipt',
+  REPORT_ERROR: 'Tenant reported an error',
+  REVERSE: 'Manager reversed receipt',
+};
+type ReceiptAction = keyof typeof actionLabel;
 type Receipt = {
   id: string;
   amount: string;
@@ -18,12 +31,30 @@ type Receipt = {
   reference: string | null;
   recordedBalance: string;
   createdAt: string;
+  payerName?: string | null;
+  notes?: string | null;
+  periodStart?: string;
+  hasPaymentEvidence?: boolean;
+  events?: { id: string; kind: string; reason: string | null; createdAt: string }[];
 };
-export function PaymentReceipts({ paymentId, currency }: { paymentId: string; currency: string }) {
+export function PaymentReceipts({
+  paymentId,
+  currency,
+  initialOpen = false,
+}: {
+  paymentId: string;
+  currency: string;
+  initialOpen?: boolean;
+}) {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false),
+  const [open, setOpen] = useState(initialOpen),
     [editor, setEditor] = useState(false),
     [page, setPage] = useState(1);
+  const [command, setCommand] = useState<{
+    action: ReceiptAction;
+    receiptId: string;
+    key: string;
+  } | null>(null);
   const key = useRef(crypto.randomUUID()),
     client = useQueryClient();
   const query = useQuery({
@@ -40,6 +71,12 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
         }>('/payments/' + paymentId + '/receipts', { params: { page }, signal })
         .then((response) => response.data),
   });
+  const refresh = () =>
+    Promise.all(
+      [['payment-receipts', paymentId], ['contract-records'], ['dashboard'], ['cash-report']].map(
+        (queryKey) => client.invalidateQueries({ queryKey }),
+      ),
+    );
   const date = (value: string) =>
     new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Dubai' }) + ' (Asia/Dubai)';
   return (
@@ -72,11 +109,62 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
                       </Badge>
                     )}
                   </div>
+                  {receipt.payerName && <p>Payer: {receipt.payerName}</p>}
+                  {receipt.periodStart && (
+                    <p>Rent period (Dubai): {receipt.periodStart.slice(0, 7)}</p>
+                  )}
+                  {receipt.hasPaymentEvidence !== undefined && (
+                    <p>
+                      {receipt.hasPaymentEvidence
+                        ? 'Verified evidence on the rent obligation'
+                        : 'No verified evidence on the rent obligation'}
+                    </p>
+                  )}
+                  {receipt.notes && (
+                    <p className="whitespace-pre-wrap break-words">{receipt.notes}</p>
+                  )}
                   <p>Recorded: {date(receipt.createdAt)}</p>
                   <p>
                     Recorded paid total after this receipt: {receipt.currency}{' '}
                     {receipt.recordedBalance}
                   </p>
+                  {receipt.events?.map((event) => (
+                    <div key={event.id} className="border-t pt-2">
+                      <p>
+                        {eventLabel[event.kind] ?? event.kind} · {caseDateWithZone(event.createdAt)}
+                      </p>
+                      {event.reason && (
+                        <p className="whitespace-pre-wrap break-words">{event.reason}</p>
+                      )}
+                    </div>
+                  ))}
+                  {!previewMode && !receipt.events?.some(({ kind }) => kind === 'REVERSE') && (
+                    <div className="flex flex-wrap gap-2">
+                      {(user?.role === 'TENANT'
+                        ? (['ACKNOWLEDGE', 'REPORT_ERROR'] as const)
+                        : query.data?.recordEnabled
+                          ? (['REVERSE'] as const)
+                          : []
+                      )
+                        .filter((action) => !receipt.events?.some(({ kind }) => kind === action))
+                        .map((action) => (
+                          <Button
+                            key={action}
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setCommand({
+                                action,
+                                receiptId: receipt.id,
+                                key: crypto.randomUUID(),
+                              })
+                            }
+                          >
+                            {actionLabel[action]}
+                          </Button>
+                        ))}
+                    </div>
+                  )}
                 </article>
               ))}
               {!query.data!.items.length && <p>No individual receipt records.</p>}
@@ -127,6 +215,39 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
           )}
         </section>
       )}
+      {command && (
+        <RecordEditor
+          open
+          title={actionLabel[command.action]}
+          onOpenChange={(visible) => {
+            if (!visible) setCommand(null);
+          }}
+          fields={
+            command.action === 'ACKNOWLEDGE'
+              ? []
+              : [
+                  {
+                    name: 'reason',
+                    label: 'Reason',
+                    type: 'textarea',
+                    maxLength: 3000,
+                    required: true,
+                  },
+                ]
+          }
+          onSave={async (form) => {
+            await api.post(
+              '/payments/' + paymentId + '/receipts/' + command.receiptId + '/events',
+              {
+                action: command.action,
+                clientId: command.key,
+                ...(command.action === 'ACKNOWLEDGE' ? {} : { reason: String(form.get('reason')) }),
+              },
+            );
+            await refresh();
+          }}
+        />
+      )}
       {editor && (
         <RecordEditor
           open
@@ -150,6 +271,21 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
             },
             { name: 'method', label: 'Payment method', required: true, maxLength: 50 },
             { name: 'reference', label: 'Payment reference', maxLength: 150 },
+            ...(!previewMode
+              ? [
+                  {
+                    name: 'payerName',
+                    label: 'Payer name (defaults to primary tenant)',
+                    maxLength: 150,
+                  },
+                  {
+                    name: 'notes',
+                    label: 'Payment notes',
+                    type: 'textarea' as const,
+                    maxLength: 3000,
+                  },
+                ]
+              : []),
             {
               name: 'confirm',
               label: 'I confirm this external rent payment already happened',
@@ -165,12 +301,10 @@ export function PaymentReceipts({ paymentId, currency }: { paymentId: string; cu
               paidAt: new Date(String(form.get('paidAt')) + 'Z').toISOString(),
               method: String(form.get('method')),
               reference: String(form.get('reference') ?? '').trim() || null,
+              ...(form.get('payerName') ? { payerName: String(form.get('payerName')) } : {}),
+              ...(form.get('notes') ? { notes: String(form.get('notes')) } : {}),
             });
-            await Promise.all([
-              client.invalidateQueries({ queryKey: ['payment-receipts', paymentId] }),
-              client.invalidateQueries({ queryKey: ['contract-records'] }),
-              client.invalidateQueries({ queryKey: ['dashboard'] }),
-            ]);
+            await refresh();
           }}
         />
       )}

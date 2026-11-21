@@ -746,3 +746,8 @@ Verified cross-month Dubai dates and rent rates, the deposit cap, and explicit t
 
 Verified waiver, reduced proposals, deposit caps, and tenant acceptance by scoped and retry-safe commands.
 [GitHub verification](https://github.com/yehiashouman/leaseflow/actions/runs/44931106996).
+
+## Cash Reports
+
+Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.
+[GitHub verification](https://github.com/yehiashouman/leaseflow/actions/runs/44931773611).

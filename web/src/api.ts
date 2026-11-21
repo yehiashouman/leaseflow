@@ -1,3 +1,4 @@
+import { apiBase } from './api-base';
 import axios from 'axios';
 import {
   clearSessionStorage,
@@ -15,7 +16,7 @@ declare module 'axios' {
 }
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
+  baseURL: apiBase(import.meta.env.VITE_API_URL),
   timeout: 15000,
   withCredentials: true,
   headers: { 'X-Leaseflow-Session': '1' },

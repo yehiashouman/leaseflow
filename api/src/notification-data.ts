@@ -13,14 +13,37 @@ export function notificationScope(actor: FastifyRequest['user']): Prisma.Notific
     OR: [
       { event: { request: caseScope(actor) } },
       { reviewEvent: { review: { contract: reviewContractScope(actor) } } },
+      {
+        receiptEvent: {
+          receipt: {
+            payment: {
+              contract: {
+                ...caseContractScope(actor),
+                status: { notIn: ['DRAFT', 'CANCELLED'] },
+              },
+            },
+          },
+        },
+      },
     ],
   };
 }
 export const notificationTargetSelect = {
+  receiptEvent: {
+    select: {
+      kind: true,
+      receipt: {
+        select: {
+          payment: { select: { id: true, contractId: true } },
+        },
+      },
+    },
+  },
   event: { select: { kind: true, request: { select: { id: true, title: true } } } },
   reviewEvent: { select: { kind: true, review: { select: { id: true, contractId: true } } } },
 } as const;
 type Target = {
+  receiptEvent?: { kind: string; receipt: { payment: { id: string; contractId: string } } } | null;
   event: { kind: string; request: { id: string; title?: string } } | null;
   reviewEvent: { kind: string; review: { id: string; contractId?: string } } | null;
 };
@@ -39,5 +62,18 @@ export function notificationTarget(row: Target) {
       title: 'Annual contract review',
       format: 'record-notice-v1' as const,
     };
+  if (row.receiptEvent) {
+    const { payment } = row.receiptEvent.receipt;
+    return {
+      kind: 'PAYMENT_RECEIPT_' + row.receiptEvent.kind,
+      path:
+        '/contracts/' +
+        encodeURIComponent(payment.contractId) +
+        '?receiptPayment=' +
+        encodeURIComponent(payment.id),
+      title: 'Rent payment receipt',
+      format: 'record-notice-v1' as const,
+    };
+  }
   throw new Error('Notification source is absent');
 }

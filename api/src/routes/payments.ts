@@ -8,6 +8,8 @@ import { env } from '../config.js';
 import { activeAccount } from '../account-data.js';
 import { caseContractScope } from '../case-data.js';
 import { daysLate } from '../business-calendar.js';
+import { queueReceiptNotice } from '../notice-data.js';
+import { registerReceiptEvents } from './payment-receipt-events.js';
 
 const select = {
   id: true,
@@ -17,6 +19,8 @@ const select = {
   paidAt: true,
   method: true,
   reference: true,
+  payerName: true,
+  notes: true,
   recordedBalance: true,
   createdAt: true,
 } as const;
@@ -49,24 +53,40 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
         async (tx) => {
           const payment = await tx.payment.findFirst({
             where: { id, contract: scope(request.user) },
-            select: { id: true, amountPaid: true, currency: true, dueDate: true },
+            select: {
+              id: true,
+              amountPaid: true,
+              currency: true,
+              dueDate: true,
+              periodStart: true,
+            },
           });
           if (!payment) throw app.httpErrors.notFound('Payment not found');
           const where = { paymentId: id, payment: { contract: scope(request.user) } };
-          const [items, total] = await Promise.all([
+          const [items, total, evidence] = await Promise.all([
             tx.paymentReceipt.findMany({
               where,
-              select,
+              select: {
+                ...select,
+                events: {
+                  where: { kind: { not: 'RECORDED' } },
+                  select: { id: true, kind: true, reason: true, createdAt: true },
+                  orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+                },
+              },
               orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
               skip: (page - 1) * 20,
               take: 20,
             }),
             tx.paymentReceipt.count({ where }),
+            tx.document.count({ where: { status: 'CLEAN', series: { paymentId: id } } }),
           ]);
           return {
             items: items.map((item) => ({
               ...item,
               daysLate: daysLate(item.paidAt, payment.dueDate),
+              periodStart: payment.periodStart,
+              hasPaymentEvidence: evidence > 0,
             })),
             total,
             page,
@@ -75,7 +95,7 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
             recordedTotal: payment.amountPaid,
             currency: payment.currency,
             basis:
-              'External rent payment records; historical totals can predate individual receipt records. No money collection or tenant acknowledgement is implied.',
+              'External rent payment records. Historical paid totals can predate individual receipts.',
           };
         },
         { isolationLevel: 'RepeatableRead' },
@@ -101,6 +121,8 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
           paidAt: z.iso.datetime({ offset: true }),
           method: z.string().trim().min(1).max(50),
           reference: z.string().trim().max(150).nullable().default(null),
+          payerName: z.string().trim().min(2).max(150).optional(),
+          notes: z.string().trim().max(3000).optional(),
         })
         .strict()
         .parse(request.body);
@@ -116,12 +138,20 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
             throw app.httpErrors.unauthorized('Session is no longer active');
           const visible = {
             id,
-            contract: { ...scope(request.user), status: { not: 'DRAFT' as const } },
+            contract: {
+              ...scope(request.user),
+              status: { notIn: ['DRAFT', 'CANCELLED'] as ('DRAFT' | 'CANCELLED')[] },
+            },
           };
           if (!(await tx.payment.findFirst({ where: visible, select: { id: true } })))
             throw app.httpErrors.notFound('Payment not found');
           await tx.$queryRaw`SELECT id FROM Payment WHERE id = ${id} FOR UPDATE`;
-          const payment = await tx.payment.findFirst({ where: visible });
+          const payment = await tx.payment.findFirst({
+            where: visible,
+            include: {
+              contract: { select: { tenant: { select: { fullName: true, userId: true } } } },
+            },
+          });
           if (!payment) throw app.httpErrors.notFound('Payment not found');
           const previous = await tx.paymentReceipt.findUnique({
             where: {
@@ -159,10 +189,23 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
               paidAt: new Date(body.paidAt),
               method: body.method,
               reference: body.reference,
+              payerName: body.payerName ?? payment.contract.tenant.fullName,
+              notes: body.notes ?? null,
               recordedBalance: total,
             },
             select,
           });
+          const event = await tx.paymentReceiptEvent.create({
+            data: {
+              receiptId: receipt.id,
+              actorUserId: request.user.sub,
+              clientId: body.clientId,
+              payloadHash: hash,
+              kind: 'RECORDED',
+            },
+            select: { id: true },
+          });
+          await queueReceiptNotice(tx, event.id, payment.contract.tenant.userId);
           await tx.payment.update({
             where: { id },
             data: {
@@ -201,4 +244,5 @@ export const paymentRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(result.repeated ? 200 : 201).send(result.receipt);
     },
   );
+  registerReceiptEvents(app);
 };

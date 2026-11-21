@@ -227,6 +227,23 @@ describe('production configuration boundaries', () => {
     ])
       expect(() => parseConfiguration({ ...settings(), ...change })).toThrow();
   });
+  it('validates application URLs, demo values, logging levels, and connection protocols', () => {
+    const valid = settings();
+    expect(
+      parseConfiguration({ ...valid, APP_URL: 'https://app.example.com/tenant' }).APP_URL,
+    ).toBe('https://app.example.com/tenant');
+    for (const change of [
+      { APP_URL: 'http://app.example.com' },
+      { APP_URL: 'https://user:secret@app.example.com' },
+      { APP_URL: 'https://app.example.com/?token=secret' },
+      { LOG_LEVEL: 'verbose' },
+      { DEMO_MODE: 'enabled' },
+      { DATABASE_URL: 'postgresql://db.example.com/leaseflow' },
+      { DATABASE_URL: 'mysql://db.example.com/' },
+      { REDIS_URL: 'http://cache.example.com' },
+    ])
+      expect(() => parseConfiguration({ ...valid, ...change })).toThrow();
+  });
   it('rejects wildcards, credentials, paths, insecure production origins, and global proxy trust', () => {
     for (const CORS_ORIGINS of [
       '*',

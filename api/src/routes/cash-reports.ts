@@ -14,7 +14,7 @@ const scope = { unitId: true, rentalSpaceId: true, contractId: true } as const;
 type Line = {
   id: string;
   date: string;
-  kind: 'RENT_RECEIPT' | 'EXPENSE_RECOVERY' | 'EXPENSE_PAYMENT';
+  kind: 'RENT_RECEIPT' | 'RENT_REVERSAL' | 'EXPENSE_RECOVERY' | 'EXPENSE_PAYMENT';
   amount: Prisma.Decimal;
   category: string | null;
   unitId: string | null;
@@ -23,32 +23,43 @@ type Line = {
 };
 type Totals = {
   rent: Prisma.Decimal;
+  rentReversals: Prisma.Decimal;
   recoveries: Prisma.Decimal;
   ownerRent: Prisma.Decimal;
   otherExpenses: Prisma.Decimal;
 };
 function totals() {
   const zero = new Prisma.Decimal(0);
-  return { rent: zero, recoveries: zero, ownerRent: zero, otherExpenses: zero };
+  return {
+    rent: zero,
+    rentReversals: zero,
+    recoveries: zero,
+    ownerRent: zero,
+    otherExpenses: zero,
+  };
 }
 function add(total: Totals, line: Line) {
   const field =
     line.kind === 'RENT_RECEIPT'
       ? 'rent'
-      : line.kind === 'EXPENSE_RECOVERY'
-        ? 'recoveries'
-        : line.category === 'OWNER_RENT'
-          ? 'ownerRent'
-          : 'otherExpenses';
+      : line.kind === 'RENT_REVERSAL'
+        ? 'rentReversals'
+        : line.kind === 'EXPENSE_RECOVERY'
+          ? 'recoveries'
+          : line.category === 'OWNER_RENT'
+            ? 'ownerRent'
+            : 'otherExpenses';
   total[field] = total[field].plus(line.amount);
 }
 function amounts(total: Totals) {
   return {
     rent: total.rent.toFixed(2),
+    rentReversals: total.rentReversals.toFixed(2),
     recoveries: total.recoveries.toFixed(2),
     ownerRent: total.ownerRent.toFixed(2),
     otherExpenses: total.otherExpenses.toFixed(2),
     cashResult: total.rent
+      .minus(total.rentReversals)
       .plus(total.recoveries)
       .minus(total.ownerRent)
       .minus(total.otherExpenses)
@@ -108,7 +119,7 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
           ...(filter.unitId ? { unitId: filter.unitId } : {}),
           ...(filter.contractId ? { contractId: filter.contractId } : {}),
         } satisfies Prisma.ExpenseWhereInput;
-        const [receipts, paid, recovered, undated] = await Promise.all([
+        const [receipts, reversals, paid, recovered, undated] = await Promise.all([
           tx.paymentReceipt.findMany({
             where: { paidAt: instant, currency: filter.currency, payment: { contract: contracts } },
             select: {
@@ -122,6 +133,34 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
                     select: {
                       rentalSpaceId: true,
                       rentalSpace: { select: { unitId: true } },
+                    },
+                  },
+                },
+              },
+            },
+            take: maxRows + 1,
+          }),
+          tx.paymentReceiptEvent.findMany({
+            where: {
+              kind: 'REVERSE',
+              createdAt: instant,
+              receipt: { currency: filter.currency, payment: { contract: contracts } },
+            },
+            select: {
+              id: true,
+              createdAt: true,
+              receipt: {
+                select: {
+                  amount: true,
+                  payment: {
+                    select: {
+                      contractId: true,
+                      contract: {
+                        select: {
+                          rentalSpaceId: true,
+                          rentalSpace: { select: { unitId: true } },
+                        },
+                      },
                     },
                   },
                 },
@@ -146,7 +185,7 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
           }),
           tx.expense.count({ where: { ...expenses, incurredAt: dateOnly, paidOn: null } }),
         ]);
-        if (receipts.length + paid.length + recovered.length > maxRows)
+        if (receipts.length + reversals.length + paid.length + recovered.length > maxRows)
           throw app.httpErrors.conflict('Filter by unit or contract to fit the report row limit.');
         const lines: Line[] = [
           ...receipts.map(({ id, paidAt, amount, payment }) => ({
@@ -158,6 +197,16 @@ export const cashReportRoutes: FastifyPluginAsync = async (app) => {
             contractId: payment.contractId,
             rentalSpaceId: payment.contract.rentalSpaceId,
             unitId: payment.contract.rentalSpace.unitId,
+          })),
+          ...reversals.map(({ id, createdAt, receipt }) => ({
+            id,
+            date: day(calendarDate(createdAt)),
+            kind: 'RENT_REVERSAL' as const,
+            amount: receipt.amount,
+            category: null,
+            contractId: receipt.payment.contractId,
+            rentalSpaceId: receipt.payment.contract.rentalSpaceId,
+            unitId: receipt.payment.contract.rentalSpace.unitId,
           })),
           ...paid.map(({ paidOn, ...entry }) => ({
             ...entry,

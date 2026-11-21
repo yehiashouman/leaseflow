@@ -38,6 +38,7 @@ services:
     working_dir: /app
     command: [npx, prisma, migrate, deploy, --config, api/prisma.config.ts]
     environment:
+      MIGRATION_DATABASE_URL: ${MIGRATION_DATABASE_URL:-}
       DATABASE_URL: ${MYSQL_CONNECTION_URL:-mysql://${MYSQL_USER:-leaseflow}:${MYSQL_PASSWORD:-leaseflow-local}@mysql:3306/${MYSQL_DATABASE:-leaseflow}}
     depends_on: {mysql: {condition: service_healthy}}
     networks: [backend]

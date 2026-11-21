@@ -13,7 +13,7 @@ export async function queueCaseNotices(tx: Prisma.TransactionClient, eventId: st
 }
 export async function queueRecordNotices(
   tx: Prisma.TransactionClient,
-  where: { eventId?: string; reviewEventId?: string },
+  where: { eventId: string } | { reviewEventId: string } | { receiptEventId: string },
 ) {
   const notices = await tx.notification.findMany({
     where,
@@ -59,7 +59,7 @@ export async function queueRecordNotices(
         payloadCipher: encryptMail(
           notice.event
             ? noticeTemplate(language, notice.event.request.id)
-            : recordNoticeTemplate(language, notificationTarget(notice).path),
+            : recordNoticeTemplate(language, notificationTarget(notice)),
         ),
         state: !eligible ? 'SUPPRESSED' : enabled ? 'QUEUED' : 'PAUSED',
         failureCode: !eligible ? 'RECIPIENT_UNVERIFIED_OR_INACTIVE' : null,
@@ -67,4 +67,13 @@ export async function queueRecordNotices(
     }
   }
   if (data.length) await tx.noticeDelivery.createMany({ data, skipDuplicates: true });
+}
+
+export async function queueReceiptNotice(
+  tx: Prisma.TransactionClient,
+  receiptEventId: string,
+  recipientUserId: string,
+) {
+  await tx.notification.create({ data: { recipientUserId, receiptEventId } });
+  await queueRecordNotices(tx, { receiptEventId });
 }

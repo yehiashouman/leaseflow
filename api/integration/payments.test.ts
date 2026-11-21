@@ -6,6 +6,7 @@ import { prisma } from '../src/db.js';
 import { buildApp } from '../src/app.js';
 import { env } from '../src/config.js';
 import { rentWindows } from '../src/rent-dashboard.js';
+import { calendarDate } from '../src/business-calendar.js';
 type Actor = { id: string; profileId: string; role: Role; sid: string };
 describe('MySQL immutable external rent payment receipts', () => {
   let app: FastifyInstance,
@@ -124,6 +125,12 @@ describe('MySQL immutable external rent payment receipts', () => {
   afterAll(async () => {
     const ids = actors.map((a) => a.id);
     if (contractId) {
+      await prisma.notification.deleteMany({
+        where: { receiptEvent: { receipt: { payment: { contractId } } } },
+      });
+      await prisma.paymentReceiptEvent.deleteMany({
+        where: { receipt: { payment: { contractId } } },
+      });
       await prisma.paymentReceipt.deleteMany({ where: { payment: { contractId } } });
       await prisma.payment.deleteMany({ where: { contractId } });
       await prisma.depositEvent.deleteMany({ where: { entry: { contractId } } });
@@ -330,6 +337,108 @@ describe('MySQL immutable external rent payment receipts', () => {
     for (const method of ['PATCH', 'DELETE'] as const)
       expect((await send(method, '/receipts/' + created.json().id, {})).statusCode).toBe(404);
     expect((await send('GET', '/receipts?page=0')).statusCode).toBe(422);
+  });
+  it('preserves an external receipt through tenant review and one audited linked reversal', async () => {
+    await prisma.payment.update({ where: { id: paymentId }, data: { amountDue: '3000.00' } });
+    const recorded = await send(
+      'POST',
+      '/record',
+      body({
+        amountPaid: '1000.00',
+        payerName: 'Recorded Payer',
+        notes: 'External cash verified.',
+      }),
+    );
+    expect(recorded.statusCode, recorded.body).toBe(201);
+    const receipt = recorded.json();
+    const path = '/receipts/' + receipt.id + '/events';
+    const review = {
+      clientId: randomUUID(),
+      action: 'REPORT_ERROR',
+      reason: 'The receipt amount differs.',
+    };
+    expect((await send('POST', path, review, roommate)).statusCode).toBe(404);
+    expect((await send('POST', path, review, manager)).statusCode).toBe(403);
+    expect((await send('POST', path, review, tenant)).statusCode).toBe(201);
+    expect((await send('POST', path, review, tenant)).statusCode).toBe(200);
+    expect(
+      (await send('POST', path, { ...review, reason: 'Changed reason' }, tenant)).statusCode,
+    ).toBe(409);
+    const paid = await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } });
+    expect(paid.amountDue.minus(paid.amountPaid).toFixed(2)).toBe('2000.00');
+    const ack = { clientId: randomUUID(), action: 'ACKNOWLEDGE' };
+    expect((await send('POST', path, ack, tenant)).statusCode).toBe(201);
+    const correction = {
+      clientId: randomUUID(),
+      action: 'REVERSE',
+      reason: 'Incorrect record replaced.',
+    };
+    expect((await send('POST', path, correction, tenant)).statusCode).toBe(403);
+    const commands = await Promise.all([
+      send('POST', path, correction, manager),
+      send('POST', path, { ...correction, clientId: randomUUID() }, manager),
+    ]);
+    expect(commands.map((r) => r.statusCode).sort()).toEqual([201, 409]);
+    expect(
+      (await prisma.payment.findUniqueOrThrow({ where: { id: paymentId } })).amountPaid.toFixed(2),
+    ).toBe('0.00');
+    const detail = (await send('GET', '/receipts', undefined, tenant)).json();
+    expect(detail.items[0]).toMatchObject({
+      payerName: 'Recorded Payer',
+      notes: 'External cash verified.',
+      amount: '1000',
+      periodStart: expect.any(String),
+      hasPaymentEvidence: false,
+      events: expect.arrayContaining([
+        expect.objectContaining({ kind: 'ACKNOWLEDGE' }),
+        expect.objectContaining({ kind: 'REPORT_ERROR' }),
+        expect.objectContaining({ kind: 'REVERSE', reason: correction.reason }),
+      ]),
+    });
+    const audit = await prisma.auditEvent.findFirst({
+      where: {
+        entityId: receipt.id,
+        action: 'RECEIPT_REVERSE',
+        actorUserId: manager.id,
+      },
+    });
+    expect(audit?.newValue).toMatchObject({ paymentId, paid: '0.00', reason: correction.reason });
+    const month = calendarDate(new Date()).toISOString().slice(0, 7);
+    const receiptNotices = await prisma.notification.findMany({
+      where: { receiptEvent: { receiptId: receipt.id } },
+      select: {
+        recipientUserId: true,
+        receiptEvent: { select: { kind: true } },
+        deliveries: { select: { state: true } },
+      },
+    });
+    expect(receiptNotices).toHaveLength(4);
+    expect(receiptNotices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ recipientUserId: tenant.id, receiptEvent: { kind: 'RECORDED' } }),
+        expect.objectContaining({
+          recipientUserId: manager.id,
+          receiptEvent: { kind: 'REPORT_ERROR' },
+        }),
+        expect.objectContaining({ recipientUserId: tenant.id, receiptEvent: { kind: 'REVERSE' } }),
+      ]),
+    );
+    expect(
+      receiptNotices.every((notice) =>
+        notice.deliveries.every(
+          (delivery) => delivery.state === 'PAUSED' || delivery.state === 'SUPPRESSED',
+        ),
+      ),
+    ).toBe(true);
+    const report = await app.inject({
+      url: '/api/v1/cash-reports?month=' + month + '&contractId=' + contractId,
+      headers: {
+        authorization:
+          'Bearer ' + app.jwt.sign({ sub: manager.id, role: manager.role, sid: manager.sid }),
+      },
+    });
+    expect(report.statusCode, report.body).toBe(200);
+    expect(report.json().totals.rentReversals).toBe('1000.00');
   });
   it('records deposits, preserves dispute history, and refunds only the available balance', async () => {
     await prisma.contract.update({ where: { id: contractId }, data: { depositAmount: '1000.00' } });

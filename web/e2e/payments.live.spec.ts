@@ -15,10 +15,11 @@ test('real external rent receipt preserves exact cents and immutable history aft
   });
   const password = 'ReceiptBrowser123!',
     email = randomUUID() + '@receipt-browser.invalid';
+  const passwordHash = await hashPassword(password);
   const manager = await prisma.user.create({
     data: {
       email,
-      passwordHash: await hashPassword(password),
+      passwordHash,
       role: 'LEASING_MANAGER',
       status: 'ACTIVE',
       leasingManager: { create: { fullName: 'Receipt Browser Manager' } },
@@ -29,7 +30,7 @@ test('real external rent receipt preserves exact cents and immutable history aft
   const tenant = await prisma.user.create({
     data: {
       email: randomUUID() + '@receipt-browser.invalid',
-      passwordHash: 'not-for-login',
+      passwordHash,
       role: 'TENANT',
       status: 'ACTIVE',
       tenant: { create: { fullName: 'Receipt Browser Tenant', managerId } },
@@ -102,7 +103,66 @@ test('real external rent receipt preserves exact cents and immutable history aft
     const rent = page.getByRole('region', { name: 'Rent overview' });
     await expect(rent.getByText('Partially paid balance', { exact: true })).toBeVisible();
     await expect(rent.getByText('AED 89.90', { exact: true })).toHaveCount(2);
+    if (testInfo.project.name === 'mobile')
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Sign out', exact: true })
+      .filter({ visible: true })
+      .click();
+    await page.getByLabel('Email', { exact: true }).fill(tenant.email);
+    await page.getByLabel('Password', { exact: true }).fill(password);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+    await page.goto('/notifications');
+    await page.getByRole('link', { name: 'Rent payment receipt', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'External payment receipts' })).toBeVisible();
+    await page.getByRole('button', { name: 'Acknowledge receipt', exact: true }).click();
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Save', exact: true })
+      .press('Enter');
+    await expect(page.getByText(/^Tenant acknowledged receipt/)).toBeVisible();
+    await page.getByRole('button', { name: 'Report a receipt error', exact: true }).click();
+    await page
+      .getByRole('dialog')
+      .getByLabel('Reason *', { exact: true })
+      .fill('Please verify the payer.');
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Save', exact: true })
+      .press('Enter');
+    await expect(page.getByText('Please verify the payer.', { exact: true })).toBeVisible();
+    if (testInfo.project.name === 'mobile')
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Sign out', exact: true })
+      .filter({ visible: true })
+      .click();
+    await page.getByLabel('Email', { exact: true }).fill(email);
+    await page.getByLabel('Password', { exact: true }).fill(password);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Portfolio overview' })).toBeVisible();
+    await page.goto('/contracts/' + contract.id);
+    await page.getByRole('button', { name: 'View payment receipts', exact: true }).click();
+    await page.getByRole('button', { name: 'Reverse receipt', exact: true }).click();
+    await page
+      .getByRole('dialog')
+      .getByLabel('Reason *', { exact: true })
+      .fill('Duplicate cash entry.');
+    await page
+      .getByRole('dialog')
+      .getByRole('button', { name: 'Save', exact: true })
+      .press('Enter');
+    await expect(page.getByText(/^Manager reversed receipt/)).toBeVisible();
+    await expect(page.getByText('Receipt browser reference', { exact: true })).toBeVisible();
+    expect(
+      (await prisma.payment.findUniqueOrThrow({ where: { id: payment.id } })).amountPaid.toFixed(2),
+    ).toBe('0.00');
   } finally {
+    await prisma.notification.deleteMany({
+      where: { receiptEvent: { receipt: { paymentId: payment.id } } },
+    });
+    await prisma.paymentReceiptEvent.deleteMany({ where: { receipt: { paymentId: payment.id } } });
     await prisma.paymentReceipt.deleteMany({ where: { paymentId: payment.id } });
     await prisma.payment.delete({ where: { id: payment.id } });
     await prisma.contract.delete({ where: { id: contract.id } });

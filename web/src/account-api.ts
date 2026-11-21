@@ -1,7 +1,8 @@
+import { apiBase } from './api-base';
 import axios from 'axios';
 export const setupSessionKey = 'leaseflow-account-setup';
 export const accountApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
+  baseURL: apiBase(import.meta.env.VITE_API_URL),
   timeout: 20000,
   headers: { 'X-Leaseflow-Session': '1' },
 });

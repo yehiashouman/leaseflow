@@ -10,6 +10,7 @@ import { ListPager } from '@/components/list-controls';
 
 type Amounts = {
   rent: string;
+  rentReversals: string;
   recoveries: string;
   ownerRent: string;
   otherExpenses: string;
@@ -31,6 +32,7 @@ type Result = {
 };
 const columns = [
   ['rent', 'Rent received'],
+  ['rentReversals', 'Rent receipts reversed'],
   ['recoveries', 'Expense recoveries'],
   ['ownerRent', 'Owner rent paid'],
   ['otherExpenses', 'Other expenses paid'],
@@ -38,6 +40,7 @@ const columns = [
 ] as const;
 const categories: Record<string, string> = {
   RENT_RECEIPT: 'Rent receipt',
+  RENT_REVERSAL: 'Rent receipt reversal',
   EXPENSE_PAYMENT: 'Expense payment',
   EXPENSE_RECOVERY: 'Expense recovery',
 };

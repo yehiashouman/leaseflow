@@ -105,6 +105,7 @@ enum ExpenseCategory {
 
 model User {
   depositEvents DepositEvent[]
+  receiptEvents PaymentReceiptEvent[]
   id String @id @default(cuid())
   email String @unique
   passwordHash String
@@ -362,12 +363,32 @@ model PaymentReceipt {
   paidAt DateTime
   method String @db.VarChar(50)
   reference String? @db.VarChar(150)
+  payerName String? @db.VarChar(150)
+  notes String? @db.Text
+  events PaymentReceiptEvent[]
   recordedBalance Decimal @db.Decimal(12, 2)
   createdAt DateTime @default(now())
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
   @@unique([actorUserId, clientId])
   @@index([paymentId, createdAt, id])
+}
+
+model PaymentReceiptEvent {
+  id String @id @default(cuid())
+  receiptId String
+  actorUserId String
+  clientId String @db.VarChar(36)
+  payloadHash String @db.Char(64)
+  kind String @db.VarChar(24)
+  reason String? @db.Text
+  createdAt DateTime @default(now())
+  notices Notification[]
+  receipt PaymentReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  @@unique([receiptId, kind])
+  @@unique([actorUserId, clientId])
+  @@index([kind, createdAt])
 }
 
 model Payment {
@@ -501,10 +522,13 @@ model Notification {
   recipientUserId String
   eventId String?
   reviewEventId String?
+  receiptEventId String?
   readAt DateTime?
   createdAt DateTime @default(now())
   event RequestEvent? @relation(fields: [eventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   deliveries NoticeDelivery[]
+  receiptEvent PaymentReceiptEvent? @relation(fields: [receiptEventId], references: [id], onDelete: Restrict)
+  @@unique([recipientUserId, receiptEventId])
   @@unique([recipientUserId, eventId])
   @@unique([id, recipientUserId])
   @@index([recipientUserId, readAt, createdAt])

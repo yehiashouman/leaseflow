@@ -71,8 +71,18 @@ export function noticeTemplate(language: string, requestId: string) {
         : 'An update is available. Open your authorized case record: ') + url,
   };
 }
-export function recordNoticeTemplate(language: string, path: string) {
-  const url = accountConfig.APP_URL.replace(/\/$/, '') + path;
+export function recordNoticeTemplate(language: string, target: { path: string; kind: string }) {
+  const url = accountConfig.APP_URL.replace(/\/$/, '') + target.path;
+  if (target.kind.startsWith('PAYMENT_RECEIPT_'))
+    return {
+      format: 'record-notice-v1' as const,
+      url,
+      subject: language === 'ar' ? 'تحديث إيصال الإيجار' : 'Rent payment receipt update',
+      text:
+        (language === 'ar'
+          ? 'يوجد تحديث على إيصال الإيجار: '
+          : 'Open your authorized rent payment receipt: ') + url,
+    };
   return {
     format: 'record-notice-v1' as const,
     url,

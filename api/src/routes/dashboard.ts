@@ -242,6 +242,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           payments,
           expenses,
           monthlyReceipts,
+          monthlyReversals,
           deposits,
           activity,
         ] = await Promise.all([
@@ -291,6 +292,18 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             },
             _sum: { amount: true },
           }),
+          tx.paymentReceiptEvent.findMany({
+            where: {
+              kind: 'REVERSE',
+              createdAt: { gte: windows.monthStart, lte: windows.now },
+              receipt: {
+                payment: {
+                  contract: { ...contractScope, status: { notIn: ['DRAFT', 'CANCELLED'] } },
+                },
+              },
+            },
+            select: { receipt: { select: { amount: true, currency: true } } },
+          }),
           tx.contract.findMany({
             where: {
               ...contractScope,
@@ -306,6 +319,19 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           }),
           managerDashboardActivity(tx, request.user, now),
         ]);
+        const receivedByCurrency = new Map(
+          monthlyReceipts.map(({ currency, _sum }) => [
+            currency,
+            _sum.amount ?? new Prisma.Decimal(0),
+          ]),
+        );
+        for (const { receipt } of monthlyReversals ?? [])
+          receivedByCurrency.set(
+            receipt.currency,
+            (receivedByCurrency.get(receipt.currency) ?? new Prisma.Decimal(0)).minus(
+              receipt.amount,
+            ),
+          );
         const count = (status: string) =>
           spaceGroups.find((g) => g.status === status)?._count._all ?? 0;
         const totals = new Map<
@@ -396,7 +422,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
                 openRentContractStatuses.some((status) => status === payment.contract.status) &&
                 payment.amountPaid.lt(payment.amountDue),
             ),
-            monthlyReceipts,
+            [...receivedByCurrency].map(([currency, amount]) => ({ currency, _sum: { amount } })),
             windows,
           ),
           financialRecords: [...totals.entries()]

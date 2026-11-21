@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 import { env } from './config.js';
-export const accountConfig = z
+const mailConfig = z
   .object({
     ACCOUNT_EMAIL_ENABLED: z.enum(['true', 'false']).default('false'),
-    APP_URL: z.url().default('http://localhost:8080'),
     SMTP_HOST: z.string().default(''),
     SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
     SMTP_SECURE: z.enum(['true', 'false']).default('false'),
@@ -13,22 +12,12 @@ export const accountConfig = z
     MAIL_FROM: z.email().default('no-reply@example.com'),
   })
   .parse(process.env);
+export const accountConfig = { ...mailConfig, APP_URL: env.APP_URL };
 if (accountConfig.ACCOUNT_EMAIL_ENABLED === 'true' && !accountConfig.SMTP_HOST)
   throw new Error('Account email requires SMTP_HOST.');
 if (env.NODE_ENV === 'production' && accountConfig.ACCOUNT_EMAIL_ENABLED === 'true')
   throw new Error(
     'Production account onboarding requires approved provider and security policies.',
-  );
-const appUrl = new URL(accountConfig.APP_URL);
-if (
-  !['http:', 'https:'].includes(appUrl.protocol) ||
-  appUrl.username ||
-  appUrl.password ||
-  appUrl.search ||
-  appUrl.hash
-)
-  throw new Error(
-    'APP_URL must be an HTTP application URL without credentials, query, or fragment.',
   );
 export const declarationVersion = 'manager-declaration-v1';
 export const declarationText =

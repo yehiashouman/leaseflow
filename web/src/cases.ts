@@ -142,6 +142,10 @@ export const caseCommands: Record<string, string> = {
   CLOSED: 'Close case',
 };
 export function caseEventLabel(kind: string) {
+  if (kind === 'PAYMENT_RECEIPT_RECORDED') return 'Rent payment recorded';
+  if (kind === 'PAYMENT_RECEIPT_REPORT_ERROR') return 'Tenant reported a receipt error';
+  if (kind === 'PAYMENT_RECEIPT_ACKNOWLEDGE') return 'Tenant acknowledged receipt';
+  if (kind === 'PAYMENT_RECEIPT_REVERSE') return 'Manager reversed receipt';
   if (kind === 'MOVE_OUT_RESPONSE') return 'Manager responded to the move-out notice';
   if (kind === 'MAINTENANCE_ASSESSED') return 'Maintenance responsibility recorded';
   if (kind === 'MAINTENANCE_ACCEPTED') return 'Proposed cost accepted';

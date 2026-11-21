@@ -2022,6 +2022,22 @@
       "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931106996",
       "environment": "GitHub Actions with MySQL, Redis, Chromium, and private-file services where required",
       "verified": "2026-11-21"
+    },
+    {
+      "id": "DATA-024",
+      "requirement": "Keep deposit liabilities outside rent income and operational profit.",
+      "status": "VERIFIED",
+      "code": [
+        "api/src/routes/cash-reports.ts",
+        "api/src/routes/expenses.ts",
+        "web/src/pages/CashReports.tsx"
+      ],
+      "tests": ["api/integration/expenses.test.ts", "web/e2e/expenses.live.spec.ts"],
+      "note": "Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.",
+      "commit": "32a77fba1f53e69a214918e074dedd226539750b",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931773611",
+      "environment": "GitHub Actions with MySQL, Redis, and Chromium where required",
+      "verified": "2026-11-21"
     }
   ],
   "initialSelectionIds": [
@@ -3015,15 +3031,18 @@
     {
       "id": "FIN-010",
       "requirement": "Keep deposit receipt and refund liabilities outside operational profit.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
+        "api/src/routes/cash-reports.ts",
         "api/src/routes/expenses.ts",
-        "api/src/routes/payments.ts",
-        "api/prisma/schema.prisma"
+        "web/src/pages/CashReports.tsx"
       ],
-      "tests": ["api/integration/expenses.test.ts", "api/integration/payments.test.ts"],
-      "decisions": [],
-      "note": "No deposit liability is misrepresented as profit; complete receipt, refund, and liability ledgers remain incomplete."
+      "tests": ["api/integration/expenses.test.ts", "web/e2e/expenses.live.spec.ts"],
+      "note": "Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.",
+      "commit": "32a77fba1f53e69a214918e074dedd226539750b",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931773611",
+      "environment": "GitHub Actions with MySQL, Redis, and Chromium where required",
+      "verified": "2026-11-21"
     },
     {
       "id": "FIN-011",
@@ -3041,28 +3060,34 @@
     {
       "id": "FIN-012",
       "requirement": "Label cash/accrual basis explicitly under the approved policy.",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "code": [
+        "api/src/routes/cash-reports.ts",
         "api/src/routes/expenses.ts",
-        "api/src/routes/payments.ts",
-        "api/prisma/schema.prisma"
+        "web/src/pages/CashReports.tsx"
       ],
-      "tests": ["api/integration/expenses.test.ts", "api/integration/payments.test.ts"],
-      "decisions": ["DEC-11"],
-      "note": "Recorded all-date totals carry an explicit basis label; approved cash/accrual financial reports remain incomplete."
+      "tests": ["api/integration/expenses.test.ts", "web/e2e/expenses.live.spec.ts"],
+      "note": "Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.",
+      "commit": "32a77fba1f53e69a214918e074dedd226539750b",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931773611",
+      "environment": "GitHub Actions with MySQL, Redis, and Chromium where required",
+      "verified": "2026-11-21"
     },
     {
       "id": "FIN-013",
       "requirement": "Default report totals to AED.",
-      "status": "BLOCKED",
+      "status": "VERIFIED",
       "code": [
+        "api/src/routes/cash-reports.ts",
         "api/src/routes/expenses.ts",
-        "api/src/routes/payments.ts",
-        "api/prisma/schema.prisma"
+        "web/src/pages/CashReports.tsx"
       ],
-      "tests": ["api/integration/expenses.test.ts", "api/integration/payments.test.ts"],
-      "decisions": ["DEC-13"],
-      "note": "Original AED/USD values remain separate; AED-converted report totals require approved conversion policy and implementation."
+      "tests": ["api/integration/expenses.test.ts", "web/e2e/expenses.live.spec.ts"],
+      "note": "Verified dated cash receipts, paid expenses, Dubai month boundaries, AED default, and exclusion of deposit liabilities.",
+      "commit": "32a77fba1f53e69a214918e074dedd226539750b",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44931773611",
+      "environment": "GitHub Actions with MySQL, Redis, and Chromium where required",
+      "verified": "2026-11-21"
     },
     {
       "id": "FIN-014",

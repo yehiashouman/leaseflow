@@ -86,6 +86,7 @@ function amount(currency: string, value: string) {
 }
 function Records({ id, currency }: { id: string; currency: string }) {
   const [search] = useSearchParams();
+  const receiptPayment = search.get('receiptPayment');
   const [section, setSection] = useState<Section>(() =>
     search.get('section') === 'deposits' ? 'deposits' : 'payments',
   );
@@ -105,6 +106,14 @@ function Records({ id, currency }: { id: string; currency: string }) {
   });
   return (
     <section className="space-y-4" aria-label="Contract records">
+      {receiptPayment && (
+        <PaymentReceipts
+          key={receiptPayment}
+          paymentId={receiptPayment}
+          currency={currency}
+          initialOpen
+        />
+      )}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Record category">
         {sections.map((item) => (
           <Button
