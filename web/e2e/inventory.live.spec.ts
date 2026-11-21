@@ -151,9 +151,12 @@ test('real landlord lifecycle and property fields persist through the browser', 
         new URL(reply.url()).pathname.endsWith('/inventory/landlords'),
     );
     await page.getByRole('link', { name: 'Back to landlords', exact: true }).click();
-    expect((await (await list).json()).some((row: { id: string }) => row.id === landlord.id)).toBe(
-      false,
-    );
+    const current = (await (await list).json()) as {
+      items: { id: string }[];
+      page: number;
+    };
+    expect(current.page).toBe(1);
+    expect(current.items.some((row) => row.id === landlord.id)).toBe(false);
     await page.getByLabel('Landlord status', { exact: true }).selectOption('ARCHIVED');
     await page.getByRole('link', { name, exact: true }).click();
     await page.getByRole('button', { name: 'Restore landlord', exact: true }).click();

@@ -37,12 +37,13 @@ export function Landlords() {
   const [query, setQuery] = useState('');
   const [search, setSearch] = useState('');
   useEffect(() => {
+    if (query === search) return;
     const timer = window.setTimeout(() => {
       setSearch(query);
       setPage(1);
     }, 250);
     return () => window.clearTimeout(timer);
-  }, [query]);
+  }, [query, search]);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState('NAME');
   const {
