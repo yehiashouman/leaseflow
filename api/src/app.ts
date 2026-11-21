@@ -23,6 +23,7 @@ import { prisma } from './db.js';
 import { authRoutes } from './routes/auth.js';
 import { inventoryRoutes } from './routes/inventory.js';
 import { contractRoutes } from './routes/contracts.js';
+import { roomChangeRoutes } from './routes/room-changes.js';
 import { moveOutRoutes } from './routes/move-out.js';
 import { depositRoutes } from './routes/deposits.js';
 import { paymentRoutes } from './routes/payments.js';
@@ -127,6 +128,7 @@ export async function buildApp() {
   await app.register(paymentRoutes, { prefix: '/api/v1/payments' });
   await app.register(depositRoutes, { prefix: '/api/v1/contracts' });
   await app.register(moveOutRoutes, { prefix: '/api/v1/contracts' });
+  await app.register(roomChangeRoutes, { prefix: '/api/v1/contracts' });
   await app.register(requestRoutes, { prefix: '/api/v1/requests' });
   await app.register(maintenanceRoutes, { prefix: '/api/v1/requests' });
   await app.register(dashboardRoutes, { prefix: '/api/v1/dashboard' });

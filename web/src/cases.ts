@@ -52,6 +52,7 @@ export type CaseRecord = {
   resolvedAt?: string | null;
   decisionDueAt?: string | null;
   metadata?: {
+    roomChange?: { preferences: string; approvedAt?: string; extended?: boolean };
     moveOutResponse?: {
       amount: string;
       currency: string;
@@ -146,6 +147,11 @@ export function caseEventLabel(kind: string) {
   if (kind === 'PAYMENT_RECEIPT_REPORT_ERROR') return 'Tenant reported a receipt error';
   if (kind === 'PAYMENT_RECEIPT_ACKNOWLEDGE') return 'Tenant acknowledged receipt';
   if (kind === 'PAYMENT_RECEIPT_REVERSE') return 'Manager reversed receipt';
+  if (kind === 'ROOM_WITHDRAWN') return 'Tenant withdrew room change';
+  if (kind === 'ROOM_CANCELLED') return 'Manager cancelled room change';
+  if (kind === 'ROOM_NEGOTIATION_EXTENDED') return 'Negotiation deadline extended';
+  if (kind === 'ROOM_NEGOTIATION_EXPIRED') return 'Negotiation period expired';
+  if (kind === 'ROOM_VIEWING') return 'Viewing or discussion outcome recorded';
   if (kind === 'MOVE_OUT_RESPONSE') return 'Manager responded to the move-out notice';
   if (kind === 'MAINTENANCE_ASSESSED') return 'Maintenance responsibility recorded';
   if (kind === 'MAINTENANCE_ACCEPTED') return 'Proposed cost accepted';

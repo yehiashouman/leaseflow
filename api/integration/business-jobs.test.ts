@@ -818,6 +818,89 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       await cleanup();
     }
   });
+  it('opens and extends room negotiations once, then closes without moving the tenant', async () => {
+    try {
+      await prisma.request.create({
+        data: {
+          title: 'Existing late-payment approval',
+          type: 'LATE_PAYMENT',
+          status: 'APPROVED',
+          description: 'Separate approval counter.',
+          contractId,
+          version: 1,
+          events: { create: { kind: 'APPROVED', sequence: 1 } },
+        },
+      });
+      const path = '/contracts/' + contractId + '/room-change';
+      const body = {
+        clientId: randomUUID(),
+        explanation: 'Need a quieter room.',
+        preferences: 'Away from the lift.',
+      };
+      expect((await send('GET', path, undefined, tenant)).json().nextApprovalAt).toBeNull();
+      expect((await send('POST', path, body, foreign)).statusCode).toBe(403);
+      const submitted = await send('POST', path, body, tenant);
+      expect(submitted.statusCode, submitted.body).toBe(201);
+      expect((await send('POST', path, body, tenant)).statusCode).toBe(200);
+      const requestId = submitted.json().requestId;
+      const row = await prisma.request.findUniqueOrThrow({ where: { id: requestId } });
+      expect(row.decisionDueAt).toEqual(roomExpiry(row.createdAt));
+      const review = path + '/' + requestId + '/commands';
+      const decision = (
+        action: string,
+        expectedVersion: number,
+        explanation = 'Factual room change note.',
+      ) => ({ clientId: randomUUID(), action, expectedVersion, explanation });
+      const approval = decision('APPROVE', 1);
+      expect((await send('POST', review, approval, tenant)).statusCode).toBe(403);
+      expect((await send('POST', review, approval, foreign)).statusCode).toBe(404);
+      const result = await send('POST', review, approval);
+      expect(result.statusCode, result.body).toBe(201);
+      expect((await send('POST', review, approval)).statusCode).toBe(200);
+      const approved = (await send('GET', '/requests/' + requestId, undefined, tenant)).json();
+      expect(approved.metadata.roomChange.preferences).toBe(body.preferences);
+      expect(
+        new Date(approved.decisionDueAt).getTime() -
+          new Date(approved.metadata.roomChange.approvedAt).getTime(),
+      ).toBe(7 * 86_400_000);
+      const viewing = await send(
+        'POST',
+        review,
+        decision('VIEWING', 2, 'Reviewed the room outside the app.'),
+        tenant,
+      );
+      expect(viewing.statusCode, viewing.body).toBe(201);
+      const extend = await send('POST', review, decision('EXTEND', 3));
+      expect(extend.statusCode, extend.body).toBe(201);
+      expect((await send('POST', review, decision('EXTEND', 4))).statusCode).toBe(409);
+      const extended = await prisma.request.findUniqueOrThrow({ where: { id: requestId } });
+      const deadline = extended.decisionDueAt!;
+      expect(deadline.getTime() - new Date(approved.decisionDueAt).getTime()).toBe(7 * 86_400_000);
+      await drain('ROOM_CHANGE_EXPIRY', new Date(deadline.getTime() - 1));
+      expect((await prisma.request.findUniqueOrThrow({ where: { id: requestId } })).status).toBe(
+        'APPROVED',
+      );
+      await drain('ROOM_CHANGE_EXPIRY', deadline);
+      const history = await prisma.request.findUniqueOrThrow({
+        where: { id: requestId },
+        include: { events: true },
+      });
+      expect(history.status).toBe('CLOSED');
+      expect(history.events.filter((e) => e.kind === 'ROOM_NEGOTIATION_EXPIRED')).toHaveLength(1);
+      expect(history.events.find((e) => e.kind === 'ROOM_VIEWING')?.message).toBe(
+        'Reviewed the room outside the app.',
+      );
+      expect(
+        (await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })).rentalSpaceId,
+      ).toBe(spaceId);
+      expect(await prisma.payment.count({ where: { contractId } })).toBe(0);
+      expect(
+        (await send('POST', path, { ...body, clientId: randomUUID() }, tenant)).statusCode,
+      ).toBe(409);
+    } finally {
+      await cleanup();
+    }
+  });
   it('exposes opaque operational jobs, restricts recovery, and preserves retry cursor and audit reason', async () => {
     try {
       await jobs();

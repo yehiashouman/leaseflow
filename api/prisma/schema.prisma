@@ -528,7 +528,7 @@ model Notification {
   createdAt DateTime @default(now())
   event RequestEvent? @relation(fields: [eventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   deliveries NoticeDelivery[]
-  receiptEvent PaymentReceiptEvent? @relation(fields: [receiptEventId], references: [id], onDelete: Restrict)
+  receiptEvent PaymentReceiptEvent? @relation(fields: [receiptEventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   @@unique([recipientUserId, receiptEventId])
   @@unique([recipientUserId, eventId])
   @@unique([id, recipientUserId])

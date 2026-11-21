@@ -193,6 +193,17 @@ test('activates a unit with current evidence and confirms a monthly couple contr
       path: testInfo.outputPath('monthly-contract-occupants.png'),
       fullPage: true,
     });
+    await page.getByRole('button', { name: 'Request room change', exact: true }).click();
+    const roomForm = page.getByRole('dialog');
+    await roomForm.getByLabel('Reason *', { exact: true }).fill('I want a quieter room.');
+    await roomForm
+      .getByLabel('Destination preferences (optional)', { exact: true })
+      .fill('Away from the lift.');
+    await roomForm.getByRole('button', { name: 'Save', exact: true }).press('Enter');
+    await expect(page.getByRole('heading', { name: 'Room-change terms' })).toBeVisible();
+    await expect(page.getByText(/^Approval deadline:/)).toBeVisible();
+    const roomUrl = page.url();
+    await page.goto('/contracts/' + offer.id);
     const desiredDate = new Date();
     desiredDate.setUTCDate(desiredDate.getUTCDate() + 3);
     const moveOutDate = desiredDate.toISOString().slice(0, 10);
@@ -229,6 +240,12 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     await expect(
       page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
     ).toBeVisible();
+    await page.goto(roomUrl);
+    await page.getByRole('button', { name: 'Approve room change', exact: true }).click();
+    const roomReview = page.getByRole('dialog');
+    await roomReview.getByLabel('Explanation *', { exact: true }).fill('A viewing is available.');
+    await roomReview.getByRole('button', { name: 'Save', exact: true }).press('Enter');
+    await expect(page.getByText(/^Negotiation deadline:/)).toBeVisible();
     await page.goto(noticeUrl);
     await page.getByRole('button', { name: 'Respond to notice' }).click();
     const responseEditor = page.getByRole('dialog');
@@ -257,6 +274,7 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     await prisma.payment.deleteMany({ where: { contract: where } });
     await prisma.depositEvent.deleteMany({ where: { entry: { contract: where } } });
     await prisma.depositEntry.deleteMany({ where: { contract: where } });
+    await prisma.businessJob.deleteMany({ where: { contract: where } });
     await prisma.notification.deleteMany({ where: { event: { request: { contract: where } } } });
     await prisma.requestEvent.deleteMany({ where: { request: { contract: where } } });
     await prisma.request.deleteMany({ where: { contract: where } });

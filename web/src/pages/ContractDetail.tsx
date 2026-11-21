@@ -1,4 +1,5 @@
 import { PaymentReceipts } from '@/components/payment-receipts';
+import { SubmitRoomChange } from '@/components/room-change';
 import { MoveOutNotice } from '@/components/move-out-notice';
 import { DepositLedger } from '@/components/deposit-ledger';
 import { previewMode } from '../session';
@@ -405,7 +406,10 @@ export function ContractDetail() {
         </p>
       </section>
       {!previewMode && user?.role === 'TENANT' && data.status === 'ACTIVE' && (
-        <MoveOutNotice contractId={data.id} />
+        <div className="flex flex-wrap items-start gap-3">
+          <MoveOutNotice contractId={data.id} />
+          <SubmitRoomChange contractId={data.id} />
+        </div>
       )}
       {!offered && <Records key={data.id} id={data.id} currency={data.currency} />}
     </div>

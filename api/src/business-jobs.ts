@@ -13,6 +13,7 @@ import {
 } from './business-calendar.js';
 import { proratedRentDecimal } from './contract-policy.js';
 import { queueCaseNotices, queueRecordNotices } from './notice-data.js';
+import { roomChangeNegotiationExpired } from './room-change-policy.js';
 
 const openStatuses = ['ACTIVE', 'TRANSFER_PENDING', 'MOVE_OUT_PENDING'] as const;
 export const roomExpiryReason = 'Approval period expired.';
@@ -239,18 +240,28 @@ export async function runBusinessJobOnce(
           });
           if (request.contractId !== contract.id || request.type !== 'ROOM_CHANGE')
             throw new Error('REQUEST_SOURCE_INVALID');
+          const negotiation = job.jobKey.startsWith('room-negotiation:');
           if (
-            request.events.some((event) => event.kind === 'APPROVED') ||
-            !['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'REOPENED'].includes(request.status)
+            negotiation
+              ? request.status !== 'APPROVED' ||
+                !request.decisionDueAt ||
+                request.decisionDueAt.getTime() !== job.cursor.getTime()
+              : request.events.some((event) => event.kind === 'APPROVED') ||
+                !['SUBMITTED', 'SEEN', 'AWAITING_MANAGER', 'REOPENED'].includes(request.status)
           ) {
             await finish('STOPPED', 'REQUEST_NO_LONGER_ELIGIBLE');
             return;
           }
-          const expiry = roomExpiry(
-            request.events.find((event) => event.kind === 'SUBMITTED')?.createdAt ??
-              request.createdAt,
-          );
+          const expiry = negotiation
+            ? request.decisionDueAt!
+            : roomExpiry(
+                request.events.find((event) => event.kind === 'SUBMITTED')?.createdAt ??
+                  request.createdAt,
+              );
           if (expiry.getTime() !== job.cursor.getTime()) throw new Error('REQUEST_DATE_CHANGED');
+          const status = negotiation ? 'CLOSED' : 'REJECTED';
+          const kind = negotiation ? 'ROOM_NEGOTIATION_EXPIRED' : 'REJECTED';
+          const reason = negotiation ? roomChangeNegotiationExpired : roomExpiryReason;
           if (now < expiry) {
             await finish('QUEUED', null, expiry, expiry);
             return;
@@ -258,17 +269,17 @@ export async function runBusinessJobOnce(
           const event = await tx.requestEvent.create({
             data: {
               requestId: request.id,
-              kind: 'REJECTED',
+              kind,
               fromStatus: request.status,
               sequence: request.version + 1,
               actorName: 'System',
-              message: roomExpiryReason,
+              message: reason,
               createdAt: now,
             },
           });
           await tx.request.update({
             where: { id: request.id },
-            data: { status: 'REJECTED', version: { increment: 1 } },
+            data: { status, decisionDueAt: null, version: { increment: 1 } },
           });
           await tx.notification.createMany({
             data: [manager.userId, contract.tenant.userId].map((recipientUserId) => ({
@@ -280,14 +291,16 @@ export async function runBusinessJobOnce(
           await queueCaseNotices(tx, event.id);
           await tx.auditEvent.create({
             data: {
-              action: 'ROOM_CHANGE_EXPIRED',
+              action: negotiation ? 'ROOM_NEGOTIATION_EXPIRED' : 'ROOM_CHANGE_EXPIRED',
               entityType: 'Request',
               entityId: request.id,
               oldValue: { status: request.status },
               newValue: {
-                status: 'REJECTED',
-                reason: roomExpiryReason,
-                rule: 'room-change-five-calendar-days-v1',
+                status,
+                reason,
+                rule: negotiation
+                  ? 'room-change-negotiation-v1'
+                  : 'room-change-five-calendar-days-v1',
                 evaluatedAt: now.toISOString(),
                 deadline: expiry.toISOString(),
                 jobId: job.id,

@@ -11,6 +11,7 @@ import {
   keyLockDecisionMetadata,
 } from './case-rules.js';
 import { latePaymentDecisionMetadata, latePaymentSnapshot } from './late-payment-policy.js';
+import { roomChangeMetadata } from './room-change-policy.js';
 import { canAssessMaintenance } from './maintenance-rules.js';
 
 type Identity = FastifyRequest['user'];
@@ -97,6 +98,7 @@ export const moveOutResponse = z.object({
 });
 const safeMetadata = z.object({
   moveOutResponse: moveOutResponse.optional(),
+  roomChange: roomChangeMetadata.optional(),
   moveOut: z
     .object({
       desiredDate: z.iso.date(),

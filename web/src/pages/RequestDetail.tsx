@@ -2,6 +2,7 @@ import { FormFieldErrors, ValidatedTextarea } from '../components/field-errors';
 import { validationFields } from '../form-errors';
 import { requestError } from '../api-errors';
 import { recoverableQueryError } from '../api-errors';
+import { RoomChangeDetail } from '@/components/room-change';
 import { MoveOutResponse } from '@/components/move-out-response';
 import { CaseAssignment } from '@/components/case-assignment';
 import { CaseDeadline } from '@/components/case-deadline';
@@ -188,6 +189,7 @@ export function RequestDetail() {
             </dl>
           )}
           <MoveOutResponse record={data} />
+          <RoomChangeDetail record={data} />
           {data.metadata?.latePayment && (
             <div className="space-y-1 text-sm">
               <p>Original due date: {data.metadata.latePayment.originalDate} (Asia/Dubai)</p>
@@ -208,7 +210,7 @@ export function RequestDetail() {
           )}
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <CaseDeadline data={data} />
+          {!data.metadata?.roomChange && <CaseDeadline data={data} />}
           <CaseAssignment key={data.id} data={data} />
         </div>
         {!!data.allowedActions?.length && (
