@@ -1,0 +1,67 @@
+name: Start LeaseFlow Codespace
+
+on:
+  workflow_dispatch:
+    inputs:
+      codespace_name:
+        description: Exact Codespace name if automatic discovery cannot select one
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths: ['.github/workflows/start-codespace.yml']
+
+permissions: {}
+concurrency:
+  group: leaseflow-codespace-start
+  cancel-in-progress: false
+
+jobs:
+  start:
+    if: github.repository == 'yehiashouman/leaseflow' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Start the existing LeaseFlow Codespace
+        env:
+          GH_TOKEN: ${{ secrets.LEASEFLOW_CODESPACE_TOKEN }}
+          REQUESTED_NAME: ${{ inputs.codespace_name }}
+          REPOSITORY_ID: ${{ github.event.repository.id }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "::error::Set the LEASEFLOW_CODESPACE_TOKEN Actions secret."
+            exit 1
+          fi
+
+          name="$REQUESTED_NAME"
+          if [[ -z "$name" ]]; then
+            if ! spaces=$(gh api --paginate --slurp               "user/codespaces?repository_id=$REPOSITORY_ID&per_page=100" 2>/dev/null); then
+              echo "::error::Codespace discovery requires Codespaces read access. Run this workflow manually with the exact Codespace name to use lifecycle permission only."
+              exit 1
+            fi
+            names=$(jq --argjson repo "$REPOSITORY_ID" -r               '[.[].codespaces[] | select(.repository.id == $repo) | .name] | unique | .[]' <<< "$spaces")
+            if [[ -z "$names" || "$names" == *$'\n'* ]]; then
+              echo "::error::Expected one LeaseFlow Codespace. Find its exact name on github.com/codespaces and run this workflow manually."
+              exit 1
+            fi
+            name="$names"
+          fi
+
+          if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9-]+$ ]]; then
+            echo "::error::Use the exact GitHub Codespace name."
+            exit 1
+          fi
+          if ! start=$(gh api --method POST "user/codespaces/$name/start" 2>/dev/null); then
+            echo "::error::GitHub rejected the start request. Verify the Codespace name, token expiration, repository scope, and Codespaces lifecycle admin write permission."
+            exit 1
+          fi
+          if ! jq -e --argjson repo "$REPOSITORY_ID" '.repository.id == $repo' <<< "$start" >/dev/null; then
+            echo "::error::GitHub did not confirm the LeaseFlow repository in the start response."
+            exit 1
+          fi
+          {
+            echo 'GitHub accepted the LeaseFlow Codespace start request.'
+            echo 'Open https://github.com/codespaces, then use the private LeaseFlow port 8080.'
+            echo 'The start response does not verify that the application is ready.'
+          } >> "$GITHUB_STEP_SUMMARY"
