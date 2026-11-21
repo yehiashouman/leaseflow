@@ -93,11 +93,12 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     await activation
       .getByLabel('Written landlord consent (if required)', { exact: true })
       .selectOption(consent.id);
-    await activation
-      .getByLabel('I confirm this evidence is current and I am authorized to let this unit *', {
-        exact: true,
-      })
-      .check();
+    const declaration = activation.getByRole('checkbox', {
+      name: 'I confirm this evidence is current and I am authorized to let this unit *',
+      exact: true,
+    });
+    await declaration.press('Space');
+    await expect(declaration).toBeChecked();
     await activation.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(activation).not.toBeVisible();
     await expect(page.getByText('Active', { exact: true })).toBeVisible();
@@ -211,6 +212,7 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     expect(await prisma.request.count({ where: { contractId: offer.id, type: 'MOVE_OUT' } })).toBe(
       1,
     );
+    const noticeUrl = page.url();
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Deposit · Setup Couple Room' })).toBeVisible();
     await expect(page.getByText('Projected refund after accepted deductions')).toBeVisible();
@@ -227,6 +229,13 @@ test('activates a unit with current evidence and confirms a monthly couple contr
     await expect(
       page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
     ).toBeVisible();
+    await page.goto(noticeUrl);
+    await page.getByRole('button', { name: 'Respond to notice' }).click();
+    const responseEditor = page.getByRole('dialog');
+    await responseEditor.getByLabel('Reason *', { exact: true }).fill('Notice deduction waived.');
+    await responseEditor.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.getByText('No notice deduction proposed.')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Manager response' })).toBeVisible();
     await page.goto('/contracts/' + offer.id);
     await page.getByRole('button', { name: 'Deposit entries', exact: true }).click();
     await page.getByRole('button', { name: 'Record deposit receipt', exact: true }).click();

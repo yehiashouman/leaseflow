@@ -407,6 +407,8 @@ model DepositEntry {
   sourceProposalId String? @unique
   sourceProposal DepositEntry? @relation("AppliedDepositDeduction", fields: [sourceProposalId], references: [id], onDelete: Restrict)
   appliedDeduction DepositEntry? @relation("AppliedDepositDeduction")
+  noticeRequestId String? @unique
+  noticeRequest Request? @relation(fields: [noticeRequestId], references: [id], onDelete: Restrict)
   events DepositEvent[]
   documentSeries DocumentSeries[]
   evidenceKey String?
@@ -462,6 +464,7 @@ model Request {
   clientId String?
   contract Contract @relation(fields: [contractId], references: [id])
   events RequestEvent[]
+  noticeDeduction DepositEntry?
   documentSeries DocumentSeries[]
   reportJobs CaseReportJob[]
   maintenanceAssessments MaintenanceAssessment[]

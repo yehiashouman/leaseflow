@@ -1,11 +1,19 @@
+import { createHash } from 'node:crypto';
 import type { FastifyPluginAsync } from 'fastify';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { allowRoles } from '../auth.js';
-import { caseActor, caseAudit, caseContractScope, lockCaseContract } from '../case-data.js';
+import {
+  caseActor,
+  caseAudit,
+  caseContractScope,
+  lockCase,
+  lockCaseContract,
+  moveOutResponse,
+} from '../case-data.js';
 import { calendarDate } from '../business-calendar.js';
 import { prisma } from '../db.js';
-import { depositBalance } from '../deposit-ledger.js';
+import { depositBalance, depositSummarySelect } from '../deposit-ledger.js';
 import { noticeFingerprint, noticePreview } from '../move-out-notice.js';
 
 const identifier = z.object({ id: z.string().min(1).max(191) });
@@ -15,6 +23,19 @@ const submitInput = dateInput.extend({
   fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   acknowledged: z.literal(true),
   explanation: z.string().trim().min(3).max(5000),
+});
+
+const managerInput = z.strictObject({
+  clientId: z.uuid(),
+  expectedVersion: z.number().int().positive(),
+  amount: z
+    .string()
+    .regex(/^(0|[1-9]\d{0,9})(\.\d{1,2})?$/)
+    .transform((value) => new Prisma.Decimal(value).toFixed(2)),
+  explanation: z.string().trim().min(3).max(3000),
+});
+const storedNotice = z.object({
+  moveOut: z.object({ proposedDeduction: z.string().regex(/^\d+\.\d{2}$/) }),
 });
 
 export const moveOutRoutes: FastifyPluginAsync = async (app) => {
@@ -47,17 +68,7 @@ export const moveOutRoutes: FastifyPluginAsync = async (app) => {
           where: { status: 'CONFIRMED' },
           select: { effectiveDate: true, confirmedAt: true, changes: true },
         },
-        depositEntries: {
-          select: {
-            type: true,
-            amount: true,
-            category: true,
-            events: {
-              orderBy: { sequence: 'asc' },
-              select: { action: true, amount: true, category: true },
-            },
-          },
-        },
+        depositEntries: { select: depositSummarySelect },
       },
     });
     if (!contract) throw app.httpErrors.notFound('Active contract not found');
@@ -174,4 +185,139 @@ export const moveOutRoutes: FastifyPluginAsync = async (app) => {
     );
     return reply.code(result.repeated ? 200 : 201).send({ requestId: result.requestId });
   });
+  app.post(
+    '/:id/move-out/:requestId/response',
+    { preHandler: allowRoles('LEASING_MANAGER') },
+    async (request, reply) => {
+      const { id, requestId } = identifier
+        .extend({ requestId: identifier.shape.id })
+        .parse(request.params);
+      const body = managerInput.parse(request.body);
+      const amount = new Prisma.Decimal(body.amount);
+      const hash = createHash('sha256')
+        .update(JSON.stringify({ id, requestId, ...body }))
+        .digest('hex');
+      const result = await prisma.$transaction(
+        async (tx) => {
+          const actor = await caseActor(tx, request);
+          if (!actor) throw app.httpErrors.unauthorized('Session is no longer active');
+          if (
+            !(await lockCaseContract(tx, id, request.user)) ||
+            !(await lockCase(tx, requestId, request.user))
+          )
+            throw app.httpErrors.notFound('Move-out notice not found');
+          const row = await tx.request.findFirst({
+            where: { id: requestId, contractId: id, type: 'MOVE_OUT' },
+            select: { id: true, type: true, status: true, metadata: true, version: true },
+          });
+          if (!row) throw app.httpErrors.notFound('Move-out notice not found');
+          const duplicate = await tx.requestEvent.findUnique({
+            where: { requestId_clientId: { requestId, clientId: body.clientId } },
+            select: { kind: true, metadata: true },
+          });
+          if (duplicate) {
+            const saved = z.object({ responseHash: z.string() }).safeParse(duplicate.metadata);
+            if (duplicate.kind !== 'MOVE_OUT_RESPONSE' || saved.data?.responseHash !== hash)
+              throw app.httpErrors.conflict('Response key reused with different content.');
+            return { repeated: true };
+          }
+          const existing = z
+            .object({ moveOutResponse: moveOutResponse.optional() })
+            .safeParse(row.metadata);
+          const notice = storedNotice.safeParse(row.metadata);
+          if (
+            row.status !== 'SUBMITTED' ||
+            existing.data?.moveOutResponse ||
+            !notice.success ||
+            row.version !== body.expectedVersion
+          )
+            throw app.httpErrors.conflict(
+              'The notice changed. Verify its current state before responding.',
+            );
+          const contract = await tx.contract.findFirst({
+            where: eligible(id, request.user),
+            select: {
+              currency: true,
+              depositAmount: true,
+              status: true,
+              depositEntries: { select: depositSummarySelect },
+            },
+          });
+          if (!contract) throw app.httpErrors.conflict('The notice requires an active contract.');
+          const maximum = new Prisma.Decimal(notice.data.moveOut.proposedDeduction);
+          const balance = depositBalance(
+            contract.depositEntries,
+            contract.depositAmount,
+            contract.status,
+          );
+          if (
+            amount.gt(maximum) ||
+            (amount.gt(0) &&
+              (!balance.reconciled || amount.gt(balance.held.minus(balance.reserved))))
+          )
+            throw app.httpErrors.conflict(
+              'The amount exceeds the submitted notice deduction or the current available deposit.',
+            );
+          const proposal = amount.gt(0)
+            ? await tx.depositEntry.create({
+                data: {
+                  contractId: id,
+                  type: 'DEDUCTION_PROPOSED',
+                  category: 'NOTICE',
+                  amount,
+                  description: body.explanation,
+                  noticeRequestId: requestId,
+                  events: {
+                    create: {
+                      actorUserId: request.user.sub,
+                      actorRole: request.user.role,
+                      clientId: body.clientId,
+                      payloadHash: hash,
+                      sequence: 1,
+                      action: 'PROPOSE',
+                      category: 'NOTICE',
+                      amount,
+                      message: body.explanation,
+                    },
+                  },
+                },
+                select: { id: true },
+              })
+            : null;
+          const response = {
+            amount: body.amount,
+            currency: contract.currency,
+            explanation: body.explanation,
+            proposalId: proposal?.id ?? null,
+          };
+          const event = await tx.requestEvent.create({
+            data: {
+              requestId,
+              clientId: body.clientId,
+              ...actor,
+              kind: 'MOVE_OUT_RESPONSE',
+              sequence: row.version + 1,
+              fromStatus: row.status,
+              message: body.explanation,
+              metadata: { responseHash: hash, moveOutResponse: response },
+            },
+            select: { id: true },
+          });
+          const updated = await tx.request.update({
+            where: { id: requestId },
+            data: {
+              status: 'SEEN',
+              version: row.version + 1,
+              metadata: { ...(row.metadata as Prisma.JsonObject), moveOutResponse: response },
+            },
+            select: { id: true, type: true, status: true, version: true },
+          });
+          await caseAudit(tx, request, updated, event.id, 'MOVE_OUT_RESPONSE');
+          return { repeated: false };
+        },
+        { isolationLevel: 'ReadCommitted' },
+      );
+      return reply.code(result.repeated ? 200 : 201).send({ requestId });
+    },
+  );
 };

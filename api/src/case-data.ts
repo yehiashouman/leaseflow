@@ -89,7 +89,14 @@ export const caseSelect = {
     orderBy: [{ sequence: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
   },
 } satisfies Prisma.RequestSelect;
+export const moveOutResponse = z.object({
+  amount: z.string(),
+  currency: z.string(),
+  explanation: z.string(),
+  proposalId: z.string().nullable(),
+});
 const safeMetadata = z.object({
+  moveOutResponse: moveOutResponse.optional(),
   moveOut: z
     .object({
       desiredDate: z.iso.date(),
@@ -145,6 +152,12 @@ export function caseDto(row: CaseRecord, actor: Identity) {
       requiresMessage:
         caseActionNeedsMessage(status) || (row.type === 'LATE_PAYMENT' && status === 'CLOSED'),
     })),
+    canRespondMoveOut:
+      row.type === 'MOVE_OUT' &&
+      row.status === 'SUBMITTED' &&
+      actor.role === 'LEASING_MANAGER' &&
+      !!metadata.data?.moveOut &&
+      !metadata.data.moveOutResponse,
     canMessage: caseAllowsMessages(row.status),
     canManageAssignment:
       actor.role === 'LEASING_MANAGER' && caseAllowsAssignment(row.type, row.status),

@@ -52,6 +52,12 @@ export type CaseRecord = {
   resolvedAt?: string | null;
   decisionDueAt?: string | null;
   metadata?: {
+    moveOutResponse?: {
+      amount: string;
+      currency: string;
+      explanation: string;
+      proposalId: string | null;
+    };
     moveOut?: {
       desiredDate: string;
       submittedAt: string;
@@ -72,6 +78,7 @@ export type CaseRecord = {
   events?: CaseEvent[];
   allowedActions?: CaseAction[];
   canMessage?: boolean;
+  canRespondMoveOut?: boolean;
   canManageAssignment?: boolean;
   assignment?: { managerName: string | null; isMine: boolean } | null;
   canAssessMaintenance?: boolean;
@@ -135,6 +142,7 @@ export const caseCommands: Record<string, string> = {
   CLOSED: 'Close case',
 };
 export function caseEventLabel(kind: string) {
+  if (kind === 'MOVE_OUT_RESPONSE') return 'Manager responded to the move-out notice';
   if (kind === 'MAINTENANCE_ASSESSED') return 'Maintenance responsibility recorded';
   if (kind === 'MAINTENANCE_ACCEPTED') return 'Proposed cost accepted';
   if (kind === 'MAINTENANCE_DISPUTED') return 'Proposed cost disputed';

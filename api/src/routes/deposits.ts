@@ -224,12 +224,21 @@ export const depositRoutes: FastifyPluginAsync = async (app) => {
                 },
               });
             }
-            if (input.action === 'REVISE')
+            if (input.action === 'REVISE') {
+              if (
+                entry.category === 'NOTICE'
+                  ? input.category !== 'NOTICE' || entry.amount.lt(input.amount)
+                  : input.category === 'NOTICE'
+              )
+                throw app.httpErrors.conflict(
+                  'Notice deductions require the move-out workflow and cannot exceed the original proposal.',
+                );
               checkLimit(
                 balance.reconciled,
                 input.amount,
                 balance.held.minus(balance.reserved).plus(terms.amount),
               );
+            }
             entryId = entry.id;
             sequence = input.expectedSequence + 1;
           } else {
@@ -245,8 +254,11 @@ export const depositRoutes: FastifyPluginAsync = async (app) => {
                 input.amount,
                 balance.refundable,
               );
-            if (input.action === 'PROPOSE')
+            if (input.action === 'PROPOSE') {
+              if (input.category === 'NOTICE')
+                throw app.httpErrors.conflict('Record notice deductions from the move-out notice.');
               checkLimit(balance.reconciled, input.amount, balance.held.minus(balance.reserved));
+            }
             if ('recordedAt' in input && new Date(input.recordedAt).getTime() > Date.now())
               throw app.httpErrors.unprocessableEntity('Enter a recorded date in the past.');
             const row = await tx.depositEntry.create({

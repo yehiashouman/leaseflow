@@ -5,7 +5,7 @@ import { previewMode } from '../session';
 import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { api } from '../api';
 
@@ -85,7 +85,10 @@ function amount(currency: string, value: string) {
   return `${currency} ${Number(value).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 function Records({ id, currency }: { id: string; currency: string }) {
-  const [section, setSection] = useState<Section>('payments');
+  const [search] = useSearchParams();
+  const [section, setSection] = useState<Section>(() =>
+    search.get('section') === 'deposits' ? 'deposits' : 'payments',
+  );
   const [page, setPage] = useState(1);
   const showLedger = section === 'deposits' && !previewMode;
   const { data, isPending, error, refetch } = useQuery({

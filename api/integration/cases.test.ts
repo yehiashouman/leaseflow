@@ -538,10 +538,14 @@ describe('MySQL private operational case workflow', () => {
       await prisma.notification.deleteMany({
         where: { event: { request: { contractId: { in: ids } } } },
       });
+      await prisma.depositEvent.deleteMany({ where: { entry: { contractId: { in: ids } } } });
+      await prisma.depositEntry.deleteMany({
+        where: { contractId: { in: ids }, sourceProposalId: { not: null } },
+      });
+      await prisma.depositEntry.deleteMany({ where: { contractId: { in: ids } } });
       await prisma.requestEvent.deleteMany({ where: { request: { contractId: { in: ids } } } });
       await prisma.request.deleteMany({ where: { contractId: { in: ids } } });
       await prisma.payment.deleteMany({ where: { contractId: { in: ids } } });
-      await prisma.depositEntry.deleteMany({ where: { contractId: { in: ids } } });
       await prisma.contract.deleteMany({ where: { id: { in: ids } } });
       await prisma.rentalSpace.deleteMany({ where: { unit: { managerId: { in: managers } } } });
       await prisma.unit.deleteMany({ where: { managerId: { in: managers } } });
@@ -1616,6 +1620,20 @@ describe('MySQL private operational case workflow', () => {
     const path = '/api/v1/contracts/' + contractId + '/move-out';
     const desiredDate = dateLabel(shiftDays(calendarDate(new Date()), 2));
     expect((await send('POST', path + '/preview', { desiredDate }, roommate)).statusCode).toBe(404);
+    const depositPath = '/api/v1/contracts/' + contractId + '/deposit';
+    const receipt = await send(
+      'POST',
+      depositPath + '/commands',
+      {
+        action: 'RECEIVE',
+        clientId: randomUUID(),
+        amount: '100.00',
+        method: 'Cash',
+        recordedAt: '2026-01-01T08:00:00Z',
+      },
+      manager,
+    );
+    expect(receipt.statusCode, receipt.body).toBe(201);
     const preview = await send('POST', path + '/preview', { desiredDate });
     expect(preview.statusCode, preview.body).toBe(200);
     const body = {
@@ -1642,6 +1660,66 @@ describe('MySQL private operational case workflow', () => {
     });
     expect(history.body).not.toContain('previewFingerprint');
     expect(await prisma.notification.count({ where: { event: { requestId: caseId } } })).toBe(2);
+    expect((await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })).status).toBe(
+      'ACTIVE',
+    );
+    const decisionPath = path + '/' + caseId + '/response';
+    const review = {
+      clientId: randomUUID(),
+      expectedVersion: history.json().version,
+      amount: '25.00',
+      explanation: 'Reduced notice amount agreed for review.',
+    };
+    expect((await send('POST', decisionPath, review)).statusCode).toBe(403);
+    expect((await send('POST', decisionPath, review, outsider)).statusCode).toBe(404);
+    expect(
+      (await send('POST', decisionPath, { ...review, amount: '100.01' }, manager)).statusCode,
+    ).toBe(409);
+    const ordinaryProposal = {
+      action: 'PROPOSE',
+      clientId: randomUUID(),
+      amount: '30.00',
+      category: 'NOTICE',
+      message: 'Unlinked notice proposal',
+    };
+    expect(
+      (await send('POST', depositPath + '/commands', ordinaryProposal, manager)).statusCode,
+    ).toBe(409);
+    const reviewed = await send('POST', decisionPath, review, manager);
+    expect(reviewed.statusCode, reviewed.body).toBe(201);
+    expect((await send('POST', decisionPath, review, manager)).statusCode).toBe(200);
+    expect(
+      (await send('POST', decisionPath, { ...review, amount: '20.00' }, manager)).statusCode,
+    ).toBe(409);
+    const after = (await send('GET', '/' + caseId)).json();
+    expect(after.metadata.moveOut).toEqual(history.json().metadata.moveOut);
+    expect(after.metadata.moveOutResponse).toMatchObject({ amount: '25.00', currency: 'AED' });
+    const proposalId = after.metadata.moveOutResponse.proposalId;
+    expect(await prisma.depositEntry.count({ where: { noticeRequestId: caseId } })).toBe(1);
+    expect(await prisma.notification.count({ where: { event: { requestId: caseId } } })).toBe(4);
+    const revise = await send(
+      'POST',
+      depositPath + '/commands',
+      {
+        action: 'REVISE',
+        clientId: randomUUID(),
+        entryId: proposalId,
+        expectedSequence: 1,
+        amount: '25.01',
+        category: 'NOTICE',
+        message: 'Invalid increase',
+      },
+      manager,
+    );
+    expect(revise.statusCode).toBe(409);
+    const accept = await send('POST', depositPath + '/commands', {
+      action: 'ACCEPT',
+      clientId: randomUUID(),
+      entryId: proposalId,
+      expectedSequence: 1,
+    });
+    expect(accept.statusCode, accept.body).toBe(201);
+    expect((await send('GET', depositPath)).json().balance.held).toBe('75');
     expect((await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })).status).toBe(
       'ACTIVE',
     );

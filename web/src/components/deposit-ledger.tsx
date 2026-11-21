@@ -144,7 +144,10 @@ export function DepositLedger({ contractId }: { contractId: string }) {
             name: 'category',
             label: 'Category',
             required: true,
-            options: categories,
+            options: categories.filter(
+              ({ value }) =>
+                (value === 'NOTICE') === (selected?.entry?.proposal?.category === 'NOTICE'),
+            ),
             value: selected?.entry?.proposal?.category ?? undefined,
           },
         ]
