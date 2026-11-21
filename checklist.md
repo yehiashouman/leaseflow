@@ -386,12 +386,12 @@ Requirements: 9, 22-25.
 
 - [ ] **CASE-001** Implement maintenance, neighbor complaint, late payment, room change, move-out, key/lock, and general request forms.
 - [ ] **CASE-002** Capture type, description, attachments, relevant contract, and authorized relationship.
-- [ ] **CASE-003** Support configurable request categories and response deadlines.
+- [x] **CASE-003** Support configurable request categories and response deadlines. [Evidence](docs/EVIDENCE.md#request-categories-and-assignment-history).
 - [x] **CASE-004** Support Draft, Submitted, Seen, Awaiting Leasing Manager, and Awaiting Tenant states. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
 - [ ] **CASE-005** Support Approved, Rejected, In Progress, Resolved, Accepted, Reopened, Deadlock, and Closed states.
 - [ ] **CASE-006** Define valid transitions per request type and role.
 - [x] **CASE-007** Reject invalid or concurrent transitions. [Evidence](docs/EVIDENCE.md#inventory-review-and-draft-controls).
-- [ ] **CASE-008** Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements.
+- [x] **CASE-008** Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements. [Evidence](docs/EVIDENCE.md#request-categories-and-assignment-history).
 - [x] **CASE-009** Identify each event author and timestamp. Evidence: [case history verification](docs/EVIDENCE.md#operational-cases).
 - [ ] **CASE-010** Notify both parties of case updates.
 - [ ] **CASE-011** Ask tenants to accept or dispute completion.
@@ -401,7 +401,7 @@ Requirements: 9, 22-25.
 - [x] **CASE-015** Allow the complainant to select an involved occupant when known. [Evidence](docs/EVIDENCE.md#complaint-occupant-selection-and-list-api).
 - [x] **CASE-016** Record complaint evidence and manager communication/actions. [Evidence](docs/EVIDENCE.md#account-and-private-document-controls).
 - [x] **CASE-017** Capture key/lock reason, security urgency, authorization, cost responsibility, and completion evidence. [Evidence](docs/EVIDENCE.md#key-and-lock-case-decisions).
-- [ ] **CASE-018** Keep general requests configurable without loss of event history.
+- [x] **CASE-018** Keep general requests configurable without loss of event history. [Evidence](docs/EVIDENCE.md#request-categories-and-assignment-history).
 
 ## 16. Maintenance and Cost Responsibility
 

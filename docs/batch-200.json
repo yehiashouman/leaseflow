@@ -2,7 +2,7 @@
   "target": 200,
   "baselineCompleted": 162,
   "baselineTotal": 764,
-  "date": "2026-11-20",
+  "date": "2026-11-21",
   "timezone": "Asia/Dubai",
   "baselineCommit": "9d7282848dee1ee2bcf42cb4f372964df5c9e8b5",
   "baselineCompletedIds": [
@@ -818,15 +818,19 @@
     {
       "id": "CASE-003",
       "requirement": "Support configurable request categories and response deadlines.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/prisma/schema.prisma",
+        "api/src/routes/request-categories.ts",
         "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "web/src/pages/RequestCategories.tsx",
+        "web/src/components/case-deadline.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
+      "tests": ["api/integration/cases.test.ts", "web/e2e/admin.live.spec.ts"],
       "decisions": [],
-      "note": "Manager response deadlines preserve history and conflicts; administrator-managed request category configuration remains incomplete."
+      "note": "Administrators configure request categories in development and preview. Managers can set response deadlines with history. Production category edits require administrator MFA.",
+      "commit": "42ec8254603bec95d75c381b2b2f02001a6e41d5",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44616178467",
+      "verified": "2026-11-21"
     },
     {
       "id": "CASE-005",
@@ -857,15 +861,18 @@
     {
       "id": "CASE-008",
       "requirement": "Preserve immutable messages, status changes, attachments, assignments, deadlines, and acknowledgements.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/prisma/schema.prisma",
         "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "api/src/case-data.ts",
+        "web/src/components/case-assignment.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
+      "tests": ["api/integration/cases.test.ts", "web/e2e/cases.live.spec.ts"],
       "decisions": [],
-      "note": "Messages, evidence, deadlines, states, and acknowledgements preserve events; case assignment workflow remains incomplete."
+      "note": "The responsible manager can claim or release an open case. Case history preserves the assignment actor, reason, and sequence alongside other events.",
+      "commit": "42ec8254603bec95d75c381b2b2f02001a6e41d5",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44616178467",
+      "verified": "2026-11-21"
     },
     {
       "id": "CASE-010",
@@ -957,15 +964,23 @@
     {
       "id": "CASE-018",
       "requirement": "Keep general requests configurable without loss of event history.",
-      "status": "PARTIAL",
+      "status": "VERIFIED",
       "code": [
-        "api/prisma/schema.prisma",
         "api/src/routes/requests.ts",
-        "api/src/routes/contracts.ts"
+        "api/src/case-data.ts",
+        "web/src/components/case-editor.tsx",
+        "web/src/pages/RequestDetail.tsx"
       ],
-      "tests": ["api/integration/cases.test.ts", "api/integration/space.test.ts"],
+      "tests": [
+        "api/integration/cases.test.ts",
+        "web/src/cases.test.tsx",
+        "web/e2e/cases.live.spec.ts"
+      ],
       "decisions": [],
-      "note": "General request history persists; administrator-managed categories and configurable general-request forms remain incomplete."
+      "note": "General request categories support optional or required questions. Each request retains the original category name, question, and answer after changes.",
+      "commit": "42ec8254603bec95d75c381b2b2f02001a6e41d5",
+      "evidence": "https://github.com/yehiashouman/leaseflow/actions/runs/44616178467",
+      "verified": "2026-11-21"
     },
     {
       "id": "MAINT-009",

@@ -1,11 +1,11 @@
 # 200-Item Continuation Report
 
-Date: 20 November 2026, Asia/Dubai.
+Date: 21 November 2026, Asia/Dubai.
 
 Target: 200 additional existing checklist requirements.
 Baseline: 162 of 764 verified requirements.
-Current result: 115 additional verified requirements; 302 of 764 overall (39.53%).
-The target is not complete: 57 partial and 28 blocked requirements remain in this batch.
+Current result: 118 additional verified requirements; 305 of 764 overall (39.92%).
+The target is not complete: 54 partial and 28 blocked requirements remain in this batch.
 A reviewed requirement does not receive completion credit until its full acceptance evidence passes.
 The master checklist keeps every partial and blocked box unchecked.
 
@@ -80,6 +80,8 @@ Currency and Timezone Labels: [Component and application evidence](https://githu
 
 Key and Lock Case Decisions: [MySQL and application evidence](https://github.com/yehiashouman/leaseflow/actions/runs/44613736796).
 
+Request categories and assignment history passed [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44616178467).
+
 ## Complete 200-Item Matrix
 
 Code paths, test paths, commits, dates, and evidence appear in [batch-200.json](batch-200.json).
@@ -106,17 +108,17 @@ Only VERIFIED rows receive completion credit.
 | CON-006            | BLOCKED  | Tenant contract visibility exists; approved acknowledgement-before-effect workflow remains incomplete.                                                                                                                |
 | CASE-001           | PARTIAL  | Maintenance, complaint, key/lock, and general forms work; late-payment, room-change, and move-out forms remain incomplete.                                                                                            |
 | CASE-002           | PARTIAL  | Operational cases preserve type, description, private evidence, contract, and relationship; complete financial case forms remain incomplete.                                                                          |
-| CASE-003           | PARTIAL  | Manager response deadlines preserve history and conflicts; administrator-managed request category configuration remains incomplete.                                                                                   |
+| CASE-003           | VERIFIED | Administrators configure request categories in development and preview. Managers can set response deadlines with history. Production category edits require administrator MFA.                                        |
 | CASE-005           | PARTIAL  | Operational transitions preserve the required states; complete financial-case state workflows remain incomplete.                                                                                                      |
 | CASE-006           | PARTIAL  | Operational role/type transitions are verified; late-payment, transfer, and move-out transition rules remain incomplete.                                                                                              |
-| CASE-008           | PARTIAL  | Messages, evidence, deadlines, states, and acknowledgements preserve events; case assignment workflow remains incomplete.                                                                                             |
+| CASE-008           | VERIFIED | The responsible manager can claim or release an open case. Case history preserves the assignment actor, reason, and sequence alongside other events.                                                                  |
 | CASE-010           | PARTIAL  | Operational case updates persist participant inbox and external intents; complete financial-case event coverage remains incomplete.                                                                                   |
 | CASE-011           | PARTIAL  | Operational resolution requires tenant acceptance or dispute; complete transfer and financial completion workflows remain incomplete.                                                                                 |
 | CASE-013           | PARTIAL  | Operational reopening preserves past resolution; the complete initial-release case inventory remains incomplete.                                                                                                      |
 | CASE-014           | PARTIAL  | Complaints remain private to their actual participants; authorized support access and impersonation controls remain incomplete.                                                                                       |
 | CASE-015           | VERIFIED | Tenants can select a current occupant of the same unit in a neighbor complaint. The case retains the label, rejects unauthorized selections, and keeps case access private.                                           |
 | CASE-017           | VERIFIED | Requests record the reason and urgency. Authorized manager decisions preserve authorization, cost responsibility, and evidence of completion in private history and PDF exports.                                      |
-| CASE-018           | PARTIAL  | General request history persists; administrator-managed categories and configurable general-request forms remain incomplete.                                                                                          |
+| CASE-018           | VERIFIED | General request categories support optional or required questions. Each request retains the original category name, question, and answer after changes.                                                               |
 | MAINT-009          | BLOCKED  | Responsibility proposals preserve acceptance; direct charges and deposit deduction workflows remain incomplete and gated.                                                                                             |
 | MAINT-010          | BLOCKED  | Neither automatic charge nor deposit posting exists; cross-route recovery invariants require both complete financial workflows.                                                                                       |
 | MAINT-011          | VERIFIED | Direct scope allocations and separate external recoveries are verified. Shared-cost formulas, automatic charges, and deposit deductions remain separate requirements.                                                 |

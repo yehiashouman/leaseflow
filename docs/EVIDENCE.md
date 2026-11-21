@@ -682,3 +682,13 @@ Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leasefl
 Verified 20 November 2026 in [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44613736796).
 
 - **CASE-017:** Requests record the reason and urgency. Authorized manager decisions preserve authorization, cost responsibility, and evidence of completion in private history and PDF exports.
+
+## Request categories and assignment history
+
+Verified 21 November 2026 using [GitHub CI](https://github.com/yehiashouman/leaseflow/actions/runs/44616178467).
+
+- **CASE-003** Administrators configure request categories in development and preview. Managers can set response deadlines with history. Production category edits require administrator MFA.
+- **CASE-008** The responsible manager can claim or release an open case. Case history preserves the assignment actor, reason, and sequence alongside other events.
+- **CASE-018** General request categories support optional or required questions. Each request retains the original category name, question, and answer after changes.
+
+The run passed 213 MySQL tests, 126 web tests, 26 desktop and mobile journeys, private-file tests, and Docker Compose checks.
