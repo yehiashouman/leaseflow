@@ -54,6 +54,7 @@ type PortfolioDashboard = Record<string, unknown> & {
     currency: string;
     dueToday: string;
     dueNextSevenDays: string;
+    dueNextMonth?: string;
     overdue: string;
     partiallyPaid: string;
     receivedThisMonth: string;
@@ -340,6 +341,7 @@ function ManagerDashboard() {
                 currency,
                 dueToday,
                 dueNextSevenDays,
+                dueNextMonth,
                 overdue,
                 partiallyPaid,
                 receivedThisMonth,
@@ -351,6 +353,7 @@ function ManagerDashboard() {
                   {[
                     ['Due today', dueToday],
                     ['Due next seven days', dueNextSevenDays],
+                    ...(dueNextMonth === undefined ? [] : [['Scheduled next month', dueNextMonth]]),
                     ['Overdue', overdue],
                     ['Partially paid balance', partiallyPaid],
                     ['Rent received this month', receivedThisMonth],

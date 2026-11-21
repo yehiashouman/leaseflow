@@ -14,6 +14,8 @@ test('preview maintenance proposals preserve disputes and accepted responsibilit
   await expect(
     page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
   ).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Deposit balances' })).toBeVisible();
+  await expect(page.getByText('Scheduled next month', { exact: true })).toBeVisible();
   await page.goto('./#/requests/request-1');
   async function proposal(amount: string) {
     await page.getByRole('button', { name: 'Record responsibility', exact: true }).click();
@@ -82,7 +84,7 @@ test('preview contract terms and records remain read-only on desktop and mobile'
   await expect(page.getByText('Open-ended', { exact: true })).toBeVisible();
   await expect(page.getByText('AED 1,000.00', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Deposit entries', exact: true }).click();
-  await expect(page.getByText('No records', { exact: true })).toBeVisible();
+  await expect(page.getByText('Sample repair deduction disputed by the tenant.')).toBeVisible();
   await page.getByRole('button', { name: 'Cases', exact: true }).click();
   await expect(page.getByRole('link', { name: 'Kitchen tap repair', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(

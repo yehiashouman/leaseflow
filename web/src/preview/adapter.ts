@@ -40,6 +40,25 @@ const userFor = (role: Role): SessionUser => ({
   tenant: role === 'TENANT' ? { fullName: 'Demo Tenant' } : null,
 });
 
+const demoDeposit = {
+  held: '3000.00',
+  projectedRefund: '3000.00',
+  refundable: '0.00',
+  refunded: '0.00',
+  status: 'DISPUTED',
+  proposals: [{ id: 'demo-deduction', category: 'DAMAGE', amount: '150.00', status: 'DISPUTE' }],
+};
+const demoDepositEntries = [
+  { id: 'demo-deposit', type: 'RECEIVED', amount: '3000.00', createdAt: '2026-11-01T08:00:00Z' },
+  {
+    id: 'demo-deduction',
+    type: 'DEDUCTION_PROPOSED',
+    amount: '150.00',
+    createdAt: '2026-11-09T08:00:00Z',
+    tenantDisputedAt: '2026-11-10T08:00:00Z',
+    description: 'Sample repair deduction disputed by the tenant.',
+  },
+];
 export function freshPreview(): PreviewStore {
   const unit = {
     id: 'unit-1',
@@ -709,6 +728,7 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       ? respond({
           contracts: store.contracts.map((contract) => ({
             ...contract,
+            depositSummary: contract.id === 'contract-1' ? demoDeposit : null,
             lateRequestLimits: { lateRequestWindowDays: 10, maxLateExtensionDays: 5 },
             requests: store.requests.filter(
               (item) =>
@@ -750,6 +770,27 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
       deadlines: store.requests
         .filter((item) => item.decisionDueAt)
         .map((item) => ({ id: item.id, title: item.title, decisionDueAt: item.decisionDueAt })),
+      rentSummary: [
+        {
+          currency: 'AED',
+          dueToday: '0.00',
+          dueNextSevenDays: '0.00',
+          overdue: '2500.00',
+          partiallyPaid: '2500.00',
+          receivedThisMonth: '1000.00',
+          dueNextMonth: '3500.00',
+        },
+      ],
+      depositLiability: [
+        {
+          currency: 'AED',
+          held: demoDeposit.held,
+          refundable: demoDeposit.refundable,
+          reserved: '150.00',
+          disputed: 1,
+          reconciliationRequired: 0,
+        },
+      ],
       financialRecords: [],
       financialBasis: 'Synthetic preview. Financial records require the live API.',
     });
@@ -848,7 +889,9 @@ export const previewAdapter: AxiosAdapter = async (config: InternalAxiosRequestC
             periodStart: item.periodStart ?? item.dueDate,
           }))
         : section === 'deposits'
-          ? []
+          ? contract.id === 'contract-1'
+            ? demoDepositEntries
+            : []
           : store.requests
               .filter(
                 (item) =>
