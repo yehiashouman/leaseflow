@@ -195,7 +195,7 @@ export function ContractEditor({
         },
         {
           name: 'confirmed',
-          label: 'I confirm these monthly terms and the immediate allocation of available space',
+          label: 'I confirm these monthly terms for the tenant to review',
           required: true,
           type: 'checkbox',
         },
@@ -204,6 +204,7 @@ export function ContractEditor({
         const deposit = String(form.get('depositAmount') || '');
         const response = await api.post<{ id: string }>('/contracts', {
           clientId: key.current,
+          offerForConfirmation: true,
           tenantId: form.get('tenantId'),
           rentalSpaceId: form.get('rentalSpaceId'),
           startDate: form.get('startDate'),

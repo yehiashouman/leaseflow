@@ -1,3 +1,5 @@
+import { calendarDate } from '../business-calendar.js';
+import { effectiveRent } from '../rent-amendments.js';
 import { occupantDto, occupantSelect } from '../contract-policy.js';
 import { Prisma } from '@prisma/client';
 import type { FastifyPluginAsync } from 'fastify';
@@ -38,6 +40,10 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             startDate: true,
             endDate: true,
             monthlyRent: true,
+            amendments: {
+              where: { status: 'CONFIRMED', effectiveDate: { lte: calendarDate(windows.now) } },
+              select: { effectiveDate: true, confirmedAt: true, changes: true },
+            },
             currency: true,
             dueDay: true,
             noticeDays: true,
@@ -169,8 +175,14 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
       rentSummary,
       unresolvedCount,
       pendingAcknowledgements,
-      contracts: contracts.map(({ tenant, ...row }) => ({
+      contracts: contracts.map(({ tenant, amendments, ...row }) => ({
         ...row,
+        monthlyRent: effectiveRent(
+          row.monthlyRent,
+          row.currency,
+          amendments,
+          calendarDate(windows.now),
+        ),
         lateRequestLimits: tenant,
         occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
       })),

@@ -1,3 +1,4 @@
+import { amendmentRent, effectiveRent } from './rent-amendments.js';
 import { Prisma, type BusinessJobKind } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { prisma } from './db.js';
@@ -26,7 +27,7 @@ export async function materializeBusinessJobs(after = '', now = new Date(), cont
       id: { gt: after, ...(contractId ? { equals: contractId } : {}) },
       status: { in: [...openStatuses] },
     },
-    select: { id: true, startDate: true, rentalSpaceId: true },
+    select: { id: true, startDate: true, rentalSpaceId: true, confirmedAt: true },
     orderBy: { id: 'asc' },
     take: 100,
   });
@@ -42,8 +43,14 @@ export async function materializeBusinessJobs(after = '', now = new Date(), cont
           sourceStartDate: contract.startDate,
           cursor: monthStart(contract.startDate),
           nextRunAt: dubaiMidnight(calendarDateFromSource(contract.startDate)),
-          state: env.NODE_ENV === 'production' ? ('PAUSED' as const) : ('QUEUED' as const),
-          failureCode: env.NODE_ENV === 'production' ? 'FINANCIAL_POLICY_REQUIRED' : null,
+          state:
+            env.NODE_ENV === 'production' && !contract.confirmedAt
+              ? ('PAUSED' as const)
+              : ('QUEUED' as const),
+          failureCode:
+            env.NODE_ENV === 'production' && !contract.confirmedAt
+              ? 'FINANCIAL_POLICY_REQUIRED'
+              : null,
         },
         {
           createdAt: now,
@@ -54,8 +61,14 @@ export async function materializeBusinessJobs(after = '', now = new Date(), cont
           sourceStartDate: contract.startDate,
           cursor: calendarDate(now),
           nextRunAt: dubaiMidnight(calendarDate(now)),
-          state: env.NODE_ENV === 'production' ? ('PAUSED' as const) : ('QUEUED' as const),
-          failureCode: env.NODE_ENV === 'production' ? 'FINANCIAL_POLICY_REQUIRED' : null,
+          state:
+            env.NODE_ENV === 'production' && !contract.confirmedAt
+              ? ('PAUSED' as const)
+              : ('QUEUED' as const),
+          failureCode:
+            env.NODE_ENV === 'production' && !contract.confirmedAt
+              ? 'FINANCIAL_POLICY_REQUIRED'
+              : null,
         },
         {
           createdAt: now,
@@ -175,7 +188,7 @@ export async function runBusinessJobOnce(
             rentalSpace: {
               include: { unit: { include: { manager: { include: { user: true } } } } },
             },
-            amendments: { where: { status: { not: 'PROPOSED' } }, select: { id: true } },
+            amendments: { where: { status: { not: 'PROPOSED' } } },
           },
         });
         const finish = async (
@@ -289,7 +302,7 @@ export async function runBusinessJobOnce(
           return;
         }
         if (job.kind === 'OBLIGATION_STATUS') {
-          if (env.NODE_ENV === 'production') {
+          if (env.NODE_ENV === 'production' && !contract.confirmedAt) {
             await finish('PAUSED', 'FINANCIAL_POLICY_REQUIRED');
             return;
           }
@@ -338,11 +351,19 @@ export async function runBusinessJobOnce(
           return;
         }
         if (job.kind === 'MONTHLY_OBLIGATIONS') {
-          if (env.NODE_ENV === 'production') {
+          if (env.NODE_ENV === 'production' && !contract.confirmedAt) {
             await finish('PAUSED', 'FINANCIAL_POLICY_REQUIRED');
             return;
           }
-          if (contract.amendments.length) throw new Error('AMENDMENT_POLICY_REQUIRED');
+          if (
+            contract.amendments.some(
+              (row) =>
+                row.status !== 'CONFIRMED' ||
+                !row.confirmedAt ||
+                !amendmentRent(row.changes, contract.currency),
+            )
+          )
+            throw new Error('AMENDMENT_POLICY_REQUIRED');
           if (
             !contract.monthlyRent.gt(0) ||
             !['AED', 'USD'].includes(contract.currency) ||
@@ -363,7 +384,12 @@ export async function runBusinessJobOnce(
           if (!existing) {
             const value = first
               ? proratedRentDecimal(contract.monthlyRent, contract.startDate)
-              : contract.monthlyRent;
+              : effectiveRent(
+                  contract.monthlyRent,
+                  contract.currency,
+                  contract.amendments,
+                  job.cursor,
+                );
             const dueAt = first
               ? dubaiMidnight(calendarDateFromSource(contract.startDate))
               : dueDate(job.cursor, contract.dueDay);

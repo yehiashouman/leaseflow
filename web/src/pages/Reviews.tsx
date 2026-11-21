@@ -128,6 +128,12 @@ export function Reviews() {
                   {row.contract.tenant.fullName} · {row.milestoneMonths ?? 'Historical'} months
                 </p>
                 <p>Review date: {date(row.dueAt)}</p>
+                <Link
+                  className="block text-sm text-primary underline"
+                  to={'/contracts/' + row.contractId}
+                >
+                  View contract and rent amendments
+                </Link>
                 <Badge variant="outline">{decisionLabel(row.decision)}</Badge>
               </li>
             ))}
@@ -180,8 +186,7 @@ export function ReviewDetail() {
         Current contract rent: {row.contract.currency} {row.contract.monthlyRent}
       </p>
       <p className="text-sm text-muted-foreground">
-        A review or proposal never changes rent. Amendment effect and tenant acknowledgement require
-        the approved contract policy.
+        Rent proposals take effect on the stated date after tenant confirmation.
       </p>
       <Badge variant="outline">{decisionLabel(row.decision)}</Badge>
       {row.deferredUntil && <p>Deferred review date: {date(row.deferredUntil)}</p>}

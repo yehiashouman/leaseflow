@@ -293,13 +293,16 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
       await cleanup();
     }
   });
-  it('posts full rent with a day-31 schedule across leap February and March', async () => {
+  it.each([
+    [2024, '2024-02-28T20:00:00.000Z'],
+    [2026, '2026-02-27T20:00:00.000Z'],
+  ])('posts full rent with day 31 through February and March in %s', async (year, februaryDue) => {
     try {
       await prisma.contract.update({
         where: { id: contractId },
-        data: { startDate: new Date('2024-01-01'), dueDay: 31 },
+        data: { startDate: new Date(year + '-01-01'), dueDay: 31, monthlyRent: '3000.00' },
       });
-      const clock = new Date('2024-03-31T12:00:00Z');
+      const clock = new Date(year + '-03-31T12:00:00Z');
       await jobs(clock);
       await drain('MONTHLY_OBLIGATIONS', clock);
       const payments = await prisma.payment.findMany({
@@ -307,13 +310,13 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
         orderBy: { periodStart: 'asc' },
       });
       expect(payments.map((row) => row.amountDue.toFixed(2))).toEqual([
-        '3100.00',
-        '3100.00',
-        '3100.00',
+        '3000.00',
+        '3000.00',
+        '3000.00',
       ]);
       expect(payments.slice(1).map((row) => row.dueDate.toISOString())).toEqual([
-        '2024-02-28T20:00:00.000Z',
-        '2024-03-30T20:00:00.000Z',
+        februaryDue,
+        year + '-03-30T20:00:00.000Z',
       ]);
     } finally {
       await cleanup();
@@ -513,6 +516,54 @@ describe('MySQL durable calendar jobs and annual reviews', () => {
           where: { notification: { reviewEvent: { review: { contractId } } } },
         }),
       ).toBeGreaterThan(0);
+    } finally {
+      await cleanup();
+    }
+  });
+  it('applies tenant-confirmed rent from its effective month and preserves earlier obligations', async () => {
+    try {
+      const row = await review();
+      const proposed = await send(
+        'POST',
+        '/reviews/' + row.id + '/decision',
+        decision({ decision: 'PROPOSED_PRICE', proposedRent: '3456.78' }),
+      );
+      expect(proposed.statusCode, proposed.body).toBe(200);
+      const amendment = await prisma.contractAmendment.findFirstOrThrow({ where: { contractId } });
+      const path = '/contracts/' + contractId + '/amendments/' + amendment.id + '/confirm';
+      expect((await send('POST', path, { confirmed: true }, manager)).statusCode).toBe(403);
+      const accepted = await Promise.all([
+        send('POST', path, { confirmed: true }, tenant),
+        send('POST', path, { confirmed: true }, tenant),
+      ]);
+      for (const result of accepted) {
+        expect(result.statusCode, result.body).toBe(200);
+        expect(result.json()).toMatchObject({
+          monthlyRent: '3100',
+          originalMonthlyRent: '3100',
+          amendments: [{ id: amendment.id, status: 'CONFIRMED', monthlyRent: '3456.78' }],
+        });
+      }
+      expect(
+        await prisma.auditEvent.count({
+          where: { entityId: amendment.id, action: 'CONFIRM_RENT_AMENDMENT' },
+        }),
+      ).toBe(1);
+      const clock = new Date(amendment.effectiveDate.getTime() + 3600000);
+      await drain('MONTHLY_OBLIGATIONS', clock);
+      const payments = await prisma.payment.findMany({
+        where: { contractId },
+        orderBy: { periodStart: 'desc' },
+        take: 2,
+      });
+      expect(payments[0]!.periodStart).toEqual(amendment.effectiveDate);
+      expect(payments[0]!.amountDue.toFixed(2)).toBe('3456.78');
+      expect(payments[1]!.amountDue.toFixed(2)).toBe('3100.00');
+      expect(
+        (
+          await prisma.contract.findUniqueOrThrow({ where: { id: contractId } })
+        ).monthlyRent.toFixed(2),
+      ).toBe('3100.00');
     } finally {
       await cleanup();
     }

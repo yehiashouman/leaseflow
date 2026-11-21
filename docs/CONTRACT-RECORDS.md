@@ -48,7 +48,7 @@ Evidence: [contract record verification](EVIDENCE.md#contract-detail-and-private
 Contract records support private term views, development contract setup, occupant snapshots, and immutable external payment receipts.
 Stored payment statuses and deposit proposals do not certify funds or settle disputes.
 Development contract creation now exists.
-Acknowledgements, amendments, annual reviews, transfers, closure, and production activation remain incomplete.
+Room transfers and move-out closure remain separate workflows.
 Primary and optional secondary occupants now use encrypted identity snapshots and authorized private evidence.
 External payment receipts and private evidence now exist; see [PAYMENT-RECEIPTS.md](PAYMENT-RECEIPTS.md).
 Financial corrections and complete relationship PDF exports remain incomplete.
@@ -56,7 +56,7 @@ Scoped case-history exports now exist; see [PDF-REPORTS.md](PDF-REPORTS.md).
 The preview uses synthetic browser-local records and creates no backend records.
 Apply the complete migration set for occupant snapshots and receipt records.
 The original read-only record layer required no additional migration.
-All twenty-six owner decisions remain unresolved.
+See [owner decisions](decisions.json) for current policy approvals.
 
 ## Contract Setup Continuation
 
@@ -69,9 +69,17 @@ Due day defaults to 1 and accepts days 1 through 31. Short months use the final 
 Notice defaults to 30 days and permits explicit exceptions.
 The server copies a matching-currency unit deposit once, unless the manager supplies an explicit deposit.
 Cross-currency setup requires an explicit deposit.
-Tenant views exclude manager draft contracts, private owner costs, raw identity numbers, and storage keys.
+Tenants can see their offers and accepted contracts. Private manager drafts, owner costs, raw identity numbers, and storage keys stay private.
 The contract form blocks new contracts that rely on expired identity, licence, property, or consent evidence under DEC-15.
 The check uses the later of the current time and the contract start date. A current clean replacement satisfies the same evidence purpose.
 Managers verify expiry errors in the contract form. Existing contracts and account access remain available.
 Proration uses decimal arithmetic and rounds the final amount once to the nearest cent, with ties away from zero.
-Production activation remains gated by the unresolved financial and acknowledgement decisions.
+
+### Tenant confirmations
+
+- The contract editor sends an offer to the primary tenant. The offer retains the negotiated terms and deposit.
+- The tenant opens the offer from Contracts and confirms its terms in the app.
+- Confirmation verifies current evidence and locks the space before it checks capacity.
+- Activation records one initial obligation, occupancy change, and tenant audit entry in the same transaction.
+- Tenants can confirm a rent proposal from the contract detail page. The rate applies from its effective month.
+- The original contract rate and earlier obligations remain available in the contract history.

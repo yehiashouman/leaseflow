@@ -271,6 +271,8 @@ model Contract {
   secondaryOccupant Json?
   clientId String? @db.VarChar(36)
   payloadHash String? @db.VarChar(64)
+  offeredAt DateTime?
+  confirmedAt DateTime?
   occupants ContractOccupant[]
   tenant TenantProfile @relation(fields: [tenantId], references: [id])
   rentalSpace RentalSpace @relation(fields: [rentalSpaceId], references: [id])
@@ -317,6 +319,7 @@ model ContractAmendment {
   changes Json
   reason String?
   status String @default("LEGACY") @db.VarChar(30)
+  confirmedAt DateTime?
   sourceReviewEventId String? @unique
   sourceReviewEvent ContractReviewEvent? @relation(fields: [sourceReviewEventId], references: [id], onDelete: Restrict)
   contract Contract @relation(fields: [contractId], references: [id])

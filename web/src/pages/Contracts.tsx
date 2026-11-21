@@ -20,6 +20,7 @@ import { QueryFeedback } from '@/components/query-feedback';
 import { useAuth } from '../auth';
 
 type Contract = {
+  offeredAt?: string | null;
   id: string;
   tenant?: { fullName: string };
   rentalSpace: { name: string; unit: { name: string } };
@@ -145,7 +146,11 @@ export function Contracts() {
                   </TableCell>
                   <TableCell>{contract.dueDay}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary">{contract.status.replaceAll('_', ' ')}</Badge>
+                    <Badge variant="secondary">
+                      {contract.status === 'DRAFT' && contract.offeredAt
+                        ? 'Awaiting tenant confirmation'
+                        : contract.status.replaceAll('_', ' ')}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}

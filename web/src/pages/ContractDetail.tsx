@@ -1,10 +1,12 @@
 import { PaymentReceipts } from '@/components/payment-receipts';
 import { Documents } from '@/components/documents';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { api } from '../api';
+
+import { useAuth } from '../auth';
 import { caseDateWithZone } from '../cases';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +18,18 @@ type Contract = {
   startDate: string;
   endDate: string | null;
   monthlyRent: string;
+  originalMonthlyRent?: string;
+  offeredAt?: string | null;
+  confirmedAt?: string | null;
+  amendments?: {
+    id: string;
+    effectiveDate: string;
+    monthlyRent: string;
+    reason: string | null;
+    status: string;
+    confirmedAt: string | null;
+    canConfirm: boolean;
+  }[];
   currency: string;
   dueDay: number;
   noticeDays: number;
@@ -192,6 +206,11 @@ function Records({ id, currency }: { id: string; currency: string }) {
 }
 export function ContractDetail() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const client = useQueryClient();
+  const [selection, setSelection] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [confirmationError, setConfirmationError] = useState('');
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['contract', id],
     queryFn: () => api.get<Contract>('/contracts/' + id).then((response) => response.data),
@@ -207,6 +226,34 @@ export function ContractDetail() {
     );
   if (isPending || error || !data)
     return <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />;
+  const offered = data.status === 'DRAFT' && !!data.offeredAt;
+  async function confirm() {
+    if (!selection) return;
+    setSubmitting(true);
+    setConfirmationError('');
+    try {
+      const path =
+        selection === 'contract'
+          ? '/confirm'
+          : '/amendments/' + encodeURIComponent(selection) + '/confirm';
+      const response = await api.post<Contract>('/contracts/' + id + path, { confirmed: true });
+      client.setQueryData(['contract', id], response.data);
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['contracts'] }),
+        client.invalidateQueries({ queryKey: ['dashboard'] }),
+        client.invalidateQueries({ queryKey: ['contract-records', id] }),
+        client.invalidateQueries({ queryKey: ['reviews'] }),
+      ]);
+      setSelection(null);
+    } catch (cause) {
+      const message = isAxiosError<{ message?: string }>(cause)
+        ? cause.response?.data?.message
+        : null;
+      setConfirmationError(message || 'Could not confirm the terms. Try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
   return (
     <div className="space-y-6">
       <Link className="text-sm text-primary underline" to="/contracts">
@@ -217,7 +264,9 @@ export function ContractDetail() {
         <p className="break-words text-muted-foreground">
           {data.rentalSpace.unit.name} · {data.rentalSpace.unit.area}
         </p>
-        <Badge variant="secondary">{data.status.replaceAll('_', ' ')}</Badge>
+        <Badge variant="secondary">
+          {offered ? 'Awaiting tenant confirmation' : data.status.replaceAll('_', ' ')}
+        </Badge>
       </div>
       <dl className="grid gap-4 border-y py-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
@@ -237,6 +286,68 @@ export function ContractDetail() {
           </div>
         ))}
       </dl>
+      {offered && user?.role === 'TENANT' && (
+        <Button variant="outline" onClick={() => setSelection('contract')}>
+          Review confirmation
+        </Button>
+      )}
+      {data.confirmedAt && <p>Tenant confirmed on {caseDateWithZone(data.confirmedAt)}.</p>}
+      {!!data.amendments?.length && (
+        <section className="space-y-3" aria-labelledby="rent-amendments">
+          <h2 id="rent-amendments" className="text-lg font-semibold">
+            Rent amendments
+          </h2>
+          <p>
+            Original monthly rent{' '}
+            {amount(data.currency, data.originalMonthlyRent ?? data.monthlyRent)}
+          </p>
+          {data.amendments.map((row) => (
+            <article key={row.id} className="space-y-2 rounded-md border p-4">
+              <p>
+                {amount(data.currency, row.monthlyRent)} from {caseDateWithZone(row.effectiveDate)}
+              </p>
+              {row.reason && <p>{row.reason}</p>}
+              <p>
+                {row.confirmedAt
+                  ? 'Tenant confirmed on ' + caseDateWithZone(row.confirmedAt)
+                  : row.canConfirm
+                    ? 'Awaiting confirmation'
+                    : 'Confirmation unavailable'}
+              </p>
+              {user?.role === 'TENANT' && row.canConfirm && (
+                <Button variant="outline" onClick={() => setSelection(row.id)}>
+                  Review rent change
+                </Button>
+              )}
+            </article>
+          ))}
+        </section>
+      )}
+      {selection && (
+        <section className="space-y-3 rounded-md border p-4" aria-label="Tenant confirmation">
+          <p>
+            {selection === 'contract'
+              ? 'Confirm the monthly contract terms shown above.'
+              : 'Confirm the selected monthly rent and effective date.'}
+          </p>
+          {confirmationError && <p role="alert">{confirmationError}</p>}
+          <div className="flex gap-2">
+            <Button disabled={submitting} onClick={() => void confirm()}>
+              Confirm terms
+            </Button>
+            <Button
+              variant="outline"
+              disabled={submitting}
+              onClick={() => {
+                setSelection(null);
+                setConfirmationError('');
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </section>
+      )}
       <section className="space-y-4" aria-labelledby="contract-occupants">
         <h2 id="contract-occupants" className="text-lg font-semibold">
           Occupants
@@ -274,7 +385,7 @@ export function ContractDetail() {
           Record completion is not legal certification.
         </p>
       </section>
-      <Records key={data.id} id={data.id} currency={data.currency} />
+      {!offered && <Records key={data.id} id={data.id} currency={data.currency} />}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { hashPassword } from '../../api/src/auth.js';
 test.afterAll(async () => {
   await prisma.$disconnect();
 });
-test('activates a unit with current evidence and creates a monthly couple contract with private occupant snapshots', async ({
+test('activates a unit with current evidence and confirms a monthly couple contract with private occupant snapshots', async ({
   page,
 }, testInfo) => {
   await page.setExtraHTTPHeaders({
@@ -132,10 +132,7 @@ test('activates a unit with current evidence and creates a monthly couple contra
       )
       .check();
     await dialog
-      .getByLabel(
-        'I confirm these monthly terms and the immediate allocation of available space *',
-        { exact: true },
-      )
+      .getByLabel('I confirm these monthly terms for the tenant to review *', { exact: true })
       .check();
     await dialog.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(
@@ -152,10 +149,39 @@ test('activates a unit with current evidence and creates a monthly couple contra
     await expect(
       page.getByRole('heading', { name: 'Setup Secondary · Secondary occupant', exact: true }),
     ).toBeVisible();
+    const offer = await prisma.contract.findFirstOrThrow({
+      where: { tenantId: tenant.tenant!.id },
+      include: { payments: true },
+    });
+    expect(offer.status).toBe('DRAFT');
+    expect(offer.payments).toHaveLength(0);
+    expect(
+      (await prisma.rentalSpace.findUniqueOrThrow({ where: { id: offer.rentalSpaceId } })).status,
+    ).toBe('AVAILABLE');
+    await prisma.unit.update({ where: { id: unit.id }, data: { defaultDeposit: '900.00' } });
+    if (testInfo.project.name === 'mobile')
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Sign out', exact: true })
+      .filter({ visible: true })
+      .click();
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+    await page.getByLabel('Email', { exact: true }).fill(tenant.email);
+    await page.getByLabel('Password', { exact: true }).fill(password);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'My accommodation' })).toBeVisible();
+    await page.goto('/contracts/' + offer.id);
+    await expect(page.getByText('Awaiting tenant confirmation')).toBeVisible();
+    await page.getByRole('button', { name: 'Review confirmation' }).click();
+    await page.getByRole('button', { name: 'Confirm terms' }).click();
+    await expect(page.getByText(/^Tenant confirmed on/)).toBeVisible();
+    await expect(page.getByText('AED 850.25', { exact: true })).toBeVisible();
     const contract = await prisma.contract.findFirstOrThrow({
       where: { tenantId: tenant.tenant!.id },
       include: { payments: true, occupants: true },
     });
+    expect(contract.status).toBe('ACTIVE');
+    expect(contract.confirmedAt).not.toBeNull();
     expect(contract.payments).toHaveLength(1);
     expect(contract.payments[0]!.amountDue.toFixed(2)).toBe('1500.00');
     expect(contract.occupants).toHaveLength(2);

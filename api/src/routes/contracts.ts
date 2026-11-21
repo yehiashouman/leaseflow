@@ -13,6 +13,8 @@ import { z } from 'zod';
 import { allowRoles } from '../auth.js';
 import { prisma } from '../db.js';
 import { env } from '../config.js';
+import { calendarDate, dubaiMidnight } from '../business-calendar.js';
+import { amendmentRent, effectiveRent } from '../rent-amendments.js';
 import { caseContractScope } from '../case-data.js';
 import { listPageSize, optionalPage, pageWindow } from '../list-page.js';
 import {
@@ -36,7 +38,9 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     actor: Parameters<typeof caseContractScope>[0],
   ): Prisma.ContractWhereInput => ({
     ...caseContractScope(actor),
-    ...(actor.role === 'TENANT' ? { status: { not: 'DRAFT' } } : {}),
+    ...(actor.role === 'TENANT'
+      ? { OR: [{ status: { not: 'DRAFT' } }, { offeredAt: { not: null } }] }
+      : {}),
   });
   const participants = allowRoles('LEASING_MANAGER', 'TENANT');
   const select = {
@@ -45,6 +49,20 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     startDate: true,
     endDate: true,
     monthlyRent: true,
+    amendments: {
+      where: { status: { in: ['PROPOSED', 'CONFIRMED'] } },
+      select: {
+        id: true,
+        effectiveDate: true,
+        changes: true,
+        reason: true,
+        status: true,
+        confirmedAt: true,
+      },
+      orderBy: [{ effectiveDate: 'desc' }, { id: 'desc' }],
+    },
+    offeredAt: true,
+    confirmedAt: true,
     currency: true,
     dueDay: true,
     noticeDays: true,
@@ -63,10 +81,139 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     createdAt: true,
     updatedAt: true,
   } satisfies Prisma.ContractSelect;
-  const dto = (row: Prisma.ContractGetPayload<{ select: typeof select }>) => ({
-    ...row,
-    occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
-  });
+  const dto = ({ amendments, ...row }: Prisma.ContractGetPayload<{ select: typeof select }>) => {
+    const today = calendarDate(new Date());
+    const rent = effectiveRent(row.monthlyRent, row.currency, amendments ?? [], today);
+    return {
+      ...row,
+      originalMonthlyRent: row.monthlyRent,
+      monthlyRent: rent,
+      amendments: (amendments ?? []).flatMap(({ changes, ...entry }) => {
+        const amount = amendmentRent(changes, row.currency);
+        return amount
+          ? [
+              {
+                ...entry,
+                monthlyRent: amount,
+                currency: row.currency,
+                canConfirm:
+                  row.status === 'ACTIVE' &&
+                  entry.status === 'PROPOSED' &&
+                  today < entry.effectiveDate,
+              },
+            ]
+          : [];
+      }),
+      occupants: row.occupants?.map((entry) => occupantDto(entry)) ?? [],
+    };
+  };
+  async function verifyAdmission(
+    tx: Prisma.TransactionClient,
+    spaceId: string,
+    tenant: { userId: string; emiratesIdExpiry: Date | null },
+    manager: {
+      id: string;
+      userId: string;
+      emiratesIdExpiry: Date | null;
+      licenseExpiry: Date | null;
+    },
+    incomingOccupants: number,
+    secondaryExpiry: Date | null,
+    startDate: Date,
+  ) {
+    if (!(await lockOwnedSpace(tx, spaceId, manager.id)))
+      throw app.httpErrors.notFound('Tenant or enabled rental space not found');
+    const space = await tx.rentalSpace.findFirst({
+      include: { unit: { select: { currency: true, defaultDeposit: true } } },
+      where: {
+        id: spaceId,
+        enabled: true,
+        status: { notIn: ['INACTIVE', 'MAINTENANCE'] },
+        unit: { managerId: manager.id, active: true, archivedAt: null },
+        type: { in: ['ROOM', 'MASTER_ROOM'] },
+      },
+    });
+    if (!space) throw app.httpErrors.notFound('Tenant or enabled rental space not found');
+    const contracts = await tx.contract.findMany({
+      where: { rentalSpaceId: space.id, status: { in: [...openContractStatuses] } },
+      select: { secondaryOccupant: true },
+    });
+    const occupants = occupantCount(contracts) + incomingOccupants;
+    if (occupants > space.capacity) throw app.httpErrors.conflict('Rental space capacity reached');
+    const validAt = new Date(Math.max(Date.now(), startDate.getTime()));
+    const isExpired = (expiry: Date | null | undefined) => !!expiry && expiry <= validAt;
+    if (isExpired(manager.emiratesIdExpiry) || isExpired(manager.licenseExpiry))
+      throw app.httpErrors.conflict(
+        'Renew the expired manager identity or licence before creating this contract',
+      );
+    if (isExpired(tenant.emiratesIdExpiry) || isExpired(secondaryExpiry))
+      throw app.httpErrors.conflict(
+        'Renew the expired occupant identity before creating this contract',
+      );
+
+    const evidence = await tx.documentSeries.findMany({
+      where: {
+        OR: [
+          { ownerUserId: manager.userId, purpose: { in: ['IDENTITY', 'LICENSE'] } },
+          { ownerUserId: tenant.userId, purpose: 'IDENTITY' },
+          { unitId: space.unitId, purpose: { in: ['PROPERTY_DOCUMENT', 'CONSENT'] } },
+        ],
+      },
+      select: {
+        ownerUserId: true,
+        purpose: true,
+        versions: {
+          where: { status: 'CLEAN' },
+          orderBy: { version: 'desc' },
+          take: 1,
+          select: { expiresAt: true },
+        },
+      },
+    });
+    const evidenceByPurpose = new Map<string, boolean>();
+    for (const { ownerUserId, purpose, versions } of evidence) {
+      if (!versions[0]) continue;
+      const key = purpose === 'IDENTITY' ? purpose + ':' + ownerUserId : purpose;
+      if (!evidenceByPurpose.get(key))
+        evidenceByPurpose.set(key, !isExpired(versions[0].expiresAt));
+    }
+    if ([...evidenceByPurpose.values()].includes(false))
+      throw app.httpErrors.conflict(
+        'Replace the expired identity, licence, property, or consent document before creating this contract',
+      );
+
+    return { space, occupants };
+  }
+
+  async function activate(
+    tx: Prisma.TransactionClient,
+    contract: {
+      id: string;
+      startDate: Date;
+      monthlyRent: Prisma.Decimal;
+      currency: string;
+    },
+    space: { id: string; capacity: number },
+    occupants: number,
+  ) {
+    const now = new Date();
+    const dueAt = dubaiMidnight(contract.startDate);
+    await tx.payment.create({
+      data: {
+        contractId: contract.id,
+        periodStart: contract.startDate,
+        dueDate: dueAt,
+        amountDue: proratedRentDecimal(contract.monthlyRent, contract.startDate),
+        currency: contract.currency,
+        status:
+          dueAt < dubaiMidnight(calendarDate(now)) ? 'LATE' : dueAt <= now ? 'DUE' : 'UPCOMING',
+      },
+    });
+    return tx.rentalSpace.update({
+      where: { id: space.id },
+      data: { status: occupiedStatus(occupants, space.capacity) },
+    });
+  }
   app.get('/options', { preHandler: allowRoles('LEASING_MANAGER') }, async (request) => {
     const owner = await managerProfile(request.user.sub);
     const [tenants, spaces] = await Promise.all([
@@ -97,9 +244,9 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     return {
       tenants,
       spaces,
-      activationEnabled: env.NODE_ENV !== 'production',
+      activationEnabled: true,
       limit: 500,
-      policy: 'Production activation requires approved financial and acknowledgement policies.',
+      policy: 'The primary tenant confirms the offered terms before activation.',
     };
   });
   app.get('/', { preHandler: allowRoles('LEASING_MANAGER', 'TENANT') }, async (request) => {
@@ -217,9 +364,12 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
     });
   });
   app.post('/', { preHandler: allowRoles('LEASING_MANAGER') }, async (request, reply) => {
-    if (env.NODE_ENV === 'production')
+    const confirmationOffer = z
+      .object({ offerForConfirmation: z.literal(true) })
+      .safeParse(request.body);
+    if (env.NODE_ENV === 'production' && !confirmationOffer.success)
       throw app.httpErrors.conflict(
-        'Contract activation requires approved financial and acknowledgement policies.',
+        'Direct activation requires approved financial controls. Offer the terms for tenant confirmation.',
       );
     const body = contractCreateSchema.parse(request.body);
     const hash = createHash('sha256').update(JSON.stringify(body)).digest('hex');
@@ -249,78 +399,25 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
           return visible;
         }
 
-        if (!(await lockOwnedSpace(tx, body.rentalSpaceId, manager.id)))
-          throw app.httpErrors.notFound('Tenant or enabled rental space not found');
-        const space = await tx.rentalSpace.findFirst({
-          include: { unit: { select: { currency: true, defaultDeposit: true } } },
-          where: {
-            id: body.rentalSpaceId,
-            enabled: true,
-            status: { notIn: ['INACTIVE', 'MAINTENANCE'] },
-            unit: { managerId: manager.id, active: true, archivedAt: null },
-            type: { in: ['ROOM', 'MASTER_ROOM'] },
-          },
-        });
-        if (!space) throw app.httpErrors.notFound('Tenant or enabled rental space not found');
-        const contracts = await tx.contract.findMany({
-          where: { rentalSpaceId: space.id, status: { in: [...openContractStatuses] } },
-          select: { secondaryOccupant: true },
-        });
-        const occupants = occupantCount(contracts) + (body.secondaryOccupant ? 2 : 1);
-        if (occupants > space.capacity)
-          throw app.httpErrors.conflict('Rental space capacity reached');
+        const startDate = new Date(body.startDate + 'T00:00:00Z');
+        const secondaryExpiry = body.secondaryOccupant
+          ? new Date(body.secondaryOccupant.emiratesIdExpiry)
+          : null;
+        const { space, occupants } = await verifyAdmission(
+          tx,
+          body.rentalSpaceId,
+          tenant,
+          manager,
+          body.secondaryOccupant ? 2 : 1,
+          secondaryExpiry,
+          startDate,
+        );
         if (body.depositAmount === undefined && space.unit.currency !== body.currency)
           throw app.httpErrors.unprocessableEntity(
             'Enter an explicit deposit amount in the contract currency',
           );
         const depositAmount =
           body.depositAmount ?? new Prisma.Decimal(space.unit.defaultDeposit).toFixed(2);
-        const startDate = new Date(body.startDate + 'T00:00:00Z');
-        const validAt = new Date(Math.max(Date.now(), startDate.getTime()));
-        const isExpired = (expiry: Date | null | undefined) => !!expiry && expiry <= validAt;
-        const secondaryExpiry = body.secondaryOccupant
-          ? new Date(body.secondaryOccupant.emiratesIdExpiry)
-          : null;
-        if (isExpired(manager.emiratesIdExpiry) || isExpired(manager.licenseExpiry))
-          throw app.httpErrors.conflict(
-            'Renew the expired manager identity or licence before creating this contract',
-          );
-        if (isExpired(tenant.emiratesIdExpiry) || isExpired(secondaryExpiry))
-          throw app.httpErrors.conflict(
-            'Renew the expired occupant identity before creating this contract',
-          );
-
-        const evidence = await tx.documentSeries.findMany({
-          where: {
-            OR: [
-              { ownerUserId: request.user.sub, purpose: { in: ['IDENTITY', 'LICENSE'] } },
-              { ownerUserId: tenant.userId, purpose: 'IDENTITY' },
-              { unitId: space.unitId, purpose: { in: ['PROPERTY_DOCUMENT', 'CONSENT'] } },
-            ],
-          },
-          select: {
-            ownerUserId: true,
-            purpose: true,
-            versions: {
-              where: { status: 'CLEAN' },
-              orderBy: { version: 'desc' },
-              take: 1,
-              select: { expiresAt: true },
-            },
-          },
-        });
-        const evidenceByPurpose = new Map<string, boolean>();
-        for (const { ownerUserId, purpose, versions } of evidence) {
-          if (!versions[0]) continue;
-          const key = purpose === 'IDENTITY' ? purpose + ':' + ownerUserId : purpose;
-          if (!evidenceByPurpose.get(key))
-            evidenceByPurpose.set(key, !isExpired(versions[0].expiresAt));
-        }
-        if ([...evidenceByPurpose.values()].includes(false))
-          throw app.httpErrors.conflict(
-            'Replace the expired identity, licence, property, or consent document before creating this contract',
-          );
-
         const primaryCipher = tenant.emiratesIdNumber
           ? tenant.emiratesIdNumber.startsWith('sealed:')
             ? tenant.emiratesIdNumber
@@ -362,32 +459,31 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             ...(body.secondaryOccupant
               ? { secondaryOccupant: { fullName: body.secondaryOccupant.fullName } }
               : {}),
-            status: 'ACTIVE',
+            status: body.offerForConfirmation ? 'DRAFT' : 'ACTIVE',
+            offeredAt: body.offerForConfirmation ? new Date() : null,
             occupants: { create: occupantRows },
           },
           select,
         });
-        const firstAmount = proratedRentDecimal(body.monthlyRent, startDate).toFixed(2);
-        await tx.payment.create({
-          data: {
-            contractId: created.id,
-            periodStart: startDate,
-            dueDate: startDate,
-            amountDue: firstAmount,
-            currency: body.currency,
-            status: 'DUE',
-          },
-        });
-        const updatedSpace = await tx.rentalSpace.update({
-          where: { id: space.id },
-          data: { status: occupiedStatus(occupants, space.capacity) },
-        });
+        const updatedSpace = body.offerForConfirmation
+          ? null
+          : await activate(
+              tx,
+              {
+                id: created.id,
+                startDate,
+                monthlyRent: new Prisma.Decimal(body.monthlyRent),
+                currency: body.currency,
+              },
+              space,
+              occupants,
+            );
         await tx.auditEvent.create({
           data: {
             actorUserId: request.user.sub,
             ip: request.ip,
             userAgent: request.headers['user-agent'],
-            action: 'CREATE',
+            action: body.offerForConfirmation ? 'OFFER_CONTRACT' : 'CREATE',
             entityType: 'Contract',
             entityId: created.id,
             newValue: {
@@ -402,7 +498,9 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
             },
           },
         });
-        return { ...created, rentalSpace: { ...created.rentalSpace, status: updatedSpace.status } };
+        return updatedSpace
+          ? { ...created, rentalSpace: { ...created.rentalSpace, status: updatedSpace.status } }
+          : created;
       })
       .catch((cause: unknown) => {
         if (cause instanceof Prisma.PrismaClientKnownRequestError && cause.code === 'P2034')
@@ -413,4 +511,139 @@ export const contractRoutes: FastifyPluginAsync = async (app) => {
       });
     return reply.code(201).send(dto(contract));
   });
+  app.post('/:id/confirm', { preHandler: allowRoles('TENANT') }, async (request) => {
+    const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);
+    z.object({ confirmed: z.literal(true) })
+      .strict()
+      .parse(request.body);
+    return prisma.$transaction(
+      async (tx) => {
+        if (!(await activeAccount(tx, request)))
+          throw app.httpErrors.unauthorized('Session is no longer active');
+        const ownership = { id, ...caseContractScope(request.user), offeredAt: { not: null } };
+        const offer = await tx.contract.findFirst({
+          where: ownership,
+          include: {
+            tenant: { include: { manager: { include: { user: true } } } },
+            occupants: true,
+          },
+        });
+        if (!offer) throw app.httpErrors.notFound('Contract offer not found');
+        if (offer.confirmedAt)
+          return dto(await tx.contract.findFirstOrThrow({ where: ownership, select }));
+        if (!(await lockOwnedSpace(tx, offer.rentalSpaceId, offer.tenant.managerId)))
+          throw app.httpErrors.conflict('The offered space is unavailable.');
+        await tx.$queryRaw`SELECT id FROM Contract WHERE id = ${id} FOR UPDATE`;
+        const locked = await tx.contract.findFirst({ where: ownership, select });
+        if (!locked) throw app.httpErrors.notFound('Contract offer not found');
+        if (locked.confirmedAt) return dto(locked);
+        if (locked.status !== 'DRAFT' || offer.tenant.manager.user.status !== 'ACTIVE')
+          throw app.httpErrors.conflict('The offer is unavailable for confirmation.');
+        const secondary = offer.occupants.find((row) => row.role === 'SECONDARY');
+        const { space, occupants } = await verifyAdmission(
+          tx,
+          offer.rentalSpaceId,
+          offer.tenant,
+          offer.tenant.manager,
+          secondary ? 2 : 1,
+          secondary?.identityExpiry ?? null,
+          offer.startDate,
+        );
+        const confirmedAt = new Date();
+        await activate(tx, locked, space, occupants);
+        const updated = await tx.contract.update({
+          where: { id },
+          data: { confirmedAt, status: 'ACTIVE' },
+          select,
+        });
+        await tx.auditEvent.create({
+          data: {
+            actorUserId: request.user.sub,
+            action: 'CONFIRM_CONTRACT',
+            entityType: 'Contract',
+            entityId: id,
+            newValue: { confirmedAt: confirmedAt.toISOString() },
+          },
+        });
+        return dto(updated);
+      },
+      { isolationLevel: 'ReadCommitted' },
+    );
+  });
+
+  app.post(
+    '/:id/amendments/:amendmentId/confirm',
+    { preHandler: allowRoles('TENANT') },
+    async (request) => {
+      const identifier = z.string().min(1).max(191);
+      const { id, amendmentId } = z
+        .object({ id: identifier, amendmentId: identifier })
+        .parse(request.params);
+      z.object({ confirmed: z.literal(true) })
+        .strict()
+        .parse(request.body);
+      return prisma.$transaction(
+        async (tx) => {
+          if (!(await activeAccount(tx, request)))
+            throw app.httpErrors.unauthorized('Session is no longer active');
+          const where = { id, ...caseContractScope(request.user) };
+          const contract = await tx.contract.findFirst({ where, select: { id: true } });
+          if (!contract) throw app.httpErrors.notFound('Contract not found');
+          await tx.$queryRaw`SELECT id FROM Contract WHERE id = ${id} FOR UPDATE`;
+          const terms = await tx.contract.findFirst({
+            where,
+            select: { id: true, status: true, currency: true, startDate: true },
+          });
+          if (!terms) throw app.httpErrors.notFound('Contract not found');
+          const amendment = await tx.contractAmendment.findFirst({
+            where: { id: amendmentId, contractId: id },
+          });
+          if (!amendment) throw app.httpErrors.notFound('Rent proposal not found');
+          const result = () => tx.contract.findUniqueOrThrow({ where: { id }, select }).then(dto);
+          if (amendment.confirmedAt && amendment.status === 'CONFIRMED') return result();
+          const now = new Date();
+          if (
+            terms.status !== 'ACTIVE' ||
+            amendment.status !== 'PROPOSED' ||
+            !amendmentRent(amendment.changes, terms.currency) ||
+            amendment.effectiveDate.getUTCDate() !== 1 ||
+            amendment.effectiveDate <= terms.startDate ||
+            now >= dubaiMidnight(amendment.effectiveDate)
+          )
+            throw app.httpErrors.conflict('The rent proposal is unavailable for confirmation.');
+          const [posted, overlapping] = await Promise.all([
+            tx.payment.findFirst({
+              where: { contractId: id, periodStart: { gte: amendment.effectiveDate } },
+              select: { id: true },
+            }),
+            tx.contractAmendment.findFirst({
+              where: {
+                contractId: id,
+                effectiveDate: amendment.effectiveDate,
+                status: 'CONFIRMED',
+              },
+              select: { id: true },
+            }),
+          ]);
+          if (posted || overlapping)
+            throw app.httpErrors.conflict('Rent terms for this period already exist.');
+          await tx.contractAmendment.update({
+            where: { id: amendmentId },
+            data: { status: 'CONFIRMED', confirmedAt: now },
+          });
+          await tx.auditEvent.create({
+            data: {
+              actorUserId: request.user.sub,
+              action: 'CONFIRM_RENT_AMENDMENT',
+              entityType: 'ContractAmendment',
+              entityId: amendmentId,
+              newValue: { contractId: id, confirmedAt: now.toISOString() },
+            },
+          });
+          return result();
+        },
+        { isolationLevel: 'ReadCommitted' },
+      );
+    },
+  );
 };

@@ -29,7 +29,7 @@ The worker preserves original due dates and original currency.
 A separate daily job derives payment status from the expected date when a manager approves an extension.
 Receipt history calculates days late from the original due date.
 
-Production financial generation remains paused.
+Production obligation generation requires a tenant-confirmed contract.
 Invalid stored due days, unknown applied amendments, final-month policy, ownership inconsistency, and changed source allocation require explicit resolution.
 No automatic conversion, deduction, credit, fee, or refund occurs.
 
@@ -41,8 +41,8 @@ The review preserves source space names, start date, milestone, and immutable ev
 A manager receives an in-app notice and configured external intent.
 The manager can record no change, a next-month price proposal, or a deferred date.
 A tenant can inspect the shared history and any proposed rent and effective month.
-Every price proposal remains `PROPOSED`; the original contract rent remains unchanged.
-Rent amendments require tenant confirmation under DEC-23. The confirmation workflow still needs implementation.
+A tenant confirms a rent proposal in the app under DEC-23.
+The worker uses the confirmed rate from its effective month and preserves earlier obligations.
 For DEC-21, the worker queues one manager reminder on the deferred Dubai date. A later decision replaces or cancels the pending reminder.
 After a no-change review, the next reminder comes from the normal anniversary schedule.
 Existing open deferrals are eligible after migration. The worker also catches up on reminders due during downtime.

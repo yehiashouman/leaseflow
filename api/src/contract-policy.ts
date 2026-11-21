@@ -23,6 +23,7 @@ const decimalInput = z
 export const contractCreateSchema = z
   .object({
     clientId: z.uuid(),
+    offerForConfirmation: z.literal(true).optional(),
     tenantId: z.string().min(1).max(191),
     rentalSpaceId: z.string().min(1).max(191),
     startDate: z.iso.date(),

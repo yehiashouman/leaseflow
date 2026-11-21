@@ -7,6 +7,7 @@ import { activeAccount } from '../account-data.js';
 import { prisma } from '../db.js';
 import { reviewContractScope } from '../notification-data.js';
 import { queueRecordNotices } from '../notice-data.js';
+import { effectiveRent } from '../rent-amendments.js';
 import { calendarDate, monthStart } from '../business-calendar.js';
 const select = {
   id: true,
@@ -23,6 +24,10 @@ const select = {
     select: {
       currency: true,
       monthlyRent: true,
+      amendments: {
+        where: { status: 'CONFIRMED' },
+        select: { effectiveDate: true, confirmedAt: true, changes: true },
+      },
       tenant: { select: { fullName: true } },
       rentalSpace: { select: { name: true, unit: { select: { name: true } } } },
     },
@@ -46,8 +51,18 @@ const select = {
   },
 } satisfies Prisma.ContractReviewSelect;
 function dto(row: Prisma.ContractReviewGetPayload<{ select: typeof select }>) {
+  const { amendments, ...contract } = row.contract;
   return {
     ...row,
+    contract: {
+      ...contract,
+      monthlyRent: effectiveRent(
+        contract.monthlyRent,
+        contract.currency,
+        amendments,
+        calendarDate(new Date()),
+      ),
+    },
     rentalSpace: {
       name: row.spaceNameSnapshot ?? row.contract.rentalSpace.name,
       unit: { name: row.unitNameSnapshot ?? row.contract.rentalSpace.unit.name },
@@ -247,7 +262,7 @@ export const reviewRoutes: FastifyPluginAsync = async (app) => {
                     currency: current.contract.currency,
                     originalMonthlyRent: current.contract.monthlyRent.toFixed(2),
                     sourceReviewId: id,
-                    acknowledgementPolicy: 'PENDING_DEC_23',
+                    acknowledgementPolicy: 'TENANT_CONFIRMATION_REQUIRED',
                     appliesAutomatically: false,
                   },
                 },
