@@ -79,29 +79,45 @@ describe('read-only contract records', () => {
       data:
         path === '/contracts/c1'
           ? terms
-          : {
-              items:
-                (config?.params as { section?: string } | undefined)?.section === 'payments'
-                  ? [
-                      {
-                        id: 'p1',
-                        periodStart: terms.startDate,
-                        dueDate: terms.startDate,
-                        amountDue: '100.25',
-                        amountPaid: '40.10',
-                        currency: 'USD',
-                        status: 'PARTIALLY_PAID',
-                      },
-                    ]
-                  : (config?.params as { section?: string } | undefined)?.section === 'deposits'
+          : path === '/contracts/c1/deposit'
+            ? {
+                currency: 'AED',
+                required: '300',
+                balance: {
+                  status: 'DISPUTED',
+                  held: '300',
+                  outstanding: '0',
+                  refundable: '0',
+                  refunded: '0',
+                  reserved: '50.25',
+                },
+                items: [
+                  {
+                    id: 'd1',
+                    type: 'DEDUCTION_PROPOSED',
+                    amount: '50.25',
+                    createdAt: terms.startDate,
+                    description: 'Disputed proposal',
+                    tenantDisputedAt: terms.startDate,
+                    events: [],
+                    allowedActions: [],
+                  },
+                ],
+                total: 1,
+                pageSize: 20,
+              }
+            : {
+                items:
+                  (config?.params as { section?: string } | undefined)?.section === 'payments'
                     ? [
                         {
-                          id: 'd1',
-                          type: 'DEDUCTION_PROPOSED',
-                          amount: '50.25',
-                          createdAt: terms.startDate,
-                          description: 'Disputed proposal',
-                          tenantDisputedAt: terms.startDate,
+                          id: 'p1',
+                          periodStart: terms.startDate,
+                          dueDate: terms.startDate,
+                          amountDue: '100.25',
+                          amountPaid: '40.10',
+                          currency: 'USD',
+                          status: 'PARTIALLY_PAID',
                         },
                       ]
                     : [
@@ -113,9 +129,9 @@ describe('read-only contract records', () => {
                           createdAt: terms.startDate,
                         },
                       ],
-              total: 1,
-              pageSize: 20,
-            },
+                total: 1,
+                pageSize: 20,
+              },
     }));
     page();
     expect(await screen.findByText('USD 40.10')).toBeTruthy();

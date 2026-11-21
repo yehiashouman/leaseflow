@@ -104,6 +104,7 @@ enum ExpenseCategory {
 }
 
 model User {
+  depositEvents DepositEvent[]
   id String @id @default(cuid())
   email String @unique
   passwordHash String
@@ -399,11 +400,40 @@ model DepositEntry {
   type DepositEntryType
   amount Decimal @db.Decimal(12, 2)
   description String?
+  recordedAt DateTime?
+  method String? @db.VarChar(60)
+  reference String? @db.VarChar(150)
+  category String? @db.VarChar(40)
+  sourceProposalId String? @unique
+  sourceProposal DepositEntry? @relation("AppliedDepositDeduction", fields: [sourceProposalId], references: [id], onDelete: Restrict)
+  appliedDeduction DepositEntry? @relation("AppliedDepositDeduction")
+  events DepositEvent[]
+  documentSeries DocumentSeries[]
   evidenceKey String?
   tenantAcceptedAt DateTime?
   tenantDisputedAt DateTime?
   contract Contract @relation(fields: [contractId], references: [id])
   createdAt DateTime @default(now())
+  @@index([contractId, type])
+}
+
+model DepositEvent {
+  id String @id @default(cuid())
+  entryId String
+  actorUserId String
+  actorRole String @db.VarChar(30)
+  clientId String @db.VarChar(36)
+  payloadHash String @db.Char(64)
+  sequence Int
+  action String @db.VarChar(30)
+  amount Decimal? @db.Decimal(12, 2)
+  category String? @db.VarChar(40)
+  message String? @db.Text
+  createdAt DateTime @default(now())
+  entry DepositEntry @relation(fields: [entryId], references: [id], onDelete: Restrict)
+  actor User @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  @@unique([actorUserId, clientId])
+  @@unique([entryId, sequence])
 }
 
 model RequestCategory {
@@ -664,6 +694,7 @@ enum DocumentPurpose {
   PAYMENT_EVIDENCE
   EXPENSE_EVIDENCE
   OCCUPANT_IDENTITY
+  DEPOSIT_EVIDENCE
 }
 
 enum ScanStatus {
@@ -685,6 +716,7 @@ model DocumentSeries {
   paymentId String?
   expenseId String?
   occupantId String?
+  depositEntryId String?
   createdAt DateTime @default(now())
   owner User @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
   landlord Landlord? @relation(fields: [landlordId], references: [id], onDelete: Restrict)
@@ -694,6 +726,7 @@ model DocumentSeries {
   payment Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
   expense Expense? @relation(fields: [expenseId], references: [id], onDelete: Restrict)
   occupant ContractOccupant? @relation(fields: [occupantId], references: [id], onDelete: Restrict)
+  depositEntry DepositEntry? @relation(fields: [depositEntryId], references: [id], onDelete: Restrict)
   versions Document[]
   @@index([ownerUserId, createdAt])
   @@index([landlordId])
@@ -703,6 +736,7 @@ model DocumentSeries {
   @@index([paymentId])
   @@index([expenseId])
   @@index([occupantId])
+  @@index([depositEntryId])
 }
 
 model Document {

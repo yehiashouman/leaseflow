@@ -1,5 +1,6 @@
 import { calendarDate } from '../business-calendar.js';
 import { effectiveRent } from '../rent-amendments.js';
+import { depositBalance } from '../deposit-ledger.js';
 import { occupantDto, occupantSelect } from '../contract-policy.js';
 import { Prisma } from '@prisma/client';
 import type { FastifyPluginAsync } from 'fastify';
@@ -220,6 +221,7 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
           payments,
           expenses,
           monthlyReceipts,
+          deposits,
           activity,
         ] = await Promise.all([
           tx.unit.count({ where: unitScope }),
@@ -268,6 +270,29 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             },
             _sum: { amount: true },
           }),
+          tx.contract.findMany({
+            where: {
+              ...contractScope,
+              status: { notIn: ['DRAFT', 'CANCELLED'] },
+              depositEntries: { some: {} },
+            },
+            select: {
+              currency: true,
+              depositAmount: true,
+              status: true,
+              depositEntries: {
+                select: {
+                  type: true,
+                  amount: true,
+                  category: true,
+                  events: {
+                    orderBy: { sequence: 'asc' },
+                    select: { action: true, amount: true, category: true },
+                  },
+                },
+              },
+            },
+          }),
           managerDashboardActivity(tx, request.user, now),
         ]);
         const count = (status: string) =>
@@ -303,6 +328,38 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
         }
         for (const expense of expenses)
           currency(expense.currency).expenses = new Prisma.Decimal(expense._sum.amount ?? 0);
+        const liabilities = new Map<
+          string,
+          {
+            held: Prisma.Decimal;
+            refundable: Prisma.Decimal;
+            reserved: Prisma.Decimal;
+            disputed: number;
+            reconciliationRequired: number;
+          }
+        >();
+        for (const contract of deposits ?? []) {
+          const balance = depositBalance(
+            contract.depositEntries ?? [],
+            contract.depositAmount,
+            contract.status,
+          );
+          const zero = new Prisma.Decimal(0);
+          const row = liabilities.get(contract.currency) ?? {
+            held: zero,
+            refundable: zero,
+            reserved: zero,
+            disputed: 0,
+            reconciliationRequired: 0,
+          };
+          if (balance.reconciled) {
+            row.held = row.held.plus(balance.held);
+            row.refundable = row.refundable.plus(balance.refundable);
+            row.reserved = row.reserved.plus(balance.reserved);
+          } else row.reconciliationRequired++;
+          if (balance.disputed) row.disputed++;
+          liabilities.set(contract.currency, row);
+        }
         const spaces = spaceGroups.reduce((sum, g) => sum + g._count._all, 0);
         const [overdueDeadlines, approachingDeadlines] = await Promise.all([
           tx.request.count({ where: { ...open, decisionDueAt: { lt: now } } }),
@@ -341,7 +398,18 @@ export const dashboardRoutes: FastifyPluginAsync = async (app) => {
             })),
           financialBasis:
             'Operational totals across all dates. Recorded expenses can include unpaid costs. Each currency appears separately.',
-          depositLiability: null,
+          depositLiability: liabilities.size
+            ? [...liabilities]
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([currency, row]) => ({
+                  currency,
+                  held: row.held.toFixed(2),
+                  refundable: row.refundable.toFixed(2),
+                  reserved: row.reserved.toFixed(2),
+                  disputed: row.disputed,
+                  reconciliationRequired: row.reconciliationRequired,
+                }))
+            : null,
         };
       },
       { isolationLevel: 'RepeatableRead' },

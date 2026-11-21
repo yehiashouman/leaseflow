@@ -126,6 +126,11 @@ describe('MySQL immutable external rent payment receipts', () => {
     if (contractId) {
       await prisma.paymentReceipt.deleteMany({ where: { payment: { contractId } } });
       await prisma.payment.deleteMany({ where: { contractId } });
+      await prisma.depositEvent.deleteMany({ where: { entry: { contractId } } });
+      await prisma.depositEntry.deleteMany({
+        where: { contractId, sourceProposalId: { not: null } },
+      });
+      await prisma.depositEntry.deleteMany({ where: { contractId } });
       await prisma.contract.delete({ where: { id: contractId } });
     }
     if (spaceId) await prisma.rentalSpace.delete({ where: { id: spaceId } });
@@ -325,5 +330,146 @@ describe('MySQL immutable external rent payment receipts', () => {
     for (const method of ['PATCH', 'DELETE'] as const)
       expect((await send(method, '/receipts/' + created.json().id, {})).statusCode).toBe(404);
     expect((await send('GET', '/receipts?page=0')).statusCode).toBe(422);
+  });
+  it('records deposits, preserves dispute history, and refunds only the available balance', async () => {
+    await prisma.contract.update({ where: { id: contractId }, data: { depositAmount: '1000.00' } });
+    const path = '/api/v1/contracts/' + contractId + '/deposit';
+    const scoped = (url: string, actor: Actor, payload?: object) =>
+      app.inject({
+        url,
+        method: payload ? 'POST' : 'GET',
+        payload,
+        headers: {
+          authorization:
+            'Bearer ' + app.jwt.sign({ sub: actor.id, role: actor.role, sid: actor.sid }),
+        },
+      });
+    const post = (actor: Actor, payload: object) =>
+      scoped(path + '/commands', actor, { clientId: randomUUID(), ...payload });
+    const state = async (actor = tenant) => (await scoped(path, actor)).json();
+    const record = (action: 'RECEIVE' | 'REFUND', amount: string) => ({
+      action,
+      amount,
+      recordedAt: '2026-01-03T10:00:00Z',
+      method: 'Cash',
+      reference: 'Handwritten receipt',
+    });
+    expect((await scoped(path, foreign)).statusCode).toBe(404);
+    expect((await scoped(path, roommate)).statusCode).toBe(404);
+    expect((await scoped(path, admin)).statusCode).toBe(403);
+    expect((await state()).balance.status).toBe('DUE');
+    expect((await post(tenant, record('RECEIVE', '700'))).statusCode).toBe(403);
+    const receipt = { ...record('RECEIVE', '700.00'), clientId: randomUUID() };
+    const first = await post(manager, receipt);
+    expect(first.statusCode, first.body).toBe(201);
+    expect((await post(manager, receipt)).statusCode).toBe(200);
+    expect((await post(manager, { ...receipt, amount: '701' })).statusCode).toBe(409);
+    expect((await state()).balance).toMatchObject({
+      status: 'PARTIALLY_RECEIVED',
+      held: '700',
+      outstanding: '300',
+    });
+    const topUp = await Promise.all([
+      post(manager, record('RECEIVE', '300')),
+      post(manager, record('RECEIVE', '300')),
+    ]);
+    expect(topUp.map((r) => r.statusCode).sort()).toEqual([201, 409]);
+    expect((await state()).balance).toMatchObject({
+      status: 'HELD',
+      held: '1000',
+      outstanding: '0',
+    });
+
+    const propose = (amount: string) =>
+      post(manager, {
+        action: 'PROPOSE',
+        amount,
+        category: 'DAMAGE',
+        message: 'Repair evidence available',
+      });
+    const proposal = await propose('150');
+    expect(proposal.statusCode, proposal.body).toBe(201);
+    const entryId = proposal.json().entryId;
+    const action = (
+      actor: Actor,
+      action: string,
+      expectedSequence: number,
+      extra = {},
+      target = entryId,
+    ) => post(actor, { action, entryId: target, expectedSequence, ...extra });
+    expect((await action(admin, 'ACCEPT', 1)).statusCode).toBe(403);
+    expect(
+      (await action(tenant, 'DISPUTE', 1, { message: 'The damage predates occupancy.' }))
+        .statusCode,
+    ).toBe(201);
+    expect(
+      (await action(manager, 'MESSAGE', 2, { message: 'Manager reviewed the evidence.' }))
+        .statusCode,
+    ).toBe(201);
+    expect((await action(tenant, 'ACCEPT', 3)).statusCode).toBe(409);
+    expect((await state()).balance).toMatchObject({
+      status: 'DISPUTED',
+      held: '1000',
+      reserved: '150',
+    });
+    expect(
+      (
+        await action(manager, 'REVISE', 3, {
+          amount: '120',
+          category: 'DAMAGE',
+          message: 'Revised documented amount.',
+        })
+      ).statusCode,
+    ).toBe(201);
+    const accepted = await Promise.all([action(tenant, 'ACCEPT', 4), action(tenant, 'ACCEPT', 4)]);
+    expect(accepted.map((r) => r.statusCode).sort()).toEqual([201, 409]);
+    expect(await prisma.depositEntry.count({ where: { sourceProposalId: entryId } })).toBe(1);
+    expect(
+      (await state()).items
+        .find((row: { id: string }) => row.id === entryId)
+        .events.map((e: { action: string }) => e.action),
+    ).toEqual(['PROPOSE', 'DISPUTE', 'MESSAGE', 'REVISE', 'ACCEPT']);
+
+    const second = (await propose('50')).json().entryId;
+    expect(
+      (await action(tenant, 'DISPUTE', 1, { message: 'Independent review requested.' }, second))
+        .statusCode,
+    ).toBe(201);
+    expect(
+      (await action(manager, 'DEADLOCK', 2, { message: 'No agreement on this proposal.' }, second))
+        .statusCode,
+    ).toBe(201);
+    expect((await post(manager, record('REFUND', '830'))).statusCode).toBe(409);
+    await prisma.contract.update({ where: { id: contractId }, data: { status: 'CLOSED' } });
+    expect((await state()).balance).toMatchObject({
+      held: '880',
+      refundable: '830',
+      reserved: '50',
+      status: 'DISPUTED',
+    });
+    expect((await post(manager, record('REFUND', '831'))).statusCode).toBe(409);
+    const refund = await post(manager, record('REFUND', '830'));
+    expect(refund.statusCode, refund.body).toBe(201);
+    expect(
+      (await action(tenant, 'ACKNOWLEDGE_REFUND', 1, {}, refund.json().entryId)).statusCode,
+    ).toBe(201);
+    expect((await state()).balance).toMatchObject({
+      held: '50',
+      refundable: '0',
+      refunded: '830',
+      reserved: '50',
+      status: 'DISPUTED',
+    });
+    const dashboard = (await scoped('/api/v1/dashboard/manager', manager)).json();
+    expect(dashboard.depositLiability).toEqual([
+      {
+        currency: 'AED',
+        held: '50.00',
+        refundable: '0.00',
+        reserved: '50.00',
+        disputed: 1,
+        reconciliationRequired: 0,
+      },
+    ]);
   });
 });

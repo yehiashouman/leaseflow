@@ -15,6 +15,7 @@ export const purposeTargets = {
   SPACE_PHOTO: 'rentalSpaceId',
   CASE_EVIDENCE: 'requestId',
   PAYMENT_EVIDENCE: 'paymentId',
+  DEPOSIT_EVIDENCE: 'depositEntryId',
   EXPENSE_EVIDENCE: 'expenseId',
   OCCUPANT_IDENTITY: 'occupantId',
 } as const;
@@ -56,6 +57,10 @@ export function seriesScope(actor: Actor): Prisma.DocumentSeriesWhereInput {
       },
       { purpose: 'CASE_EVIDENCE', request: caseScope(actor) },
       {
+        purpose: 'DEPOSIT_EVIDENCE',
+        depositEntry: { contract: { ...caseContractScope(actor), status: { not: 'DRAFT' } } },
+      },
+      {
         purpose: 'PAYMENT_EVIDENCE',
         payment: {
           contract: {
@@ -95,6 +100,7 @@ export const documentSelect = {
       rentalSpaceId: true,
       requestId: true,
       paymentId: true,
+      depositEntryId: true,
       expenseId: true,
       occupantId: true,
     },
@@ -136,6 +142,16 @@ export async function lockFileTarget(
         select: { id: true },
       }),
     );
+  }
+  if (target === 'depositEntryId') {
+    const where = {
+      id: meta.targetId,
+      contract: { ...caseContractScope(actor), status: { not: 'DRAFT' as const } },
+    };
+    const row = await tx.depositEntry.findFirst({ where, select: { id: true } });
+    if (!row) return false;
+    await tx.$queryRaw`SELECT id FROM DepositEntry WHERE id = ${row.id} FOR UPDATE`;
+    return Boolean(await tx.depositEntry.findFirst({ where, select: { id: true } }));
   }
   if (actor.role !== 'LEASING_MANAGER') return false;
   const owned = { manager: { userId: actor.sub } };

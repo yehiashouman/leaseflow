@@ -192,9 +192,40 @@ test('activates a unit with current evidence and confirms a monthly couple contr
       path: testInfo.outputPath('monthly-contract-occupants.png'),
       fullPage: true,
     });
+    if (testInfo.project.name === 'mobile')
+      await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Sign out', exact: true })
+      .filter({ visible: true })
+      .click();
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+    await page.getByLabel('Email', { exact: true }).fill(manager.email);
+    await page.getByLabel('Password', { exact: true }).fill(password);
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Portfolio overview', exact: true }),
+    ).toBeVisible();
+    await page.goto('/contracts/' + offer.id);
+    await page.getByRole('button', { name: 'Deposit entries', exact: true }).click();
+    await page.getByRole('button', { name: 'Record deposit receipt', exact: true }).click();
+    const depositEditor = page.getByRole('dialog');
+    await depositEditor.getByLabel('Amount (AED) *', { exact: true }).fill('400.00');
+    await depositEditor
+      .getByLabel('External payment date (Dubai) *', { exact: true })
+      .fill('2026-01-17');
+    await depositEditor.getByLabel('Payment method *', { exact: true }).fill('Cash');
+    await depositEditor.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(
+      page.getByText('Held after accepted deductions and refunds').locator('..'),
+    ).toContainText('AED 400.00');
+    expect(
+      await prisma.depositEntry.count({ where: { contractId: offer.id, type: 'RECEIVED' } }),
+    ).toBe(1);
   } finally {
     const where = { tenantId: tenant.tenant!.id };
     await prisma.payment.deleteMany({ where: { contract: where } });
+    await prisma.depositEvent.deleteMany({ where: { entry: { contract: where } } });
+    await prisma.depositEntry.deleteMany({ where: { contract: where } });
     await prisma.contract.deleteMany({ where });
     await prisma.document.deleteMany({ where: { series: { unitId: unit.id } } });
     await prisma.documentSeries.deleteMany({ where: { unitId: unit.id } });

@@ -50,6 +50,7 @@ export const documentPurposes = [
   'SPACE_PHOTO',
   'CASE_EVIDENCE',
   'PAYMENT_EVIDENCE',
+  'DEPOSIT_EVIDENCE',
   'EXPENSE_EVIDENCE',
   'OCCUPANT_IDENTITY',
 ] as const;

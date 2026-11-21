@@ -33,6 +33,16 @@ const metrics = [
 type PortfolioDashboard = Record<string, unknown> & {
   deadlines?: { id: string; title: string; decisionDueAt: string }[];
   requestsByType?: Record<string, number>;
+  depositLiability?:
+    | {
+        currency: string;
+        held: string;
+        refundable: string;
+        reserved: string;
+        disputed: number;
+        reconciliationRequired: number;
+      }[]
+    | null;
   financialRecords?: {
     currency: string;
     outstanding: string;
@@ -390,9 +400,47 @@ function ManagerDashboard() {
             </dl>
           </div>
         ))}
-        <p className="text-sm text-muted-foreground">
-          Deposit liabilities require a verified deposit ledger.
-        </p>
+        {data?.depositLiability?.length ? (
+          <section className="space-y-2" aria-label="Deposit balances">
+            <h3 className="font-semibold">Deposit balances</h3>
+            {data.depositLiability.map((row) => (
+              <dl className="grid grid-cols-2 gap-3 rounded-md border p-3" key={row.currency}>
+                <div>
+                  <dt>Held deposits</dt>
+                  <dd>
+                    {row.currency} {row.held}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Available refunds</dt>
+                  <dd>
+                    {row.currency} {row.refundable}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Pending or disputed deductions</dt>
+                  <dd>
+                    {row.currency} {row.reserved}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Contracts with disputes</dt>
+                  <dd>{row.disputed}</dd>
+                </div>
+                {row.reconciliationRequired > 0 && (
+                  <div>
+                    <dt>Contracts that require reconciliation</dt>
+                    <dd>{row.reconciliationRequired}</dd>
+                  </div>
+                )}
+              </dl>
+            ))}
+          </section>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Deposit liabilities require a verified deposit ledger.
+          </p>
+        )}
       </section>
       <section className="space-y-3 border-t pt-6" aria-labelledby="portfolio-records">
         <h2 id="portfolio-records" className="text-base font-semibold">

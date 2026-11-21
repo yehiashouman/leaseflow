@@ -83,3 +83,12 @@ Proration uses decimal arithmetic and rounds the final amount once to the neares
 - Activation records one initial obligation, occupancy change, and tenant audit entry in the same transaction.
 - Tenants can confirm a rent proposal from the contract detail page. The rate applies from its effective month.
 - The original contract rate and earlier obligations remain available in the contract history.
+
+## Deposit ledger
+
+The Deposit entries tab shows receipts, accepted deductions, reserved amounts, disputes, and recorded refunds in the contract currency.
+The manager records external cash or payment movements. The primary tenant can accept or dispute a proposed deduction and acknowledge a recorded refund.
+A revision preserves the earlier proposal, discussion, and evidence. A disputed proposal never posts a deduction without new acceptance.
+Closed contracts can refund the available balance after pending or disputed amounts are reserved.
+The ledger excludes deposits from rent income and leaves historical adjustments for explicit reconciliation.
+Use the existing private-file controls for optional deposit evidence.

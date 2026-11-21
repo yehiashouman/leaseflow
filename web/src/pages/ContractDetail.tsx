@@ -1,4 +1,6 @@
 import { PaymentReceipts } from '@/components/payment-receipts';
+import { DepositLedger } from '@/components/deposit-ledger';
+import { previewMode } from '../session';
 import { Documents } from '@/components/documents';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -84,8 +86,10 @@ function amount(currency: string, value: string) {
 function Records({ id, currency }: { id: string; currency: string }) {
   const [section, setSection] = useState<Section>('payments');
   const [page, setPage] = useState(1);
+  const showLedger = section === 'deposits' && !previewMode;
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['contract-records', id, section, page],
+    enabled: !showLedger,
     queryFn: () =>
       api
         .get<{
@@ -112,7 +116,9 @@ function Records({ id, currency }: { id: string; currency: string }) {
           </Button>
         ))}
       </div>
-      {isPending || error ? (
+      {showLedger ? (
+        <DepositLedger contractId={id} />
+      ) : isPending || error ? (
         <QueryFeedback pending={isPending} error={error} onRetry={() => void refetch()} />
       ) : (
         <>

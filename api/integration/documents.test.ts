@@ -300,6 +300,31 @@ describe('MySQL private documents, quarantine, immutable versions, and access gr
       await prisma.payment.delete({ where: { id: payment.id } });
     }
   });
+  it('scopes deposit evidence to the primary tenant and manager', async () => {
+    const entry = await prisma.depositEntry.create({
+      data: {
+        contractId,
+        type: 'DEDUCTION_PROPOSED',
+        amount: '15.50',
+      },
+    });
+    try {
+      const target = meta({
+        purpose: 'DEPOSIT_EVIDENCE',
+        targetId: entry.id,
+        title: 'Deposit proposal evidence',
+      });
+      const row = await create(target, tenant);
+      await clean();
+      expect((await download(row.id, manager)).statusCode).toBe(200);
+      expect((await download(row.id, tenant)).statusCode).toBe(200);
+      expect((await send('GET', '/' + row.id, undefined, foreign)).statusCode).toBe(404);
+    } finally {
+      await prisma.document.deleteMany({ where: { series: { depositEntryId: entry.id } } });
+      await prisma.documentSeries.deleteMany({ where: { depositEntryId: entry.id } });
+      await prisma.depositEntry.delete({ where: { id: entry.id } });
+    }
+  });
   it('scopes secondary identity files to their primary tenant and manager without a new login', async () => {
     const occupant = await prisma.contractOccupant.create({
       data: {
