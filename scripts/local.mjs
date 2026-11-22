@@ -128,6 +128,12 @@ export async function startLocal(args = process.argv.slice(2), directory = root,
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
     if (!ready) throw new Error('The web-to-API proxy is not ready; startup failed.');
+    if (demo) {
+      const inbox = await fetch('http://127.0.0.1:8025/api/v1/messages', {
+        signal: AbortSignal.timeout(5000),
+      }).catch(() => null);
+      if (!inbox?.ok) throw new Error('The private demo inbox is unavailable on port 8025.');
+    }
   }
   return { environment };
 }
