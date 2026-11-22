@@ -74,6 +74,7 @@ It creates missing environment files, applies migrations, creates an absent demo
 Existing credentials, account roles, changed passwords, and data volumes remain intact.
 The helper prints the application URL and a private demo inbox URL on port 8025.
 The demo inbox captures verification and invitation emails without external delivery.
+In Codespaces, forward port 8025 manually from the Ports panel to open the inbox.
 To create an active demo manager without registration, sign in as admin.
 Open Account review, select Create leasing manager, and set the manager's sign-in details.
 

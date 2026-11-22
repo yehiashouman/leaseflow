@@ -207,7 +207,7 @@ export function Account({ mode }: { mode: Mode }) {
                     )}
                     {policy.data.demoMailbox && (
                       <p role="status">
-                        Verification email opens in the private demo inbox on port 8025.
+                        To verify your email, open the private demo inbox on port 8025.
                       </p>
                     )}
                     <Field name="fullName" label="Full legal name" maxLength={150} />
