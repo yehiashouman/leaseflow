@@ -21,12 +21,22 @@ import twilio from 'twilio';
 
 const passwordSchema = z.string().min(12).max(128);
 const tokenSchema = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).strict();
+function birthDateBounds() {
+  const today = new Date();
+  const yesterday = new Date(today.getTime() - 86400000);
+  return {
+    min: String(today.getUTCFullYear() - 120) + '-01-01',
+    max: yesterday.toISOString().slice(0, 10),
+  };
+}
+const birthDateSchema = z.iso.date().refine((date) => {
+  const { min, max } = birthDateBounds();
+  return date >= min && date <= max;
+}, 'Enter a past birth date within the permitted year range');
 const profileSchema = z
   .object({
     fullName: z.string().trim().min(2).max(150),
-    dateOfBirth: z.iso
-      .date()
-      .refine((date) => date < new Date().toISOString().slice(0, 10), 'Use a past date'),
+    dateOfBirth: birthDateSchema,
     nationality: z.string().trim().min(2).max(100),
     emiratesIdNumber: z.string().regex(/^784-?\d{4}-?\d{7}-?\d$/, 'Use a valid Emirates ID format'),
     emiratesIdExpiry: z.iso.date(),
@@ -50,9 +60,7 @@ export const managerRegistrationSchema = z
     email: canonicalEmail,
     password: passwordSchema,
     fullName: z.string().trim().min(2).max(150),
-    dateOfBirth: z.iso
-      .date()
-      .refine((date) => date < new Date().toISOString().slice(0, 10), 'Use a past date'),
+    dateOfBirth: birthDateSchema,
     nationality: z.string().trim().min(2).max(100),
     phone: z.string().regex(/^\+[1-9]\d{7,14}$/),
     declarationVersion: z.literal(declarationVersion),
@@ -118,6 +126,8 @@ export const accountRoutes: FastifyPluginAsync<{ phoneProvider?: PhoneProvider }
     phoneEnabled: Boolean(
       env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.TWILIO_VERIFY_SERVICE_SID,
     ),
+    birthDate: birthDateBounds(),
+    demoMailbox: accountConfig.demoMailbox,
     declarationVersion,
     declarationText,
     declarationHash,

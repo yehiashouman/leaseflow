@@ -200,10 +200,24 @@ export function Account({ mode }: { mode: Mode }) {
                     )}
                   >
                     {!policy.data.emailEnabled && (
-                      <p role="status">Account email is not enabled on this server.</p>
+                      <p role="status">
+                        Registration requires verification email. Ask the administrator to verify
+                        the email configuration.
+                      </p>
+                    )}
+                    {policy.data.demoMailbox && (
+                      <p role="status">
+                        Verification email opens in the private demo inbox on port 8025.
+                      </p>
                     )}
                     <Field name="fullName" label="Full legal name" maxLength={150} />
-                    <Field name="dateOfBirth" label="Date of birth" type="date" />
+                    <Field
+                      name="dateOfBirth"
+                      label="Date of birth"
+                      type="date"
+                      min={policy.data.birthDate?.min}
+                      max={policy.data.birthDate?.max}
+                    />
                     <Field name="nationality" label="Nationality" maxLength={100} />
                     {emailPassword}
                     <Field name="phone" label="Mobile number" type="tel" placeholder="+971…" />
@@ -498,6 +512,8 @@ export function Account({ mode }: { mode: Mode }) {
                                 name="dateOfBirth"
                                 label="Date of birth"
                                 type="date"
+                                min={policy.data.birthDate?.min}
+                                max={policy.data.birthDate?.max}
                                 defaultValue={query.data.profile?.dateOfBirth?.slice(0, 10) ?? ''}
                               />
                               <Field

@@ -17,6 +17,7 @@ const policy = {
   phoneEnabled: false,
   declarationVersion: 'test',
   declarationText: 'Test declaration.',
+  birthDate: { min: '1906-01-01', max: '2026-11-21' },
 };
 beforeEach(() => {
   vi.clearAllMocks();
@@ -63,7 +64,10 @@ describe('account identity and email-link boundaries', () => {
     );
     const user = userEvent.setup();
     await user.type(await screen.findByLabelText('Full legal name'), 'Draft Manager');
-    await user.type(screen.getByLabelText('Date of birth'), '1990-01-01');
+    const dateOfBirth = screen.getByLabelText('Date of birth');
+    expect(dateOfBirth.getAttribute('min')).toBe(policy.birthDate.min);
+    expect(dateOfBirth.getAttribute('max')).toBe(policy.birthDate.max);
+    await user.type(dateOfBirth, '1990-01-01');
     await user.click(screen.getByLabelText('Nationality'));
     await user.type(screen.getByRole('combobox', { name: 'Search choices' }), 'Egypt');
     await user.click(screen.getByRole('option', { name: 'Egypt' }));

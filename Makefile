@@ -4,7 +4,7 @@ init:
 up:
 	node scripts/local.mjs up
 down:
-	docker compose down
+	docker compose --profile demo down
 logs:
 	docker compose logs -f --tail=200
 test:

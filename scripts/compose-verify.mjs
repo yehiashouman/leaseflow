@@ -27,11 +27,11 @@ const base = 'http://127.0.0.1:' + (process.env.WEB_PORT ?? '8080');
 async function request(path, options = {}) {
   return fetch(base + path, { ...options, signal: AbortSignal.timeout(10000) });
 }
-async function login(password) {
+async function login(password, email = 'admin@leaseflow.local') {
   const response = await request('/api/v1/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Leaseflow-Session': '1' },
-    body: JSON.stringify({ email: 'admin@leaseflow.local', password }),
+    body: JSON.stringify({ email, password }),
   });
   assert.equal(response.status, 200, 'Login through the web proxy must succeed');
   return { body: await response.json(), cookie: response.headers.get('set-cookie').split(';')[0] };
@@ -112,7 +112,7 @@ try {
     '-e',
     'require("fs").writeFileSync("/data/leaseflow-persistence-probe","preserved")',
   ]);
-  compose(['down']);
+  docker(['compose', '--profile', 'demo', 'down']);
   await startLocal(['up', '--demo']);
   environment = localEnvironment(undefined, process.env, true);
   const restored = await login(changedPassword);
@@ -148,7 +148,57 @@ try {
     headers: { Cookie: restored.cookie, 'X-Leaseflow-Session': '1' },
   });
   assert.equal(refresh.status, 200);
-  for (let index = 0; index < 6; index++) {
+  const policy = await request('/api/v1/auth/policy').then((response) => response.json());
+  assert.equal(policy.emailEnabled, true);
+  assert.equal(policy.demoMailbox, true);
+  const manager = {
+    fullName: 'Demo Manager',
+    email: 'manager@demo.invalid',
+    password: demoPassword,
+  };
+  const createManager = (token) =>
+    request('/api/v1/admin/managers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify(manager),
+    });
+  const created = await createManager(restored.body.accessToken);
+  assert.equal(created.status, 201);
+  assert.equal((await created.json()).status, 'ACTIVE');
+  const managerSession = await login(manager.password, manager.email);
+  assert.equal((await createManager(managerSession.body.accessToken)).status, 403);
+  assert.equal((await createManager(restored.body.accessToken)).status, 409);
+
+  const registration = await request('/api/v1/auth/register/manager', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...manager,
+      email: 'registration@demo.invalid',
+      dateOfBirth: '1990-01-01',
+      nationality: 'Egypt',
+      phone: '+971501111111',
+      declarationVersion: policy.declarationVersion,
+      declarationAccepted: true,
+    }),
+  });
+  assert.equal(registration.status, 201);
+  const inbox = 'http://127.0.0.1:8025';
+  let message;
+  for (let attempt = 0; attempt < 15 && !message; attempt++) {
+    const response = await fetch(inbox + '/api/v1/messages', { signal: AbortSignal.timeout(3000) });
+    assert.equal(response.status, 200);
+    const { messages } = await response.json();
+    message = messages.find((item) => item.Subject === 'Verify your LeaseFlow email');
+    if (!message) await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  assert(message, 'The registration email must reach the private demo inbox');
+  const email = await fetch(inbox + '/view/' + message.ID + '.txt', {
+    signal: AbortSignal.timeout(3000),
+  }).then((response) => response.text());
+  assert(email.includes(environment.LEASEFLOW_DEMO_APP_URL + '/verify-email#token='));
+
+  for (let index = 0; index < 5; index++) {
     const attempt = await request('/api/v1/auth/register/manager', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '198.51.100.' + index },
@@ -156,14 +206,14 @@ try {
     });
     assert.equal(
       attempt.status,
-      index < 5 ? 422 : 429,
+      index < 4 ? 422 : 429,
       'Forged proxy headers must not bypass abuse controls',
     );
   }
   console.log(
-    'PASS: fresh startup, disabled default demo, explicit demo, web proxy login, password-preserving restart, private ports, persistent volumes, refresh, CSRF, and proxy abuse controls.',
+    'PASS: local startup, demo sign-in, administrator manager creation, registration email, password and volume persistence, session security, and proxy abuse controls.',
   );
 } finally {
   environment ??= localEnvironment(undefined, process.env, false);
-  compose(['down', '--volumes', '--remove-orphans']);
+  docker(['compose', '--profile', 'demo', 'down', '--volumes', '--remove-orphans']);
 }

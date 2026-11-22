@@ -1,0 +1,11 @@
+services:
+  api:
+    environment:
+      APP_URL: ${LEASEFLOW_DEMO_APP_URL:?Demo application URL is required}
+      ACCOUNT_EMAIL_ENABLED: 'true'
+      SMTP_HOST: demo-mail
+      SMTP_PORT: '1025'
+      SMTP_SECURE: 'false'
+      SMTP_USER: ''
+      SMTP_PASSWORD: ''
+      MAIL_FROM: no-reply@leaseflow.local

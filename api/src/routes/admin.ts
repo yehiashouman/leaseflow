@@ -1,8 +1,9 @@
 import type { FastifyPluginAsync } from 'fastify';
-import { UserStatus } from '@prisma/client';
+import { Prisma, UserStatus } from '@prisma/client';
 import { z } from 'zod';
-import { allowRoles } from '../auth.js';
-import { maskIdentity } from '../account-policy.js';
+import { allowRoles, hashPassword } from '../auth.js';
+import { canonicalEmail, maskIdentity } from '../account-policy.js';
+import { env } from '../config.js';
 import { prisma } from '../db.js';
 
 const summary = {
@@ -25,6 +26,7 @@ const auditSummary = {
 } as const;
 const pageNumber = z.coerce.number().int().min(1).max(10000).default(1);
 const mask = (value: string | null) => (value ? '****' + value.slice(-4) : null);
+const demoManagerCreation = env.DEMO_MODE && env.NODE_ENV !== 'production';
 
 export const adminRoutes: FastifyPluginAsync = async (app) => {
   const adminOnly = allowRoles('ADMIN');
@@ -57,7 +59,48 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
       }),
       prisma.user.count({ where }),
     ]);
-    return { items, total, page, pageSize: 20 };
+    return { items, total, page, pageSize: 20, demoManagerCreation };
+  });
+  app.post('/managers', { preHandler: adminOnly }, async (request, reply) => {
+    if (!demoManagerCreation)
+      throw app.httpErrors.forbidden('Direct manager creation requires demo mode');
+    const { email, fullName, password } = z
+      .object({
+        email: canonicalEmail,
+        fullName: z.string().trim().min(2).max(150),
+        password: z.string().min(12).max(128),
+      })
+      .strict()
+      .parse(request.body);
+    const passwordHash = await hashPassword(password);
+    try {
+      const user = await prisma.$transaction(async (tx) => {
+        const created = await tx.user.create({
+          data: {
+            email,
+            passwordHash,
+            role: 'LEASING_MANAGER',
+            status: 'ACTIVE',
+            leasingManager: { create: { fullName } },
+          },
+          select: summary,
+        });
+        await tx.auditEvent.create({
+          data: {
+            actorUserId: request.user.sub,
+            action: 'MANAGER_DEMO_CREATE',
+            entityType: 'User',
+            entityId: created.id,
+          },
+        });
+        return created;
+      });
+      return reply.code(201).send(user);
+    } catch (cause) {
+      if (cause instanceof Prisma.PrismaClientKnownRequestError && cause.code === 'P2002')
+        throw app.httpErrors.conflict('An account already uses this email');
+      throw cause;
+    }
   });
   app.get('/managers/:id', { preHandler: adminOnly }, async (request) => {
     const { id } = z.object({ id: z.string().min(1).max(191) }).parse(request.params);

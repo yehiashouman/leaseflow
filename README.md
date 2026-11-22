@@ -72,7 +72,10 @@ Port 8080 is forwarded automatically, labeled "LeaseFlow", and opened in the bro
 `make demo` starts the non-production stack through one repeatable helper.
 It creates missing environment files, applies migrations, creates an absent demo administrator, waits for readiness, and verifies the web/API proxy.
 Existing credentials, account roles, changed passwords, and data volumes remain intact.
-The helper prints the application URL, not credentials.
+The helper prints the application URL and a private demo inbox URL on port 8025.
+The demo inbox captures verification and invitation emails without external delivery.
+To create an active demo manager without registration, sign in as admin.
+Open Account review, select Create leasing manager, and set the manager's sign-in details.
 
 `make demo-reset` refuses to delete data without the exact confirmation argument in [STARTUP.md](docs/STARTUP.md).
 Production environments always refuse this destructive helper.

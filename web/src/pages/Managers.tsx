@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { requestError } from '../api-errors';
 import { caseDate, caseDateWithZone } from '../cases';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -47,6 +49,7 @@ type Audit = {
   createdAt: string;
 };
 type PageData<T> = { items: T[]; total: number; page: number; pageSize: number };
+type ManagerPage = PageData<Manager> & { demoManagerCreation: boolean };
 function Pager({
   page,
   total,
@@ -76,16 +79,46 @@ export function Managers() {
   const [status, setStatus] = useState('PENDING_APPROVAL');
   const [q, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const query = useQuery({
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [createdEmail, setCreatedEmail] = useState('');
+  const client = useQueryClient();
+  const query = useQuery<ManagerPage>({
     queryKey: ['managers', status, q, page],
+    placeholderData: keepPreviousData,
     queryFn: ({ signal }) =>
       api
-        .get<PageData<Manager>>('/admin/managers', {
+        .get<ManagerPage>('/admin/managers', {
           params: { status: status || undefined, q, page },
           signal,
         })
         .then((response) => response.data),
   });
+  async function createManager(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const fields = new FormData(form);
+    setCreating(true);
+    setCreateError('');
+    setCreatedEmail('');
+    try {
+      const { data } = await api.post<Manager>('/admin/managers', {
+        fullName: fields.get('fullName'),
+        email: fields.get('email'),
+        password: fields.get('password'),
+      });
+      form.reset();
+      setCreatedEmail(data.email);
+      setStatus('ACTIVE');
+      setQuery('');
+      setPage(1);
+      await client.invalidateQueries({ queryKey: ['managers'] });
+    } catch (cause) {
+      setCreateError(requestError(cause, 'Could not create the manager account.'));
+    } finally {
+      setCreating(false);
+    }
+  }
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Account review</h1>
@@ -93,6 +126,33 @@ export function Managers() {
         Approval activates platform access. It does not certify legal sufficiency or property
         authorization.
       </p>
+      {query.data?.demoManagerCreation && (
+        <details className="rounded-md border p-4">
+          <summary className="cursor-pointer font-medium">Create leasing manager</summary>
+          <form className="mt-4 grid max-w-sm gap-3" onSubmit={createManager}>
+            <p className="text-sm text-muted-foreground">
+              The manager can sign in immediately with this demo account.
+            </p>
+            <Label htmlFor="manager-name">Full name</Label>
+            <Input id="manager-name" name="fullName" required minLength={2} maxLength={150} />
+            <Label htmlFor="manager-email">Email</Label>
+            <Input id="manager-email" name="email" type="email" required maxLength={191} />
+            <Label htmlFor="manager-password">Password</Label>
+            <Input
+              id="manager-password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={12}
+              maxLength={128}
+            />
+            <Button disabled={creating}>Create manager account</Button>
+            {createError && <p role="alert">{createError}</p>}
+            {createdEmail && <p role="status">Manager account ready. Sign in as {createdEmail}.</p>}
+          </form>
+        </details>
+      )}
       <div className="flex flex-wrap gap-3">
         <Input
           className="max-w-sm"

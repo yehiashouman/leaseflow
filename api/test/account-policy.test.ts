@@ -25,7 +25,7 @@ describe('account security policy and encrypted outbox', () => {
     expect(url.search).toBe('');
     expect(url.hash).toBe('#token=abc123');
   });
-  it('rejects missing declarations, role injection, and future birth dates', () => {
+  it('rejects missing declarations, role injection, and implausible birth dates', () => {
     const base = {
       email: 'owner@example.com',
       password: 'AccountPassword123!',
@@ -41,6 +41,7 @@ describe('account security policy and encrypted outbox', () => {
       { declarationAccepted: false },
       { role: 'ADMIN' },
       { dateOfBirth: '2999-01-01' },
+      { dateOfBirth: '1800-01-01' },
     ])
       expect(managerRegistrationSchema.safeParse({ ...base, ...extra }).success).toBe(false);
   });

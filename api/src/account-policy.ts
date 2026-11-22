@@ -12,7 +12,16 @@ const mailConfig = z
     MAIL_FROM: z.email().default('no-reply@example.com'),
   })
   .parse(process.env);
-export const accountConfig = { ...mailConfig, APP_URL: env.APP_URL };
+export const accountConfig = {
+  ...mailConfig,
+  APP_URL: env.APP_URL,
+  demoMailbox:
+    env.DEMO_MODE &&
+    env.NODE_ENV !== 'production' &&
+    mailConfig.ACCOUNT_EMAIL_ENABLED === 'true' &&
+    mailConfig.SMTP_HOST === 'demo-mail' &&
+    mailConfig.SMTP_PORT === 1025,
+};
 if (accountConfig.ACCOUNT_EMAIL_ENABLED === 'true' && !accountConfig.SMTP_HOST)
   throw new Error('Account email requires SMTP_HOST.');
 if (env.NODE_ENV === 'production' && accountConfig.ACCOUNT_EMAIL_ENABLED === 'true')

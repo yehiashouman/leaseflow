@@ -78,6 +78,29 @@ describe('administrator account review', () => {
     expect(screen.queryByRole('button', { name: 'Approve' })).toBeNull();
     expect(screen.getByText('Document review not implemented')).toBeDefined();
   });
+  it('lets an administrator create a demo manager and shows the active queue', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: { items: [], total: 0, demoManagerCreation: true },
+    });
+    const body = {
+      fullName: 'Demo Manager',
+      email: 'manager@demo.invalid',
+      password: 'ExamplePassword123!',
+    };
+    const post = vi.spyOn(api, 'post').mockResolvedValueOnce({ data: { email: body.email } });
+    page(<Managers />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByText('Create leasing manager'));
+    await user.type(screen.getByLabelText('Full name'), body.fullName);
+    await user.type(screen.getByLabelText('Email'), body.email);
+    await user.type(screen.getByLabelText('Password'), body.password);
+    await user.click(screen.getByRole('button', { name: 'Create manager account' }));
+    await screen.findByText('Manager account ready. Sign in as ' + body.email + '.');
+    expect(post).toHaveBeenCalledWith('/admin/managers', body);
+    expect((screen.getByLabelText('Account status') as HTMLSelectElement).value).toBe('ACTIVE');
+    expect((screen.getByLabelText('Password') as HTMLInputElement).value).toBe('');
+    post.mockRestore();
+  });
   it('filters safe audit summaries and renders an explicit empty result', async () => {
     const get = vi.spyOn(api, 'get').mockResolvedValue({ data: { items: [], total: 0 } });
     page(<AdminAudit />);

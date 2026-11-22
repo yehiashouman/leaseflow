@@ -8,6 +8,10 @@ import { spawnSync } from 'node:child_process';
 export const resetConfirmation = '--confirm=DELETE_LEASEFLOW_DEMO_DATA';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const secret = () => randomBytes(32).toString('hex');
+const localUrl = (port, input) =>
+  input.CODESPACE_NAME
+    ? `https://${input.CODESPACE_NAME}-${port}.${input.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN ?? 'app.github.dev'}`
+    : `http://localhost:${port}`;
 export function ensureEnvironment(directory = root) {
   for (const name of ['.env', 'api/.env']) {
     const target = resolve(directory, name);
@@ -55,6 +59,7 @@ export function localEnvironment(directory = root, input = process.env, demo = f
     NODE_ENV: input.NODE_ENV ?? values.NODE_ENV ?? api.NODE_ENV ?? 'development',
     DEMO_MODE: String(demo),
     MYSQL_CONNECTION_URL: connection.href,
+    ...(demo ? { LEASEFLOW_DEMO_APP_URL: localUrl(database.WEB_PORT ?? '8080', input) } : {}),
   };
 }
 export async function startLocal(args = process.argv.slice(2), directory = root, run) {
@@ -80,8 +85,11 @@ export async function startLocal(args = process.argv.slice(2), directory = root,
       if (result.error || result.status !== 0)
         throw new Error('Docker Compose command failed; inspect the service status.');
     });
+  const composeFiles = demo
+    ? ['-f', 'docker-compose.yml', '-f', 'docker-compose.demo.yml', '--profile', 'demo']
+    : [];
   const compose = (command) =>
-    execute(['compose', ...command], { cwd: directory, env: environment });
+    execute(['compose', ...composeFiles, ...command], { cwd: directory, env: environment });
   await compose(['config', '--quiet']);
   if (action === 'reset') await compose(['down', '--volumes', '--remove-orphans']);
   await compose([
@@ -94,6 +102,7 @@ export async function startLocal(args = process.argv.slice(2), directory = root,
     'mysql',
     'redis',
     'minio',
+    ...(demo ? ['demo-mail'] : []),
   ]);
   await compose(['run', '--rm', '--build', '--no-deps', 'migrate']);
   await compose(['run', '--rm', '--build', '--no-deps', 'demo-seed']);
@@ -124,17 +133,17 @@ export async function startLocal(args = process.argv.slice(2), directory = root,
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
-    await startLocal();
+    const { environment } = await startLocal();
     const values = parseEnv(readFileSync(resolve(root, '.env'), 'utf8'));
     const port = process.env.WEB_PORT ?? values.WEB_PORT ?? '8080';
-    const url = process.env.CODESPACE_NAME
-      ? `https://${process.env.CODESPACE_NAME}-${port}.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN ?? 'app.github.dev'}`
-      : `http://localhost:${port}`;
+    const url = localUrl(port, process.env);
     console.log(
       process.argv[2] === 'init'
         ? 'Environment files verified; existing files remain unchanged.'
         : `Application URL: ${url}`,
     );
+    if (process.argv[2] !== 'init' && environment.DEMO_MODE === 'true')
+      console.log(`Private demo inbox: ${localUrl(8025, process.env)}`);
   } catch (cause) {
     console.error(cause.message);
     process.exitCode = 1;

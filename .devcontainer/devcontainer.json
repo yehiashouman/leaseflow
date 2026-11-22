@@ -6,12 +6,17 @@
     "ghcr.io/devcontainers/features/node:1": { "version": "22" }
   },
   "postCreateCommand": "bash scripts/codespaces-setup.sh",
-  "forwardPorts": [8080],
+  "forwardPorts": [8080, 8025],
   "portsAttributes": {
     "8080": {
       "label": "LeaseFlow",
       "protocol": "http",
       "onAutoForward": "openBrowser"
+    },
+    "8025": {
+      "label": "LeaseFlow demo inbox",
+      "protocol": "http",
+      "onAutoForward": "silent"
     },
     "3000": {
       "label": "LeaseFlow API (internal)",

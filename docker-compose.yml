@@ -1,5 +1,11 @@
 name: leaseflow
 services:
+  demo-mail:
+    image: axllent/mailpit:v1.27.4
+    profiles: [demo]
+    restart: unless-stopped
+    ports: ["127.0.0.1:8025:8025"]
+    networks: [backend]
   mysql:
     image: mysql:8.4.6
     restart: unless-stopped

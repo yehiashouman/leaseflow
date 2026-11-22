@@ -12,7 +12,7 @@ const transport = nodemailer.createTransport({
   host: accountConfig.SMTP_HOST,
   port: accountConfig.SMTP_PORT,
   secure: accountConfig.SMTP_SECURE === 'true',
-  requireTLS: accountConfig.SMTP_SECURE !== 'true',
+  requireTLS: !accountConfig.demoMailbox && accountConfig.SMTP_SECURE !== 'true',
   auth: accountConfig.SMTP_USER
     ? { user: accountConfig.SMTP_USER, pass: accountConfig.SMTP_PASSWORD }
     : undefined,
